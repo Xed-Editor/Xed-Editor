@@ -69,26 +69,29 @@ abstract class IndexDatabase : RoomDatabase() {
 
     companion object {
         @Volatile private var INSTANCES = mutableMapOf<FileObject, IndexDatabase>()
+        private val instancesLock = Any()
 
         fun getDatabase(context: Context, projectRoot: FileObject): IndexDatabase {
-            return INSTANCES[projectRoot]
-                ?: synchronized(this) {
-                    val instance =
-                        Room.databaseBuilder(
-                                context,
-                                IndexDatabase::class.java,
-                                "index_database_${projectRoot.hashCode()}",
-                            )
-                            .build()
-                    instance.projectRoot = projectRoot
-                    INSTANCES[projectRoot] = instance
-                    instance
-                }
+            synchronized(instancesLock) {
+                INSTANCES[projectRoot]?.let { return it }
+                val instance =
+                    Room.databaseBuilder(
+                            context,
+                            IndexDatabase::class.java,
+                            "index_database_${projectRoot.hashCode()}",
+                        )
+                        .build()
+                instance.projectRoot = projectRoot
+                INSTANCES[projectRoot] = instance
+                return instance
+            }
         }
 
         fun removeDatabase(context: Context, projectRoot: FileObject) {
-            INSTANCES[projectRoot]?.close()
-            INSTANCES.remove(projectRoot)
+            synchronized(instancesLock) {
+                INSTANCES[projectRoot]?.close()
+                INSTANCES.remove(projectRoot)
+            }
             context.deleteDatabase("index_database_${projectRoot.hashCode()}")
         }
 
@@ -97,7 +100,7 @@ abstract class IndexDatabase : RoomDatabase() {
             val databases = mutableListOf<IndexDatabase>()
 
             while (startFile != null) {
-                val database = INSTANCES[startFile]
+                val database = synchronized(instancesLock) { INSTANCES[startFile] }
                 database?.let { databases.add(it) }
                 startFile = startFile.getParentFile()
             }

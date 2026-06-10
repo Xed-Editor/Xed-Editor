@@ -82,7 +82,9 @@ import com.rk.utils.findGitRoot
 import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
 import java.io.File
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
@@ -93,6 +95,13 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
         var showPushConfirmDialog by remember { mutableStateOf(false) }
         var force by remember { mutableStateOf(false) }
+
+        var showStashDialog by remember { mutableStateOf(false) }
+        var showLogDialog by remember { mutableStateOf(false) }
+        var showDiffDialog by remember { mutableStateOf(false) }
+        var diffContent by remember { mutableStateOf("") }
+        var diffFilePath by remember { mutableStateOf("") }
+        var stashMessage by remember { mutableStateOf("") }
 
         val interactionSource = remember { MutableInteractionSource() }
         val scope = rememberCoroutineScope()
@@ -218,6 +227,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
                     IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
                         Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
+                    }
+
+                    IconButton(onClick = { showLogDialog = true }, enabled = !viewModel.isLoading) {
+                        Icon(painterResource(drawables.branch), contentDescription = "Commit Log")
+                    }
+
+                    IconButton(onClick = { showStashDialog = true }, enabled = !viewModel.isLoading) {
+                        Icon(painterResource(drawables.file), contentDescription = "Stash")
                     }
                 }
             }
@@ -424,6 +441,179 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 },
             )
         }
+
+        if (showLogDialog) {
+            LaunchedEffect(Unit) {
+                viewModel.loadCommitLog()
+            }
+
+            AlertDialog(
+                onDismissRequest = { showLogDialog = false },
+                title = { Text("Commit History") },
+                text = {
+                    val log = viewModel.commitLog.value
+                    if (viewModel.isLogLoading) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    } else if (log.isEmpty()) {
+                        Text("No commits found")
+                    } else {
+                        LazyColumn(modifier = Modifier.height(400.dp)) {
+                            items(log) { commit ->
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = commit.hash,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.primary,
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        if (commit.isMerge) {
+                                            Text(
+                                                text = "merge",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.tertiary,
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = commit.message,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Text(
+                                        text = "${commit.author} • ${commit.date}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showLogDialog = false }) {
+                        Text("Close")
+                    }
+                },
+            )
+        }
+
+        if (showStashDialog) {
+            LaunchedEffect(Unit) {
+                viewModel.loadStashList()
+            }
+
+            AlertDialog(
+                onDismissRequest = { showStashDialog = false },
+                title = { Text("Git Stash") },
+                text = {
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            OutlinedTextField(
+                                value = stashMessage,
+                                onValueChange = { stashMessage = it },
+                                modifier = Modifier.weight(1f),
+                                placeholder = { Text("Stash message (optional)") },
+                                singleLine = true,
+                            )
+                            Button(
+                                onClick = {
+                                    viewModel.stashChanges(stashMessage.ifBlank { null })
+                                    stashMessage = ""
+                                    showStashDialog = false
+                                },
+                                enabled = !viewModel.isLoading,
+                            ) {
+                                Text("Stash")
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val stashEntries = viewModel.stashList.value
+                        if (viewModel.isStashLoading) {
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        } else if (stashEntries.isEmpty()) {
+                            Text("No stashed changes", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        } else {
+                            LazyColumn(modifier = Modifier.height(300.dp)) {
+                                items(stashEntries) { entry ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "stash@{${entry.index}}: ${entry.message}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                            Text(
+                                                text = "${entry.author} • ${entry.date}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                        Row {
+                                            TextButton(onClick = { viewModel.popStash(entry.index) }) {
+                                                Text("Pop")
+                                            }
+                                            TextButton(onClick = { viewModel.applyStash(entry.index) }) {
+                                                Text("Apply")
+                                            }
+                                            TextButton(onClick = { viewModel.dropStash(entry.index) }) {
+                                                Text("Drop")
+                                            }
+                                        }
+                                    }
+                                    HorizontalDivider()
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showStashDialog = false }) {
+                        Text("Close")
+                    }
+                },
+            )
+        }
+
+        if (showDiffDialog) {
+            AlertDialog(
+                onDismissRequest = { showDiffDialog = false },
+                title = { Text("File Content: ${diffFilePath.substringAfterLast("/")}") },
+                text = {
+                    LazyColumn(modifier = Modifier.height(400.dp)) {
+                        item {
+                            Text(
+                                text = diffContent,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(4.dp),
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showDiffDialog = false }) {
+                        Text("Close")
+                    }
+                },
+            )
+        }
     }
 
     @Composable
@@ -613,7 +803,13 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier =
                         Modifier.width((getDrawerWidth() - 61.dp))
-                            .clickable { viewModel.toggleChange(change) }
+                            .clickable {
+                                diffFilePath = change.path
+                                scope.launch(Dispatchers.IO) {
+                                    diffContent = viewModel.getFileDiffContent(change.path)
+                                    withContext(Dispatchers.Main) { showDiffDialog = true }
+                                }
+                            }
                             .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {

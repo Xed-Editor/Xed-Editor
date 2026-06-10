@@ -19,6 +19,7 @@ data class EditorTabState(
     val scrollX: Int,
     val scrollY: Int,
     val unsavedContent: String?,
+    val encoding: String? = null,
 ) : TabState {
     override suspend fun toTab(): Tab? {
         val fileObject = Uri.parse(fileUri).toFileObject(true)
@@ -28,7 +29,7 @@ data class EditorTabState(
 
         val activity = MainActivity.instance ?: return null
         activity.viewModel.apply {
-            val editorTab = editorManager.createEditorTab(fileObject, projectRoot)
+            val editorTab = editorManager.createEditorTab(fileObject, projectRoot, encoding)
 
             val contentReady = kotlinx.coroutines.CompletableDeferred<Unit>()
             viewModelScope.launch {

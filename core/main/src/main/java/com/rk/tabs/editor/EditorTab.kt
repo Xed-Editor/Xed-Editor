@@ -103,14 +103,14 @@ import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.PropertyType
 
 @OptIn(DelicateCoroutinesApi::class)
-open class EditorTab(override var file: FileObject, var projectRoot: FileObject?, val viewModel: MainViewModel) :
+open class EditorTab(override var file: FileObject, var projectRoot: FileObject?, val viewModel: MainViewModel, private val encodingOverride: String? = null) :
     Tab() {
     val isTemp: Boolean
         get() {
             return file.getAbsolutePath().startsWith(getTempDir().child("temp_editor").absolutePath)
         }
 
-    private var charset = Charset.forName(Settings.encoding)
+    private var charset = Charset.forName(encodingOverride ?: Settings.encoding)
     var lspConnector: LspConnector? = null
 
     override val icon: ImageVector
@@ -349,6 +349,23 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
             searchViewModel.get()?.syncIndex(file)
             gitViewModel.get()?.syncChanges(file.getAbsolutePath())
         }
+
+    fun changeEncoding(newCharset: String) {
+        charset = Charset.forName(newCharset)
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    val content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
+                    withContext(Dispatchers.Main) {
+                        editorState.content = content
+                        editorState.isDirty = false
+                    }
+                }.onFailure { errorDialog(it) }
+            }
+        }
+    }
+
+    fun getCurrentEncoding(): String = charset.name()
 
     suspend fun save() =
         saveMutex.withLock {
@@ -667,6 +684,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
             scrollX = editor.scrollX,
             scrollY = editor.scrollY,
             unsavedContent = if (editorState.isDirty) editor.text.toString() else null,
+            encoding = charset.name(),
         )
     }
 

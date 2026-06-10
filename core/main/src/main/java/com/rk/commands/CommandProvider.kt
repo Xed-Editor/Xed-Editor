@@ -6,8 +6,10 @@ import com.rk.commands.editor.CutCommand
 import com.rk.commands.editor.DuplicateLineCommand
 import com.rk.commands.editor.EmulateKeyCommand
 import com.rk.commands.editor.AiAssistantCommand
+import com.rk.commands.editor.GoToSymbolCommand
 import com.rk.commands.editor.InlineAskCommand
 import com.rk.commands.editor.JumpToLineCommand
+import com.rk.commands.editor.ChangeEncodingCommand
 import com.rk.commands.editor.LowerCaseCommand
 import com.rk.commands.editor.PasteCommand
 import com.rk.commands.editor.RedoCommand
@@ -27,6 +29,7 @@ import com.rk.commands.editor.UpperCaseCommand
 import com.rk.commands.global.CommandPaletteCommand
 import com.rk.commands.global.DocumentationCommand
 import com.rk.commands.global.AiCliCommand
+import com.rk.commands.global.KeyboardShortcutsCommand
 import com.rk.commands.global.NewFileCommand
 import com.rk.commands.global.SaveAllCommand
 import com.rk.commands.global.SearchCodeCommand
@@ -81,6 +84,9 @@ object CommandProvider {
     lateinit var RenameSymbolCommand: RenameSymbolCommand
     lateinit var FormatDocumentCommand: FormatDocumentCommand
     lateinit var FormatSelectionCommand: FormatSelectionCommand
+    lateinit var GoToSymbolCommand: GoToSymbolCommand
+    lateinit var KeyboardShortcutsCommand: KeyboardShortcutsCommand
+    lateinit var ChangeEncodingCommand: ChangeEncodingCommand
 
     fun buildCommands() =
         synchronized(this) {
@@ -123,6 +129,9 @@ object CommandProvider {
             registerBuiltin(RenameSymbolCommand(commandContext)) { RenameSymbolCommand = it }
             registerBuiltin(FormatDocumentCommand(commandContext)) { FormatDocumentCommand = it }
             registerBuiltin(FormatSelectionCommand(commandContext)) { FormatSelectionCommand = it }
+            registerBuiltin(GoToSymbolCommand(commandContext)) { GoToSymbolCommand = it }
+            registerBuiltin(KeyboardShortcutsCommand(commandContext)) { KeyboardShortcutsCommand = it }
+            registerBuiltin(ChangeEncodingCommand(commandContext)) { ChangeEncodingCommand = it }
         }
 
     private fun <T : Command> registerBuiltin(command: T, assign: (T) -> Unit) {

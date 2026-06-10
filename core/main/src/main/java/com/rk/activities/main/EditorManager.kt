@@ -16,12 +16,12 @@ import kotlinx.coroutines.withContext
 
 class EditorManager(private val viewModel: MainViewModel) {
 
-    fun createEditorTab(file: FileObject, projectRoot: FileObject?): EditorTab {
-        return EditorTab(file = file, projectRoot = projectRoot, viewModel = viewModel)
+    fun createEditorTab(file: FileObject, projectRoot: FileObject?, encoding: String? = null): EditorTab {
+        return EditorTab(file = file, projectRoot = projectRoot, viewModel = viewModel, encodingOverride = encoding)
     }
 
-    fun addEditorTab(file: FileObject, projectRoot: FileObject?, switchToTab: Boolean, checkDuplicate: Boolean = true) {
-        val editorTab = createEditorTab(file, projectRoot)
+    fun addEditorTab(file: FileObject, projectRoot: FileObject?, switchToTab: Boolean, checkDuplicate: Boolean = true, encoding: String? = null) {
+        val editorTab = createEditorTab(file, projectRoot, encoding)
         viewModel.tabManager.addTab(editorTab, switchToTab, checkDuplicate)
     }
 

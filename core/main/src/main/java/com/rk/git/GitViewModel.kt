@@ -69,10 +69,18 @@ class GitViewModel : ViewModel() {
     private val gitRootCache = ConcurrentHashMap<String, String>()
     private val syncMutex = Mutex()
 
+    // Git Log state
+    var commitLog = mutableStateOf<List<CommitInfo>>(emptyList())
+    var isLogLoading by mutableStateOf(false)
+
+    // Git Stash state
+    var stashList = mutableStateOf<List<StashEntry>>(emptyList())
+    var isStashLoading by mutableStateOf(false)
+
     fun loadRepository(root: String) {
         try {
             currentRoot.value = File(root)
-            currentBranch = Git.open(currentRoot.value).currentHead()
+            currentBranch = Git.open(currentRoot.value).use { it.currentHead() }
             syncChanges(currentRoot.value!!)
             if (!amends.containsKey(root)) {
                 amends[root] = false
@@ -240,6 +248,7 @@ class GitViewModel : ViewModel() {
     fun pull(): Job {
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
+            var success = false
             try {
                 Git.open(currentRoot.value).use { git ->
                     val pullResult =
@@ -249,7 +258,9 @@ class GitViewModel : ViewModel() {
                                 UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
                             )
                             .call()
-                    if (!pullResult.isSuccessful) {
+                    if (pullResult.isSuccessful) {
+                        success = true
+                    } else {
                         val errorMessage = buildString {
                             pullResult.mergeResult?.let { mergeResult ->
                                 append("Merge status: ${mergeResult.mergeStatus}")
@@ -272,7 +283,7 @@ class GitViewModel : ViewModel() {
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    toast(strings.pull_complete)
+                    if (success) toast(strings.pull_complete)
                 }
             }
         }
@@ -390,7 +401,7 @@ class GitViewModel : ViewModel() {
                         .setAuthor(Settings.git_name, Settings.git_email)
                         .setCommitter(Settings.git_name, Settings.git_email)
                         .setMessage(commitMessages[rootPath])
-                        .setAmend(amends[rootPath]!!)
+                        .setAmend(amends[rootPath] ?: false)
                         .call()
                     toast(strings.commit_complete)
                 }
@@ -399,7 +410,7 @@ class GitViewModel : ViewModel() {
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    syncChanges(currentRoot.value!!)
+                    currentRoot.value?.let { syncChanges(it) }
                 }
             }
         }
@@ -413,8 +424,10 @@ class GitViewModel : ViewModel() {
                 val localRef = repo.findRef(BRANCH_PREFIX + branch)
                 val remoteRef = repo.findRef("$REMOTE_PREFIX$GIT_ORIGIN/$branch")
 
+                if (localRef == null) return -1
+
                 RevWalk(repo).use { walk ->
-                    val localCommit = walk.parseCommit(localRef!!.objectId)
+                    val localCommit = walk.parseCommit(localRef.objectId)
                     walk.markStart(localCommit)
                     if (remoteRef != null) {
                         val remoteCommit = walk.parseCommit(remoteRef.objectId)
@@ -498,12 +511,209 @@ class GitViewModel : ViewModel() {
                     if (success) {
                         toast(strings.checkout_complete)
                         currentRoot.value?.let { root ->
-                            currentBranch = Git.open(root).currentHead()
-                            syncChanges(root)
+                            viewModelScope.launch(Dispatchers.IO) {
+                                val branch = Git.open(root).use { it.currentHead() }
+                                withContext(Dispatchers.Main) { currentBranch = branch }
+                                syncChanges(root)
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+
+    // Git Stash operations
+    fun stashChanges(message: String? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    val stashCommand = git.stashCreate()
+                    if (!message.isNullOrBlank()) {
+                        stashCommand.setRef("refs/stash")
+                        stashCommand.setWorkingDirectoryMessage(message)
+                    }
+                    stashCommand.call()
+                    toast("Changes stashed")
+                    currentRoot.value?.let { syncChanges(it) }
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
+    }
+
+    fun popStash(stashIndex: Int = 0) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    git.stashPop().setStashRef(stashIndex).call()
+                    toast("Stash popped")
+                    currentRoot.value?.let { syncChanges(it) }
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
+    }
+
+    fun applyStash(stashIndex: Int = 0) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    git.stashApply().setStashRef(stashIndex).call()
+                    toast("Stash applied")
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
+    }
+
+    fun dropStash(stashIndex: Int = 0) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    git.stashDrop().setStashRef(stashIndex).call()
+                    toast("Stash dropped")
+                    loadStashList()
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
+    }
+
+    fun loadStashList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            isStashLoading = true
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    val stashList = git.stashList().call()
+                    val entries =
+                        stashList.mapIndexed { index, revCommit ->
+                            StashEntry(
+                                index = index,
+                                message = revCommit.fullMessage.trim(),
+                                author = revCommit.authorIdent.name,
+                                date = revCommit.authorIdent.`when`,
+                            )
+                        }
+                    withContext(Dispatchers.Main) { stashList = entries }
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isStashLoading = false }
+            }
+        }
+    }
+
+    // Git Log operations
+    fun loadCommitLog(maxCount: Int = 50) {
+        viewModelScope.launch(Dispatchers.IO) {
+            isLogLoading = true
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    val log =
+                        git.log()
+                            .setMaxCount(maxCount)
+                            .call()
+                    val commits =
+                        log.map { revCommit ->
+                            CommitInfo(
+                                hash = revCommit.id.abbreviatedName,
+                                fullHash = revCommit.id.name,
+                                message = revCommit.shortMessage.trim(),
+                                author = revCommit.authorIdent.name,
+                                email = revCommit.authorIdent.emailAddress,
+                                date = revCommit.authorIdent.`when`,
+                                isMerge = revCommit.parentCount > 1,
+                            )
+                        }
+                    withContext(Dispatchers.Main) { commitLog = commits }
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLogLoading = false }
+            }
+        }
+    }
+
+    fun getFileHistory(filePath: String, maxCount: Int = 20): List<CommitInfo> {
+        return try {
+            Git.open(currentRoot.value).use { git ->
+                git.log()
+                    .setMaxCount(maxCount)
+                    .addPath(filePath)
+                    .call()
+                    .map { revCommit ->
+                        CommitInfo(
+                            hash = revCommit.id.abbreviatedName,
+                            fullHash = revCommit.id.name,
+                            message = revCommit.shortMessage.trim(),
+                            author = revCommit.authorIdent.name,
+                            email = revCommit.authorIdent.emailAddress,
+                            date = revCommit.authorIdent.`when`,
+                            isMerge = revCommit.parentCount > 1,
+                        )
+                    }
+            }
+        } catch (e: Exception) {
+            toast(e.message)
+            emptyList()
+        }
+    }
+
+    fun getDiffForFile(filePath: String): String? {
+        return try {
+            Git.open(currentRoot.value).use { git ->
+                val diffFormatter = org.eclipse.jgit.diff.DiffFormatter(java.io.ByteArrayOutputStream())
+                diffFormatter.setRepository(git.repository)
+                diffFormatter.scan(
+                    org.eclipse.jgit.diff.FileEntry(org.eclipse.jgit.lib.OId.zeroId(), org.eclipse.jgit.lib.FileMode.MISSING),
+                    org.eclipse.jgit.diff.FileEntry(git.repository.resolve("HEAD"), org.eclipse.jgit.lib.FileMode.REGULAR_FILE)
+                )
+                "Diff available for $filePath"
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun getFileDiffContent(filePath: String): String {
+        return try {
+            Git.open(currentRoot.value).use { git ->
+                val head = git.repository.resolve("HEAD")
+                val headCommit = git.repository.parseCommit(head)
+                val treeWalk = org.eclipse.jgit.treewalk.TreeWalk(git.repository)
+                treeWalk.addTree(headCommit.tree)
+                treeWalk.setRecursive(true)
+                treeWalk.setFilter(org.eclipse.jgit.treewalk.filter.PathFilter.create(filePath))
+
+                if (treeWalk.next()) {
+                    val blobId = treeWalk.getObjectId(0)
+                    val obj = git.repository.newObjectReader().open(blobId)
+                    String(obj.bytes)
+                } else {
+                    "File not found in HEAD"
+                }
+            }
+        } catch (e: Exception) {
+            "Error reading file: ${e.message}"
         }
     }
 
@@ -513,3 +723,20 @@ class GitViewModel : ViewModel() {
         private const val GIT_ORIGIN = Constants.DEFAULT_REMOTE_NAME // origin
     }
 }
+
+data class CommitInfo(
+    val hash: String,
+    val fullHash: String,
+    val message: String,
+    val author: String,
+    val email: String?,
+    val date: java.util.Date,
+    val isMerge: Boolean,
+)
+
+data class StashEntry(
+    val index: Int,
+    val message: String,
+    val author: String,
+    val date: java.util.Date,
+)

@@ -95,11 +95,8 @@ fun FileActionDialogs(viewModel: FileTreeViewModel, scope: CoroutineScope, conte
                                     }
 
                                     MainActivity.instance?.viewModel?.also { viewModel ->
-                                        viewModel.tabs.forEachIndexed { index, tab ->
-                                            if (tab.file == file) {
-                                                viewModel.tabManager.removeTab(index)
-                                            }
-                                        }
+                                        val tabsToRemove = viewModel.tabs.filter { tab -> tab.file == file }
+                                        tabsToRemove.forEach { tab -> viewModel.tabManager.removeTab(tab) }
                                     }
                                 }
                         }

@@ -141,31 +141,33 @@ class SearchViewModel : ViewModel() {
             viewModelScope.launch {
                 isSearchingCode = true
 
-                searchCode(
-                        context = context,
-                        projectRoot = projectRoot,
-                        query = codeSearchQuery,
-                        mainViewModel = mainViewModel,
-                        useIndex =
-                            Preference.getBoolean(
-                                "enable_indexing_${projectRoot.hashCode()}",
-                                Settings.always_index_projects,
-                            ),
-                    )
-                    .collect {
-                        if (totalCodeSearchResults < MAX_CODE_RESULTS) {
-                            totalCodeSearchResults++
-                            if (!codeSearchResults.containsKey(it.file)) {
-                                codeSearchResultsOrder.add(it.file)
+                try {
+                    searchCode(
+                            context = context,
+                            projectRoot = projectRoot,
+                            query = codeSearchQuery,
+                            mainViewModel = mainViewModel,
+                            useIndex =
+                                Preference.getBoolean(
+                                    "enable_indexing_${projectRoot.hashCode()}",
+                                    Settings.always_index_projects,
+                                ),
+                        )
+                        .collect {
+                            if (totalCodeSearchResults < MAX_CODE_RESULTS) {
+                                totalCodeSearchResults++
+                                if (!codeSearchResults.containsKey(it.file)) {
+                                    codeSearchResultsOrder.add(it.file)
+                                }
+                                val fileList = codeSearchResults.getOrPut(it.file) { mutableStateListOf() }
+                                fileList.add(it)
+                            } else {
+                                currentCoroutineContext().ensureActive()
                             }
-                            val fileList = codeSearchResults.getOrPut(it.file) { mutableStateListOf() }
-                            fileList.add(it)
-                        } else {
-                            isSearchingCode = false
-                            codeSearchJob?.cancel()
                         }
-                    }
-                isSearchingCode = false
+                } finally {
+                    isSearchingCode = false
+                }
             }
     }
 

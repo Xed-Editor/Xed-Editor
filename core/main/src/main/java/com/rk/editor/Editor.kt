@@ -295,7 +295,9 @@ class Editor : CodeEditor {
 
         val selectionStart = cursorRange.startIndex
         val selectionEnd = cursorRange.endIndex
-        return text.substring(selectionStart, selectionEnd)
+        val textLen = text.length
+        if (selectionStart < 0 || selectionEnd > textLen || selectionStart > selectionEnd) return null
+        return text.substring(selectionStart, selectionEnd.coerceAtMost(textLen))
     }
 
     companion object {

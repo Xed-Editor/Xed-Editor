@@ -8,17 +8,30 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util
 
 object FileOperations {
+    @Volatile
     var clipboard: List<FileObject> = emptyList()
+    @Volatile
     var isCut: Boolean = false
+    private val clipboardLock = Any()
 
     fun copyToClipboard(file: FileObject, isCut: Boolean = false) {
-        clipboard = listOf(file)
-        this.isCut = isCut
+        synchronized(clipboardLock) {
+            clipboard = listOf(file)
+            this.isCut = isCut
+        }
     }
 
     fun copyToClipboard(files: List<FileObject>, isCut: Boolean = false) {
-        clipboard = files
-        this.isCut = isCut
+        synchronized(clipboardLock) {
+            clipboard = files
+            this.isCut = isCut
+        }
+    }
+
+    fun getClipboardState(): Pair<List<FileObject>, Boolean> {
+        synchronized(clipboardLock) {
+            return clipboard to isCut
+        }
     }
 
     suspend fun openWithExternalApp(context: Context, file: FileObject) {

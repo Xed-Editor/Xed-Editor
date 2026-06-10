@@ -3,9 +3,17 @@ package com.rk.components
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -18,9 +26,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
@@ -46,6 +56,8 @@ import com.rk.resources.strings
 import com.rk.search.CodeSearchDialog
 import com.rk.search.FileSearchDialog
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.templates.FileTemplate
+import com.rk.templates.FileTemplateManager
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
@@ -55,6 +67,7 @@ import kotlinx.coroutines.launch
 var addDialog by mutableStateOf(false)
 var fileSearchDialog by mutableStateOf(false)
 var codeSearchDialog by mutableStateOf(false)
+var showTemplatePicker by mutableStateOf(false)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -164,31 +177,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
 
                 AddDialogItem(icon = XedIcons.CreateNewFile, title = stringResource(strings.new_file)) {
                     addDialog = false
-                    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-                    intent.addCategory(Intent.CATEGORY_OPENABLE)
-                    intent.setType("application/octet-stream")
-                    intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
-
-                    val activities =
-                        application!!.packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
-                    if (activities.isEmpty()) {
-                        errorDialog(strings.unsupported_feature)
-                    } else {
-                        MainActivity.instance?.apply {
-                            fileManager.createNewFile(mimeType = "*/*", title = "newfile.txt") {
-                                if (it != null) {
-                                    lifecycleScope.launch {
-                                        viewModel.editorManager.openFile(
-                                            it,
-                                            projectRoot = null,
-                                            checkDuplicate = true,
-                                            switchToTab = true,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    showTemplatePicker = true
                 }
 
                 AddDialogItem(icon = drawables.file_symlink, title = stringResource(strings.open_file)) {
@@ -210,6 +199,16 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                 }
             }
         }
+    }
+
+    if (showTemplatePicker) {
+        TemplatePickerDialog(
+            onTemplateSelected = { template ->
+                showTemplatePicker = false
+                createFileFromTemplate(template, viewModel)
+            },
+            onDismiss = { showTemplatePicker = false },
+        )
     }
 
     if (tempFileNameDialog) {
@@ -267,5 +266,85 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
             confirmText = stringResource(strings.ok),
             inputLabel = stringResource(strings.file_name),
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TemplatePickerDialog(
+    onTemplateSelected: (FileTemplate) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val templatesByCategory = remember { FileTemplateManager.getByCategory() }
+
+    XedBottomSheet(onDismissRequest = onDismiss) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "New File from Template",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            LazyColumn(modifier = Modifier.height(400.dp)) {
+                templatesByCategory.forEach { (category, templates) ->
+                    item {
+                        Text(
+                            text = category,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(vertical = 8.dp),
+                        )
+                    }
+                    items(templates) { template ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onTemplateSelected(template) }
+                                .padding(vertical = 8.dp, horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = template.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                Text(
+                                    text = ".${template.extension}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun createFileFromTemplate(template: FileTemplate, viewModel: MainViewModel) {
+    val activity = MainActivity.instance ?: return
+    val projectRoot = (currentDrawerTab as? FileTreeTab)?.root
+
+    activity.apply {
+        fileManager.createNewFile(mimeType = template.mimeType, title = "newfile.${template.extension}") {
+            if (it != null) {
+                lifecycleScope.launch {
+                    // Write template content
+                    if (template.content.isNotEmpty()) {
+                        withContext(Dispatchers.IO) {
+                            it.writeText(template.content)
+                        }
+                    }
+                    viewModel.editorManager.openFile(
+                        it,
+                        projectRoot = projectRoot,
+                        checkDuplicate = true,
+                        switchToTab = true,
+                    )
+                }
+            }
+        }
     }
 }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.rk.utils.application
-import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -45,13 +44,17 @@ object Preference {
         (delegateRegistry[key] as? CachedPreference<T>)?.applyStateValue(value)
     }
 
-    private val cache = ConcurrentHashMap<String, WeakReference<Any>>()
+    private val cache = ConcurrentHashMap<String, Any>()
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> getCached(key: String): T? = (cache[key]?.get() as? T)
+    private fun <T> getCached(key: String): T? = (cache[key] as? T)
 
     private fun <T> setCached(key: String, value: T) {
-        cache[key] = WeakReference(value as Any)
+        if (value != null) {
+            cache[key] = value as Any
+        } else {
+            cache.remove(key)
+        }
     }
 
     private fun clearKeyFromCache(key: String) {
