@@ -194,9 +194,9 @@ class GitViewModel : ViewModel() {
                         .call()
                     done = true
                 } catch (e: TransportException) {
-                    toast(if (isAuthError(e)) strings.git_auth_error.getString() else e.message)
+                    if (isAuthError(e)) toast(strings.git_auth_error) else toast(e.message)
                 } catch (_: InvalidRemoteException) {
-                    toast(strings.invalid_repo_url.getString())
+                    toast(strings.invalid_repo_url)
                 } catch (e: Exception) {
                     toast(e.message)
                 } finally {
@@ -277,13 +277,13 @@ class GitViewModel : ViewModel() {
                     }
                 }
             } catch (e: TransportException) {
-                toast(if (isAuthError(e)) strings.git_auth_error.getString() else e.message)
+                if (isAuthError(e)) toast(strings.git_auth_error) else toast(e.message)
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    if (success) toast(strings.pull_complete.getString())
+                    if (success) toast(strings.pull_complete)
                 }
             }
         }
@@ -311,13 +311,13 @@ class GitViewModel : ViewModel() {
                         .call()
                 }
             } catch (e: TransportException) {
-                toast(if (isAuthError(e)) strings.git_auth_error.getString() else e.message)
+                if (isAuthError(e)) toast(strings.git_auth_error) else toast(e.message)
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    toast(strings.fetch_complete.getString())
+                    toast(strings.fetch_complete)
                 }
             }
         }
@@ -477,7 +477,7 @@ class GitViewModel : ViewModel() {
                     }
                 }
             } catch (e: TransportException) {
-                toast(if (isAuthError(e)) strings.git_auth_error.getString() else e.message)
+                if (isAuthError(e)) toast(strings.git_auth_error) else toast(e.message)
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
@@ -551,13 +551,9 @@ class GitViewModel : ViewModel() {
             withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
-                    // stashPop doesn't support index, we need to apply then drop
-                    if (stashIndex == 0) {
-                        git.stashPop().call()
-                    } else {
-                        git.stashApply().setStashRef(stashIndex).call()
-                        git.stashDrop().setStashRef(stashIndex).call()
-                    }
+                    // Pop = apply + drop
+                    git.stashApply().setStashRef("stash@{$stashIndex}").call()
+                    git.stashDrop().setStashRef(stashIndex).call()
                     toast("Stash popped")
                     currentRoot.value?.let { syncChanges(it) }
                 }
