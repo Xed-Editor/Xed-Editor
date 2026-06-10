@@ -50,10 +50,9 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
-    val allActions by
-        remember {
-            derivedStateOf { Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) } }
-        }
+    val allActions by remember {
+        derivedStateOf { Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) } }
+    }
 
     BoxWithConstraints(modifier = modifier) {
         val itemWidth = 64.dp
