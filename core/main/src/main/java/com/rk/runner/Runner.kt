@@ -36,6 +36,27 @@ abstract class RunnerBuilder(
     }
 }
 
+private fun <T> collectMatchingRunners(
+    fileObject: FileObject,
+    shellRunners: List<ShellBasedRunner>,
+    builderRunners: List<RunnerBuilder>,
+    transform: (RunnerImpl) -> T,
+): List<T> {
+    val name = fileObject.getName()
+    val results = mutableListOf<T>()
+    shellRunners.forEach { runner ->
+        if (Regex(runner.regex).matches(name)) {
+            results.add(transform(runner))
+        }
+    }
+    builderRunners.forEach { builder ->
+        if (builder.enabled() && builder.regex.matches(name)) {
+            results.add(transform(builder.build()))
+        }
+    }
+    return results
+}
+
 object Runner {
     val runnerBuilders = mutableListOf<RunnerBuilder>()
 
@@ -75,48 +96,12 @@ object Runner {
     }
 
     fun isRunnable(fileObject: FileObject): Boolean {
-        ShellBasedRunners.runners.forEach {
-            val name = fileObject.getName()
-            val regex = Regex(it.regex)
-
-            if (regex.matches(name)) {
-                return true
-            }
-        }
-
-        runnerBuilders.forEach {
-            if (!it.enabled()) return@forEach
-
-            val name = fileObject.getName()
-            val regex = it.regex
-
-            if (regex.matches(name)) {
-                return true
-            }
-        }
-        return false
+        return collectMatchingRunners(fileObject, ShellBasedRunners.runners, runnerBuilders) { true }
+            .isNotEmpty()
     }
 
     suspend fun run(context: Context, fileObject: FileObject, onMultipleRunners: (List<RunnerImpl>) -> Unit) {
-        val availableRunners = mutableListOf<RunnerImpl>()
-
-        ShellBasedRunners.runners.forEach {
-            val name = fileObject.getName()
-            val regex = Regex(it.regex)
-
-            if (regex.matches(name)) {
-                availableRunners.add(it)
-            }
-        }
-
-        runnerBuilders.forEach {
-            val name = fileObject.getName()
-            val regex = it.regex
-
-            if (regex.matches(name)) {
-                availableRunners.add(it.build())
-            }
-        }
+        val availableRunners = collectMatchingRunners(fileObject, ShellBasedRunners.runners, runnerBuilders) { it }
 
         if (availableRunners.isEmpty()) {
             errorDialog("No runners available")

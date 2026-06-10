@@ -127,12 +127,13 @@ class FileManager(private val activity: ComponentActivity) {
             DefaultScope.launch(Dispatchers.IO) {
                 try {
                     val fileName = getFileName(activity.contentResolver, sourceUri)
-                    val destinationFile = parentFile?.createChild(true, fileName)
+                    val parent = parentFile
+                    val destinationFile = parent?.createChild(true, fileName)
 
                     destinationFile?.let { file ->
                         copyUriData(activity.contentResolver, sourceUri, file.toUri())
                         withContext(Dispatchers.Main) {
-                            fileTreeViewModel.get()?.updateCache(parentFile!!)
+                            parent?.let { fileTreeViewModel.get()?.updateCache(it) }
                             callback(file)
                         }
                     } ?: run { withContext(Dispatchers.Main) { callback(null) } }

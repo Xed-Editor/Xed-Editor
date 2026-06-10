@@ -44,4 +44,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     api(project(":core:vibe-coding:agent-runtime"))
+
+    testImplementation(libs.junit)
+    testImplementation(libs.tests.google.truth)
 }

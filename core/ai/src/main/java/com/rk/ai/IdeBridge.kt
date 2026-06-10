@@ -11,6 +11,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.security.SecureRandom
 
+private const val HEALTH_CHECK_TIMEOUT_MS = 2000
+
 object IdeBridge {
     data class Info(val port: Int, val token: String, val host: String = "127.0.0.1")
 
@@ -37,8 +39,8 @@ object IdeBridge {
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String? = null): Info? {
         workspacePath?.let { setWorkspacePath(it) }
         synchronized(stateLock) {
-            if (server != null) {
-                server?.stop()
+            server?.let {
+                it.stop()
                 server = null
                 token = null
                 port = 0
@@ -83,8 +85,8 @@ object IdeBridge {
         return runCatching {
             val url = URL("http://$host:${s.port}/health")
             val conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 2000
-            conn.readTimeout = 2000
+            conn.connectTimeout = HEALTH_CHECK_TIMEOUT_MS
+            conn.readTimeout = HEALTH_CHECK_TIMEOUT_MS
             conn.responseCode == 200
         }.getOrDefault(false)
     }
@@ -104,7 +106,7 @@ object IdeBridge {
 
     fun stop() {
         synchronized(stateLock) {
-            Log.d("IdeBridge", "Stopping server")
+            if (BuildConfig.DEBUG) Log.d("IdeBridge", "Stopping server")
             server?.stop()
             server = null
             token = null

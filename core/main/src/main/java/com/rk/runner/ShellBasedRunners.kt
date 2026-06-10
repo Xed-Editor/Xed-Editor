@@ -19,6 +19,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private val gson = Gson()
+private val runnersType = object : TypeToken<List<ShellBasedRunner>>() {}.type
+
 object ShellBasedRunners {
     val runners = mutableStateListOf<ShellBasedRunner>()
 
@@ -43,7 +46,7 @@ object ShellBasedRunners {
     }
 
     suspend fun saveRunners() {
-        val json = Gson().toJson(runners)
+        val json = gson.toJson(runners)
         localDir().child("runners.json").writeText(json)
     }
 
@@ -58,8 +61,7 @@ object ShellBasedRunners {
             val file = localDir().child("runners.json")
             if (file.exists()) {
                 val content = file.readText()
-                val type = object : TypeToken<List<ShellBasedRunner>>() {}.type
-                val loaded = Gson().fromJson<List<ShellBasedRunner>>(content, type)
+                val loaded = gson.fromJson<List<ShellBasedRunner>>(content, runnersType)
                 withContext(Dispatchers.Main) {
                     runners.clear()
                     runners.addAll(loaded)

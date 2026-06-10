@@ -1,7 +1,6 @@
 package com.rk.file
 
 import android.content.Context
-import android.content.Intent
 import com.rk.activities.main.MainActivity
 import com.rk.components.ContentProgress
 import kotlinx.coroutines.Dispatchers
@@ -32,9 +31,6 @@ object FileOperations {
     }
 
     fun addFile(parentFile: FileObject) {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.type = "*/*"
         MainActivity.instance?.fileManager?.requestAddFile(parentFile)
     }
 

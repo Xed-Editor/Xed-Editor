@@ -23,16 +23,20 @@ data class EditorTabState(
     override suspend fun toTab(): Tab? {
         val fileObject = Uri.parse(fileUri).toFileObject(true)
         val projectRoot = projectRootUri?.let { Uri.parse(it).toFileObject(false) }
-        
-        if (!fileObject.exists() && !fileObject.canRead()) return null
+
+        if (!fileObject.exists() || !fileObject.canRead()) return null
 
         val activity = MainActivity.instance ?: return null
         activity.viewModel.apply {
             val editorTab = editorManager.createEditorTab(fileObject, projectRoot)
 
+            val contentReady = kotlinx.coroutines.CompletableDeferred<Unit>()
             viewModelScope.launch {
                 editorTab.editorState.contentRendered.await()
-                val editor = editorTab.editorState.editor.get() ?: return@launch
+                val editor = editorTab.editorState.editor.get() ?: run {
+                    contentReady.complete(Unit)
+                    return@launch
+                }
                 unsavedContent?.let {
                     editorTab.editorState.isDirty = true
                     editor.setText(it)
@@ -49,8 +53,10 @@ data class EditorTabState(
 
                 editor.setSelectionRegion(lineLeft, columnLeft, lineRight, columnRight)
                 editor.scroller.startScroll(scrollX, scrollY, 0, 0)
+                contentReady.complete(Unit)
             }
 
+            contentReady.await()
             return editorTab
         }
     }

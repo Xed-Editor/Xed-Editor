@@ -44,4 +44,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.pebble)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.tests.google.truth)
 }

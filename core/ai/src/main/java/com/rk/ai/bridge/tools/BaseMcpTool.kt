@@ -12,6 +12,10 @@ abstract class BaseMcpTool : McpTool {
     @Volatile private var cachedRequiredKeys: Set<String>? = null
     @Volatile private var cachedOptionalKeys: Set<String>? = null
 
+    companion object {
+        const val DEFAULT_MAX_LENGTH = 10_485_760
+    }
+
     override suspend fun execute(args: JsonObject, context: McpToolContext): McpToolResult {
         val start = System.currentTimeMillis()
         try {
@@ -35,7 +39,7 @@ abstract class BaseMcpTool : McpTool {
     protected fun requireString(
         args: JsonObject,
         name: String,
-        maxLength: Int = 10_485_760,
+        maxLength: Int = DEFAULT_MAX_LENGTH,
         allowBlank: Boolean = false,
     ): String {
         val value = args.get(name)?.asString.orEmpty().take(maxLength)
@@ -53,7 +57,7 @@ abstract class BaseMcpTool : McpTool {
             ?: throw ToolError.MissingParam(name)
     }
 
-    protected fun optionalString(args: JsonObject, name: String, default: String = "", maxLength: Int = 10_485_760): String {
+    protected fun optionalString(args: JsonObject, name: String, default: String = "", maxLength: Int = DEFAULT_MAX_LENGTH): String {
         return args.get(name)?.takeIf { it.isJsonPrimitive }?.asString?.take(maxLength) ?: default
     }
 

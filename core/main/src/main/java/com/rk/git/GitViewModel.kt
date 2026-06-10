@@ -33,6 +33,29 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
 
+private const val SYNC_DEBOUNCE_MS = 500L
+
+private fun isAuthError(e: Exception): Boolean {
+    val msg = e.message ?: return false
+    return msg.contains("Auth", true) || msg.contains("401") || msg.contains("403")
+}
+
+private fun mapStatusChanges(
+    status: org.eclipse.jgit.lib.Status,
+    root: File,
+): List<GitChange> {
+    fun fullPath(relativePath: String) = File(root, relativePath).absoluteFile
+    return buildList {
+        status.added.mapTo(this) { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) }
+        status.changed.mapTo(this) { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) }
+        status.modified.mapTo(this) { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) }
+        status.removed.mapTo(this) { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) }
+        status.missing.mapTo(this) { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) }
+        status.untracked.mapTo(this) { GitChange(it, fullPath(it).absolutePath, ChangeType.UNTRACKED) }
+        status.conflicting.mapTo(this) { GitChange(it, fullPath(it).absolutePath, ChangeType.CONFLICTING) }
+    }
+}
+
 class GitViewModel : ViewModel() {
     var currentRoot = mutableStateOf<File?>(null)
     var currentBranch by mutableStateOf("")
@@ -163,15 +186,7 @@ class GitViewModel : ViewModel() {
                         .call()
                     done = true
                 } catch (e: TransportException) {
-                    if (
-                        e.message?.contains("Auth", true) == true ||
-                            e.message?.contains("401") == true ||
-                            e.message?.contains("403") == true
-                    ) {
-                        toast(strings.git_auth_error)
-                    } else {
-                        toast(e.message)
-                    }
+                    toast(if (isAuthError(e)) strings.git_auth_error else e.message)
                 } catch (_: InvalidRemoteException) {
                     toast(strings.invalid_repo_url)
                 } catch (e: Exception) {
@@ -251,15 +266,7 @@ class GitViewModel : ViewModel() {
                     }
                 }
             } catch (e: TransportException) {
-                if (
-                    e.message?.contains("Auth", true) == true ||
-                        e.message?.contains("401") == true ||
-                        e.message?.contains("403") == true
-                ) {
-                    toast(strings.git_auth_error)
-                } else {
-                    toast(e.message)
-                }
+                toast(if (isAuthError(e)) strings.git_auth_error else e.message)
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
@@ -293,15 +300,7 @@ class GitViewModel : ViewModel() {
                         .call()
                 }
             } catch (e: TransportException) {
-                if (
-                    e.message?.contains("Auth", true) == true ||
-                        e.message?.contains("401") == true ||
-                        e.message?.contains("403") == true
-                ) {
-                    toast(strings.git_auth_error)
-                } else {
-                    toast(e.message)
-                }
+                toast(if (isAuthError(e)) strings.git_auth_error else e.message)
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
@@ -335,7 +334,7 @@ class GitViewModel : ViewModel() {
         val job =
             viewModelScope.launch(Dispatchers.IO) {
                 if (!InbuiltFeatures.git.state.value) return@launch
-                delay(500) // Debounce
+                delay(SYNC_DEBOUNCE_MS)
 
                 syncMutex.withLock {
                     withContext(Dispatchers.Main) { isLoading = true }
@@ -343,40 +342,7 @@ class GitViewModel : ViewModel() {
                         val newChanges = mutableListOf<GitChange>()
                         Git.open(root).use { git ->
                             val status = git.status().call()
-                            fun fullPath(relativePath: String) = File(root, relativePath).absoluteFile
-                            newChanges.addAll(
-                                status.added.map { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) }
-                            )
-                            newChanges.addAll(
-                                status.changed.map {
-                                    GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED)
-                                }
-                            )
-                            newChanges.addAll(
-                                status.modified.map {
-                                    GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED)
-                                }
-                            )
-                            newChanges.addAll(
-                                status.removed.map {
-                                    GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED)
-                                }
-                            )
-                            newChanges.addAll(
-                                status.missing.map {
-                                    GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED)
-                                }
-                            )
-                            newChanges.addAll(
-                                status.untracked.map {
-                                    GitChange(it, fullPath(it).absolutePath, ChangeType.UNTRACKED)
-                                }
-                            )
-                            newChanges.addAll(
-                                status.conflicting.map {
-                                    GitChange(it, fullPath(it).absolutePath, ChangeType.CONFLICTING)
-                                }
-                            )
+                            newChanges.addAll(mapStatusChanges(status, root))
                         }
                         val gitRoot = root.absolutePath
                         val oldChanges = changes[gitRoot]
@@ -498,15 +464,7 @@ class GitViewModel : ViewModel() {
                     }
                 }
             } catch (e: TransportException) {
-                if (
-                    e.message?.contains("Auth", true) == true ||
-                        e.message?.contains("401") == true ||
-                        e.message?.contains("403") == true
-                ) {
-                    toast(strings.git_auth_error)
-                } else {
-                    toast(e.message)
-                }
+                toast(if (isAuthError(e)) strings.git_auth_error else e.message)
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
