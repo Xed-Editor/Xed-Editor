@@ -9,6 +9,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -75,11 +76,12 @@ object GlobalActionManager {
     @XedExtensionPoint
     fun addCommand(command: Command, index: Int = -1) {
         val cmds = commands
-        if (cmds.contains(command)) {
-            if (index != -1) {
-                cmds.remove(command)
-                cmds.add(index.coerceIn(0, cmds.size), command)
-            }
+        val existingCommand = cmds.find { it.id == command.id }
+        if (existingCommand != null) {
+            val oldIndex = cmds.indexOf(existingCommand)
+            cmds.removeAt(oldIndex)
+            val targetIndex = if (index != -1) index.coerceIn(0, cmds.size) else oldIndex
+            cmds.add(targetIndex.coerceIn(0, cmds.size), command)
             return
         }
 
@@ -92,7 +94,7 @@ object GlobalActionManager {
 
     @XedExtensionPoint
     fun removeCommand(command: Command) {
-        commands.remove(command)
+        commands.removeIf { it.id == command.id }
     }
 }
 
@@ -103,8 +105,10 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     val scope = rememberCoroutineScope()
     var tempFileNameDialog by remember { mutableStateOf(false) }
 
+    val commands by remember { derivedStateOf { GlobalActionManager.commands.toList() } }
+
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
-        for (command in GlobalActionManager.commands) {
+        for (command in commands) {
             if (command == CommandProvider.TerminalCommand) {
                 if (InbuiltFeatures.terminal.state.value) {
                     IconButton(onClick = { command.action(ActionContext(context as Activity)) }) {

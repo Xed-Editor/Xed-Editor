@@ -1,5 +1,7 @@
 package com.rk.commands
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.rk.commands.editor.CopyCommand
 import com.rk.commands.editor.CutCommand
 import com.rk.commands.editor.DuplicateLineCommand
@@ -40,9 +42,9 @@ import com.rk.extension.XedExtensionPoint
 import com.rk.settings.Settings
 
 object CommandProvider {
-    private val _commandList = mutableListOf<Command>()
+    private val _commandList: SnapshotStateList<Command> = mutableStateListOf()
     val commandList: List<Command>
-        get() = _commandList.toList()
+        get() = _commandList
 
     lateinit var DocumentationCommand: DocumentationCommand
     lateinit var TerminalCommand: TerminalCommand
@@ -129,11 +131,12 @@ object CommandProvider {
 
     @XedExtensionPoint
     fun registerCommand(command: Command, index: Int = -1) {
-        if (_commandList.contains(command)) {
-            if (index != -1) {
-                _commandList.remove(command)
-                _commandList.add(index.coerceIn(0, _commandList.size), command)
-            }
+        val existingCommand = _commandList.find { it.id == command.id }
+        if (existingCommand != null) {
+            val oldIndex = _commandList.indexOf(existingCommand)
+            _commandList.removeAt(oldIndex)
+            val targetIndex = if (index != -1) index.coerceIn(0, _commandList.size) else oldIndex
+            _commandList.add(targetIndex.coerceIn(0, _commandList.size), command)
             return
         }
 
@@ -146,7 +149,7 @@ object CommandProvider {
 
     @XedExtensionPoint
     fun unregisterCommand(command: Command) {
-        _commandList.remove(command)
+        _commandList.removeIf { it.id == command.id }
     }
 
     @XedExtensionPoint

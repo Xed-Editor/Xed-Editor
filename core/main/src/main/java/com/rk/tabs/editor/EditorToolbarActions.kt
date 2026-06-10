@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,7 +50,10 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
-    val allActions = Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) }
+    val allActions by
+        remember {
+            derivedStateOf { Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) } }
+        }
 
     BoxWithConstraints(modifier = modifier) {
         val itemWidth = 64.dp
