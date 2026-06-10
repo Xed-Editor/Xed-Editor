@@ -41,7 +41,7 @@ private fun isAuthError(e: Exception): Boolean {
 }
 
 private fun mapStatusChanges(
-    status: org.eclipse.jgit.lib.Status,
+    status: org.eclipse.jgit.api.Status,
     root: File,
 ): List<GitChange> {
     fun fullPath(relativePath: String) = File(root, relativePath).absoluteFile
@@ -194,9 +194,9 @@ class GitViewModel : ViewModel() {
                         .call()
                     done = true
                 } catch (e: TransportException) {
-                    toast(if (isAuthError(e)) strings.git_auth_error else e.message)
+                    toast(if (isAuthError(e)) strings.git_auth_error.getString() else e.message)
                 } catch (_: InvalidRemoteException) {
-                    toast(strings.invalid_repo_url)
+                    toast(strings.invalid_repo_url.getString())
                 } catch (e: Exception) {
                     toast(e.message)
                 } finally {
@@ -277,13 +277,13 @@ class GitViewModel : ViewModel() {
                     }
                 }
             } catch (e: TransportException) {
-                toast(if (isAuthError(e)) strings.git_auth_error else e.message)
+                toast(if (isAuthError(e)) strings.git_auth_error.getString() else e.message)
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    if (success) toast(strings.pull_complete)
+                    if (success) toast(strings.pull_complete.getString())
                 }
             }
         }
@@ -311,13 +311,13 @@ class GitViewModel : ViewModel() {
                         .call()
                 }
             } catch (e: TransportException) {
-                toast(if (isAuthError(e)) strings.git_auth_error else e.message)
+                toast(if (isAuthError(e)) strings.git_auth_error.getString() else e.message)
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    toast(strings.fetch_complete)
+                    toast(strings.fetch_complete.getString())
                 }
             }
         }
@@ -477,7 +477,7 @@ class GitViewModel : ViewModel() {
                     }
                 }
             } catch (e: TransportException) {
-                toast(if (isAuthError(e)) strings.git_auth_error else e.message)
+                toast(if (isAuthError(e)) strings.git_auth_error.getString() else e.message)
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
@@ -551,7 +551,13 @@ class GitViewModel : ViewModel() {
             withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
-                    git.stashPop().setStashRef(stashIndex).call()
+                    // stashPop doesn't support index, we need to apply then drop
+                    if (stashIndex == 0) {
+                        git.stashPop().call()
+                    } else {
+                        git.stashApply().setStashRef(stashIndex).call()
+                        git.stashDrop().setStashRef(stashIndex).call()
+                    }
                     toast("Stash popped")
                     currentRoot.value?.let { syncChanges(it) }
                 }
@@ -568,7 +574,7 @@ class GitViewModel : ViewModel() {
             withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
-                    git.stashApply().setStashRef(stashIndex).call()
+                    git.stashApply().setStashRef("stash@{$stashIndex}").call()
                     toast("Stash applied")
                 }
             } catch (e: Exception) {
@@ -601,9 +607,9 @@ class GitViewModel : ViewModel() {
             isStashLoading = true
             try {
                 Git.open(currentRoot.value).use { git ->
-                    val stashList = git.stashList().call()
+                    val gitStashList = git.stashList().call()
                     val entries =
-                        stashList.mapIndexed { index, revCommit ->
+                        gitStashList.mapIndexed { index, revCommit ->
                             StashEntry(
                                 index = index,
                                 message = revCommit.fullMessage.trim(),
@@ -611,7 +617,7 @@ class GitViewModel : ViewModel() {
                                 date = revCommit.authorIdent.`when`,
                             )
                         }
-                    withContext(Dispatchers.Main) { stashList = entries }
+                    withContext(Dispatchers.Main) { stashList.value = entries }
                 }
             } catch (e: Exception) {
                 toast(e.message)
@@ -634,7 +640,7 @@ class GitViewModel : ViewModel() {
                     val commits =
                         log.map { revCommit ->
                             CommitInfo(
-                                hash = revCommit.id.abbreviatedName,
+                                hash = revCommit.id.name.substring(0, 7),
                                 fullHash = revCommit.id.name,
                                 message = revCommit.shortMessage.trim(),
                                 author = revCommit.authorIdent.name,
@@ -643,7 +649,7 @@ class GitViewModel : ViewModel() {
                                 isMerge = revCommit.parentCount > 1,
                             )
                         }
-                    withContext(Dispatchers.Main) { commitLog = commits }
+                    withContext(Dispatchers.Main) { commitLog.value = commits }
                 }
             } catch (e: Exception) {
                 toast(e.message)
@@ -662,7 +668,7 @@ class GitViewModel : ViewModel() {
                     .call()
                     .map { revCommit ->
                         CommitInfo(
-                            hash = revCommit.id.abbreviatedName,
+                            hash = revCommit.id.name.substring(0, 7),
                             fullHash = revCommit.id.name,
                             message = revCommit.shortMessage.trim(),
                             author = revCommit.authorIdent.name,
@@ -681,12 +687,12 @@ class GitViewModel : ViewModel() {
     fun getDiffForFile(filePath: String): String? {
         return try {
             Git.open(currentRoot.value).use { git ->
-                val diffFormatter = org.eclipse.jgit.diff.DiffFormatter(java.io.ByteArrayOutputStream())
-                diffFormatter.setRepository(git.repository)
-                diffFormatter.scan(
-                    org.eclipse.jgit.diff.FileEntry(org.eclipse.jgit.lib.OId.zeroId(), org.eclipse.jgit.lib.FileMode.MISSING),
-                    org.eclipse.jgit.diff.FileEntry(git.repository.resolve("HEAD"), org.eclipse.jgit.lib.FileMode.REGULAR_FILE)
-                )
+                val repository = git.repository
+                val head = repository.resolve("HEAD")
+                val treeWalk = org.eclipse.jgit.treewalk.TreeWalk(repository)
+                treeWalk.addTree(head)
+                treeWalk.filter = org.eclipse.jgit.treewalk.filter.PathFilter.create(filePath)
+                treeWalk.isRecursive = true
                 "Diff available for $filePath"
             }
         } catch (e: Exception) {

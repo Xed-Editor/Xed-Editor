@@ -43,7 +43,8 @@ class GoToSymbolCommand(commandContext: CommandContext) : EditorCommand(commandC
             .setItems(names) { _, which ->
                 val symbol = symbols[which]
                 editor.setSelection(symbol.line, symbol.column)
-                editor.scrollBy(0, (symbol.line - editor.cursorRange.start.line) * editor.lineHeight)
+                // Scroll to make the symbol visible
+                editor.ensureSelectionVisible()
             }
             .setNegativeButton("Cancel", null)
             .show()

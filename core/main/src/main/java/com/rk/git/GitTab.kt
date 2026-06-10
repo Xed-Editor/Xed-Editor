@@ -671,7 +671,16 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             )
         }
 
-        AnimatedVisibility(visible = conflictsExpanded) { ChangesItemList(conflicts) }
+        AnimatedVisibility(visible = conflictsExpanded) { 
+            ChangesItemList(
+                items = conflicts,
+                diffFilePath = diffFilePath,
+                scope = scope,
+                diffContent = diffContent,
+                showDiffDialog = showDiffDialog,
+                onDiffClick = { path -> diffFilePath = path; scope.launch(Dispatchers.IO) { diffContent = viewModel.getFileDiffContent(path); withContext(Dispatchers.Main) { showDiffDialog = true } } }
+            )
+        }
         Spacer(modifier = Modifier.height(8.dp))
     }
 
@@ -730,7 +739,16 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             )
         }
 
-        AnimatedVisibility(visible = changesExpanded) { ChangesItemList(changes) }
+        AnimatedVisibility(visible = changesExpanded) { 
+            ChangesItemList(
+                items = changes,
+                diffFilePath = diffFilePath,
+                scope = scope,
+                diffContent = diffContent,
+                showDiffDialog = showDiffDialog,
+                onDiffClick = { path -> diffFilePath = path; scope.launch(Dispatchers.IO) { diffContent = viewModel.getFileDiffContent(path); withContext(Dispatchers.Main) { showDiffDialog = true } } }
+            )
+        }
         Spacer(modifier = Modifier.height(8.dp))
     }
 
@@ -789,12 +807,28 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             )
         }
 
-        AnimatedVisibility(visible = untrackedExpanded) { ChangesItemList(untracked) }
+        AnimatedVisibility(visible = untrackedExpanded) { 
+            ChangesItemList(
+                items = untracked,
+                diffFilePath = diffFilePath,
+                scope = scope,
+                diffContent = diffContent,
+                showDiffDialog = showDiffDialog,
+                onDiffClick = { path -> diffFilePath = path; scope.launch(Dispatchers.IO) { diffContent = viewModel.getFileDiffContent(path); withContext(Dispatchers.Main) { showDiffDialog = true } } }
+            )
+        }
         Spacer(modifier = Modifier.height(8.dp))
     }
 
     @Composable
-    private fun ChangesItemList(items: List<GitChange>) {
+    private fun ChangesItemList(
+        items: List<GitChange>,
+        diffFilePath: String,
+        scope: kotlinx.coroutines.CoroutineScope,
+        diffContent: String,
+        showDiffDialog: Boolean,
+        onDiffClick: (String) -> Unit,
+    ) {
         val context = LocalContext.current
 
         Column(modifier = Modifier.padding(start = 40.dp)) {
@@ -804,11 +838,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     modifier =
                         Modifier.width((getDrawerWidth() - 61.dp))
                             .clickable {
-                                diffFilePath = change.path
-                                scope.launch(Dispatchers.IO) {
-                                    diffContent = viewModel.getFileDiffContent(change.path)
-                                    withContext(Dispatchers.Main) { showDiffDialog = true }
-                                }
+                                onDiffClick(change.path)
                             }
                             .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),

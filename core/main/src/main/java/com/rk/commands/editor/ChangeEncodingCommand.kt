@@ -39,7 +39,7 @@ class ChangeEncodingCommand(commandContext: CommandContext) : EditorCommand(comm
             )
 
         // Find the current tab's encoding
-        val viewModel = activity.viewModel
+        val viewModel = commandContext.mainViewModel
         val currentTab = viewModel.tabs.getOrNull(viewModel.currentTabIndex) as? EditorTab
         val currentEncoding = currentTab?.getCurrentEncoding() ?: Settings.encoding
         val names = encodings.map { it.first }.toTypedArray()

@@ -63,6 +63,7 @@ import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 var addDialog by mutableStateOf(false)
 var fileSearchDialog by mutableStateOf(false)
@@ -333,7 +334,7 @@ private fun createFileFromTemplate(template: FileTemplate, viewModel: MainViewMo
                 lifecycleScope.launch {
                     // Write template content
                     if (template.content.isNotEmpty()) {
-                        withContext(Dispatchers.IO) {
+                        kotlinx.coroutines.withContext(Dispatchers.IO) {
                             it.writeText(template.content)
                         }
                     }
