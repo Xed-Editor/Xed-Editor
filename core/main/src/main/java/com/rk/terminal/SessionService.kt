@@ -38,14 +38,20 @@ class SessionService : Service() {
         }
 
         fun createSession(id: SessionId, client: TerminalSessionClient, activity: Terminal): SessionInfo {
-            return MkSession.createSession(activity, client, id, activity.installNextStage != null && activity.installNextStage == NEXT_STAGE.EXTRACTION).let {
-                val (session, pwd) = it
-                sessions[id] = session
-                sessionWorkDirs[id] = pwd
-                sessionList.add(id)
-                updateNotification()
-                SessionInfo(id, pwd, session)
-            }
+            return MkSession.createSession(
+                    activity,
+                    client,
+                    id,
+                    activity.installNextStage != null && activity.installNextStage == NEXT_STAGE.EXTRACTION,
+                )
+                .let {
+                    val (session, pwd) = it
+                    sessions[id] = session
+                    sessionWorkDirs[id] = pwd
+                    sessionList.add(id)
+                    updateNotification()
+                    SessionInfo(id, pwd, session)
+                }
         }
 
         fun getSession(id: SessionId): TerminalSession? {

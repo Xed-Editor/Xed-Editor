@@ -1,9 +1,8 @@
 package com.rk.terminal
 
-import android.content.Context
 import android.app.Activity
+import android.content.Context
 import com.rk.activities.main.MainActivity
-import com.rk.activities.terminal.Terminal
 import com.rk.exec.pendingCommand
 import com.rk.file.FileWrapper
 import com.rk.file.child
@@ -190,4 +189,3 @@ suspend fun getPwd(context: Context): String {
         sandboxHomeDir(context).absolutePath
     }
 }
-
