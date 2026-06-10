@@ -292,4 +292,7 @@
     <string name="format_document">문서 서식 지정</string>
     <string name="format_selection">선택 영역 형식 지정</string>
     <string name="go_to_definition_desc">‐정의 위치로 이동하려면 %s개의 정의 중 하나를 선택하세요.</string>
+    <string name="go_to_references_desc">참조 위치로 이동하려면 %s개의 정의 중 하나를 선택하세요.</string>
+    <string name="no_definitions_found">정의를 찾을 수 없음.</string>
+    <string name="no_references_found">참조를 찾을 수 없음.</string>
 </resources>
