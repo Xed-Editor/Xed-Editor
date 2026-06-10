@@ -102,17 +102,13 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 showSwitch = true,
             )
 
-
             SettingsItem(
                 label = "Terminal Health",
                 description = "Check if terminal is working",
-                sideEffect = {
-                    settingsNavController.get()?.navigate(SettingsRoutes.TerminalCheck.route)
-                },
+                sideEffect = { settingsNavController.get()?.navigate(SettingsRoutes.TerminalCheck.route) },
                 showSwitch = false,
-                default = false
+                default = false,
             )
-
         }
 
         var showCursorStyleDialog by remember { mutableStateOf(false) }
@@ -350,8 +346,6 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 },
             )
         }
-
-
 
         PreferenceGroup(heading = stringResource(strings.other)) {
             NextScreenCard(
