@@ -106,6 +106,7 @@ class IdeBridgeServer(
             register(ContextManagerTool()); register(TaskPlannerTool())
             register(DocGeneratorTool()); register(CodebaseIndexerTool())
             register(CustomInstructionsTool()); register(AgentWorkflowTool())
+            register(PlanModeTool()); register(DependencyAnalyzerTool())
         }
     }
 
