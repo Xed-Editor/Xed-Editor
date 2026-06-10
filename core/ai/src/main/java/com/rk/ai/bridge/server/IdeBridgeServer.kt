@@ -101,6 +101,11 @@ class IdeBridgeServer(
             register(GitHubSearchCodeTool()); register(GitHubFileFetchTool())
             // New package tools
             register(NpmSearchTool()); register(PipSearchTool()); register(MavenSearchTool())
+            // AI-powered tools
+            register(CodeReviewTool()); register(TestGeneratorTool())
+            register(ContextManagerTool()); register(TaskPlannerTool())
+            register(DocGeneratorTool()); register(CodebaseIndexerTool())
+            register(CustomInstructionsTool()); register(AgentWorkflowTool())
         }
     }
 
