@@ -75,12 +75,18 @@ object GlobalActionManager {
     @XedExtensionPoint
     fun addCommand(command: Command, index: Int = -1) {
         val cmds = commands
-        if (!cmds.contains(command)) {
-            if (index in 0..cmds.size) {
-                cmds.add(index, command)
-            } else {
-                cmds.add(command)
+        if (cmds.contains(command)) {
+            if (index != -1) {
+                cmds.remove(command)
+                cmds.add(index.coerceIn(0, cmds.size), command)
             }
+            return
+        }
+
+        if (index in 0..cmds.size) {
+            cmds.add(index, command)
+        } else {
+            cmds.add(command)
         }
     }
 

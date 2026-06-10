@@ -37,6 +37,7 @@ import com.rk.commands.lsp.GoToDefinitionCommand
 import com.rk.commands.lsp.GoToReferencesCommand
 import com.rk.commands.lsp.RenameSymbolCommand
 import com.rk.extension.XedExtensionPoint
+import com.rk.settings.Settings
 
 object CommandProvider {
     private val _commandList = mutableListOf<Command>()
@@ -127,8 +128,18 @@ object CommandProvider {
     }
 
     @XedExtensionPoint
-    fun registerCommand(command: Command) {
-        if (!_commandList.contains(command)) {
+    fun registerCommand(command: Command, index: Int = -1) {
+        if (_commandList.contains(command)) {
+            if (index != -1) {
+                _commandList.remove(command)
+                _commandList.add(index.coerceIn(0, _commandList.size), command)
+            }
+            return
+        }
+
+        if (index in 0.._commandList.size) {
+            _commandList.add(index, command)
+        } else {
             _commandList.add(command)
         }
     }
@@ -136,6 +147,34 @@ object CommandProvider {
     @XedExtensionPoint
     fun unregisterCommand(command: Command) {
         _commandList.remove(command)
+    }
+
+    @XedExtensionPoint
+    fun addEditorToolbarCommand(commandId: String, index: Int = -1) {
+        val items = Settings.action_items.split("|").filter { it.isNotEmpty() }.toMutableList()
+        if (items.contains(commandId)) {
+            if (index != -1) {
+                items.remove(commandId)
+                items.add(index.coerceIn(0, items.size), commandId)
+                Settings.action_items = items.joinToString("|")
+            }
+            return
+        }
+
+        if (index in 0..items.size) {
+            items.add(index, commandId)
+        } else {
+            items.add(commandId)
+        }
+        Settings.action_items = items.joinToString("|")
+    }
+
+    @XedExtensionPoint
+    fun removeEditorToolbarCommand(commandId: String) {
+        val items = Settings.action_items.split("|").toMutableList()
+        if (items.remove(commandId)) {
+            Settings.action_items = items.joinToString("|")
+        }
     }
 
     fun getForId(id: String): Command? = findRecursive(id, commandList)
