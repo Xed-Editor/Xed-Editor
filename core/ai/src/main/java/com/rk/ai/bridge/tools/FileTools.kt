@@ -8,7 +8,7 @@ import java.io.File
 private const val READ_TRUNCATION_LIMIT = 250_000
 private const val MULTI_READ_TRUNCATION_LIMIT = 500_000
 
-private interface FileReaderTool {
+private abstract class FileReaderTool : BaseMcpTool() {
     suspend fun executeReadFile(args: JsonObject, context: McpToolContext): McpToolResult {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
         val file = resolvePathOrThrow(context, filePath)
@@ -48,7 +48,7 @@ private interface FileReaderTool {
     )
 }
 
-class ReadFileTool : BaseMcpTool(), FileReaderTool {
+class ReadFileTool : FileReaderTool() {
     override fun getCategory(): String = "File Operations"
     override fun getName(): String = "readFile"
     override fun getDescription(): String = "NATIVE file reader. Much faster than terminal cat. Supports line range (startLine/endLine) and first-N-lines (lines/count). Accepts: path, filePath, file."
@@ -57,7 +57,7 @@ class ReadFileTool : BaseMcpTool(), FileReaderTool {
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = executeReadFile(args, context)
 }
 
-class CatTool : BaseMcpTool(), FileReaderTool {
+class CatTool : FileReaderTool() {
     override fun getCategory(): String = "File Operations"
     override fun getName(): String = "cat"
     override fun getDescription(): String = "Same as readFile but named 'cat' for agent convenience. Accepts: path, filePath, file."
@@ -117,7 +117,7 @@ class WriteFileTool : BaseMcpTool() {
     }
 }
 
-private interface DirectoryListerTool {
+private abstract class DirectoryListerTool : BaseMcpTool() {
     suspend fun executeListFiles(args: JsonObject, context: McpToolContext): McpToolResult {
         val dirPath = getPathParam(args) ?: throw ToolError.MissingParam("path/directoryPath")
         val dir = resolvePathOrThrow(context, dirPath)
@@ -139,7 +139,7 @@ private interface DirectoryListerTool {
     )
 }
 
-class ListFilesTool : BaseMcpTool(), DirectoryListerTool {
+class ListFilesTool : DirectoryListerTool() {
     override fun getCategory(): String = "File Operations"
     override fun getName(): String = "listFiles"
     override fun getDescription(): String = "NATIVE directory listing. Same as 'ls' but runs natively. Accepts: path, directoryPath."
@@ -148,7 +148,7 @@ class ListFilesTool : BaseMcpTool(), DirectoryListerTool {
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = executeListFiles(args, context)
 }
 
-class LsTool : BaseMcpTool(), DirectoryListerTool {
+class LsTool : DirectoryListerTool() {
     override fun getCategory(): String = "File Operations"
     override fun getName(): String = "ls"
     override fun getDescription(): String = "Same as listFiles. Lists directory contents. Accepts: path, directoryPath."
@@ -208,7 +208,7 @@ class DeleteFileTool : BaseMcpTool() {
     }
 }
 
-private interface FileMoveTool {
+private abstract class FileMoveTool : BaseMcpTool() {
     suspend fun executeMoveFile(args: JsonObject, context: McpToolContext): McpToolResult {
         val sourcePath = requireString(args, "sourcePath")
         val destPath = requireString(args, "destPath")
@@ -223,7 +223,7 @@ private interface FileMoveTool {
     )
 }
 
-class RenameFileTool : BaseMcpTool(), FileMoveTool {
+class RenameFileTool : FileMoveTool() {
     override fun getCategory(): String = "File Operations"
     override fun getName(): String = "renameFile"
     override fun getDescription(): String = "Moves or renames a file or directory. Updates disk state immediately."
@@ -232,7 +232,7 @@ class RenameFileTool : BaseMcpTool(), FileMoveTool {
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = executeMoveFile(args, context)
 }
 
-class MoveFileTool : BaseMcpTool(), FileMoveTool {
+class MoveFileTool : FileMoveTool() {
     override fun getCategory(): String = "File Operations"
     override fun getName(): String = "moveFile"
     override fun getDescription(): String = "Alias for renameFile. Moves a file or directory to a new workspace path."
@@ -241,7 +241,7 @@ class MoveFileTool : BaseMcpTool(), FileMoveTool {
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = executeMoveFile(args, context)
 }
 
-private interface DirectoryCreatorTool {
+private abstract class DirectoryCreatorTool : BaseMcpTool() {
     suspend fun executeCreateDirectory(args: JsonObject, context: McpToolContext): McpToolResult {
         val path = getPathParam(args) ?: throw ToolError.MissingParam("directoryPath/path")
         val parents = optionalBoolean(args, "parents", true)
@@ -260,7 +260,7 @@ private interface DirectoryCreatorTool {
     )
 }
 
-class CreateDirectoryTool : BaseMcpTool(), DirectoryCreatorTool {
+class CreateDirectoryTool : DirectoryCreatorTool() {
     override fun getCategory(): String = "File Operations"
     override fun getName(): String = "createDirectory"
     override fun getDescription(): String = "Creates a directory or nested directory structure inside the workspace."
@@ -275,7 +275,7 @@ class CreateDirectoryTool : BaseMcpTool(), DirectoryCreatorTool {
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = executeCreateDirectory(args, context)
 }
 
-class MkdirTool : BaseMcpTool(), DirectoryCreatorTool {
+class MkdirTool : DirectoryCreatorTool() {
     override fun getCategory(): String = "File Operations"
     override fun getName(): String = "mkdir"
     override fun getDescription(): String = "Alias for createDirectory. Creates a directory or nested directory structure."
