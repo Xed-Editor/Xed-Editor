@@ -295,4 +295,8 @@
     <string name="go_to_references_desc">참조 위치로 이동하려면 %s개의 정의 중 하나를 선택하세요.</string>
     <string name="no_definitions_found">정의를 찾을 수 없음.</string>
     <string name="no_references_found">참조를 찾을 수 없음.</string>
+    <string name="find_definitions_error">정의를 찾을 수 없습니다.</string>
+    <string name="find_references_error">참조를 찾을 수 없습니다.</string>
+    <string name="rename_symbol_error">기호를 바꿀 수 없습니다.</string>
+    <string name="cannot_rename_symbol">이 기호를 변경할 수 없습니다.</string>
 </resources>
