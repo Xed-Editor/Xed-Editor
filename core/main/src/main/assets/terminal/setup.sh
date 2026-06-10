@@ -55,8 +55,10 @@ ARGS="$ARGS -L"
 
 COMMAND="(cd $LOCAL/sandbox && tar -xf $TMP_DIR/sandbox.tar.gz)"
 
+set +e
 $PROOT $ARGS /system/bin/sh -c "$COMMAND"
 ret=$?
+set -e
 
 if [ "$ret" -ne 0 ]; then
     warn "PRoot extraction failed (exit code $ret), falling back to direct extraction..."
