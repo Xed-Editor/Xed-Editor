@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
-import com.rk.App
 import com.rk.App.Companion.extensionManager
 import com.rk.activities.settings.SettingsActivity
 import com.rk.extension.Extension
@@ -83,7 +82,7 @@ suspend fun runExtensionInstallAction(
                 updateInstallState(InstallState.Installed)
 
                 scope.launch(Dispatchers.Default) {
-                    ext.load(application!!).onFailure {
+                    ext.load(application!!, true).onFailure {
                         errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
                     }
                 }
@@ -155,12 +154,14 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                         loading.setMessage(strings.installing.getString())
                     }
 
-                    val result = App.extensionManager.installExtensionFromZip(fileObject)
+                    val result = extensionManager.installExtensionFromZip(fileObject)
 
                     withContext(Dispatchers.Main) {
                         handleInstallResult(result, activity) { ext ->
                             scope.launch(Dispatchers.Default) {
-                                ext.load(application!!).onFailure {
+                                val initialInstallation =
+                                    (result as? InstallResult.Success)?.performedUpdate?.not() ?: true
+                                ext.load(application!!, initialInstallation).onFailure {
                                     errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
                                 }
                             }

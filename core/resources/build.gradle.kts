@@ -1,12 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ktfmt)
 }
 
 android {
     namespace = "com.rk.resources"
-    compileSdk = 36
+    compileSdk = 37
 
     lint.disable += "MissingTranslation"
 

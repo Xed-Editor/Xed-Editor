@@ -7,8 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.edit
+import com.rk.commands.ToolbarConfiguration
 import com.rk.filetree.SortMode
-import com.rk.settings.editor.DEFAULT_ACTION_ITEMS
 import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_DRAWER
 import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_SEARCH
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
@@ -19,6 +19,8 @@ import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalEmulator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
@@ -26,8 +28,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 // NOTE: USE snake_case FOR KEYS!
 object Settings {
@@ -84,9 +84,6 @@ object Settings {
     var extra_keys_bg by CachedPreference("extra_keys_bg", false)
     var auto_open_new_files by CachedPreference("auto_open_new_files", true)
     var complete_on_enter by CachedPreference("complete_on_enter", true)
-    var enable_html_runner by CachedPreference("enable_html_runner", true)
-    var enable_md_runner by CachedPreference("enable_md_runner", true)
-    var enable_universal_runner by CachedPreference("enable_universal_runner", true)
     var http_server_port by CachedPreference("http_server_port", 8357)
     var launch_in_browser by CachedPreference("launch_in_browser", false)
     var inject_eruda by CachedPreference("inject_eruda", true)
@@ -125,7 +122,6 @@ object Settings {
     var sort_mode by CachedPreference("sort_mode", SortMode.SORT_BY_NAME.ordinal)
 
     // String settings
-    var selected_project by CachedPreference("selected_project", "")
     var font_gson by CachedPreference("selected_font", "")
     var theme by CachedPreference("theme", blueberry.id)
     var icon_pack: String by CachedPreference("icon_pack", "")
@@ -159,7 +155,7 @@ object Settings {
     var line_spacing by CachedPreference("line_spacing", 1f)
 
     var last_used_command by CachedPreference("last_used_command", "")
-    var action_items by CachedPreference("action_items", DEFAULT_ACTION_ITEMS)
+    var action_items by CachedPreference("action_items", ToolbarConfiguration.DEFAULT_EDITOR_TOOLBAR_COMMANDS)
 }
 
 object Preference {

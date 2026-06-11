@@ -80,7 +80,7 @@ fun CommandPalette(
             derivedStateOf {
                 buildList {
                     lastUsedCommand?.let { add(it) }
-                    addAll(commands.filter { it != lastUsedCommand })
+                    addAll(commands.filter { it != lastUsedCommand }.sortedBy { it.getLabel() })
                 }
             }
         }
@@ -90,10 +90,14 @@ fun CommandPalette(
     val filteredCommands by
         remember(visibleCommands, searchQuery) {
             derivedStateOf {
-                visibleCommands.filter {
-                    it.getLabel().contains(searchQuery, ignoreCase = true) ||
-                        it.prefix?.contains(searchQuery, ignoreCase = true) == true
-                }
+                visibleCommands
+                    .filter {
+                        it.getLabel().contains(searchQuery, ignoreCase = true) ||
+                            it.prefix?.contains(searchQuery, ignoreCase = true) == true
+                    }
+                    .filter {
+                        it.isSupported()
+                    }
             }
         }
 
@@ -188,7 +192,7 @@ fun CommandItem(
     isSubpage: Boolean,
 ) {
     val activity = LocalActivity.current
-    val enabled by remember { derivedStateOf { command.isSupported() && command.isEnabled() } }
+    val enabled by remember { derivedStateOf { command.isEnabled() } }
     val childCommands = command.childCommands
     val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
 

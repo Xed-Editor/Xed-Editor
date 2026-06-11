@@ -33,6 +33,7 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.commands.CommandProvider
+import com.rk.commands.ToolbarConfiguration
 import com.rk.components.InfoBlock
 import com.rk.components.ResetButton
 import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
@@ -43,9 +44,6 @@ import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.utils.handleLazyListScroll
 import kotlinx.coroutines.launch
-
-const val DEFAULT_ACTION_ITEMS =
-    "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings"
 
 @Composable
 fun EditToolbarActions(modifier: Modifier = Modifier) {
@@ -145,5 +143,5 @@ private fun saveOrder(commandIds: SnapshotStateList<String>) {
 private fun resetOrder(commandIds: SnapshotStateList<String>) {
     Preference.removeKey("action_items")
     commandIds.clear()
-    commandIds.addAll(DEFAULT_ACTION_ITEMS.split("|"))
+    commandIds.addAll(ToolbarConfiguration.DEFAULT_EDITOR_TOOLBAR_COMMANDS.split("|"))
 }

@@ -15,7 +15,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-fun LocalExtension.load(application: Application) = run {
+fun LocalExtension.load(application: Application, initialInstallation: Boolean = false) = run {
     val classLoader =
         try {
             classLoader(application.classLoader)
@@ -76,6 +76,19 @@ fun LocalExtension.load(application: Application) = run {
                         "Failed to instantiate main class '${mainClassInstance.name}' for extension '${manifest.name}'. Ensure the class implements the ExtensionAPI interface and declares a public constructor accepting ExtensionContext."
                     )
                 )
+
+        if (initialInstallation) {
+            try {
+                instance.onInstalled()
+            } catch (err: Exception) {
+                return@run Result.failure(
+                    RuntimeException(
+                        "Failed to initialize extension '${manifest.name}': An error occurred during the installation hook. This might indicate a problem in the extension's installation logic. Details: ${err.message}",
+                        err,
+                    )
+                )
+            }
+        }
 
         try {
             instance.onExtensionLoaded()

@@ -1,7 +1,7 @@
 package com.rk.extension
 
 sealed interface InstallResult {
-    data class Success(val extension: LocalExtension) : InstallResult
+    data class Success(val extension: LocalExtension, val performedUpdate: Boolean) : InstallResult
 
     data class ValidationFailed(val error: Throwable?) : InstallResult
 
