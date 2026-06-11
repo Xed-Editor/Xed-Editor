@@ -7,8 +7,7 @@ import com.rk.ai.bridge.McpToolResult
 class TestGeneratorTool : BaseMcpTool() {
     override fun getCategory(): String = "AI Code Generation"
     override fun getName(): String = "generateTests"
-    override fun getDescription(): String = """Generates unit tests for the specified code. Supports multiple test frameworks.
-Can generate tests for a file, function, class, or selection."""
+    override fun getDescription(): String = """Generates unit tests for the specified code."""
 
     override fun getRequiredParams(): Map<String, String> = mapOf("target" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -22,10 +21,10 @@ Can generate tests for a file, function, class, or selection."""
         "target" to "What to test: file path, 'selection', 'activeFile', or function/class name"
     )
     override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
-        "framework" to "Test framework: 'junit', 'mockk', 'pytest', 'jest', 'mocha', 'vitest', 'go test', 'rspec', 'auto' (default: auto-detect)",
+        "framework" to "Test framework (default: auto-detect)",
         "style" to "Test style: 'unit', 'integration', 'edge-cases', 'comprehensive' (default: unit)",
         "coverage" to "Coverage focus: 'full', 'critical', 'boundary' (default: full)",
-        "includeMocks" to "Include mock objects/stubs (default: true)",
+        "includeMocks" to "Include mock objects (default: true)",
         "language" to "Override language detection"
     )
 
@@ -86,77 +85,44 @@ Can generate tests for a file, function, class, or selection."""
                 if (code.length > 50000) appendLine("\n... (truncated)")
                 appendLine("```")
             },
-            mapOf(
-                "sourceFile" to filePath,
-                "language" to detectedLang,
-                "framework" to detectedFramework,
-                "style" to style,
-                "codeLength" to code.length
-            )
+            emptyMap()
         )
     }
 
-    private fun buildTestPrompt(code: String, language: String, framework: String, style: String, coverage: String, includeMocks: Boolean): String {
-        return buildString {
-            appendLine("You are an expert test engineer. Generate comprehensive $framework tests for the following $language code.")
-            appendLine()
-            appendLine("Test generation rules:")
-            appendLine("- Follow $framework conventions and best practices")
-            appendLine("- Use descriptive test names that explain the expected behavior")
-
-            when (style) {
-                "unit" -> appendLine("- Focus on unit tests for individual functions/methods")
-                "integration" -> appendLine("- Focus on integration tests with real dependencies")
-                "edge-cases" -> appendLine("- Focus on edge cases, boundary conditions, and error scenarios")
-                "comprehensive" -> appendLine("- Generate a mix of unit, integration, and edge case tests")
-            }
-
-            when (coverage) {
-                "full" -> appendLine("- Cover all public methods and important private ones")
-                "critical" -> appendLine("- Focus on critical business logic and security-sensitive code")
-                "boundary" -> appendLine("- Focus on boundary conditions and error handling")
-            }
-
-            if (includeMocks) {
-                appendLine("- Include mock objects for external dependencies")
-                appendLine("- Use dependency injection patterns where applicable")
-            }
-
-            appendLine()
-            appendLine("Respond in this JSON format:")
-            appendLine("```json")
-            appendLine("""{
-  "testFile": "suggested_test_filename",
-  "framework": "$framework",
-  "tests": [
-    {
-      "name": "test_function_name",
-      "description": "What this test verifies",
-      "type": "unit|integration|edge-case",
-      "code": "test code here",
-      "mocks": ["list of mocks needed"]
-    }
-  ],
-  "setup": "common setup code if needed",
-  "imports": ["required imports"],
-  "coverageNotes": "what is covered and what is not"
-}""")
-            appendLine("```")
+    private fun buildTestPrompt(code: String, language: String, framework: String, style: String, coverage: String, includeMocks: Boolean): String = buildString {
+        appendLine("You are an expert test engineer. Generate comprehensive $framework tests for the following $language code.")
+        appendLine()
+        appendLine("Test generation rules:")
+        appendLine("- Follow $framework conventions and best practices")
+        appendLine("- Use descriptive test names that explain the expected behavior")
+        when (style) {
+            "unit" -> appendLine("- Focus on unit tests for individual functions/methods")
+            "integration" -> appendLine("- Focus on integration tests with real dependencies")
+            "edge-cases" -> appendLine("- Focus on edge cases, boundary conditions, and error scenarios")
+            "comprehensive" -> appendLine("- Generate a mix of unit, integration, and edge case tests")
         }
+        when (coverage) {
+            "full" -> appendLine("- Cover all public methods and important private ones")
+            "critical" -> appendLine("- Focus on critical business logic and security-sensitive code")
+            "boundary" -> appendLine("- Focus on boundary conditions and error handling")
+        }
+        if (includeMocks) {
+            appendLine("- Include mock objects for external dependencies")
+        }
+        appendLine()
+        appendLine("Respond with test file name, framework, and array of test cases.")
     }
 
-    private fun detectFramework(language: String): String {
-        return when (language) {
-            "kotlin" -> "junit + mockk"
-            "java" -> "junit + mockito"
-            "python" -> "pytest"
-            "javascript", "typescript", "tsx", "jsx" -> "vitest"
-            "go" -> "go test"
-            "rust" -> "cargo test"
-            "ruby" -> "rspec"
-            "csharp" -> "nunit"
-            else -> "junit"
-        }
+    private fun detectFramework(language: String): String = when (language) {
+        "kotlin" -> "junit + mockk"
+        "java" -> "junit + mockito"
+        "python" -> "pytest"
+        "javascript", "typescript" -> "vitest"
+        "go" -> "go test"
+        "rust" -> "cargo test"
+        "ruby" -> "rspec"
+        "csharp" -> "nunit"
+        else -> "junit"
     }
 
     private fun detectLanguage(path: String): String {
@@ -167,7 +133,6 @@ Can generate tests for a file, function, class, or selection."""
             "py" -> "python"
             "js" -> "javascript"
             "ts" -> "typescript"
-            "tsx", "jsx" -> "tsx"
             "rs" -> "rust"
             "go" -> "go"
             "rb" -> "ruby"

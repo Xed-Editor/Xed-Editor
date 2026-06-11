@@ -41,8 +41,7 @@ Returns structured review with severity levels. Can review a file, selection, or
                 selection
             }
             "diff" -> {
-                val workspacePath = context.ideService.getPrimaryWorkspacePath()
-                val diff = context.ideService.getGitDiff(workspacePath)
+                val diff = context.ideService.getGitDiff(context.ideService.getPrimaryWorkspacePath())
                 if (diff.isBlank()) return McpToolResult.error("No diff available")
                 diff
             }
@@ -80,12 +79,7 @@ Returns structured review with severity levels. Can review a file, selection, or
                 if (code.length > 50000) appendLine("\n... (truncated)")
                 appendLine("```")
             },
-            mapOf(
-                "target" to target,
-                "language" to detectedLang,
-                "focus" to focus,
-                "codeLength" to code.length
-            )
+            emptyMap()
         )
     }
 
@@ -94,7 +88,6 @@ Returns structured review with severity levels. Can review a file, selection, or
             appendLine("You are an expert code reviewer. Analyze the following $language code and provide a structured review.")
             appendLine()
             appendLine("Review criteria:")
-
             if (focus == "all" || focus == "bugs") {
                 appendLine("- **Bugs**: Logic errors, null safety, race conditions, resource leaks, off-by-one errors")
             }
@@ -107,7 +100,6 @@ Returns structured review with severity levels. Can review a file, selection, or
             if (includeStyle) {
                 appendLine("- **Style**: Naming conventions, code organization, dead code, complexity")
             }
-
             appendLine()
             appendLine("For each issue found, provide:")
             appendLine("1. **Severity**: error | warning | info")
@@ -117,27 +109,7 @@ Returns structured review with severity levels. Can review a file, selection, or
             appendLine("5. **Suggestion**: How to fix it")
             appendLine("6. **Code snippet**: The problematic code")
             appendLine()
-            appendLine("Respond in this JSON format:")
-            appendLine("```json")
-            appendLine("""{
-  "summary": "Brief overall assessment",
-  "issues": [
-    {
-      "severity": "warning",
-      "category": "bug",
-      "line": 42,
-      "description": "Description of issue",
-      "suggestion": "How to fix it",
-      "snippet": "problematic code"
-    }
-  ],
-  "metrics": {
-    "complexity": "low|medium|high",
-    "readability": "good|fair|poor",
-    "maintainability": "good|fair|poor"
-  }
-}""")
-            appendLine("```")
+            appendLine("Respond in JSON format with summary, issues array, and metrics.")
         }
     }
 
@@ -152,17 +124,6 @@ Returns structured review with severity levels. Can review a file, selection, or
             "tsx", "jsx" -> "tsx"
             "rs" -> "rust"
             "go" -> "go"
-            "c", "h" -> "c"
-            "cpp", "cc", "cxx" -> "cpp"
-            "cs" -> "csharp"
-            "rb" -> "ruby"
-            "php" -> "php"
-            "swift" -> "swift"
-            "xml" -> "xml"
-            "json" -> "json"
-            "yaml", "yml" -> "yaml"
-            "md" -> "markdown"
-            "sh", "bash" -> "bash"
             else -> "text"
         }
     }

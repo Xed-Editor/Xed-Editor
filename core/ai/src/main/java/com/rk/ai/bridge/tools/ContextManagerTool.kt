@@ -7,15 +7,13 @@ import com.rk.ai.bridge.McpToolResult
 class ContextManagerTool : BaseMcpTool() {
     override fun getCategory(): String = "AI Context"
     override fun getName(): String = "manageContext"
-    override fun getDescription(): String = """Manages AI context window. Compress, summarize, or extract relevant context 
-from codebase. Helps stay within token limits while maintaining understanding."""
+    override fun getDescription(): String = """Manages AI context window. Compress, summarize, or extract relevant context."""
 
     override fun getRequiredParams(): Map<String, String> = mapOf("action" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "target" to "string",
         "maxTokens" to "number",
-        "preserve" to "string",
-        "summarize" to "boolean"
+        "preserve" to "string"
     )
     override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
         "action" to "Action: 'summarize', 'compress', 'extract', 'prioritize', 'split'"
@@ -23,8 +21,7 @@ from codebase. Helps stay within token limits while maintaining understanding.""
     override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
         "target" to "File path, 'project', 'selection', or 'openFiles'",
         "maxTokens" to "Maximum tokens in output (default: 8000)",
-        "preserve" to "What to preserve: 'functions', 'classes', 'imports', 'all' (default: all)",
-        "summarize" to "Generate summary instead of full content (default: false)"
+        "preserve" to "What to preserve: 'functions', 'classes', 'imports', 'all'"
     )
 
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
@@ -32,7 +29,6 @@ from codebase. Helps stay within token limits while maintaining understanding.""
         val target = optionalString(args, "target", "openFiles")
         val maxTokens = optionalInt(args, "maxTokens") ?: 8000
         val preserve = optionalString(args, "preserve", "all")
-        val summarize = optionalBoolean(args, "summarize", false)
 
         val content = when (target.lowercase()) {
             "project" -> {
@@ -64,7 +60,7 @@ from codebase. Helps stay within token limits while maintaining understanding.""
             "extract" -> extractKeyInfo(content, target, preserve)
             "prioritize" -> prioritizeContent(content, target, maxTokens)
             "split" -> splitContext(content, target, maxTokens)
-            else -> return McpToolResult.error("Unknown action: $action. Use: summarize, compress, extract, prioritize, split")
+            else -> return McpToolResult.error("Unknown action: $action")
         }
 
         return McpToolResult.success(result, mapOf(
@@ -76,111 +72,60 @@ from codebase. Helps stay within token limits while maintaining understanding.""
         ))
     }
 
-    private fun summarizeContent(content: String, target: String, maxTokens: Int): String {
-        return buildString {
-            appendLine("## Context Summary Request")
-            appendLine("**Target:** $target")
-            appendLine("**Max Tokens:** $maxTokens")
-            appendLine()
-            appendLine("### Instructions for AI Agent:")
-            appendLine("Summarize the following content concisely, preserving:")
-            appendLine("- Key function/class names and their purposes")
-            appendLine("- Important constants and configurations")
-            appendLine("- Public API surface")
-            appendLine("- Critical business logic")
-            appendLine()
-            appendLine("### Content to Summarize:")
-            appendLine("```")
-            appendLine(content.take(100000))
-            appendLine("```")
-        }
+    private fun summarizeContent(content: String, target: String, maxTokens: Int): String = buildString {
+        appendLine("## Context Summary Request")
+        appendLine("**Target:** $target")
+        appendLine("**Max Tokens:** $maxTokens")
+        appendLine()
+        appendLine("### Instructions for AI Agent:")
+        appendLine("Summarize the following content concisely.")
+        appendLine()
+        appendLine("### Content to Summarize:")
+        appendLine("```")
+        appendLine(content.take(100000))
+        appendLine("```")
     }
 
-    private fun compressContent(content: String, target: String, maxTokens: Int, preserve: String): String {
-        return buildString {
-            appendLine("## Context Compression Request")
-            appendLine("**Target:** $target")
-            appendLine("**Max Tokens:** $maxTokens")
-            appendLine("**Preserve:** $preserve")
-            appendLine()
-            appendLine("### Instructions for AI Agent:")
-            appendLine("Compress the following content to fit within $maxTokens tokens while preserving:")
-            when (preserve) {
-                "functions" -> appendLine("- All function signatures and their docstrings")
-                "classes" -> appendLine("- All class definitions and their public methods")
-                "imports" -> appendLine("- All imports and essential code structure")
-                "all" -> appendLine("- Essential code structure and logic")
-            }
-            appendLine("- Remove comments, blank lines, and non-essential whitespace")
-            appendLine("- Abbreviate variable names where safe")
-            appendLine()
-            appendLine("### Content to Compress:")
-            appendLine("```")
-            appendLine(content.take(100000))
-            appendLine("```")
-        }
+    private fun compressContent(content: String, target: String, maxTokens: Int, preserve: String): String = buildString {
+        appendLine("## Context Compression Request")
+        appendLine("**Target:** $target")
+        appendLine("**Max Tokens:** $maxTokens")
+        appendLine("**Preserve:** $preserve")
+        appendLine()
+        appendLine("### Instructions for AI Agent:")
+        appendLine("Compress the following content to fit within $maxTokens tokens.")
+        appendLine()
+        appendLine("### Content to Compress:")
+        appendLine("```")
+        appendLine(content.take(100000))
+        appendLine("```")
     }
 
-    private fun extractKeyInfo(content: String, target: String, preserve: String): String {
-        return buildString {
-            appendLine("## Key Information Extraction")
-            appendLine("**Target:** $target")
-            appendLine("**Extract:** $preserve")
-            appendLine()
-            appendLine("### Instructions for AI Agent:")
-            appendLine("Extract the following key information from the code:")
-            when (preserve) {
-                "functions" -> {
-                    appendLine("- Function names, parameters, return types")
-                    appendLine("- Function purposes (from docstrings or inference)")
-                }
-                "classes" -> {
-                    appendLine("- Class names, inheritance hierarchy")
-                    appendLine("- Public methods and properties")
-                }
-                "imports" -> {
-                    appendLine("- All import statements")
-                    appendLine("- External dependencies used")
-                }
-                "all" -> {
-                    appendLine("- File structure and organization")
-                    appendLine("- Key functions and classes")
-                    appendLine("- Dependencies and imports")
-                    appendLine("- Constants and configurations")
-                }
-            }
-            appendLine()
-            appendLine("### Source Code:")
-            appendLine("```")
-            appendLine(content.take(100000))
-            appendLine("```")
-        }
+    private fun extractKeyInfo(content: String, target: String, preserve: String): String = buildString {
+        appendLine("## Key Information Extraction")
+        appendLine("**Target:** $target")
+        appendLine("**Extract:** $preserve")
+        appendLine()
+        appendLine("### Source Code:")
+        appendLine("```")
+        appendLine(content.take(100000))
+        appendLine("```")
     }
 
-    private fun prioritizeContent(content: String, target: String, maxTokens: Int): String {
-        return buildString {
-            appendLine("## Content Prioritization")
-            appendLine("**Target:** $target")
-            appendLine("**Max Tokens:** $maxTokens")
-            appendLine()
-            appendLine("### Instructions for AI Agent:")
-            appendLine("Prioritize the content by importance, keeping the most critical parts:")
-            appendLine("1. Core business logic and algorithms")
-            appendLine("2. Public API surface")
-            appendLine("3. Error handling and edge cases")
-            appendLine("4. Configuration and constants")
-            appendLine("5. Helper functions (summarize less important ones)")
-            appendLine()
-            appendLine("### Content to Prioritize:")
-            appendLine("```")
-            appendLine(content.take(100000))
-            appendLine("```")
-        }
+    private fun prioritizeContent(content: String, target: String, maxTokens: Int): String = buildString {
+        appendLine("## Content Prioritization")
+        appendLine("**Target:** $target")
+        appendLine("**Max Tokens:** $maxTokens")
+        appendLine()
+        appendLine("### Content to Prioritize:")
+        appendLine("```")
+        appendLine(content.take(100000))
+        appendLine("```")
     }
 
     private fun splitContext(content: String, target: String, maxTokens: Int): String {
         val lines = content.lines()
-        val chunkSize = maxTokens / 4 // Approximate lines per chunk
+        val chunkSize = maxTokens / 4
         val chunks = lines.chunked(chunkSize)
 
         return buildString {

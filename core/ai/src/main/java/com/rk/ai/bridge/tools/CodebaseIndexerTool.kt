@@ -7,8 +7,7 @@ import com.rk.ai.bridge.McpToolResult
 class CodebaseIndexerTool : BaseMcpTool() {
     override fun getCategory(): String = "AI Code Intelligence"
     override fun getName(): String = "indexCodebase"
-    override fun getDescription(): String = """Builds a searchable index of the codebase for faster AI comprehension.
-Indexes file structure, symbols, dependencies, and relationships."""
+    override fun getDescription(): String = """Builds a searchable index of the codebase for faster AI comprehension."""
 
     override fun getRequiredParams(): Map<String, String> = mapOf("action" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -34,15 +33,15 @@ Indexes file structure, symbols, dependencies, and relationships."""
         val workspacePath = context.ideService.getPrimaryWorkspacePath()
 
         return when (action.lowercase()) {
-            "build" -> buildIndex(context, workspacePath, scope, depth, includeTests)
-            "search" -> searchIndex(context, args, workspacePath)
+            "build" -> buildIndex(context, workspacePath, scope, depth)
+            "search" -> searchIndex(context, workspacePath)
             "stats" -> getIndexStats(context, workspacePath)
             "dependencies" -> getDependencies(context, workspacePath)
             else -> McpToolResult.error("Unknown action: $action. Use: build, search, stats, dependencies")
         }
     }
 
-    private suspend fun buildIndex(context: McpToolContext, workspacePath: String, scope: String, depth: Int, includeTests: Boolean): McpToolResult {
+    private suspend fun buildIndex(context: McpToolContext, workspacePath: String, scope: String, depth: Int): McpToolResult {
         val structure = context.ideService.getProjectStructure(workspacePath, depth, 200)
 
         return McpToolResult.success(
@@ -60,59 +59,41 @@ Indexes file structure, symbols, dependencies, and relationships."""
                 appendLine("- Use `stats` action to get statistics")
                 appendLine("- Use `dependencies` action to analyze dependencies")
             },
-            mapOf(
-                "action" to "build",
-                "scope" to scope,
-                "workspacePath" to workspacePath,
-                "structureLength" to structure.length
-            )
+            emptyMap()
         )
     }
 
-    private suspend fun searchIndex(context: McpToolContext, args: JsonObject, workspacePath: String): McpToolResult {
-        val query = requireString(args, "query")
+    private suspend fun searchIndex(context: McpToolContext, workspacePath: String): McpToolResult {
         val structure = context.ideService.getProjectStructure(workspacePath, 5, 200)
 
         return McpToolResult.success(
             buildString {
                 appendLine("## Index Search Results")
-                appendLine("**Query:** $query")
+                appendLine("**Query:** see project structure")
                 appendLine()
                 if (structure.isBlank()) {
                     appendLine("No results found.")
                 } else {
-                    appendLine("Search the project structure above for: $query")
+                    appendLine("Search the project structure above")
                     appendLine(structure.take(20000))
                 }
             },
-            mapOf("query" to query)
+            emptyMap()
         )
     }
 
     private suspend fun getIndexStats(context: McpToolContext, workspacePath: String): McpToolResult {
         val structure = context.ideService.getProjectStructure(workspacePath, 5, 200)
 
-        val lines = structure.lines()
-        val fileCount = lines.count { !it.contains("/") || it.endsWith("/") }
-        val dirCount = lines.count { it.endsWith("/") }
-
         return McpToolResult.success(
             buildString {
                 appendLine("## Codebase Statistics")
                 appendLine("**Workspace:** $workspacePath")
                 appendLine()
-                appendLine("### File Statistics:")
-                appendLine("- **Files:** ~$fileCount")
-                appendLine("- **Directories:** ~$dirCount")
-                appendLine()
                 appendLine("### Structure Overview:")
                 appendLine(structure.take(10000))
             },
-            mapOf(
-                "workspacePath" to workspacePath,
-                "estimatedFiles" to fileCount,
-                "estimatedDirs" to dirCount
-            )
+            emptyMap()
         )
     }
 
@@ -134,9 +115,8 @@ Indexes file structure, symbols, dependencies, and relationships."""
                 appendLine()
                 appendLine("### Dependency Analysis:")
                 appendLine("- Check build files (build.gradle, package.json, etc.) for dependencies")
-                appendLine("- Use `search` to find import statements")
             },
-            mapOf("workspacePath" to workspacePath)
+            emptyMap()
         )
     }
 }

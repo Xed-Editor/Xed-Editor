@@ -8,7 +8,7 @@ class DocGeneratorTool : BaseMcpTool() {
     override fun getCategory(): String = "AI Code Generation"
     override fun getName(): String = "generateDocs"
     override fun getDescription(): String = """Generates documentation for code. Supports multiple formats:
-README, API docs, inline comments, JSDoc, KDoc, and more."""
+README, API docs, inline comments, and more."""
 
     override fun getRequiredParams(): Map<String, String> = mapOf("target" to "string", "format" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -45,8 +45,7 @@ README, API docs, inline comments, JSDoc, KDoc, and more."""
                 selection to activePath
             }
             "project" -> {
-                val workspacePath = context.ideService.getPrimaryWorkspacePath()
-                "" to workspacePath
+                "" to context.ideService.getPrimaryWorkspacePath()
             }
             "openfiles" -> {
                 val files = context.ideService.getOpenFiles()
@@ -62,7 +61,7 @@ README, API docs, inline comments, JSDoc, KDoc, and more."""
         }
 
         val detectedLang = language ?: detectLanguage(filePath)
-        val docPrompt = buildDocPrompt(code, detectedLang, format, style, audience, includeExamples, target)
+        val docPrompt = buildDocPrompt(code, detectedLang, format, style, audience, includeExamples)
 
         return McpToolResult.success(
             buildString {
@@ -84,84 +83,31 @@ README, API docs, inline comments, JSDoc, KDoc, and more."""
                     appendLine("```")
                 }
             },
-            mapOf(
-                "target" to target,
-                "format" to format,
-                "language" to detectedLang,
-                "style" to style
-            )
+            emptyMap()
         )
     }
 
-    private fun buildDocPrompt(code: String, language: String, format: String, style: String, audience: String, includeExamples: Boolean, target: String): String {
-        return buildString {
-            appendLine("You are a technical writer specializing in software documentation.")
-            appendLine()
-
-            when (format.lowercase()) {
-                "readme" -> {
-                    appendLine("Generate a comprehensive README.md for this code/project.")
-                    appendLine("Include:")
-                    appendLine("- Project overview and purpose")
-                    appendLine("- Installation instructions")
-                    appendLine("- Usage examples")
-                    appendLine("- API reference (if applicable)")
-                    appendLine("- Configuration options")
-                    appendLine("- Contributing guidelines")
-                }
-                "api" -> {
-                    appendLine("Generate API documentation for this code.")
-                    appendLine("Include:")
-                    appendLine("- Endpoint/function signatures")
-                    appendLine("- Parameter descriptions")
-                    appendLine("- Return value descriptions")
-                    appendLine("- Usage examples")
-                    appendLine("- Error handling")
-                }
-                "inline" -> {
-                    appendLine("Generate inline documentation for this code.")
-                    appendLine("Add:")
-                    appendLine("- Function/method docstrings")
-                    appendLine("- Class documentation")
-                    appendLine("- Complex logic comments")
-                    appendLine("- Type annotations where helpful")
-                }
-                "changelog" -> {
-                    appendLine("Generate a changelog entry for recent changes.")
-                    appendLine("Follow Keep a Changelog format:")
-                    appendLine("- Added, Changed, Deprecated, Removed, Fixed, Security")
-                }
-                "adr" -> {
-                    appendLine("Generate an Architecture Decision Record (ADR).")
-                    appendLine("Include:")
-                    appendLine("- Title and date")
-                    appendLine("- Status")
-                    appendLine("- Context")
-                    appendLine("- Decision")
-                    appendLine("- Consequences")
-                }
+    private fun buildDocPrompt(code: String, language: String, format: String, style: String, audience: String, includeExamples: Boolean): String = buildString {
+        appendLine("You are a technical writer specializing in software documentation.")
+        appendLine()
+        when (format.lowercase()) {
+            "readme" -> {
+                appendLine("Generate a comprehensive README.md for this code/project.")
+                appendLine("Include: project overview, installation, usage examples, API reference, configuration, contributing guidelines.")
             }
-
-            appendLine()
-            appendLine("### Style Guidelines:")
-            when (style) {
-                "concise" -> appendLine("- Be brief and to the point")
-                "detailed" -> appendLine("- Provide comprehensive explanations")
-                "tutorial" -> appendLine("- Write as a step-by-step tutorial for beginners")
+            "api" -> {
+                appendLine("Generate API documentation for this code.")
+                appendLine("Include: endpoint/function signatures, parameter descriptions, return values, usage examples, error handling.")
             }
-
-            appendLine()
-            appendLine("### Audience: $audience")
-            when (audience) {
-                "developer" -> appendLine("- Assume technical knowledge")
-                "user" -> appendLine("- Focus on usage, not implementation")
-                "api" -> appendLine("- Focus on API contracts and usage")
+            "inline" -> {
+                appendLine("Generate inline documentation for this code.")
+                appendLine("Add: function/method docstrings, class documentation, complex logic comments, type annotations.")
             }
-
-            if (includeExamples) {
-                appendLine()
-                appendLine("- Include practical code examples")
-                appendLine("- Show common use cases")
+            "changelog" -> {
+                appendLine("Generate a changelog entry following Keep a Changelog format.")
+            }
+            "adr" -> {
+                appendLine("Generate an Architecture Decision Record (ADR). Include: title, status, context, decision, consequences.")
             }
         }
     }
@@ -174,9 +120,6 @@ README, API docs, inline comments, JSDoc, KDoc, and more."""
             "py" -> "python"
             "js" -> "javascript"
             "ts" -> "typescript"
-            "tsx", "jsx" -> "tsx"
-            "rs" -> "rust"
-            "go" -> "go"
             else -> "text"
         }
     }

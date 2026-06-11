@@ -7,8 +7,7 @@ import com.rk.ai.bridge.McpToolResult
 class TaskPlannerTool : BaseMcpTool() {
     override fun getCategory(): String = "AI Planning"
     override fun getName(): String = "planTask"
-    override fun getDescription(): String = """Breaks down complex coding tasks into executable steps. 
-Creates a structured plan with dependencies, risks, and estimated complexity."""
+    override fun getDescription(): String = """Breaks down complex coding tasks into executable steps."""
 
     override fun getRequiredParams(): Map<String, String> = mapOf("task" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -36,11 +35,8 @@ Creates a structured plan with dependencies, risks, and estimated complexity."""
 
         val workspacePath = context.ideService.getPrimaryWorkspacePath()
         val projectStructure = context.ideService.getProjectStructure(workspacePath, 5, 200)
-        val openFiles = context.ideService.getOpenFiles()
-        val projectConfig = context.ideService.getProjectConfig(workspacePath)
 
-        val planPrompt = buildPlanPrompt(task, taskContext, constraints, maxSteps, includeTests,
-            projectStructure, openFiles, projectConfig)
+        val planPrompt = buildPlanPrompt(task, taskContext, constraints, maxSteps, includeTests, projectStructure)
 
         return McpToolResult.success(
             buildString {
@@ -53,11 +49,7 @@ Creates a structured plan with dependencies, risks, and estimated complexity."""
                 appendLine("### Instructions for AI Agent:")
                 appendLine(planPrompt)
             },
-            mapOf(
-                "task" to task,
-                "maxSteps" to maxSteps,
-                "includeTests" to includeTests
-            )
+            emptyMap()
         )
     }
 
@@ -67,88 +59,35 @@ Creates a structured plan with dependencies, risks, and estimated complexity."""
         constraints: String?,
         maxSteps: Int,
         includeTests: Boolean,
-        projectStructure: String,
-        openFiles: List<JsonObject>,
-        projectConfig: JsonObject
-    ): String {
-        return buildString {
-            appendLine("You are an expert software architect. Create a detailed execution plan for the following task.")
+        projectStructure: String
+    ): String = buildString {
+        appendLine("You are an expert software architect. Create a detailed execution plan for the following task.")
+        appendLine()
+        appendLine("### Task:")
+        appendLine(task)
+        if (!context.isNullOrBlank()) {
             appendLine()
-            appendLine("### Task:")
-            appendLine(task)
-
-            if (!context.isNullOrBlank()) {
-                appendLine()
-                appendLine("### Additional Context:")
-                appendLine(context)
-            }
-
-            if (!constraints.isNullOrBlank()) {
-                appendLine()
-                appendLine("### Constraints:")
-                appendLine(constraints)
-            }
-
-            if (projectStructure.isNotBlank()) {
-                appendLine()
-                appendLine("### Project Structure:")
-                appendLine(projectStructure.take(5000))
-            }
-
-            if (openFiles.isNotEmpty()) {
-                appendLine()
-                appendLine("### Open Files:")
-                openFiles.take(10).forEach { file ->
-                    appendLine("- ${file.get("filePath")?.asString ?: file.toString()}")
-                }
-            }
-
-            val configStr = projectConfig.toString()
-            if (configStr.isNotBlank() && configStr != "{}") {
-                appendLine()
-                appendLine("### Project Config:")
-                appendLine(configStr.take(1000))
-            }
-
+            appendLine("### Additional Context:")
+            appendLine(context)
+        }
+        if (!constraints.isNullOrBlank()) {
             appendLine()
-            appendLine("### Plan Requirements:")
-            appendLine("- Break the task into $maxSteps or fewer clear, actionable steps")
-            appendLine("- Each step should be independently testable")
-            appendLine("- Identify dependencies between steps")
-            appendLine("- Estimate complexity for each step (low/medium/high)")
-            appendLine("- Identify potential risks and mitigation strategies")
-            if (includeTests) {
-                appendLine("- Include testing steps after implementation steps")
-            }
+            appendLine("### Constraints:")
+            appendLine(constraints)
+        }
+        if (projectStructure.isNotBlank()) {
             appendLine()
-            appendLine("### Respond in this JSON format:")
-            appendLine("```json")
-            appendLine("""{
-  "summary": "Brief overview of the approach",
-  "steps": [
-    {
-      "id": 1,
-      "title": "Step title",
-      "description": "Detailed description of what to do",
-      "files": ["files to modify/create"],
-      "dependencies": [0],
-      "complexity": "low|medium|high",
-      "risks": ["potential issues"],
-      "testCriteria": "how to verify this step is complete"
-    }
-  ],
-  "risks": [
-    {
-      "description": "Risk description",
-      "likelihood": "low|medium|high",
-      "impact": "low|medium|high",
-      "mitigation": "How to mitigate"
-    }
-  ],
-  "totalComplexity": "low|medium|high",
-  "estimatedTime": "rough time estimate"
-}""")
-            appendLine("```")
+            appendLine("### Project Structure:")
+            appendLine(projectStructure.take(5000))
+        }
+        appendLine()
+        appendLine("### Plan Requirements:")
+        appendLine("- Break the task into $maxSteps or fewer clear, actionable steps")
+        appendLine("- Each step should be independently testable")
+        appendLine("- Identify dependencies between steps")
+        appendLine("- Estimate complexity for each step")
+        if (includeTests) {
+            appendLine("- Include testing steps after implementation steps")
         }
     }
 }
