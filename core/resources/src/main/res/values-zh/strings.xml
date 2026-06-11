@@ -648,4 +648,19 @@
     <string name="confirm_exit_dialog_desc">在关闭 App 前显示确认对话框</string>
     <string name="sort_lines_ascending">按升序排列行</string>
     <string name="sort_lines_descending">按降序排列行</string>
+    <string name="updating">更新中…</string>
+    <string name="choose_runner">选择运行器</string>
+    <string name="ext_cleanup_failed">扩展清理失败</string>
+    <string name="uninstall_ext_dialog">是否卸载扩展？</string>
+    <string name="uninstall_ext_dialog_desc">你确定要卸载扩展 \'%s\'？</string>
+    <string name="invalid_terminal_extra_keys">终端的符号栏格式不正确。将加载默认符号。</string>
+    <string name="manage_formatters">管理 formatter</string>
+    <string name="manage_formatters_desc">调整 formatter 的优先级和参数</string>
+    <string name="info_formatters">根据 formatter 的优先级，第一个支持当前编程语言的 formatter 将被调用。你可以通过长按并拖动的方式来调整顺序。</string>
+    <string name="document_highlight">高亮匹配项</string>
+    <string name="document_highlight_desc">高亮和光标所在内容相匹配的所有项目。</string>
+    <string name="formatter_lsp_desc">使用当前语言服务器</string>
+    <string name="browse_extensions">浏览扩展</string>
+    <string name="clipboard_keybindings">剪贴板快捷键</string>
+    <string name="clipboard_keybindings_desc">启用实体键盘的复制和粘贴快捷键。</string>
 </resources>
