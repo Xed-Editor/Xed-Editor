@@ -129,6 +129,7 @@ fun VibeCodingFileTreeSidebar(
                             depth = 0,
                             isExpanded = node.path in expandedPaths,
                             searchQuery = searchQuery,
+                            expandedPaths = expandedPaths,
                             onToggle = {
                                 expandedPaths = if (it in expandedPaths) {
                                     expandedPaths - it
@@ -151,6 +152,7 @@ private fun FileTreeItem(
     depth: Int,
     isExpanded: Boolean,
     searchQuery: String,
+    expandedPaths: Set<String>,
     onToggle: (String) -> Unit,
     onOpen: (String) -> Unit,
 ) {
@@ -225,6 +227,7 @@ private fun FileTreeItem(
                         depth = depth + 1,
                         isExpanded = child.path in expandedPaths,
                         searchQuery = searchQuery,
+                        expandedPaths = expandedPaths,
                         onToggle = onToggle,
                         onOpen = onOpen,
                     )
