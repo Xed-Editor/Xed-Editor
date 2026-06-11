@@ -305,4 +305,13 @@
     <string name="continue_action">계속</string>
     <string name="enable_sticky_scroll">고정 헤더 활성화</string>
     <string name="enable_sticky_scroll_desc">스크롤하는 동안 현재 코드 블록 헤더를 계속 표시합니다</string>
+    <string name="type_command">명령어 입력</string>
+    <string name="enable_quick_deletion">빠른 줄 삭제 활성화</string>
+    <string name="enable_quick_deletion_desc">줄이 비어있을 경우, 해당 줄을 자동으로 삭제합니다</string>
+    <string name="select_language">언어 선택</string>
+    <string name="recently_used">(최근 사용)</string>
+    <string name="command_palette">명령 팔레트</string>
+    <string name="rename_failed">파일 이름을 변경할 수 없습니다</string>
+    <string name="delete_failed">파일을 삭제할 수 없습니다</string>
+    <string name="paste_failed">파일을 붙여넣을 수 없습니다</string>
 </resources>
