@@ -35,7 +35,7 @@ Indexes file structure, symbols, dependencies, and relationships."""
 
         return when (action.lowercase()) {
             "build" -> buildIndex(context, workspacePath, scope, depth, includeTests)
-            "search" -> searchIndex(context, args)
+            "search" -> searchIndex(context, args, workspacePath)
             "stats" -> getIndexStats(context, workspacePath)
             "dependencies" -> getDependencies(context, workspacePath)
             else -> McpToolResult.error("Unknown action: $action. Use: build, search, stats, dependencies")
@@ -43,8 +43,7 @@ Indexes file structure, symbols, dependencies, and relationships."""
     }
 
     private suspend fun buildIndex(context: McpToolContext, workspacePath: String, scope: String, depth: Int, includeTests: Boolean): McpToolResult {
-        val structure = context.ideService.getProjectStructure(workspacePath)
-            ?: return McpToolResult.error("Could not get project structure")
+        val structure = context.ideService.getProjectStructure(workspacePath, depth, 200)
 
         return McpToolResult.success(
             buildString {
@@ -70,19 +69,20 @@ Indexes file structure, symbols, dependencies, and relationships."""
         )
     }
 
-    private suspend fun searchIndex(context: McpToolContext, args: JsonObject): McpToolResult {
+    private suspend fun searchIndex(context: McpToolContext, args: JsonObject, workspacePath: String): McpToolResult {
         val query = requireString(args, "query")
-        val results = context.ideService.searchCode(query, null)
+        val structure = context.ideService.getProjectStructure(workspacePath, 5, 200)
 
         return McpToolResult.success(
             buildString {
                 appendLine("## Index Search Results")
                 appendLine("**Query:** $query")
                 appendLine()
-                if (results.isNullOrBlank()) {
+                if (structure.isBlank()) {
                     appendLine("No results found.")
                 } else {
-                    appendLine(results.take(20000))
+                    appendLine("Search the project structure above for: $query")
+                    appendLine(structure.take(20000))
                 }
             },
             mapOf("query" to query)
@@ -90,8 +90,7 @@ Indexes file structure, symbols, dependencies, and relationships."""
     }
 
     private suspend fun getIndexStats(context: McpToolContext, workspacePath: String): McpToolResult {
-        val structure = context.ideService.getProjectStructure(workspacePath)
-            ?: return McpToolResult.error("Could not get project structure")
+        val structure = context.ideService.getProjectStructure(workspacePath, 5, 200)
 
         val lines = structure.lines()
         val fileCount = lines.count { !it.contains("/") || it.endsWith("/") }
@@ -118,16 +117,17 @@ Indexes file structure, symbols, dependencies, and relationships."""
     }
 
     private suspend fun getDependencies(context: McpToolContext, workspacePath: String): McpToolResult {
-        val config = context.ideService.getProjectConfig()
+        val config = context.ideService.getProjectConfig(workspacePath)
 
         return McpToolResult.success(
             buildString {
                 appendLine("## Project Dependencies")
                 appendLine("**Workspace:** $workspacePath")
                 appendLine()
-                if (!config.isNullOrBlank()) {
+                val configStr = config.toString()
+                if (configStr.isNotBlank() && configStr != "{}") {
                     appendLine("### Project Configuration:")
-                    appendLine(config.take(5000))
+                    appendLine(configStr.take(5000))
                 } else {
                     appendLine("No project configuration detected.")
                 }

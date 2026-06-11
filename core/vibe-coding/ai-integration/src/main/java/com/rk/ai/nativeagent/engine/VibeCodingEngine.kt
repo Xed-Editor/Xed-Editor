@@ -79,6 +79,7 @@ import kotlinx.serialization.json.putJsonObject
 import okhttp3.OkHttpClient
 import java.io.File
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -578,7 +579,7 @@ class VibeCodingEngine(
     }
 
     private var currentJob: Job? = null
-    private var autoRespondDepth = 0
+    private val autoRespondDepth = AtomicInteger(0)
     private val MAX_AUTO_RESPOND_DEPTH = 5
 
     private val systemPromptBuilder = SystemPromptBuilder(ideService)
@@ -960,21 +961,20 @@ class VibeCodingEngine(
     }
 
     private fun checkAndAutoRespondPermissions(): Boolean {
-        if (autoRespondDepth >= MAX_AUTO_RESPOND_DEPTH) {
+        if (autoRespondDepth.get() >= MAX_AUTO_RESPOND_DEPTH) {
             Log.w(TAG, "Auto-respond depth limit reached ($MAX_AUTO_RESPOND_DEPTH), stopping recursion")
-            autoRespondDepth = 0
+            autoRespondDepth.set(0)
             return false
         }
-        val lastMessage = _state.value.messages.lastOrNull() ?: return false
-        val tools = lastMessage.getTools().filter { it.isPending }
-        if (tools.isEmpty()) {
-            autoRespondDepth = 0
+        val allPendingTools = _state.value.messages.flatMap { it.getTools() }.filter { it.isPending }
+        if (allPendingTools.isEmpty()) {
+            autoRespondDepth.set(0)
             return false
         }
 
         var didChange = false
-        autoRespondDepth++
-        for (tool in tools) {
+        autoRespondDepth.incrementAndGet()
+        for (tool in allPendingTools) {
             val action = permissionManager.getAction(tool.toolName, tool.input)
             when (action) {
                 PermissionAction.ALLOW -> {
@@ -988,7 +988,7 @@ class VibeCodingEngine(
                 else -> { }
             }
         }
-        if (!didChange) autoRespondDepth = 0
+        if (!didChange) autoRespondDepth.set(0)
         return didChange
     }
 

@@ -54,17 +54,19 @@ This prevents accidental changes and ensures careful consideration."""
         maxSteps: Int,
         requireApproval: Boolean
     ): McpToolResult {
-        // Gather project context
-        val projectStructure = context.ideService.getProjectStructure(
-            context.ideService.getPrimaryWorkspacePath()
-        )
+        val workspacePath = context.ideService.getPrimaryWorkspacePath()
+        val projectStructure = context.ideService.getProjectStructure(workspacePath, 3, 200)
         val openFiles = context.ideService.getOpenFiles()
-        val projectConfig = context.ideService.getProjectConfig()
-        val diagnostics = context.ideService.getDiagnostics(context.ideService.getActiveFile() ?: "")
+        val projectConfig = context.ideService.getProjectConfig(workspacePath)
+        val activeFile = context.ideService.getActiveFile()
+        val diagnostics = if (activeFile != null) {
+            val filePath = activeFile.get("filePath")?.asString
+            if (filePath != null) context.ideService.getDiagnostics(filePath) else null
+        } else null
 
         return McpToolResult.success(
             buildString {
-                appendLine("## 🎯 PLAN MODE ACTIVATED")
+                appendLine("## PLAN MODE ACTIVATED")
                 appendLine()
                 appendLine("You are now in **PLAN MODE**. You MUST follow this workflow:")
                 appendLine()
@@ -100,22 +102,24 @@ This prevents accidental changes and ensures careful consideration."""
                     appendLine(taskContext)
                 }
 
-                if (!projectStructure.isNullOrBlank()) {
+                if (projectStructure.isNotBlank()) {
                     appendLine()
                     appendLine("### Project Structure:")
                     appendLine(projectStructure.take(5000))
                 }
 
-                if (!openFiles.isNullOrBlank()) {
+                if (openFiles.isNotEmpty()) {
                     appendLine()
                     appendLine("### Open Files:")
-                    appendLine(openFiles.take(2000))
+                    openFiles.take(5).forEach { file ->
+                        appendLine("- ${file.get("filePath")?.asString ?: file.toString()}")
+                    }
                 }
 
-                if (!diagnostics.isNullOrBlank()) {
+                if (diagnostics != null && !diagnostics.isEmpty) {
                     appendLine()
                     appendLine("### Current Diagnostics:")
-                    appendLine(diagnostics.take(2000))
+                    appendLine(diagnostics.toString().take(2000))
                 }
 
                 appendLine()
@@ -158,7 +162,7 @@ This prevents accidental changes and ensures careful consideration."""
     private suspend fun approvePlan(context: McpToolContext, task: String): McpToolResult {
         return McpToolResult.success(
             buildString {
-                appendLine("## ✅ PLAN APPROVED")
+                appendLine("## PLAN APPROVED")
                 appendLine()
                 appendLine("The plan has been approved. You may now execute the steps.")
                 appendLine()
@@ -179,7 +183,7 @@ This prevents accidental changes and ensures careful consideration."""
     private suspend fun rejectPlan(context: McpToolContext, task: String): McpToolResult {
         return McpToolResult.success(
             buildString {
-                appendLine("## ❌ PLAN REJECTED")
+                appendLine("## PLAN REJECTED")
                 appendLine()
                 appendLine("The plan has been rejected. Please:")
                 appendLine("1. Review the feedback")

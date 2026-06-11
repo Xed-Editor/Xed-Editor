@@ -1,6 +1,5 @@
 package com.rk.ai.bridge.tools
 
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
@@ -37,23 +36,24 @@ Returns structured review with severity levels. Can review a file, selection, or
 
         val code = when (target.lowercase()) {
             "selection" -> {
-                val active = context.ideService.getActiveFile() ?: return McpToolResult.error("No active file")
-                val selection = context.ideService.getSelection() ?: return McpToolResult.error("No selection")
+                val selection = context.ideService.getSelection()
+                if (selection.isBlank()) return McpToolResult.error("No selection")
                 selection
             }
             "diff" -> {
-                val diff = context.ideService.getGitDiff()
-                if (diff.isNullOrBlank()) return McpToolResult.error("No diff available")
+                val workspacePath = context.ideService.getPrimaryWorkspacePath()
+                val diff = context.ideService.getGitDiff(workspacePath)
+                if (diff.isBlank()) return McpToolResult.error("No diff available")
                 diff
             }
             "openfiles" -> {
                 val files = context.ideService.getOpenFiles()
-                if (files.isNullOrBlank()) return McpToolResult.error("No open files")
-                files
+                if (files.isEmpty()) return McpToolResult.error("No open files")
+                files.joinToString("\n") { it.toString() }
             }
             else -> {
                 val file = resolvePathOrThrow(context, target)
-                context.ideService.getFileContent(file.absolutePath, null, null)
+                context.ideService.getFileContent(file.absolutePath)
                     ?: return McpToolResult.error("Could not read file: $target")
             }
         }
@@ -158,7 +158,6 @@ Returns structured review with severity levels. Can review a file, selection, or
             "rb" -> "ruby"
             "php" -> "php"
             "swift" -> "swift"
-            "kt" -> "kotlin"
             "xml" -> "xml"
             "json" -> "json"
             "yaml", "yml" -> "yaml"

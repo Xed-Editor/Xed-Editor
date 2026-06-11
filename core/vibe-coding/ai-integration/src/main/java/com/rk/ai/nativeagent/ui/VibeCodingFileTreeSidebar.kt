@@ -10,10 +10,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,6 +53,7 @@ fun VibeCodingFileTreeSidebar(
 
     LaunchedEffect(workspacePath) {
         isLoading = true
+        expandedPaths = emptySet()
         try {
             val structure = ideService.getProjectStructure(workspacePath, 3, 200)
             rootNodes = parseStructure(structure)
@@ -71,7 +81,11 @@ fun VibeCodingFileTreeSidebar(
                     onClick = onDismiss,
                     modifier = Modifier.size(24.dp),
                 ) {
-                    Text("✕", style = MaterialTheme.typography.labelSmall)
+                    Icon(
+                        Icons.Outlined.Close,
+                        contentDescription = "Close",
+                        modifier = Modifier.size(16.dp),
+                    )
                 }
             }
 
@@ -169,22 +183,23 @@ private fun FileTreeItem(
 
             Spacer(Modifier.width(4.dp))
 
-            val icon = when {
-                node.isDirectory -> if (isExpanded) "📂" else "📁"
-                node.name.endsWith(".kt") || node.name.endsWith(".kts") -> "K"
-                node.name.endsWith(".java") -> "J"
-                node.name.endsWith(".xml") || node.name.endsWith(".html") -> "X"
-                node.name.endsWith(".json") -> "{ }"
-                node.name.endsWith(".gradle") -> "G"
-                node.name.endsWith(".md") -> "M"
-                else -> "•"
+            val icon: ImageVector = when {
+                node.isDirectory -> if (isExpanded) Icons.Filled.FolderOpen else Icons.Filled.Folder
+                node.name.endsWith(".kt") || node.name.endsWith(".kts") -> Icons.Outlined.Code
+                node.name.endsWith(".java") -> Icons.Outlined.Code
+                node.name.endsWith(".xml") || node.name.endsWith(".html") -> Icons.Outlined.Code
+                node.name.endsWith(".json") -> Icons.Outlined.Settings
+                node.name.endsWith(".gradle") -> Icons.Outlined.Settings
+                node.name.endsWith(".md") -> Icons.Outlined.Description
+                node.name.endsWith(".png") || node.name.endsWith(".jpg") -> Icons.Outlined.Image
+                else -> Icons.Outlined.Description
             }
 
-            Text(
-                text = icon,
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
-                color = colorScheme.onSurfaceVariant,
-                modifier = Modifier.width(16.dp),
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = colorScheme.onSurfaceVariant,
             )
 
             Text(
@@ -218,8 +233,6 @@ private fun FileTreeItem(
         }
     }
 }
-
-private val expandedPaths = mutableStateMapOf<String, Boolean>()
 
 private fun parseStructure(jsonString: String): List<FileNode> {
     // Simplified: parse from the getProjectStructure JSON format

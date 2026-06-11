@@ -46,6 +46,7 @@ fun VibeCodingPanel(
     val state by engine.state.collectAsState()
     val colorScheme = MaterialTheme.colorScheme
     var showSettings by remember { mutableStateOf(false) }
+    var showClearDialog by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var showFiles by remember { mutableStateOf(false) }
     var showAgentPanel by remember { mutableStateOf(false) }
@@ -285,7 +286,7 @@ fun VibeCodingPanel(
                                 ToolbarButton(
                                     icon = Icons.Outlined.Delete,
                                     label = "Clear",
-                                    onClick = { engine.clearConversation() },
+                                    onClick = { showClearDialog = true },
                                     enabled = state.messages.isNotEmpty(),
                                 )
                             }
@@ -493,6 +494,29 @@ fun VibeCodingPanel(
                     .fillMaxHeight(),
             )
         }
+    }
+
+    if (showClearDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearDialog = false },
+            title = { Text("Clear Conversation") },
+            text = { Text("This will permanently delete all messages in this conversation. This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showClearDialog = false
+                        engine.clearConversation()
+                    },
+                ) {
+                    Text("Clear", color = colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+        )
     }
 
     if (showSettings) {

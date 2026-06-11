@@ -34,12 +34,10 @@ Creates a structured plan with dependencies, risks, and estimated complexity."""
         val maxSteps = optionalInt(args, "maxSteps") ?: 10
         val includeTests = optionalBoolean(args, "includeTests", true)
 
-        // Gather project context automatically
-        val projectStructure = context.ideService.getProjectStructure(
-            context.ideService.getPrimaryWorkspacePath()
-        )
+        val workspacePath = context.ideService.getPrimaryWorkspacePath()
+        val projectStructure = context.ideService.getProjectStructure(workspacePath, 5, 200)
         val openFiles = context.ideService.getOpenFiles()
-        val projectConfig = context.ideService.getProjectConfig()
+        val projectConfig = context.ideService.getProjectConfig(workspacePath)
 
         val planPrompt = buildPlanPrompt(task, taskContext, constraints, maxSteps, includeTests,
             projectStructure, openFiles, projectConfig)
@@ -69,9 +67,9 @@ Creates a structured plan with dependencies, risks, and estimated complexity."""
         constraints: String?,
         maxSteps: Int,
         includeTests: Boolean,
-        projectStructure: String?,
-        openFiles: String?,
-        projectConfig: String?
+        projectStructure: String,
+        openFiles: List<JsonObject>,
+        projectConfig: JsonObject
     ): String {
         return buildString {
             appendLine("You are an expert software architect. Create a detailed execution plan for the following task.")
@@ -91,22 +89,25 @@ Creates a structured plan with dependencies, risks, and estimated complexity."""
                 appendLine(constraints)
             }
 
-            if (!projectStructure.isNullOrBlank()) {
+            if (projectStructure.isNotBlank()) {
                 appendLine()
                 appendLine("### Project Structure:")
                 appendLine(projectStructure.take(5000))
             }
 
-            if (!openFiles.isNullOrBlank()) {
+            if (openFiles.isNotEmpty()) {
                 appendLine()
                 appendLine("### Open Files:")
-                appendLine(openFiles.take(2000))
+                openFiles.take(10).forEach { file ->
+                    appendLine("- ${file.get("filePath")?.asString ?: file.toString()}")
+                }
             }
 
-            if (!projectConfig.isNullOrBlank()) {
+            val configStr = projectConfig.toString()
+            if (configStr.isNotBlank() && configStr != "{}") {
                 appendLine()
                 appendLine("### Project Config:")
-                appendLine(projectConfig.take(1000))
+                appendLine(configStr.take(1000))
             }
 
             appendLine()

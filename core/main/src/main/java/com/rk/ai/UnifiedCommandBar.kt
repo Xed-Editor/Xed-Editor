@@ -53,6 +53,7 @@ fun UnifiedCommandBar(
     onAction: (String) -> Unit,
     terminalViewModel: TerminalViewModel,
     hasSelection: Boolean,
+    selectedText: String = "",
     currentFile: String,
 ) {
     var showAgentMenu by remember { mutableStateOf(false) }
@@ -135,6 +136,7 @@ fun UnifiedCommandBar(
                 isRunning = isAiRunning,
                 currentFile = currentFile,
                 hasSelection = hasSelection,
+                selectedText = selectedText,
                 onAction = onAction,
             )
         } else if (mode == BottomPanelMode.TERMINAL) {
@@ -639,12 +641,17 @@ private fun QuickActions(
     isRunning: Boolean,
     currentFile: String,
     hasSelection: Boolean,
+    selectedText: String,
     onAction: (String) -> Unit,
 ) {
     fun prompt(text: String) = buildString {
         append(text)
         if (currentFile.isNotBlank()) append(" in $currentFile")
-        if (hasSelection) append(" (selected code provided as context)")
+        if (hasSelection && selectedText.isNotBlank()) {
+            append("\n\nSelected code:\n```\n")
+            append(selectedText.take(5000))
+            append("\n```")
+        }
     }
 
     val colorScheme = MaterialTheme.colorScheme

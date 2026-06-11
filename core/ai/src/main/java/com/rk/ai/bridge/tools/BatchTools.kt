@@ -12,6 +12,7 @@ class ApplyBatchEditsTool : BaseMcpTool() {
     override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
         "edits" to "JSON object mapping file paths to their new content: {\"path/to/file.kt\": \"new content...\"}"
     )
+    override fun getTimeoutMs(): Long = 120_000L
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val editsObj = args.getAsJsonObject("edits") ?: throw ToolError.MissingParam("edits")
         val edits = mutableMapOf<String, String>()

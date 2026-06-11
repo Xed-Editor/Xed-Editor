@@ -38,24 +38,24 @@ README, API docs, inline comments, JSDoc, KDoc, and more."""
 
         val (code, filePath) = when (target.lowercase()) {
             "selection" -> {
-                val active = context.ideService.getActiveFile() ?: return McpToolResult.error("No active file")
-                val selection = context.ideService.getSelection() ?: return McpToolResult.error("No selection")
-                selection to active
+                val selection = context.ideService.getSelection()
+                if (selection.isBlank()) return McpToolResult.error("No selection")
+                val active = context.ideService.getActiveFile()
+                val activePath = active?.get("filePath")?.asString ?: "selection"
+                selection to activePath
             }
             "project" -> {
-                val structure = context.ideService.getProjectStructure(
-                    context.ideService.getPrimaryWorkspacePath()
-                )
-                val config = context.ideService.getProjectConfig()
-                "" to context.ideService.getPrimaryWorkspacePath()
+                val workspacePath = context.ideService.getPrimaryWorkspacePath()
+                "" to workspacePath
             }
             "openfiles" -> {
                 val files = context.ideService.getOpenFiles()
-                files to "open_files"
+                if (files.isEmpty()) return McpToolResult.error("No open files")
+                files.joinToString("\n") { it.toString() } to "open_files"
             }
             else -> {
                 val file = resolvePathOrThrow(context, target)
-                val content = context.ideService.getFileContent(file.absolutePath, null, null)
+                val content = context.ideService.getFileContent(file.absolutePath)
                     ?: return McpToolResult.error("Could not read file: $target")
                 content to file.absolutePath
             }

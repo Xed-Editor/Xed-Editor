@@ -80,6 +80,7 @@ abstract class IndexDatabase : RoomDatabase() {
                             IndexDatabase::class.java,
                             "index_database_${projectRoot.hashCode()}",
                         )
+                        .fallbackToDestructiveMigration()
                         .build()
                 instance.projectRoot = projectRoot
                 INSTANCES[projectRoot] = instance

@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
@@ -58,6 +61,7 @@ fun InlineAgentBar(
     val scope = rememberCoroutineScope()
     var input by remember { mutableStateOf("") }
     var response by remember { mutableStateOf<String?>(null) }
+    var isExpanded by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
 
     suspend fun runHeadless(prompt: String): String {
@@ -173,7 +177,7 @@ fun InlineAgentBar(
                     Surface(
                         shape = RoundedCornerShape(DesignTokens.Spacing.small),
                         color = MaterialTheme.colorScheme.surfaceContainer,
-                        modifier = Modifier.fillMaxWidth().heightIn(max = 150.dp),
+                        modifier = Modifier.fillMaxWidth().heightIn(max = if (isExpanded) 400.dp else 150.dp),
                     ) {
                         Column(
                             modifier = Modifier
@@ -182,9 +186,22 @@ fun InlineAgentBar(
                         ) {
                             Text(
                                 text = text,
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    fontFamily = FontFamily.Monospace
-                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        IconButton(
+                            onClick = { isExpanded = !isExpanded },
+                            modifier = Modifier.size(24.dp),
+                        ) {
+                            Icon(
+                                if (isExpanded) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                                modifier = Modifier.size(16.dp),
                             )
                         }
                     }

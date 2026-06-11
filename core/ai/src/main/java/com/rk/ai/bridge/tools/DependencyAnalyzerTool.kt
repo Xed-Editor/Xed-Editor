@@ -47,11 +47,12 @@ Identifies imports, module dependencies, and potential issues."""
     private suspend fun analyzeImports(context: McpToolContext, target: String?, workspacePath: String): McpToolResult {
         val content = if (target != null) {
             val file = resolvePathOrThrow(context, target)
-            context.ideService.getFileContent(file.absolutePath, null, null)
+            context.ideService.getFileContent(file.absolutePath)
                 ?: return McpToolResult.error("Could not read file: $target")
         } else {
-            context.ideService.getOpenFiles()
-                ?: return McpToolResult.error("No files to analyze")
+            val files = context.ideService.getOpenFiles()
+            if (files.isEmpty()) return McpToolResult.error("No files to analyze")
+            files.joinToString("\n") { it.toString() }
         }
 
         return McpToolResult.success(
@@ -76,8 +77,7 @@ Identifies imports, module dependencies, and potential issues."""
     }
 
     private suspend fun analyzeModules(context: McpToolContext, workspacePath: String, depth: Int): McpToolResult {
-        val structure = context.ideService.getProjectStructure(workspacePath)
-            ?: return McpToolResult.error("Could not get project structure")
+        val structure = context.ideService.getProjectStructure(workspacePath, depth, 200)
 
         return McpToolResult.success(
             buildString {
@@ -100,8 +100,7 @@ Identifies imports, module dependencies, and potential issues."""
     }
 
     private suspend fun detectCircularDeps(context: McpToolContext, workspacePath: String): McpToolResult {
-        val structure = context.ideService.getProjectStructure(workspacePath)
-            ?: return McpToolResult.error("Could not get project structure")
+        val structure = context.ideService.getProjectStructure(workspacePath, 5, 200)
 
         return McpToolResult.success(
             buildString {
@@ -123,9 +122,8 @@ Identifies imports, module dependencies, and potential issues."""
     }
 
     private suspend fun findUnusedDeps(context: McpToolContext, workspacePath: String): McpToolResult {
-        val structure = context.ideService.getProjectStructure(workspacePath)
-            ?: return McpToolResult.error("Could not get project structure")
-        val config = context.ideService.getProjectConfig()
+        val structure = context.ideService.getProjectStructure(workspacePath, 5, 200)
+        val config = context.ideService.getProjectConfig(workspacePath)
 
         return McpToolResult.success(
             buildString {
@@ -139,9 +137,10 @@ Identifies imports, module dependencies, and potential issues."""
                 appendLine("3. Suggest dependency cleanup")
                 appendLine("4. Recommend dependency updates")
                 appendLine()
-                if (!config.isNullOrBlank()) {
+                val configStr = config.toString()
+                if (configStr.isNotBlank() && configStr != "{}") {
                     appendLine("### Project Config:")
-                    appendLine(config.take(5000))
+                    appendLine(configStr.take(5000))
                 }
                 appendLine()
                 appendLine("### Project Structure:")
@@ -152,8 +151,7 @@ Identifies imports, module dependencies, and potential issues."""
     }
 
     private suspend fun buildDependencyGraph(context: McpToolContext, workspacePath: String, depth: Int): McpToolResult {
-        val structure = context.ideService.getProjectStructure(workspacePath)
-            ?: return McpToolResult.error("Could not get project structure")
+        val structure = context.ideService.getProjectStructure(workspacePath, depth, 200)
 
         return McpToolResult.success(
             buildString {

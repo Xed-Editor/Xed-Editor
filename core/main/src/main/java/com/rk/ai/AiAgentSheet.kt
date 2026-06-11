@@ -214,6 +214,7 @@ fun UnifiedToolSheet(
                     onAction = { logic.handleInput(it) },
                     terminalViewModel = terminalViewModel,
                     hasSelection = selectedText.isNotBlank(),
+                    selectedText = selectedText,
                     currentFile = cwd.value.split("/").lastOrNull() ?: ""
                 )
             }

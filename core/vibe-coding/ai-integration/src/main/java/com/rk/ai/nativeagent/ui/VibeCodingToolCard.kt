@@ -114,6 +114,109 @@ fun VibeCodingToolCard(
                     }
                 }
 
+                // Action buttons (placed right after header for visibility)
+                if (isPending) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 6.dp),
+                    ) {
+                        Button(
+                            onClick = { onApprove?.invoke("") },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = colorScheme.primary,
+                            ),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                        ) {
+                            Text(
+                                "Approve",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
+
+                        OutlinedButton(
+                            onClick = { showDenyInput = !showDenyInput },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = colorScheme.error,
+                            ),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                        ) {
+                            Text(
+                                "Deny",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
+
+                        if (part.toolName == "ask_user" || part.toolName == "question") {
+                            OutlinedButton(
+                                onClick = { showAnswerInput = !showAnswerInput },
+                                modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            ) {
+                                Text(
+                                    "Answer",
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
+                        }
+                    }
+
+                    if (showDenyInput) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OutlinedTextField(
+                                value = denyReason,
+                                onValueChange = { denyReason = it },
+                                modifier = Modifier.weight(1f),
+                                placeholder = { Text("Reason...", style = MaterialTheme.typography.bodySmall) },
+                                singleLine = true,
+                                textStyle = MaterialTheme.typography.bodySmall,
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            TextButton(onClick = {
+                                onDeny?.invoke(denyReason)
+                                denyReason = ""
+                                showDenyInput = false
+                            }) {
+                                Text("Submit", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
+
+                    if (showAnswerInput) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OutlinedTextField(
+                                value = answerText,
+                                onValueChange = { answerText = it },
+                                modifier = Modifier.weight(1f),
+                                placeholder = { Text("Your answer...", style = MaterialTheme.typography.bodySmall) },
+                                singleLine = true,
+                                textStyle = MaterialTheme.typography.bodySmall,
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            TextButton(onClick = {
+                                onAnswer?.invoke(answerText)
+                                answerText = ""
+                                showAnswerInput = false
+                            }) {
+                                Text("Submit", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
+                }
+
                 // Expandable input/output detail
                 AnimatedVisibility(
                     visible = expanded,
@@ -169,114 +272,6 @@ fun VibeCodingToolCard(
                         color = colorScheme.secondary,
                         fontWeight = FontWeight.Medium,
                     )
-                }
-            }
-
-            // Action buttons
-            if (isPending) {
-                Column(
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        // Approve button
-                        Button(
-                            onClick = { onApprove?.invoke("") },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colorScheme.primary,
-                            ),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                        ) {
-                            Text(
-                                "Approve",
-                                style = MaterialTheme.typography.labelSmall,
-                            )
-                        }
-
-                        // Deny button
-                        OutlinedButton(
-                            onClick = { showDenyInput = !showDenyInput },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = colorScheme.error,
-                            ),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                        ) {
-                            Text(
-                                "Deny",
-                                style = MaterialTheme.typography.labelSmall,
-                            )
-                        }
-
-                        // Answer button (for ask_user type tools)
-                        if (part.toolName == "ask_user" || part.toolName == "question") {
-                            OutlinedButton(
-                                onClick = { showAnswerInput = !showAnswerInput },
-                                modifier = Modifier.weight(1f),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                            ) {
-                                Text(
-                                    "Answer",
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            }
-                        }
-                    }
-
-                    // Deny reason input
-                    AnimatedVisibility(visible = showDenyInput) {
-                        Column(modifier = Modifier.padding(top = 6.dp)) {
-                            OutlinedTextField(
-                                value = denyReason,
-                                onValueChange = { denyReason = it },
-                                placeholder = { Text("Reason for denial (optional)", style = MaterialTheme.typography.bodySmall) },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                textStyle = MaterialTheme.typography.bodySmall,
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Button(
-                                onClick = {
-                                    onDeny?.invoke(denyReason)
-                                    showDenyInput = false
-                                    denyReason = ""
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = colorScheme.error,
-                                ),
-                            ) {
-                                Text("Confirm Deny", style = MaterialTheme.typography.labelSmall)
-                            }
-                        }
-                    }
-
-                    // Answer input
-                    AnimatedVisibility(visible = showAnswerInput) {
-                        Column(modifier = Modifier.padding(top = 6.dp)) {
-                            OutlinedTextField(
-                                value = answerText,
-                                onValueChange = { answerText = it },
-                                placeholder = { Text("Your answer", style = MaterialTheme.typography.bodySmall) },
-                                singleLine = false,
-                                maxLines = 3,
-                                modifier = Modifier.fillMaxWidth(),
-                                textStyle = MaterialTheme.typography.bodySmall,
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Button(
-                                onClick = {
-                                    onAnswer?.invoke(answerText)
-                                    showAnswerInput = false
-                                    answerText = ""
-                                },
-                            ) {
-                                Text("Submit Answer", style = MaterialTheme.typography.labelSmall)
-                            }
-                        }
-                    }
                 }
             }
         }

@@ -39,19 +39,24 @@ Can generate tests for a file, function, class, or selection."""
 
         val (code, filePath) = when (target.lowercase()) {
             "selection" -> {
-                val active = context.ideService.getActiveFile() ?: return McpToolResult.error("No active file")
-                val selection = context.ideService.getSelection() ?: return McpToolResult.error("No selection")
-                selection to active
+                val selection = context.ideService.getSelection()
+                if (selection.isBlank()) return McpToolResult.error("No selection")
+                val active = context.ideService.getActiveFile()
+                val activePath = active?.get("filePath")?.asString ?: "selection"
+                selection to activePath
             }
             "activefile" -> {
-                val active = context.ideService.getActiveFile() ?: return McpToolResult.error("No active file")
-                val content = context.ideService.getFileContent(active, null, null)
+                val active = context.ideService.getActiveFile()
+                    ?: return McpToolResult.error("No active file")
+                val activePath = active.get("filePath")?.asString
+                    ?: return McpToolResult.error("Could not determine active file path")
+                val content = context.ideService.getFileContent(activePath)
                     ?: return McpToolResult.error("Could not read active file")
-                content to active
+                content to activePath
             }
             else -> {
                 val file = resolvePathOrThrow(context, target)
-                val content = context.ideService.getFileContent(file.absolutePath, null, null)
+                val content = context.ideService.getFileContent(file.absolutePath)
                     ?: return McpToolResult.error("Could not read file: $target")
                 content to file.absolutePath
             }

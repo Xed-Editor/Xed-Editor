@@ -68,7 +68,7 @@ fun VibeCodingConversationSidebar(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search...", style = MaterialTheme.typography.bodySmall) },
+                placeholder = { Text("Search by title...", style = MaterialTheme.typography.bodySmall) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = MaterialTheme.typography.bodySmall,
@@ -84,8 +84,7 @@ fun VibeCodingConversationSidebar(
                     conversations
                 } else {
                     conversations.filter {
-                        it.title.contains(searchQuery, ignoreCase = true) ||
-                            it.id.toString().contains(searchQuery, ignoreCase = true)
+                        it.title.contains(searchQuery, ignoreCase = true)
                     }
                 }
 

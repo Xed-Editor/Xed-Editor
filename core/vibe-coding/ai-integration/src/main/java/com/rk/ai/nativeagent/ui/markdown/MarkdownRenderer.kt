@@ -1,5 +1,7 @@
 package com.rk.ai.nativeagent.ui.markdown
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -16,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -219,6 +222,7 @@ private fun MarkdownBlockRenderer(block: MarkdownBlock) {
         }
 
         is MarkdownBlock.Link -> {
+            val context = LocalContext.current
             ClickableText(
                 text = buildAnnotatedString {
                     append(block.text)
@@ -228,7 +232,12 @@ private fun MarkdownBlockRenderer(block: MarkdownBlock) {
                     ), 0, block.text.length)
                 },
                 style = MaterialTheme.typography.bodyMedium,
-                onClick = { /* open URL: block.url */ },
+                onClick = {
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(block.url))
+                        context.startActivity(intent)
+                    } catch (_: Exception) { }
+                },
             )
         }
     }

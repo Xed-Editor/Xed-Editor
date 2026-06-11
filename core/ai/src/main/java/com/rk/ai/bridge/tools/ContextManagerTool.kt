@@ -36,20 +36,22 @@ from codebase. Helps stay within token limits while maintaining understanding.""
 
         val content = when (target.lowercase()) {
             "project" -> {
-                val structure = context.ideService.getProjectStructure(
-                    context.ideService.getPrimaryWorkspacePath()
-                )
-                structure ?: return McpToolResult.error("Could not get project structure")
+                val workspacePath = context.ideService.getPrimaryWorkspacePath()
+                context.ideService.getProjectStructure(workspacePath, 5, 200)
             }
             "selection" -> {
-                context.ideService.getSelection() ?: return McpToolResult.error("No selection")
+                val selection = context.ideService.getSelection()
+                if (selection.isBlank()) return McpToolResult.error("No selection")
+                selection
             }
             "openfiles" -> {
-                context.ideService.getOpenFiles() ?: return McpToolResult.error("No open files")
+                val files = context.ideService.getOpenFiles()
+                if (files.isEmpty()) return McpToolResult.error("No open files")
+                files.joinToString("\n") { it.toString() }
             }
             else -> {
                 val file = resolvePathOrThrow(context, target)
-                context.ideService.getFileContent(file.absolutePath, null, null)
+                context.ideService.getFileContent(file.absolutePath)
                     ?: return McpToolResult.error("Could not read file: $target")
             }
         }
