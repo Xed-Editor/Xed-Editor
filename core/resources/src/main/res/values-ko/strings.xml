@@ -38,7 +38,7 @@
     <string name="attention">주의</string>
     <string name="ask_deletion_one">정말 \'%s\'를 영구적으로 삭제하실 건가요?</string>
     <string name="ask_deletion_many">정말로 \'%d\'를 영구적으로 삭제하실 건가요?</string>
-    <string name="cant_handle">이 파일을 처리할 앱을 찾지 못했어요</string>
+    <string name="cant_handle">이 파일을 처리할 앱이 없습니다</string>
     <string name="terminal">터미널</string>
     <string name="add_file">외부 파일 추가하기</string>
     <string name="open_as_project">프로젝트로 열기</string>
@@ -46,7 +46,7 @@
     <string name="download">다운로드</string>
     <string name="apply">적용</string>
     <string name="open_in_terminal">터미널에서 열기</string>
-    <string name="file_open_denied">이 파일을 다른 앱으로 여는 것이 허용되지 않았어요</string>
+    <string name="file_open_denied">이 파일을 다른 앱에서 여는 것이 허용되지 않았습니다</string>
     <string name="close_current_project">정말 \'%s\' 프로젝트를 닫으실 건가요?</string>
     <string name="file_name">파일 이름</string>
     <string name="path">경로</string>
@@ -257,9 +257,9 @@
     <string name="language_server">언어 서버</string>
     <string name="manage_language_servers">언어 서버 관리</string>
     <string name="manage_language_servers_desc">언어 서버를 설치, 연결, 구성하기</string>
-    <string name="format_on_save">저장 시 포맷</string>
+    <string name="format_on_save">저장 시 서식 지정</string>
     <string name="use_tabs_desc">들여 쓰기에 스페이스 대신 Tab 키를 사용하기</string>
-    <string name="format_on_save_desc">파일이 저장되었을 때 자동으로 형식을 지정합니다</string>
+    <string name="format_on_save_desc">파일이 저장되었을 때 자동으로 서식을 지정합니다</string>
     <string name="developer">개발자</string>
     <string name="build_info">빌드 정보</string>
     <string name="community">커뮤니티</string>
@@ -299,4 +299,10 @@
     <string name="find_references_error">참조를 찾을 수 없습니다.</string>
     <string name="rename_symbol_error">기호를 바꿀 수 없습니다.</string>
     <string name="cannot_rename_symbol">이 기호를 변경할 수 없습니다.</string>
+    <string name="rename_symbol_multiple_files">여러 개의 파일의 이름을 변경하는 것은 아직 지원하지 않습니다.</string>
+    <string name="format_document_error">문서의 서식을 지정할 수 없습니다.</string>
+    <string name="format_selection_error">선택한 부분의 서식을 지정할 수 없습니다.</string>
+    <string name="continue_action">계속</string>
+    <string name="enable_sticky_scroll">고정 헤더 활성화</string>
+    <string name="enable_sticky_scroll_desc">스크롤하는 동안 현재 코드 블록 헤더를 계속 표시합니다</string>
 </resources>
