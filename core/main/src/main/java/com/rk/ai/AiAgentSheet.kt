@@ -25,7 +25,6 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.gitViewModel
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
-import com.rk.ai.nativeagent.ui.VibeCodingPanel
 import com.rk.file.FileWrapper
 import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileTreeTab
@@ -33,7 +32,6 @@ import com.rk.filetree.currentDrawerTab
 import com.rk.filetree.drawerTabs
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
-import com.rk.tabs.editor.SheetTerminal
 import com.rk.tabs.editor.ToolSheetContainer
 import com.rk.terminal.TerminalViewModel
 import com.termux.terminal.TerminalSession
@@ -221,74 +219,27 @@ fun UnifiedToolSheet(
         },
     ) {
         when (viewModel.bottomPanelMode) {
-            BottomPanelMode.AI -> {
-                if (aiSession != null && isAiRunning) {
-                    SheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = false)
-                } else {
-                    AgentEmptyState(
-                        isRunning = isAiRunning,
-                        agentName = currentAgent?.displayName ?: "AI",
-                        onStart = { logic.startAgent(cwd.value, forceRestart = true) },
-                    )
-                }
-            }
-            BottomPanelMode.VIBE_CODING -> {
-                if (vibecodingEngine != null) {
-                    VibeCodingPanel(engine = vibecodingEngine)
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            "VibeCoding unavailable",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+            BottomPanelMode.AI -> AiPanel(
+                aiSession = aiSession,
+                isAiRunning = isAiRunning,
+                agentName = currentAgent?.displayName ?: "AI",
+                onStart = { logic.startAgent(cwd.value, forceRestart = true) },
+            )
+            BottomPanelMode.VIBE_CODING -> VibeCodingPanelContent(engine = vibecodingEngine)
+            BottomPanelMode.TERMINAL -> TerminalPanelContent(
+                terminalViewModel = terminalViewModel,
+                initialCwd = viewModel.terminalCwd,
+                onCwdConsumed = { viewModel.terminalCwd = null },
+            )
+            BottomPanelMode.GIT -> GitPanelContent(
+                gitViewModel = gitVm,
+                onRefresh = {
+                    scope.launch {
+                        val root = gitVm?.currentRoot?.value?.absolutePath
+                        if (root != null) gitVm?.syncChanges(root)
                     }
-                }
-            }
-            BottomPanelMode.TERMINAL -> {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.surface,
-                ) {
-                    com.rk.terminal.TerminalPanel(
-                        terminalViewModel = terminalViewModel,
-                        showKeys = false,
-                        initialCwd = viewModel.terminalCwd,
-                    )
-                    LaunchedEffect(viewModel.terminalCwd) {
-                        if (viewModel.terminalCwd != null) {
-                            viewModel.terminalCwd = null
-                        }
-                    }
-                }
-            }
-            BottomPanelMode.GIT -> {
-                if (gitVm != null) {
-                    GitPanel(
-                        gitViewModel = gitVm,
-                        onRefresh = {
-                            scope.launch {
-                                val root = gitVm.currentRoot.value?.absolutePath
-                                if (root != null) gitVm.syncChanges(root)
-                            }
-                        },
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            "Git not available",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
+                },
+            )
         }
     }
 }

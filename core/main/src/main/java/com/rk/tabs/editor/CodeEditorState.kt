@@ -29,7 +29,7 @@ data class EditorPatch(
     val apply: () -> Unit,
 )
 
-data class CodeEditorState(val initialContent: Content? = null) {
+class CodeEditorState(initialContent: Content? = null) {
     var editor: WeakReference<Editor?> = WeakReference(null)
 
     var content = initialContent

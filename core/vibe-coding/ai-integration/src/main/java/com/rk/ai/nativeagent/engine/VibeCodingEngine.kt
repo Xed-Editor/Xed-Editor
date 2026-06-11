@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.room.Room
 import com.rk.ai.agent.AILoggingManager
 import com.rk.ai.agent.AppEventBus
-import com.rk.ai.agent.GenerationChunk
 import com.rk.ai.agent.GenerationHandler
 import com.rk.ai.agent.events.SessionTodo
 import com.rk.ai.agent.events.SessionTodoStatus
@@ -47,7 +46,6 @@ import com.rk.ai.mcp.McpManager
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.McpTool
 import com.rk.ai.models.Tool
-import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
@@ -79,7 +77,6 @@ import kotlinx.serialization.json.putJsonObject
 import okhttp3.OkHttpClient
 import java.io.File
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -153,6 +150,18 @@ class VibeCodingEngine(
     val toolRegistry = VibeCodingToolRegistry(ideService, context)
     val hookManager = HookManager()
     val permissionManager = PermissionManager()
+
+    val generationPipeline = GenerationPipeline(
+        generationHandler = generationHandler,
+        permissionManager = permissionManager,
+        vibeEventBus = vibeEventBus,
+        engineScope = engineScope,
+        onStateUpdate = { transform -> _state.value = _state.value.transform() },
+        onSaveSession = { saveCurrentSessionMessages() },
+        onSaveConversation = { saveConversation() },
+        getState = { _state.value },
+    )
+
     private val storedCommandCatalog = mutableListOf<CommandCatalogEntry>()
     private var xedConfig = XedConfig()
     private val toolValidator = ToolValidator()
@@ -531,8 +540,7 @@ class VibeCodingEngine(
     }
 
     fun dispose() {
-        currentJob?.cancel()
-        currentJob = null
+        generationPipeline.cancel()
         appScope.coroutineContext[Job]?.cancel()
         database.close()
     }
@@ -577,10 +585,6 @@ class VibeCodingEngine(
     fun clearSecurityAlerts() {
         _state.value = _state.value.copy(securityAlerts = emptyList())
     }
-
-    private var currentJob: Job? = null
-    private val autoRespondDepth = AtomicInteger(0)
-    private val MAX_AUTO_RESPOND_DEPTH = 5
 
     private val systemPromptBuilder = SystemPromptBuilder(ideService)
 
@@ -640,134 +644,77 @@ class VibeCodingEngine(
     }
 
     fun sendMessage(text: String, extraParts: List<UIMessagePart> = emptyList()) {
-        currentJob?.cancel()
-        currentJob = engineScope.launch(Dispatchers.IO) {
-            val trimmed = text.trim()
-
-            // Ensure a session exists
-            val sessionId = _state.value.activeSessionId ?: Uuid.random()
-            if (_state.value.activeSessionId == null) {
-                val node = SessionNode(id = sessionId, title = trimmed.take(80))
-                _state.value = _state.value.copy(
-                    sessionTree = _state.value.sessionTree + node,
-                    activeSessionId = sessionId,
-                )
-            }
-
-            _state.value = _state.value.copy(isProcessing = true, error = null)
-            _state.value = _state.value.copy(
-                messages = _state.value.messages + UIMessage(
-                    role = MessageRole.USER,
-                    parts = listOf(UIMessagePart.Text(trimmed)) + extraParts,
-                ),
-            )
-
-            engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationStarted) }
-
-            val settings = settingsStore.settingsFlow.value
-            val model = settings.findModelById(settings.chatModelId)
-            if (model == null) {
-                _state.value = _state.value.copy(
-                    isProcessing = false,
-                    error = "No model selected. Configure a provider and model in VibeCoding settings.",
-                )
-                engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationError) }
-                return@launch
-            }
-
-            val assistant = settings.getCurrentAssistant()
-
-            val enhancedTools = buildToolList(assistant, settings)
-
-            val memories = if (assistant.enableMemory) {
-                val memoryAssistantId = if (assistant.useGlobalMemory) {
-                    MemoryRepository.GLOBAL_MEMORY_ID
-                } else {
-                    assistant.id.toString()
-                }
-                memoryRepo.getMemoriesOfAssistant(memoryAssistantId)
-            } else null
-
-            val inputTransformers = listOfNotNull(
-                systemPromptTransformer,
-                PlaceholderTransformer,
-                if (assistant.enableTimeReminder) TimeReminderTransformer else null,
-                PromptInjectionTransformer,
-            )
-
-            val outputTransformers = listOfNotNull(
-                ToolTagSanitizerTransformer,
-                RegexOutputTransformer,
-                Base64ImageToLocalFileTransformer.also { it.filesManager = filesManager },
-            )
-
-            runCatching {
-                generationHandler.generateText(
-                    settings = settings,
-                    model = model,
-                    messages = _state.value.messages,
-                    assistant = assistant,
-                    memories = memories,
-                    tools = enhancedTools,
-                    inputTransformers = inputTransformers,
-                    outputTransformers = outputTransformers,
-                ).collect { chunk ->
-                    when (chunk) {
-                        is GenerationChunk.Messages -> {
-                            _state.value = _state.value.copy(messages = chunk.messages)
-                            saveCurrentSessionMessages()
-                        }
-                        is GenerationChunk.CompactionNeeded -> {
-                            _state.value = _state.value.copy(compactionReason = chunk.reason)
-                        }
-                        is GenerationChunk.ToolStateChanged -> {
-                            engineScope.launch {
-                                val success = chunk.executionState is ExecutionState.Completed
-                                vibeEventBus.emit(VibeCodingEvent.ToolExecuted(
-                                    sessionId = _state.value.activeSessionId ?: Uuid.random(),
-                                    toolName = chunk.toolName,
-                                    success = success,
-                                ))
-                            }
-                        }
-                        is GenerationChunk.StepStarted -> { }
-                        is GenerationChunk.StepFinished -> { }
-                        is GenerationChunk.GenerationError -> {
-                            _state.value = _state.value.copy(
-                                error = chunk.errorMessage,
-                            )
-                        }
-                    }
-                }
-            }.onFailure { e ->
-                _state.value = _state.value.copy(
-                    isProcessing = false,
-                    error = e.message ?: "Generation failed",
-                )
-                engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationError) }
-                return@launch
-            }
-
-            runCatching {
-                saveConversation()
-                saveCurrentSessionMessages()
-            }.onFailure { e ->
-                Log.e(TAG, "Failed to save conversation state", e)
-            }
-
-            if (checkAndAutoRespondPermissions()) {
-                resumeGeneration()
-            } else {
-                _state.value = _state.value.copy(isProcessing = false)
-                engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationFinished) }
-            }
-        }
+        ensureSessionExists(text.trim())
+        generationPipeline.execute(
+            text = text,
+            extraParts = extraParts,
+            buildConfig = ::buildGenerationConfig,
+        )
     }
 
     fun stopGeneration() {
-        currentJob?.cancel()
-        currentJob = null
+        generationPipeline.cancel()
         _state.value = _state.value.copy(isProcessing = false)
+    }
+
+    private fun ensureSessionExists(titleHint: String) {
+        if (_state.value.activeSessionId == null) {
+            val sessionId = Uuid.random()
+            val node = SessionNode(id = sessionId, title = titleHint.take(80))
+            _state.value = _state.value.copy(
+                sessionTree = _state.value.sessionTree + node,
+                activeSessionId = sessionId,
+            )
+        }
+    }
+
+    private suspend fun buildGenerationConfig(): GenerationConfig? {
+        val settings = settingsStore.settingsFlow.value
+        val model = settings.findModelById(settings.chatModelId)
+        if (model == null) {
+            _state.value = _state.value.copy(
+                isProcessing = false,
+                error = "No model selected. Configure a provider and model in VibeCoding settings.",
+            )
+            engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationError) }
+            return null
+        }
+
+        val assistant = settings.getCurrentAssistant()
+        val tools = buildToolList(assistant, settings)
+
+        val memories = if (assistant.enableMemory) {
+            val memoryAssistantId = if (assistant.useGlobalMemory) {
+                MemoryRepository.GLOBAL_MEMORY_ID
+            } else {
+                assistant.id.toString()
+            }
+            memoryRepo.getMemoriesOfAssistant(memoryAssistantId)
+        } else null
+
+        val inputTransformers = listOfNotNull(
+            systemPromptTransformer,
+            PlaceholderTransformer,
+            if (assistant.enableTimeReminder) TimeReminderTransformer else null,
+            PromptInjectionTransformer,
+        )
+
+        val outputTransformers = listOfNotNull(
+            ToolTagSanitizerTransformer,
+            RegexOutputTransformer,
+            Base64ImageToLocalFileTransformer.also { it.filesManager = filesManager },
+        )
+
+        return GenerationConfig(
+            settings = settings,
+            model = model,
+            assistant = assistant,
+            messages = _state.value.messages,
+            tools = tools,
+            memories = memories,
+            inputTransformers = inputTransformers,
+            outputTransformers = outputTransformers,
+        )
     }
 
     fun clearConversation() {
@@ -836,160 +783,33 @@ class VibeCodingEngine(
 
     fun approveTool(toolCallId: String) {
         if (isProcessing) return
-        updateToolApproval(toolCallId) {
-            ToolApprovalState.Approved
-        }
+        updateToolApproval(toolCallId, ToolApprovalState.Approved)
     }
 
     fun denyTool(toolCallId: String, reason: String = "") {
         if (isProcessing) return
-        updateToolApproval(toolCallId) {
-            ToolApprovalState.Denied(reason)
-        }
+        updateToolApproval(toolCallId, ToolApprovalState.Denied(reason))
     }
 
     fun answerTool(toolCallId: String, answer: String) {
         if (isProcessing) return
-        updateToolApproval(toolCallId) {
-            ToolApprovalState.Answered(answer)
-        }
+        updateToolApproval(toolCallId, ToolApprovalState.Answered(answer))
     }
 
-    private fun updateToolApproval(toolCallId: String, stateFn: () -> ToolApprovalState) {
+    private fun updateToolApproval(toolCallId: String, newState: ToolApprovalState) {
         val messages = _state.value.messages.toMutableList()
         val lastIdx = messages.lastIndex
         if (lastIdx < 0) return
         val last = messages[lastIdx]
         val updatedParts = last.parts.map { part ->
             if (part is UIMessagePart.Tool && part.toolCallId == toolCallId) {
-                part.copy(approvalState = stateFn())
+                part.copy(approvalState = newState)
             } else part
         }
         messages[lastIdx] = last.copy(parts = updatedParts)
         _state.value = _state.value.copy(messages = messages)
         saveCurrentSessionMessages()
-        resumeGeneration()
-    }
-
-    private fun resumeGeneration() {
-        currentJob?.cancel()
-        currentJob = engineScope.launch(Dispatchers.IO) {
-            _state.value = _state.value.copy(isProcessing = true, error = null)
-            val settings = settingsStore.settingsFlow.value
-            val model = settings.findModelById(settings.chatModelId)
-            val assistant = settings.getCurrentAssistant()
-            if (model == null || assistant == null) {
-                _state.value = _state.value.copy(isProcessing = false, error = "No model or assistant configured")
-                return@launch
-            }
-
-            val memories = if (assistant.enableMemory) {
-                val memoryAssistantId = if (assistant.useGlobalMemory) {
-                    MemoryRepository.GLOBAL_MEMORY_ID
-                } else {
-                    assistant.id.toString()
-                }
-                memoryRepo.getMemoriesOfAssistant(memoryAssistantId)
-            } else null
-
-            val resumeTools = buildToolList(assistant, settings)
-
-            val inputTransformers = listOfNotNull(
-                systemPromptTransformer,
-                PlaceholderTransformer,
-                if (assistant.enableTimeReminder) TimeReminderTransformer else null,
-                PromptInjectionTransformer,
-            )
-
-            val outputTransformers = listOfNotNull(
-                ToolTagSanitizerTransformer,
-                RegexOutputTransformer,
-                Base64ImageToLocalFileTransformer.also { it.filesManager = filesManager },
-            )
-
-            runCatching {
-                generationHandler.generateText(
-                    settings = settings,
-                    model = model,
-                    messages = _state.value.messages,
-                    assistant = assistant,
-                    memories = memories,
-                    tools = resumeTools,
-                    inputTransformers = inputTransformers,
-                    outputTransformers = outputTransformers,
-                ).collect { chunk ->
-                     when (chunk) {
-                         is GenerationChunk.Messages -> {
-                             _state.value = _state.value.copy(messages = chunk.messages)
-                             saveCurrentSessionMessages()
-                         }
-                         is GenerationChunk.CompactionNeeded -> {
-                             _state.value = _state.value.copy(compactionReason = chunk.reason)
-                         }
-                         is GenerationChunk.ToolStateChanged -> {
-                             engineScope.launch {
-                                 val success = chunk.executionState is ExecutionState.Completed
-                                 vibeEventBus.emit(VibeCodingEvent.ToolExecuted(
-                                     sessionId = _state.value.activeSessionId ?: Uuid.random(),
-                                     toolName = chunk.toolName,
-                                     success = success,
-                                 ))
-                             }
-                         }
-                         is GenerationChunk.StepStarted -> { }
-                         is GenerationChunk.StepFinished -> { }
-                         is GenerationChunk.GenerationError -> {
-                             _state.value = _state.value.copy(error = chunk.errorMessage)
-                         }
-                     }
-                 }
-            }.onFailure { e ->
-                _state.value = _state.value.copy(isProcessing = false, error = e.message)
-            }
-            runCatching {
-                saveCurrentSessionMessages()
-            }.onFailure { e ->
-                Log.e(TAG, "Failed to save session state", e)
-            }
-
-            if (checkAndAutoRespondPermissions()) {
-                resumeGeneration()
-            } else {
-                _state.value = _state.value.copy(isProcessing = false)
-            }
-        }
-    }
-
-    private fun checkAndAutoRespondPermissions(): Boolean {
-        if (autoRespondDepth.get() >= MAX_AUTO_RESPOND_DEPTH) {
-            Log.w(TAG, "Auto-respond depth limit reached ($MAX_AUTO_RESPOND_DEPTH), stopping recursion")
-            autoRespondDepth.set(0)
-            return false
-        }
-        val allPendingTools = _state.value.messages.flatMap { it.getTools() }.filter { it.isPending }
-        if (allPendingTools.isEmpty()) {
-            autoRespondDepth.set(0)
-            return false
-        }
-
-        var didChange = false
-        autoRespondDepth.incrementAndGet()
-        for (tool in allPendingTools) {
-            val action = permissionManager.getAction(tool.toolName, tool.input)
-            when (action) {
-                PermissionAction.ALLOW -> {
-                    updateToolApproval(tool.toolCallId) { ToolApprovalState.Approved }
-                    didChange = true
-                }
-                PermissionAction.DENY -> {
-                    updateToolApproval(tool.toolCallId) { ToolApprovalState.Denied("Auto-denied by permission rule") }
-                    didChange = true
-                }
-                else -> { }
-            }
-        }
-        if (!didChange) autoRespondDepth.set(0)
-        return didChange
+        generationPipeline.resume(::buildGenerationConfig)
     }
 
 

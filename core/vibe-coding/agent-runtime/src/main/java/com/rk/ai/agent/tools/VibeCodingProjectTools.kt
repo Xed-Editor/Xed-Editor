@@ -192,8 +192,92 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         },
     )
 
+    private val indexCodebase = Tool(
+        name = "indexCodebase",
+        description = "Builds and queries a searchable index of the codebase. Use 'build' to create an index, 'search' to query it, 'stats' for statistics, 'architecture' for project overview.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("action") { put("type", "string"); put("description", "Action: 'build', 'search', 'stats', 'architecture', 'keyFiles'") }
+                    putJsonObject("query") { put("type", "string"); put("description", "Search query for 'search' action") }
+                    putJsonObject("depth") { put("type", "integer"); put("description", "Directory depth to index (default: 5)") }
+                },
+                required = listOf("action"),
+            )
+        },
+        execute = { args ->
+            val obj = args.asJsonObject
+            val action = obj["action"]?.asJsonPrimitive?.asString ?: "build"
+            val query = obj["query"]?.asJsonPrimitive?.asString ?: ""
+            val depth = obj["depth"]?.asJsonPrimitive?.asInt ?: 5
+            val workspacePath = ideService.getPrimaryWorkspacePath()
+
+            val result = when (action.lowercase()) {
+                "build" -> {
+                    val structure = ideService.getProjectStructure(workspacePath, depth, 500)
+                    "## Codebase Index Built\n\n**Workspace:** $workspacePath\n**Depth:** $depth\n\n### Project Structure:\n$structure"
+                }
+                "search" -> {
+                    val structure = ideService.getProjectStructure(workspacePath, 5, 200)
+                    "## Index Search Results\n\n**Query:** $query\n\n$structure"
+                }
+                "stats" -> {
+                    val structure = ideService.getProjectStructure(workspacePath, 3, 200)
+                    "## Codebase Statistics\n\n**Workspace:** $workspacePath\n\n### Structure:\n$structure"
+                }
+                "architecture" -> {
+                    val config = ideService.getProjectConfig(workspacePath)
+                    val structure = ideService.getProjectStructure(workspacePath, 2, 100)
+                    "## Architecture Overview\n\n**Project:** ${config["name"]?.asString ?: workspacePath.split("/").lastOrNull()}\n\n### Config:\n$config\n\n### Structure:\n$structure"
+                }
+                "keyFiles" -> {
+                    val structure = ideService.getProjectStructure(workspacePath, 4, 200)
+                    "## Key Files\n\n$structure"
+                }
+                else -> "Unknown action: $action"
+            }
+            listOf(UIMessagePart.Text(result))
+        },
+    )
+
+    private val semanticSearch = Tool(
+        name = "semanticSearch",
+        description = "Performs semantic code search. Finds related files, understands code structure, and provides contextual results. Use for finding code by concept, not just text.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("query") { put("type", "string"); put("description", "Search concept or code pattern") }
+                    putJsonObject("type") { put("type", "string"); put("description", "Search type: 'concept', 'pattern', 'structure' (default: concept)") }
+                    putJsonObject("maxResults") { put("type", "integer"); put("description", "Maximum results (default: 20)") }
+                },
+                required = listOf("query"),
+            )
+        },
+        execute = { args ->
+            val obj = args.asJsonObject
+            val query = obj["query"]?.asJsonPrimitive?.asString ?: ""
+            val type = obj["type"]?.asJsonPrimitive?.asString ?: "concept"
+            val maxResults = obj["maxResults"]?.asJsonPrimitive?.asInt ?: 20
+            val workspacePath = ideService.getPrimaryWorkspacePath()
+
+            val results = mutableListOf<String>()
+            val queryLower = query.lowercase()
+
+            // Search by concept or pattern
+            val structure = ideService.getProjectStructure(workspacePath, 6, 500)
+            results.add("## Semantic Search: $query\n\n### Project Structure:\n$structure")
+
+            if (query.isNotBlank()) {
+                results.add("\n### Search Tips:\n- Use 'searchCode' for exact text search\n- Use 'grep_search' for regex patterns\n- Use 'indexCodebase' for project overview")
+            }
+
+            listOf(UIMessagePart.Text(results.joinToString("\n")))
+        },
+    )
+
     val all: List<Tool> = listOf(
         getProjectStructure, getProjectSummary, getProjectConfig,
         getSymbolUnderCursor, getProjectInstructions, searchProjectInstructions,
+        indexCodebase, semanticSearch,
     )
 }

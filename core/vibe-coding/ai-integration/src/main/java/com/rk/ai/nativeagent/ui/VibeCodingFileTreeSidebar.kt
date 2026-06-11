@@ -28,6 +28,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rk.ai.service.IdeService
+import com.rk.theme.DesignTokens
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.uuid.ExperimentalUuidApi
 
 private data class FileNode(
@@ -54,19 +57,23 @@ fun VibeCodingFileTreeSidebar(
     LaunchedEffect(workspacePath) {
         isLoading = true
         expandedPaths = emptySet()
-        try {
-            val structure = ideService.getProjectStructure(workspacePath, 3, 200)
-            rootNodes = parseStructure(structure)
-        } catch (_: Exception) { }
+        rootNodes = withContext(Dispatchers.IO) {
+            try {
+                val structure = ideService.getProjectStructure(workspacePath, 3, 200)
+                parseStructure(structure)
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
         isLoading = false
     }
 
     Surface(
         modifier = modifier.fillMaxHeight(),
         color = colorScheme.surfaceContainerLow,
-        tonalElevation = 2.dp,
+        tonalElevation = DesignTokens.Elevation.small,
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
+        Column(modifier = Modifier.padding(DesignTokens.Spacing.small)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -89,7 +96,7 @@ fun VibeCodingFileTreeSidebar(
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(DesignTokens.Spacing.small))
 
             OutlinedTextField(
                 value = searchQuery,
@@ -100,7 +107,7 @@ fun VibeCodingFileTreeSidebar(
                 textStyle = MaterialTheme.typography.bodySmall,
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(DesignTokens.Spacing.small))
 
             if (isLoading) {
                 Box(
@@ -114,7 +121,7 @@ fun VibeCodingFileTreeSidebar(
                     text = "No files found",
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.padding(DesignTokens.Spacing.small),
                 )
             } else {
                 LazyColumn(
@@ -157,7 +164,7 @@ private fun FileTreeItem(
     onOpen: (String) -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val indent = 12 * depth
+    val indent = DesignTokens.Spacing.medium.value * depth
 
     if (searchQuery.isNotBlank() && !matchesSearch(node, searchQuery)) return
 
@@ -169,7 +176,7 @@ private fun FileTreeItem(
                     if (node.isDirectory) onToggle(node.path)
                     else onOpen(node.path)
                 }
-                .padding(start = indent.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+                .padding(start = indent.dp, end = DesignTokens.Spacing.small, top = DesignTokens.Spacing.xsmall, bottom = DesignTokens.Spacing.xsmall),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (node.isDirectory) {

@@ -21,6 +21,7 @@ import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.nativeagent.ui.markdown.MarkdownContent
+import com.rk.theme.DesignTokens
 
 @Composable
 fun VibeCodingMessageBubble(
@@ -36,20 +37,20 @@ fun VibeCodingMessageBubble(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = DesignTokens.Spacing.medium, vertical = DesignTokens.Spacing.xsmall),
         horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
     ) {
         Surface(
             shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
-                bottomStart = if (isUser) 16.dp else 4.dp,
-                bottomEnd = if (isUser) 4.dp else 16.dp,
+                topStart = DesignTokens.CornerRadius.xlarge,
+                topEnd = DesignTokens.CornerRadius.xlarge,
+                bottomStart = if (isUser) DesignTokens.CornerRadius.xlarge else DesignTokens.CornerRadius.small,
+                bottomEnd = if (isUser) DesignTokens.CornerRadius.small else DesignTokens.CornerRadius.xlarge,
             ),
             color = if (isUser) colorScheme.primaryContainer else colorScheme.surfaceContainerHigh,
             tonalElevation = if (isUser) 0.dp else 1.dp,
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(modifier = Modifier.padding(DesignTokens.Spacing.medium)) {
                 message.parts.forEach { part ->
                     MessagePartContent(
                         part = part,
@@ -58,16 +59,15 @@ fun VibeCodingMessageBubble(
                         onDenyTool = onDenyTool,
                         onAnswerTool = onAnswerTool,
                     )
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(DesignTokens.Spacing.xsmall))
                 }
 
-                // Token usage footer
                 message.usage?.let { usage ->
                     val promptTokens = usage.promptTokens ?: 0
                     val completionTokens = usage.completionTokens ?: 0
                     val totalTokens = usage.totalTokens ?: (promptTokens + completionTokens)
                     if (totalTokens > 0) {
-                        Spacer(Modifier.height(2.dp))
+                        Spacer(Modifier.height(DesignTokens.Spacing.xxsmall))
                         Text(
                             text = "△ $promptTokens / ◻ $completionTokens / ∑ $totalTokens tok",
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
@@ -104,7 +104,7 @@ private fun MessagePartContent(
                 )
             }
         }
-        is UIMessagePart.Reasoning -> ReasoningBlock(part)
+        is UIMessagePart.Reasoning -> MessageReasoningBlock(part)
         is UIMessagePart.Tool -> VibeCodingToolCard(
             part = part,
             onApprove = { onApproveTool?.invoke(part.toolCallId) },
@@ -114,7 +114,7 @@ private fun MessagePartContent(
         is UIMessagePart.StepStart -> {
             val colorScheme = MaterialTheme.colorScheme
             Surface(
-                shape = RoundedCornerShape(4.dp),
+                shape = DesignTokens.CornerRadius.small,
                 color = colorScheme.primaryContainer.copy(alpha = 0.3f),
             ) {
                 Text(
@@ -122,7 +122,7 @@ private fun MessagePartContent(
                     style = MaterialTheme.typography.labelSmall,
                     color = colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(horizontal = DesignTokens.Spacing.small, vertical = DesignTokens.Spacing.xsmall),
                 )
             }
         }
@@ -160,17 +160,17 @@ private fun AttachmentLabel(text: String, muted: Boolean = false) {
 }
 
 @Composable
-private fun ReasoningBlock(part: UIMessagePart.Reasoning) {
+private fun MessageReasoningBlock(part: UIMessagePart.Reasoning) {
     val colorScheme = MaterialTheme.colorScheme
     var expanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(DesignTokens.CornerRadius.medium)
             .background(colorScheme.tertiaryContainer.copy(alpha = 0.3f))
             .clickable { expanded = !expanded }
-            .padding(8.dp),
+            .padding(DesignTokens.Spacing.small),
     ) {
         Text(
             text = if (expanded) "▼ Thinking" else "▶ Thinking",
@@ -190,7 +190,7 @@ private fun ReasoningBlock(part: UIMessagePart.Reasoning) {
                     fontSize = 11.sp,
                 ),
                 color = colorScheme.onTertiaryContainer.copy(alpha = 0.8f),
-                modifier = Modifier.padding(top = 4.dp),
+                modifier = Modifier.padding(top = DesignTokens.Spacing.xsmall),
             )
         }
     }

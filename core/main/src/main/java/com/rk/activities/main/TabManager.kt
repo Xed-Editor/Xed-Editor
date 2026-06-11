@@ -9,7 +9,7 @@ import com.rk.tabs.base.Tab
 class TabManager {
     private val _tabs = mutableStateListOf<Tab>()
     val tabs: List<Tab>
-        get() = _tabs.toList()
+        get() = _tabs
 
     var currentTabIndex by mutableIntStateOf(0)
         private set
@@ -18,17 +18,14 @@ class TabManager {
         get() = _tabs.getOrNull(currentTabIndex)
 
     fun addTab(tab: Tab, switchToTab: Boolean, checkDuplicate: Boolean = true) {
-        synchronized(this) {
-            val duplicateIndex = if (checkDuplicate) _tabs.indexOfFirst { it.file == tab.file } else -1
+        val duplicateIndex = if (checkDuplicate) _tabs.indexOfFirst { it.file == tab.file } else -1
 
-            if (duplicateIndex != -1) {
-                if (switchToTab) setCurrentTab(duplicateIndex)
-                return
-            }
-
-            _tabs.add(tab)
+        if (duplicateIndex != -1) {
+            if (switchToTab) setCurrentTab(duplicateIndex)
+            return
         }
-        
+
+        _tabs.add(tab)
         tab.onTabAdded()
 
         if (switchToTab) {
@@ -37,70 +34,60 @@ class TabManager {
     }
 
     fun removeTab(index: Int) {
-        synchronized(this) {
-            if (index !in _tabs.indices) return
+        if (index !in _tabs.indices) return
 
-            val tab = _tabs[index]
-            tab.onTabRemoved()
-            _tabs.removeAt(index)
+        val tab = _tabs[index]
+        tab.onTabRemoved()
+        _tabs.removeAt(index)
 
-            setCurrentTab(
-                when {
-                    _tabs.isEmpty() -> 0
-                    index <= currentTabIndex -> maxOf(0, currentTabIndex - 1)
-                    else -> currentTabIndex
-                }
-            )
-        }
+        setCurrentTab(
+            when {
+                _tabs.isEmpty() -> 0
+                index <= currentTabIndex -> maxOf(0, currentTabIndex - 1)
+                else -> currentTabIndex
+            }
+        )
     }
 
     fun removeTab(tab: Tab) = removeTab(_tabs.indexOf(tab))
 
     fun moveTab(from: Int, to: Int) {
-        synchronized(this) {
-            if (from == to || from !in _tabs.indices || to !in _tabs.indices) return
+        if (from == to || from !in _tabs.indices || to !in _tabs.indices) return
 
-            val item = _tabs.removeAt(from)
-            _tabs.add(to, item)
+        val item = _tabs.removeAt(from)
+        _tabs.add(to, item)
 
-            setCurrentTab(
-                when (currentTabIndex) {
-                    from -> to
-                    in (minOf(from, to)..maxOf(from, to)) -> {
-                        if (from < to) currentTabIndex - 1 else currentTabIndex + 1
-                    }
-                    else -> currentTabIndex
+        setCurrentTab(
+            when (currentTabIndex) {
+                from -> to
+                in (minOf(from, to)..maxOf(from, to)) -> {
+                    if (from < to) currentTabIndex - 1 else currentTabIndex + 1
                 }
-            )
-        }
+                else -> currentTabIndex
+            }
+        )
     }
 
     fun setCurrentTab(index: Int) {
-        synchronized(this) {
-            if (index !in _tabs.indices) return
-            if (index == currentTabIndex) return
+        if (index !in _tabs.indices) return
+        if (index == currentTabIndex) return
 
-            currentTab?.onTabUnselected()
-            currentTabIndex = index
-            currentTab?.onTabSelected()
-        }
+        currentTab?.onTabUnselected()
+        currentTabIndex = index
+        currentTab?.onTabSelected()
     }
 
     fun removeOtherTabs() {
-        synchronized(this) {
-            val tabToKeep = currentTab ?: return
+        val tabToKeep = currentTab ?: return
 
-            _tabs.forEach { if (it != tabToKeep) it.onTabRemoved() }
-            _tabs.removeAll { it != tabToKeep }
-            currentTabIndex = 0
-        }
+        _tabs.forEach { if (it != tabToKeep) it.onTabRemoved() }
+        _tabs.removeAll { it != tabToKeep }
+        currentTabIndex = 0
     }
 
     fun removeAllTabs() {
-        synchronized(this) {
-            _tabs.forEach { it.onTabRemoved() }
-            _tabs.clear()
-            currentTabIndex = 0
-        }
+        _tabs.forEach { it.onTabRemoved() }
+        _tabs.clear()
+        currentTabIndex = 0
     }
 }
