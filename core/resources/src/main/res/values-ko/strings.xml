@@ -314,4 +314,9 @@
     <string name="rename_failed">파일 이름을 변경할 수 없습니다</string>
     <string name="delete_failed">파일을 삭제할 수 없습니다</string>
     <string name="paste_failed">파일을 붙여넣을 수 없습니다</string>
+    <string name="debug_mode_warn">디버그 모드는 안전 제한을 비활성화하며, 잘못 사용할 경우, 데이터 손실 또는 다른 문제로 이어질 수 있습니다. 자신이 무엇을 하고 있는지 알 경우에만 활성화하세요.</string>
+    <string name="external_lsp">외부 LSP</string>
+    <string name="external">외부</string>
+    <string name="desktop_mode">데스크탑 모드 (실험용)</string>
+    <string name="desktop_mode_desc">태블릿이나 데스트탑 크기의 화면에서 앱을 더욱 쉽게 사용할 수 있도록 만들어 줍니다</string>
 </resources>
