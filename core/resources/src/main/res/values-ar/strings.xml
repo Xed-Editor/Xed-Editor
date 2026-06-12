@@ -145,7 +145,7 @@
     <string name="no_ext">لا توجد إضافة.</string>
     <string name="install_from_storage">التثبيت من وحدة تخزين</string>
     <string name="loading">تحميل…</string>
-    <string name="downloading">جارٍ التحميل…</string>
+    <string name="downloading">جارٍ التنزيل…</string>
     <string name="network_err">خطأ في الشبكة. يُرجى التأكد من أن اتصالك بالإنترنت يعمل بشكل صحيح.</string>
     <string name="ext_desc">إدارة الإضافات</string>
     <string name="add_session">إضف جلسة</string>
@@ -294,4 +294,9 @@
     <string name="rename_symbol_error">تعذر اعادة تسمية الرمز.</string>
     <string name="cannot_rename_symbol">لا يمكنك اعادة تسمية هذا الرمز.</string>
     <string name="view_app_logs">عرض سجلات التطبيق</string>
+    <string name="updating">جاري التحديث…</string>
+    <string name="text_mate_suggestion">الإكمال التلقائي ل TextMate</string>
+    <string name="wrapper_type">نوع الغلاف</string>
+    <string name="strict_mode_desc">اكتشاف الوصول إلى القرص أو الشبكة على الخيط الرئيسي</string>
+    <string name="use_tabs">إدخال حرف التبويب</string>
 </resources>
