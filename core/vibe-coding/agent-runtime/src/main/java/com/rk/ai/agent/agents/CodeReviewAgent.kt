@@ -1,13 +1,17 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.agents
 
 import com.rk.ai.models.UIMessage
 import com.rk.ai.providers.ProviderManager
+import com.rk.ai.providers.ProviderSetting
 import com.rk.ai.providers.TextGenerationParams
 import com.rk.ai.service.IdeService
 import com.rk.ai.persistence.settings.SettingsStore
 import com.rk.ai.persistence.settings.findModelById
+import com.rk.ai.persistence.settings.findProvider
 import com.rk.ai.persistence.settings.getCurrentAssistant
 import java.io.File
+import kotlin.uuid.ExperimentalUuidApi
 
 class CodeReviewAgent(
     private val ideService: IdeService,
@@ -95,7 +99,7 @@ class CodeReviewAgent(
         val provider = model.findProvider(settings.providers)
             ?: return fallbackReview(userPrompt)
 
-        val providerImpl = providerManager.getProviderByType(provider)
+        val providerImpl = providerManager.getProviderByType<ProviderSetting>(provider)
         val messages = listOf(
             UIMessage.system(systemPrompt),
             UIMessage.user(userPrompt),
@@ -106,7 +110,7 @@ class CodeReviewAgent(
             messages = messages,
             params = TextGenerationParams(model = model, maxTokens = 4096),
         )
-        return chunk.choices.firstOrNull()?.message?.content ?: fallbackReview(userPrompt)
+        return chunk.choices.firstOrNull()?.message?.toText() ?: fallbackReview(userPrompt)
     }
 
     private fun fallbackReview(context: String): String {

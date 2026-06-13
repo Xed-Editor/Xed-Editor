@@ -1,6 +1,7 @@
 package com.rk.ai.agent.indexer
 
 import com.rk.ai.service.IdeService
+import com.google.gson.JsonElement
 import java.io.File
 
 data class ScannedFile(
@@ -52,11 +53,12 @@ class ProjectIndexer(private val ideService: IdeService) {
         val allFiles = mutableListOf<ScannedFile>()
         for (ext in extensions) {
             try {
-                val results = ideService.findFiles("**/*.$ext", path, 2000)
-                allFiles.addAll(results.mapNotNull { f ->
+                val results = ideService.findFiles("**/*.$ext", 2000, path)
+                allFiles.addAll(results.mapNotNull { element ->
                     try {
-                        val file = File(f)
-                        if (file.exists()) ScannedFile(f, file.lastModified(), file.length())
+                        val pathStr = element.asString
+                        val file = File(pathStr)
+                        if (file.exists()) ScannedFile(pathStr, file.lastModified(), file.length())
                         else null
                     } catch (_: Exception) { null }
                 })
@@ -68,7 +70,7 @@ class ProjectIndexer(private val ideService: IdeService) {
     private suspend fun scanModules(path: String): List<ModuleInfo> {
         val modules = mutableListOf<ModuleInfo>()
         val settingsContent = try {
-            ideService.getFileContent("$path/settings.gradle.kts", null, null)
+            ideService.getFileContent("$path/settings.gradle.kts")
         } catch (_: Exception) { null }
         if (settingsContent != null) {
             val modulePattern = Regex("""include\(":([^"]+)"\)""")
@@ -117,7 +119,7 @@ class ProjectIndexer(private val ideService: IdeService) {
     private suspend fun scanDependencies(path: String): List<DependencyInfo> {
         val deps = mutableListOf<DependencyInfo>()
         val libsContent = try {
-            ideService.getFileContent("$path/gradle/libs.versions.toml", null, null)
+            ideService.getFileContent("$path/gradle/libs.versions.toml")
         } catch (_: Exception) { null }
         if (libsContent != null) {
             val libPattern = Regex("""(\S+)\s*=\s*"([^"]+)"(?::"([^"]+)")?""")

@@ -1,12 +1,16 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.agents
 
 import com.rk.ai.models.UIMessage
 import com.rk.ai.providers.ProviderManager
+import com.rk.ai.providers.ProviderSetting
 import com.rk.ai.providers.TextGenerationParams
 import com.rk.ai.service.IdeService
 import com.rk.ai.persistence.settings.SettingsStore
 import com.rk.ai.persistence.settings.findModelById
+import com.rk.ai.persistence.settings.findProvider
 import com.rk.ai.persistence.settings.getCurrentAssistant
+import kotlin.uuid.ExperimentalUuidApi
 
 class ArchitectureAgent(
     private val ideService: IdeService,
@@ -28,7 +32,7 @@ class ArchitectureAgent(
             val maxDepth = if (task.prompt.contains("deep", ignoreCase = true)) 5 else 3
             val structure = ideService.getProjectStructure(workspace, maxDepth, 300)
             val config = ideService.getProjectConfig(workspace)
-            val summary = ideService.getProjectSummary()
+            val summary = ideService.getProjectConfig(workspace).toString()
 
             val language = config["language"]?.asString ?: "unknown"
             val buildSystem = config["buildSystem"]?.asString ?: "unknown"
@@ -100,7 +104,7 @@ class ArchitectureAgent(
         val provider = model.findProvider(settings.providers)
             ?: return fallbackAnalysis(userPrompt)
 
-        val providerImpl = providerManager.getProviderByType(provider)
+        val providerImpl = providerManager.getProviderByType<ProviderSetting>(provider)
         val messages = listOf(UIMessage.system(systemPrompt), UIMessage.user(userPrompt))
 
         val chunk = providerImpl.generateText(

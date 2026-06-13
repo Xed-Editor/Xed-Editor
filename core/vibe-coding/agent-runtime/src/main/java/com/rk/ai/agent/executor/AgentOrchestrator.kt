@@ -63,7 +63,7 @@ class AgentOrchestrator(
             // Phase 2: Analyze
             setPhase(AgentPhase.ANALYZING)
             contextMemory.log("Analyzing project structure")
-            val summary = ideService.getProjectSummary(workspace)
+            val summary = ideService.getProjectConfig(workspace).toString()
             val structure = ideService.getProjectStructure(workspace, 3, 200)
             contextMemory.storeProjectInfo(summary, structure)
             contextMemory.addFact("Project analyzed: ${summary.take(200)}")

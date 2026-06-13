@@ -8,6 +8,7 @@ import com.rk.ai.agent.indexer.ProjectKnowledgeBase
 import com.rk.ai.agent.planner.TaskNode
 import com.rk.ai.agent.planner.TaskStatus
 import com.rk.ai.agent.planner.TaskTree
+import com.rk.ai.agent.review.ActionRecord
 import com.rk.ai.agent.review.InfiniteLoopDetector
 import com.rk.ai.agent.review.LoopSeverity
 import com.rk.ai.agent.review.SelfReviewer
@@ -153,9 +154,9 @@ class ExecutionEngine(
 
     private fun extractToolCalls(response: String): List<ToolCallInfo> {
         val calls = mutableListOf<ToolCallInfo>()
-        val regex = Regex("""<\w+_call>\s*<tool_name>\s*(\w+)\s*</tool_name>\s*<parameters>\s*(\{.*?\})?\s*</parameters>\s*</\w+_call>""", RegexOption.DOT_MATCHES_ALL)
+        val regex = Regex("""<(\w+_call)>\s*<tool_name>\s*(\w+)\s*</tool_name>\s*<parameters>\s*(\{.*?\})?\s*</parameters>\s*</\1>""", RegexOption.DOT_MATCHES_ALL)
         for (match in regex.findAll(response)) {
-            calls.add(ToolCallInfo(match.groupValues[1], match.groupValues[2].ifBlank { "{}" }))
+            calls.add(ToolCallInfo(match.groupValues[2], match.groupValues[3].ifBlank { "{}" }))
         }
         if (calls.isEmpty()) {
             val simpleRegex = Regex("""(?:use|call|invoke)\s+(\w+)\s*(?:with\s+args?\s*:\s*(\{.*?\}))?""", RegexOption.IGNORE_CASE)
@@ -168,8 +169,8 @@ class ExecutionEngine(
 
     private fun extractFilePath(input: String): String? {
         val patterns = listOf(
-            Regex("""filePath["\s:=]+([^",}\s]+)"""),
-            Regex("""path["\s:=]+([^",}\s]+)"""),
+            Regex("""filePath["\s:=]+([^"\,}\s]+)"""),
+            Regex("""path["\s:=]+([^"\,}\s]+)"""),
         )
         for (pattern in patterns) {
             val match = pattern.find(input)
@@ -185,9 +186,4 @@ class ExecutionEngine(
 data class ToolCallInfo(
     val name: String,
     val input: String,
-)
-
-private data class ActionRecord(
-    val toolName: String,
-    val inputHash: Int,
 )

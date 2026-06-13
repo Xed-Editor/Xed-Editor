@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.planner
 
 import kotlin.uuid.ExperimentalUuidApi

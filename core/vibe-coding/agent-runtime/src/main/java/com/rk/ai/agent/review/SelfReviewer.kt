@@ -46,85 +46,47 @@ class SelfReviewer {
         val outputText = result.joinToString("\n") { part ->
             when (part) {
                 is UIMessagePart.Text -> part.text
-                else -> ""
+                is UIMessagePart.ToolCall -> "[ToolCall: ${part.name}]"
+                is UIMessagePart.ToolResult -> "[ToolResult]"
+                is UIMessagePart.Image -> "[Image]"
+                is UIMessagePart.File -> "[File: ${part.path}]"
+                is UIMessagePart.Error -> "[Error: ${part.message}]"
+                else -> "[Unknown]"
             }
         }
 
-        if (outputText.isBlank()) {
-            missingInfo.add("Tool '$toolName' returned empty result")
+        if (outputText.isBlank() || outputText == "null" || outputText == "[]") {
+            issues.add("Tool returned empty result")
+            suggestions.add("Tool '$toolName' returned no output - check if the input was valid")
         }
 
-        if (outputText.contains("not found", ignoreCase = true) && !toolInput.contains("notfound")) {
-            warnings.add("Tool '$toolName' reports resource not found")
-        }
-
-        if (outputText.contains("error", ignoreCase = true)) {
-            warnings.add("Tool '$toolName' output contains error text")
-        }
-
-        if (outputText.contains("permission denied", ignoreCase = true)) {
-            issues.add("Permission denied for '$toolName'")
-        }
-
-        val repeatedPatterns = listOf(
-            "Tool '$toolName' has been called repeatedly" to "Check if the tool's result is what you expect",
-            "missing required argument" to "Check tool parameters and provide all required arguments",
-        )
-        for ((pattern, suggestion) in repeatedPatterns) {
-            if (outputText.contains(pattern, ignoreCase = true)) {
-                missingInfo.add("Tool '$toolName': $pattern")
-                suggestions.add(suggestion)
+        if (executionState is ExecutionState.Completed) {
+            if (toolName == "getFileContent" && outputText.contains("null")) {
+                issues.add("File content is null - file may not exist")
+                suggestions.add("Verify the file path exists and try alternative paths")
             }
-        }
-
-        if (executionState is ExecutionState.Completed && outputText.length > 100_000) {
-            warnings.add("Tool '$toolName' returned very large output (${outputText.length} chars)")
-        }
-
-        val score = when {
-            issues.isNotEmpty() && missingInfo.isNotEmpty() -> maxOf(0, 20 - issues.size * 10)
-            issues.isNotEmpty() -> maxOf(0, 40 - issues.size * 10)
-            warnings.isNotEmpty() -> maxOf(50, 80 - warnings.size * 10)
-            missingInfo.isNotEmpty() -> maxOf(60, 90 - missingInfo.size * 10)
-            else -> 100
-        }
-
-        val passed = issues.isEmpty() && missingInfo.size <= 2
-
-        return ReviewReport(
-            passed = passed,
-            score = score,
-            feedback = issues.joinToString("\n"),
-            suggestions = suggestions,
-            missingInfo = missingInfo,
-            warnings = warnings,
-        )
-    }
-
-    fun isInformationSufficient(
-        toolName: String,
-        result: List<UIMessagePart>,
-        goal: String,
-    ): ReviewReport {
-        val outputText = result.joinToString("\n") { when (it) { is UIMessagePart.Text -> it.text; else -> "" } }
-
-        val issues = mutableListOf<String>()
-        val suggestions = mutableListOf<String>()
-
-        if (toolName == "readFile" || toolName == "readFiles" || toolName == "cat") {
-            if (outputText.contains("FILE NOT FOUND") || outputText.contains("not found")) {
-                issues.add("File not found - need to check alternative locations")
-                suggestions.add("Try searching for the file with findFiles or searchCode")
+            if (toolName == "writeFile" && outputText.length < 10) {
+                issues.add("Write result too short - possible failure")
+                suggestions.add("Check writeFile output for error messages")
             }
-            if (outputText.length < 50 && !outputText.contains("error", ignoreCase = true)) {
-                suggestions.add("File may be empty or not fully read - consider specifying line range")
+            if (toolName == "listFiles" || toolName == "ls") {
+                if (outputText == "[]" || outputText.isBlank()) {
+                    issues.add("Directory appears empty - may not exist")
+                    suggestions.add("Check the parent directory exists and try expanding the path")
+                }
             }
-        }
+            if (toolName == "readFile" || toolName == "getFileContent") {
+                if (outputText.length < 100 && !outputText.contains("error", ignoreCase = true)) {
+                    missingInfo.add("Content seems truncated or unexpectedly short")
+                    suggestions.add("File may be empty or not fully read - consider specifying line range")
+                }
+            }
 
-        if (toolName == "searchCode" || toolName == "grep" || toolName == "searchSymbols") {
-            if (outputText.contains("No results") || outputText.startsWith("No ")) {
-                issues.add("Search returned no results")
-                suggestions.add("Try different search terms or check file extensions")
+            if (toolName == "searchCode" || toolName == "grep" || toolName == "searchSymbols") {
+                if (outputText.contains("No results") || outputText.startsWith("No ")) {
+                    issues.add("Search returned no results")
+                    suggestions.add("Try different search terms or check file extensions")
+                }
             }
         }
 
@@ -140,7 +102,7 @@ class SelfReviewer {
     fun shouldRetry(report: ReviewReport, attempt: Int, maxAttempts: Int): Boolean {
         if (attempt >= maxAttempts) return false
         if (report.score >= 90) return false
-        if (report.warnings.size <= 2 && report.issues.isEmpty()) return false
+        if (report.warnings.size <= 2 && report.missingInfo.isEmpty()) return false
         return true
     }
 
@@ -148,10 +110,8 @@ class SelfReviewer {
         return when {
             error.contains("not found", ignoreCase = true) -> "Verify the path exists and try listing the parent directory"
             error.contains("permission", ignoreCase = true) -> "Check file permissions or try a different location"
-            error.contains("timeout", ignoreCase = true) -> "Break the operation into smaller parts"
-            error.contains("invalid", ignoreCase = true) -> "Check tool arguments for correct format"
-            error.contains("missing", ignoreCase = true) -> "Provide all required parameters"
-            error.contains("connection", ignoreCase = true) -> "Check network connectivity and retry"
+            error.contains("timeout", ignoreCase = true) -> "Operation timed out - try a smaller scope or retry"
+            error.contains("network", ignoreCase = true) || error.contains("connect", ignoreCase = true) -> "Network issue - check connectivity and retry"
             else -> null
         }
     }

@@ -4,6 +4,8 @@ package com.rk.ai.agent.tools
 import android.content.Context
 import com.rk.ai.agent.agents.AgentRegistry
 import com.rk.ai.models.Tool
+import com.rk.ai.providers.ProviderManager
+import com.rk.ai.persistence.settings.SettingsStore
 import com.rk.ai.service.IdeService
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -17,8 +19,10 @@ interface PluginToolProvider {
 class VibeCodingToolRegistry(
     private val ideService: IdeService,
     private val context: Context,
+    private val providerManager: ProviderManager,
+    private val settingsStore: SettingsStore,
 ) {
-    val agentRegistry = AgentRegistry(context, ideService)
+    val agentRegistry = AgentRegistry(context, ideService, providerManager, settingsStore)
 
     private val fileTools by lazy { VibeCodingFileTools(ideService) }
     private val editorTools by lazy { VibeCodingEditorTools(ideService) }
