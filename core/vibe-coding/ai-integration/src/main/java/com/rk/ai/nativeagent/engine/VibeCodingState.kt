@@ -4,6 +4,8 @@ package com.rk.ai.nativeagent.engine
 import com.rk.ai.agent.agents.AgentResult
 import com.rk.ai.agent.events.SessionTodo
 import com.rk.ai.agent.events.SessionTodoStatus
+import com.rk.ai.agent.executor.AgentPhase
+import com.rk.ai.agent.planner.TaskTree
 import com.rk.ai.models.UIMessage
 import kotlin.uuid.Uuid
 import kotlin.uuid.ExperimentalUuidApi
@@ -58,6 +60,15 @@ data class CommandCatalogEntry(
     val hidden: Boolean = false,
 )
 
+data class ToolExecutionRecord(
+    val toolName: String,
+    val durationMs: Long,
+    val success: Boolean,
+    val fromCache: Boolean,
+    val timestamp: Long = System.currentTimeMillis(),
+    val tokens: Int = 0,
+)
+
 @OptIn(ExperimentalUuidApi::class)
 data class VibeCodingState(
     val messages: List<UIMessage> = emptyList(),
@@ -75,9 +86,15 @@ data class VibeCodingState(
     val dockOpen: Boolean = false,
     val dockClosing: Boolean = false,
     val compactionReason: String? = null,
+    val currentPhase: AgentPhase = AgentPhase.IDLE,
+    val contextTokens: Int? = null,
+    val toolExecutions: List<ToolExecutionRecord> = emptyList(),
+    val taskTree: TaskTree? = null,
+    val modifiedFiles: List<String> = emptyList(),
+    val projectIndexed: Boolean = false,
+    val toolStatsSummary: String = "",
 ) {
     val sessionById: Map<Uuid, SessionNode> get() = sessionTree.associateBy { it.id }
-
     val hasSecurityAlerts: Boolean get() = securityAlerts.isNotEmpty()
     val activeAgents: List<AgentActivity> get() = agentActivities.filter {
         it.status == AgentActivityStatus.RUNNING || it.status == AgentActivityStatus.PENDING
@@ -92,6 +109,36 @@ data class VibeCodingState(
 
     val completedTodos: Int get() = todos.count { it.status == SessionTodoStatus.COMPLETED }
     val pendingTodos: Int get() = todos.count { it.status == SessionTodoStatus.PENDING }
+
+    val phaseLabel: String get() = when (currentPhase) {
+        AgentPhase.IDLE -> "Idle"
+        AgentPhase.PLANNING -> "Planning"
+        AgentPhase.ANALYZING -> "Analyzing"
+        AgentPhase.INDEXING -> "Indexing"
+        AgentPhase.EXPLORING -> "Exploring"
+        AgentPhase.EXECUTING -> "Executing"
+        AgentPhase.VERIFYING -> "Verifying"
+        AgentPhase.REVIEWING -> "Reviewing"
+        AgentPhase.TESTING -> "Testing"
+        AgentPhase.COMPLETED -> "Completed"
+        AgentPhase.FAILED -> "Failed"
+    }
+
+    val isAgentActive: Boolean get() = currentPhase !in listOf(AgentPhase.IDLE, AgentPhase.COMPLETED, AgentPhase.FAILED)
+
+    val phaseColor: Long get() = when (currentPhase) {
+        AgentPhase.IDLE -> 0xFF9E9E9E
+        AgentPhase.PLANNING -> 0xFFFFA726
+        AgentPhase.ANALYZING -> 0xFF42A5F5
+        AgentPhase.INDEXING -> 0xFF66BB6A
+        AgentPhase.EXPLORING -> 0xFF26C6DA
+        AgentPhase.EXECUTING -> 0xFFEF5350
+        AgentPhase.VERIFYING -> 0xFFAB47BC
+        AgentPhase.REVIEWING -> 0xFFFF7043
+        AgentPhase.TESTING -> 0xFF7E57C2
+        AgentPhase.COMPLETED -> 0xFF66BB6A
+        AgentPhase.FAILED -> 0xFFEF5350
+    }
 
     fun sessionLineage(sessionId: Uuid): List<Uuid> {
         val result = mutableListOf(sessionId)
@@ -117,11 +164,7 @@ data class VibeCodingState(
     }
 
     private fun patternMatches(pattern: String, input: String): Boolean {
-        val regex = pattern
-            .replace(".", "\\.")
-            .replace("*", ".*")
-            .toRegex(RegexOption.IGNORE_CASE)
-        return regex.matches(input)
+        return com.rk.ai.nativeagent.engine.patternMatches(pattern, input)
     }
 
     fun toChatState(): ChatState = ChatState(messages, isProcessing, error, currentConversationId)

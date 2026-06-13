@@ -4,8 +4,8 @@ import com.rk.ai.providers.Model
 
 object ModelPrompts {
 
-    fun forModel(model: Model, toolsDescription: String): String {
-        val modelId = model.modelId.lowercase()
+    fun forModel(model: Model?, toolsDescription: String): String {
+        val modelId = model?.modelId?.lowercase() ?: return defaultPrompt() + "\n\n" + toolsDescription
         val base = when {
             modelId.contains("claude") || modelId.contains("anthropic") -> anthropicPrompt()
             modelId.contains("gpt") || modelId.contains("o1") || modelId.contains("o3") -> gptPrompt()

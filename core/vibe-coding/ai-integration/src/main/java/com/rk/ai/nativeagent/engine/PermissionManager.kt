@@ -87,10 +87,6 @@ class PermissionManager {
     }
 
     private fun patternMatches(pattern: String, input: String): Boolean {
-        val regex = pattern
-            .replace(".", "\\.")
-            .replace("*", ".*")
-            .toRegex(RegexOption.IGNORE_CASE)
-        return regex.matches(input)
+        return com.rk.ai.nativeagent.engine.patternMatches(pattern, input)
     }
 }

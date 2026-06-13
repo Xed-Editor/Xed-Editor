@@ -1,183 +1,127 @@
 package com.rk.ai.agent.agents
 
+import com.rk.ai.models.UIMessage
+import com.rk.ai.providers.ProviderManager
+import com.rk.ai.providers.TextGenerationParams
 import com.rk.ai.service.IdeService
+import com.rk.ai.persistence.settings.SettingsStore
+import com.rk.ai.persistence.settings.findModelById
+import com.rk.ai.persistence.settings.getCurrentAssistant
 import java.io.File
 
-class BugHunterAgent(private val ideService: IdeService) : SubAgent {
+class BugHunterAgent(
+    private val ideService: IdeService,
+    private val providerManager: ProviderManager,
+    private val settingsStore: SettingsStore,
+) : SubAgent {
     override val name = "bug-hunter"
-    override val description = "Analyzes code for bugs, edge cases, null safety issues, race conditions, and error handling gaps. Uses pattern-based detection across multiple dimensions."
+    override val description = "Analyzes code for bugs, edge cases, null safety issues, race conditions, and error handling gaps using AI."
     override val capabilities = listOf(
-        AgentCapability("static_analysis", "Analyze code for common bug patterns", "files: string[]"),
-        AgentCapability("error_flow", "Trace error handling paths for gaps", "files: string[]"),
-        AgentCapability("null_safety", "Check for null pointer risks", "files: string[]"),
-        AgentCapability("concurrency", "Check for race conditions and thread safety", "files: string[]"),
-        AgentCapability("resource_leak", "Detect resource leaks (streams, cursors)", "files: string[]"),
+        AgentCapability("static_analysis", "AI-powered analysis for common bug patterns", "files: string[]"),
+        AgentCapability("error_flow", "AI trace of error handling paths for gaps", "files: string[]"),
+        AgentCapability("null_safety", "AI check for null pointer risks", "files: string[]"),
+        AgentCapability("concurrency", "AI check for race conditions and thread safety", "files: string[]"),
+        AgentCapability("resource_leak", "AI detection of resource leaks", "files: string[]"),
     )
 
     override suspend fun execute(task: AgentTask): AgentResult {
         return try {
             val workspace = ideService.getPrimaryWorkspacePath()
             val fileRefs = extractFileReferences(task)
+            val diff = ideService.getGitDiff(workspace)
 
-            val report = buildString {
-                appendLine("# Bug Hunting Report")
+            val fileContents = fileRefs.mapNotNull { path ->
+                val file = File(path)
+                if (file.exists()) path to file.readText() else null
+            }
+
+            if (fileContents.isEmpty() && diff.isBlank()) {
+                return AgentResult.Success(
+                    output = "No files or changes found to analyze.",
+                    summary = "No code to analyze",
+                )
+            }
+
+            val systemPrompt = buildString {
+                appendLine("You are an expert bug hunter. Analyze the provided code and identify all potential bugs.")
+                appendLine("Cover these categories:")
+                appendLine("1. **Null Safety Issues** - NPE risks, unsafe casts, force-unwrap")
+                appendLine("2. **Resource Leaks** - unclosed streams, cursors, connections")
+                appendLine("3. **Thread Safety** - race conditions, shared mutable state")
+                appendLine("4. **Error Handling** - unhandled exceptions, silent failures")
+                appendLine("5. **Edge Cases** - boundary conditions, empty collections, overflow")
                 appendLine()
+                appendLine("For each bug found, specify:")
+                appendLine("- **File** and **line** (approximate)")
+                appendLine("- **Severity**: CRITICAL / HIGH / MEDIUM / LOW")
+                appendLine("- **Description** of the issue")
+                appendLine("- **Fix suggestion** (code snippet preferred)")
+            }
 
-                appendLine("## Task")
-                appendLine("${task.prompt}")
+            val userPrompt = buildString {
+                appendLine("## Bug Hunt Task")
+                appendLine(task.prompt)
                 if (task.contextMessages.isNotEmpty()) {
-                    appendLine("Context: ${task.contextMessages.joinToString("; ").take(200)}")
-                }
-                appendLine("Files analyzed: ${fileRefs.size}")
-                appendLine()
-
-                if (fileRefs.isEmpty()) {
-                    val diff = ideService.getGitDiff(workspace)
-                    if (diff.isNotBlank()) {
-                        appendLine("## Changes Under Analysis")
-                        appendLine("```diff")
-                        appendLine(diff.take(6000))
-                        appendLine("```")
-                        appendLine()
-                    }
-                }
-
-                fileRefs.forEach { filePath ->
-                    val file = File(filePath)
-                    if (!file.exists()) return@forEach
-                    val content = file.readText()
-                    val lines = content.lines()
-
-                    appendLine("## File: $filePath (${lines.size} lines)")
                     appendLine()
-
-                    // Null safety
-                    val nullIssues = checkNullSafety(content, lines)
-                    if (nullIssues.isNotEmpty()) {
-                        appendLine("### Null Safety Issues")
-                        nullIssues.forEach { appendLine("- $it") }
-                        appendLine()
-                    }
-
-                    // Resource leaks
-                    val resourceIssues = checkResourceLeaks(content, lines)
-                    if (resourceIssues.isNotEmpty()) {
-                        appendLine("### Resource Leak Risks")
-                        resourceIssues.forEach { appendLine("- $it") }
-                        appendLine()
-                    }
-
-                    // Thread safety
-                    val threadIssues = checkThreadSafety(content, lines)
-                    if (threadIssues.isNotEmpty()) {
-                        appendLine("### Thread Safety Concerns")
-                        threadIssues.forEach { appendLine("- $it") }
-                        appendLine()
-                    }
-
-                    // Error handling
-                    val errorIssues = checkErrorHandling(content, lines)
-                    if (errorIssues.isNotEmpty()) {
-                        appendLine("### Error Handling Gaps")
-                        errorIssues.forEach { appendLine("- $it") }
-                        appendLine()
-                    }
-
-                    // Edge cases
-                    val edgeCases = checkEdgeCases(content, lines)
-                    if (edgeCases.isNotEmpty()) {
-                        appendLine("### Edge Case Risks")
-                        edgeCases.forEach { appendLine("- $it") }
-                        appendLine()
-                    }
-
-                    appendLine("---")
+                    appendLine("## Context")
+                    task.contextMessages.forEach { appendLine("- $it") }
+                }
+                if (diff.isNotBlank()) {
                     appendLine()
+                    appendLine("## Changes Under Analysis")
+                    appendLine("```diff")
+                    appendLine(diff.take(10000))
+                    appendLine("```")
+                }
+                for ((path, content) in fileContents) {
+                    appendLine()
+                    appendLine("### $path (${content.lines().size} lines)")
+                    appendLine("```")
+                    appendLine(content.take(8000))
+                    appendLine("```")
                 }
             }
 
+            val result = callLlm(systemPrompt, userPrompt)
             AgentResult.Success(
-                output = report,
-                summary = "Bug hunt completed across ${fileRefs.size} files",
+                output = result,
+                summary = "AI bug hunt completed for ${fileRefs.size} files",
             )
         } catch (e: Exception) {
             AgentResult.Failure("Bug hunt failed: ${e.message}")
         }
     }
 
-    private fun checkNullSafety(content: String, lines: List<String>): List<String> {
-        val issues = mutableListOf<String>()
-        if (content.contains("!!")) issues.add("Force-unwrap operator (!!) used - risk of NPE")
-        if (content.contains("null!!")) issues.add("Null value force-unwrapped")
-        val lateinitVars = lines.count { it.contains("lateinit var") && !it.contains("by lazy") }
-        if (lateinitVars > 0) issues.add("$lateinitVars lateinit vars - risk of UninitializedPropertyAccessException")
-        if (content.contains("as ") && !content.contains("as?")) {
-            issues.add("Unsafe cast (as) without null-safe alternative (as?)")
-        }
-        return issues
+    private suspend fun callLlm(systemPrompt: String, userPrompt: String): String {
+        val settings = settingsStore.settingsFlow.value
+        val assistant = settings.getCurrentAssistant()
+        val model = settings.findModelById(assistant.chatModelId)
+            ?: return fallbackAnalysis(userPrompt)
+        val provider = model.findProvider(settings.providers)
+            ?: return fallbackAnalysis(userPrompt)
+
+        val providerImpl = providerManager.getProviderByType(provider)
+        val messages = listOf(UIMessage.system(systemPrompt), UIMessage.user(userPrompt))
+
+        val chunk = providerImpl.generateText(
+            providerSetting = provider,
+            messages = messages,
+            params = TextGenerationParams(model = model, maxTokens = 4096),
+        )
+        return chunk.choices.firstOrNull()?.message?.toText() ?: fallbackAnalysis(userPrompt)
     }
 
-    private fun checkResourceLeaks(content: String, lines: List<String>): List<String> {
-        val issues = mutableListOf<String>()
-        if (content.contains("FileInputStream") && !content.contains(".use {") && !content.contains("try("))
-            issues.add("FileInputStream without .use{} or try-with-resources")
-        if (content.contains("FileOutputStream") && !content.contains(".use {") && !content.contains("try("))
-            issues.add("FileOutputStream without .use{} or try-with-resources")
-        if (content.contains("Cursor") && !content.contains(".use") && !content.contains("close"))
-            issues.add("Cursor may not be closed")
-        if (content.contains("database") && content.contains("rawQuery") && !content.contains(".use"))
-            issues.add("Database query result may leak")
-        return issues
-    }
-
-    private fun checkThreadSafety(content: String, lines: List<String>): List<String> {
-        val issues = mutableListOf<String>()
-        if (content.contains("var ") && !content.contains("volatile") && !content.contains("Atomic") && !content.contains("synchronized")) {
-            if (content.contains("Thread") || content.contains("coroutine") || content.contains("launch {"))
-                issues.add("Mutable state (var) without synchronization in concurrent context")
+    private fun fallbackAnalysis(context: String): String {
+        return buildString {
+            appendLine("# Bug Hunt Report (Fallback)")
+            appendLine()
+            appendLine("LLM was unavailable. Manual checklist:")
+            appendLine("- Check for `!!` force-unwrap operators")
+            appendLine("- Verify resource cleanup (FileInputStream, Cursor, database)")
+            appendLine("- Check mutable state in concurrent contexts")
+            appendLine("- Look for broad Exception catches")
+            appendLine("- Check .first()/.last() on potentially empty collections")
         }
-        if (content.contains("MutableList") || content.contains("mutableListOf") || content.contains("ArrayList")) {
-            if (content.contains("launch {") || content.contains("async {"))
-                issues.add("Mutable collection used in coroutine context - risk of concurrent modification")
-        }
-        if (content.contains("object ") && content.contains("var ")) {
-            if (!content.contains("synchronized") && !content.contains("Atomic"))
-                issues.add("Singleton object with mutable state without synchronization")
-        }
-        return issues
-    }
-
-    private fun checkErrorHandling(content: String, lines: List<String>): List<String> {
-        val issues = mutableListOf<String>()
-        if (content.contains("runCatching") && !content.contains(".onFailure"))
-            issues.add("runCatching without onFailure handler - errors may be silently swallowed")
-        if (content.contains("catch (e: Exception)") && (content.contains("e.printStackTrace()") || content.contains("Log.e")))
-            issues.add("Generic Exception catch with only logging - consider more specific handling")
-        if (content.contains("catch (e: Throwable)"))
-            issues.add("Catching Throwable is too broad - catches OutOfMemoryError etc.")
-        if (content.contains("?.let") && !content.contains("?: return"))
-            issues.add("?.let without else branch - null case silently ignored")
-        val tryCount = lines.count { it.trimStart().startsWith("try {") }
-        val catchCount = lines.count { it.trimStart().startsWith("} catch") }
-        if (tryCount > catchCount + 1) issues.add("More try blocks than catch blocks - possible unhandled exceptions")
-        return issues
-    }
-
-    private fun checkEdgeCases(content: String, lines: List<String>): List<String> {
-        val issues = mutableListOf<String>()
-        if (content.contains(".first()") || content.contains(".last()"))
-            issues.add(".first()/.last() on potentially empty collection throws NoSuchElementException")
-        if (content.contains("substring") && !content.contains("coerceIn") && !content.contains("if"))
-            issues.add("substring without bounds check - IndexOutOfBounds risk")
-        if (content.contains("toInt()") && !content.contains("toIntOrNull"))
-            issues.add("toInt() may throw NumberFormatException - consider toIntOrNull()")
-        if (content.contains("toLong()") && !content.contains("toLongOrNull"))
-            issues.add("toLong() may throw NumberFormatException - consider toLongOrNull()")
-        if (content.contains("get(") && !content.contains("getOrNull")) {
-            if (content.contains("List") || content.contains("listOf") || content.contains("ArrayList"))
-                issues.add("List.get() without bounds check - IndexOutOfBoundsException risk")
-        }
-        return issues
     }
 
     private fun extractFileReferences(task: AgentTask): List<String> {

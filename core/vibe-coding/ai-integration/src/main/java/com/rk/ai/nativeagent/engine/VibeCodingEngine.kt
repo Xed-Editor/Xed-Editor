@@ -16,9 +16,13 @@ import com.rk.ai.agent.files.ConfigProvider
 import com.rk.ai.agent.files.DefaultContentSeeder
 import com.rk.ai.agent.files.FilesManager
 import com.rk.ai.agent.files.SkillManager
+import com.rk.ai.agent.executor.AgentOrchestrator
+import com.rk.ai.agent.executor.AgentPhase
+import com.rk.ai.agent.executor.ExecutionEngine
 import com.rk.ai.agent.files.UnifiedConfig
 import com.rk.ai.agent.files.XedConfig
 import com.rk.ai.agent.files.XedConfigLoader
+import com.rk.ai.agent.indexer.ProjectIndexer
 import com.rk.ai.agent.tools.ToolValidator
 import com.rk.ai.agent.agents.AgentResult
 import com.rk.ai.agent.hooks.HookContext
@@ -27,6 +31,8 @@ import com.rk.ai.agent.hooks.HookManager
 import com.rk.ai.agent.hooks.HookResult
 import com.rk.ai.agent.hooks.SecurityHook
 import com.rk.ai.agent.tools.LocalTools
+import com.rk.ai.agent.tools.ToolCache
+import com.rk.ai.agent.tools.ToolRouter
 import com.rk.ai.agent.tools.VibeCodingSystemTools
 import com.rk.ai.agent.tools.VibeCodingToolRegistry
 import com.rk.ai.agent.transformers.Base64ImageToLocalFileTransformer
@@ -40,6 +46,9 @@ import com.rk.ai.agent.transformers.TransformerContext
 import com.rk.ai.agent.tools.createSearchTools
 import com.rk.ai.agent.tools.createSkillTools
 import com.rk.ai.agent.tools.SuggestionStore
+import com.rk.ai.agent.agents.AgentRegistry
+import com.rk.ai.agent.context.ContextMemoryManager
+import com.rk.ai.agent.planner.TaskPlanner
 import com.rk.ai.core.AppScope
 import com.rk.ai.mcp.FileManager
 import com.rk.ai.mcp.McpManager
@@ -162,6 +171,29 @@ class VibeCodingEngine(
         getState = { _state.value },
     )
 
+    val toolCache = ToolCache()
+    val toolRouter = ToolRouter(toolCache, null)
+    val projectIndexer = ProjectIndexer(ideService)
+    val contextMemoryManager = ContextMemoryManager()
+    val executionEngine = ExecutionEngine(
+        ideService = ideService,
+        contextMemory = contextMemoryManager,
+        toolCache = toolCache,
+        toolRouter = toolRouter,
+        projectIndexer = projectIndexer,
+    )
+
+    val orchestrator = AgentOrchestrator(
+        ideService = ideService,
+        contextMemory = contextMemoryManager,
+        toolCache = toolCache,
+        toolRouter = toolRouter,
+        executionEngine = executionEngine,
+        projectIndexer = projectIndexer,
+    )
+
+    val agentRegistry = AgentRegistry(context, ideService, providerManager, settingsStore)
+
     private val storedCommandCatalog = mutableListOf<CommandCatalogEntry>()
     private var xedConfig = XedConfig()
     private val toolValidator = ToolValidator()
@@ -220,6 +252,10 @@ class VibeCodingEngine(
         DefaultContentSeeder.seedIfNeeded(context)
         loadFileCommandsIntoCatalog()
         loadProjectConfig()
+
+        orchestrator.setPhaseChangeListener { phase ->
+            _state.value = _state.value.copy(currentPhase = phase)
+        }
     }
 
     fun loadProjectConfig() {
@@ -645,16 +681,80 @@ class VibeCodingEngine(
 
     fun sendMessage(text: String, extraParts: List<UIMessagePart> = emptyList()) {
         ensureSessionExists(text.trim())
-        generationPipeline.execute(
-            text = text,
-            extraParts = extraParts,
-            buildConfig = ::buildGenerationConfig,
-        )
+        if (isComplexTask(text) && !_state.value.isProcessing) {
+            engineScope.launch {
+                _state.value = _state.value.copy(isProcessing = true, currentPhase = AgentPhase.PLANNING)
+                val result = orchestrator.execute(text)
+                _state.value = _state.value.copy(
+                    isProcessing = false,
+                    currentPhase = result.phase,
+                    taskTree = result.taskTree,
+                    modifiedFiles = result.modifiedFiles,
+                )
+                if (result.success) {
+                    val msg = UIMessage(
+                        role = MessageRole.ASSISTANT,
+                        parts = listOf(UIMessagePart.Text(result.summary)),
+                    )
+                    _state.value = _state.value.copy(
+                        messages = _state.value.messages + msg,
+                    )
+                } else {
+                    val errorMsg = UIMessage(
+                        role = MessageRole.ASSISTANT,
+                        parts = listOf(UIMessagePart.Text("Failed: ${result.errors.joinToString(", ")}")),
+                    )
+                    _state.value = _state.value.copy(
+                        messages = _state.value.messages + errorMsg,
+                        error = result.errors.joinToString(", "),
+                    )
+                }
+            }
+        } else {
+            generationPipeline.execute(
+                text = text,
+                extraParts = extraParts,
+                buildConfig = ::buildGenerationConfig,
+            )
+        }
+    }
+
+    fun runAutonomous(goal: String) {
+        ensureSessionExists(goal.trim())
+        engineScope.launch {
+            _state.value = _state.value.copy(isProcessing = true, currentPhase = AgentPhase.PLANNING)
+            val result = orchestrator.execute(goal)
+            _state.value = _state.value.copy(
+                isProcessing = false,
+                currentPhase = result.phase,
+                taskTree = result.taskTree,
+                modifiedFiles = result.modifiedFiles,
+            )
+            val msg = UIMessage(
+                role = MessageRole.ASSISTANT,
+                parts = listOf(UIMessagePart.Text(result.summary)),
+            )
+            _state.value = _state.value.copy(messages = _state.value.messages + msg)
+        }
     }
 
     fun stopGeneration() {
         generationPipeline.cancel()
-        _state.value = _state.value.copy(isProcessing = false)
+        orchestrator.stop()
+        _state.value = _state.value.copy(isProcessing = false, currentPhase = AgentPhase.IDLE)
+    }
+
+    private fun isComplexTask(text: String): Boolean {
+        val signals = listOf(
+            "refactor", "implement", "create", "build", "fix",
+            "add feature", "change", "update", "migrate",
+            "write tests", "restructure", "complete", "full",
+            "entire", "module", "feature",
+        )
+        val lower = text.lowercase()
+        val hasSignal = signals.any { lower.contains(it) }
+        val isLong = text.length > 80
+        return hasSignal || isLong
     }
 
     private fun ensureSessionExists(titleHint: String) {

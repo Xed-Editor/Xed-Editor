@@ -83,7 +83,18 @@ fun InstructionsEditorPanel(
                     )
                     FilledTonalButton(
                         onClick = {
-                            // Save content to the selected source
+                            selectedSource?.let { src ->
+                                val path = when (src) {
+                                    is InstructionsSource.Project -> src.path
+                                    is InstructionsSource.Global -> src.path
+                                    is InstructionsSource.Claude -> src.path
+                                    is InstructionsSource.Custom -> src.path
+                                }
+                                try {
+                                    File(path).parentFile?.mkdirs()
+                                    File(path).writeText(content)
+                                } catch (_: Exception) { }
+                            }
                         },
                         enabled = selectedSource != null,
                     ) {

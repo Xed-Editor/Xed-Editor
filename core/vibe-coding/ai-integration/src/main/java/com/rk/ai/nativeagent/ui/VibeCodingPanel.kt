@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.ai.agent.events.SessionTodoStatus
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import com.rk.ai.nativeagent.ui.components.*
+import com.rk.ai.nativeagent.ui.panels.*
 import com.rk.ai.persistence.settings.getCurrentAssistant
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
@@ -51,6 +52,10 @@ fun VibeCodingPanel(
     var showFiles by remember { mutableStateOf(false) }
     var showAgentPanel by remember { mutableStateOf(false) }
     var showSuggestionPanel by remember { mutableStateOf(false) }
+    var showExecutionGraph by remember { mutableStateOf(false) }
+    var showToolActivity by remember { mutableStateOf(false) }
+    var showContext by remember { mutableStateOf(false) }
+    var showFileChanges by remember { mutableStateOf(false) }
     var activePanel by remember { mutableStateOf(ToolPanel.NONE) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
@@ -263,6 +268,36 @@ fun VibeCodingPanel(
                                     label = "History",
                                     onClick = { showHistory = !showHistory },
                                 )
+                                PanelToggleButton(
+                                    icon = Icons.Outlined.Checklist,
+                                    label = "Plan",
+                                    isActive = showExecutionGraph,
+                                    onClick = { showExecutionGraph = !showExecutionGraph },
+                                )
+                                PanelToggleButton(
+                                    icon = Icons.Outlined.Build,
+                                    label = "Tools",
+                                    isActive = showToolActivity,
+                                    onClick = { showToolActivity = !showToolActivity },
+                                )
+                                PanelToggleButton(
+                                    icon = Icons.Outlined.Info,
+                                    label = "Ctx",
+                                    isActive = showContext,
+                                    onClick = { showContext = !showContext },
+                                )
+                                PanelToggleButton(
+                                    icon = Icons.Outlined.Folder,
+                                    label = "Changes",
+                                    isActive = showFileChanges,
+                                    onClick = { showFileChanges = !showFileChanges },
+                                )
+                                PanelToggleButton(
+                                    icon = Icons.Outlined.Notifications,
+                                    label = "Agent",
+                                    isActive = showAgentPanel,
+                                    onClick = { showAgentPanel = !showAgentPanel },
+                                )
                                 ToolbarButton(
                                     icon = Icons.Outlined.Description,
                                     label = "Rules",
@@ -411,6 +446,60 @@ fun VibeCodingPanel(
                             AgentActivityCard(
                                 activity = activity,
                             )
+                        }
+                    }
+                }
+
+                // Agent info panels (responsive row)
+                val hasAnyPanel = showExecutionGraph || showToolActivity || showContext || showFileChanges
+                if (hasAnyPanel) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 280.dp)
+                            .padding(horizontal = 4.dp, vertical = 2.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        color = colorScheme.surfaceContainerLowest,
+                    ) {
+                        var selectedPanelIndex by remember { mutableStateOf(0) }
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                val panelTabs = listOf(
+                                    showExecutionGraph to "Plan",
+                                    showToolActivity to "Tools",
+                                    showContext to "Context",
+                                    showFileChanges to "Files",
+                                )
+                                panelTabs.forEachIndexed { index, (visible, label) ->
+                                    if (visible) {
+                                        FilterChip(
+                                            selected = selectedPanelIndex == index,
+                                            onClick = { selectedPanelIndex = index },
+                                            label = { Text(label, style = MaterialTheme.typography.labelSmall, fontSize = 10.sp) },
+                                            modifier = Modifier.height(24.dp),
+                                        )
+                                    }
+                                }
+                            }
+                            when (selectedPanelIndex) {
+                                0 -> ExecutionGraphPanel(taskTree = state.taskTree, modifier = Modifier.weight(1f))
+                                1 -> ToolActivityPanel(toolExecutions = state.toolExecutions, modifier = Modifier.weight(1f))
+                                2 -> {
+                                    val contextInfo = ContextInfo(
+                                        currentGoal = engine.contextMemoryManager.conversation.getCurrentGoal(),
+                                        modifiedFiles = state.modifiedFiles,
+                                        projectIndexed = state.projectIndexed,
+                                        toolCalls = state.toolExecutions.size,
+                                    )
+                                    ContextPanel(info = contextInfo, modifier = Modifier.weight(1f))
+                                }
+                                3 -> FileChangePanel(modifiedFiles = state.modifiedFiles, currentPhase = state.currentPhase, modifier = Modifier.weight(1f))
+                            }
                         }
                     }
                 }
@@ -628,6 +717,27 @@ private fun ToolbarButton(
             icon,
             contentDescription = label,
             modifier = Modifier.size(14.dp),
+        )
+    }
+}
+
+@Composable
+private fun PanelToggleButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    isActive: Boolean,
+    onClick: () -> Unit,
+) {
+    FilledTonalIconButton(
+        onClick = onClick,
+        modifier = Modifier.size(28.dp),
+    ) {
+        Icon(
+            icon,
+            contentDescription = label,
+            modifier = Modifier.size(14.dp),
+            tint = if (isActive) MaterialTheme.colorScheme.primary
+                   else MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

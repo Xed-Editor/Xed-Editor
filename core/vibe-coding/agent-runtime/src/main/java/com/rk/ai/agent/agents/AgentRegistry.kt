@@ -7,6 +7,8 @@ import com.rk.ai.agent.files.FileAgentDefinition
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.models.InputSchema
+import com.rk.ai.providers.ProviderManager
+import com.rk.ai.persistence.settings.SettingsStore
 import com.rk.ai.service.IdeService
 import com.google.gson.JsonParser
 import kotlinx.serialization.json.buildJsonObject
@@ -56,14 +58,16 @@ data class FileBasedSubAgent(
 class AgentRegistry(
     private val context: Context,
     private val ideService: IdeService,
+    private val providerManager: ProviderManager,
+    private val settingsStore: SettingsStore,
 ) {
     private val agents = mutableMapOf<String, SubAgentRegistration>()
 
     init {
-        register(CodeReviewAgent(ideService))
-        register(BugHunterAgent(ideService))
-        register(ArchitectureAgent(ideService))
-        register(TestGenerationAgent(ideService))
+        register(CodeReviewAgent(ideService, providerManager, settingsStore))
+        register(BugHunterAgent(ideService, providerManager, settingsStore))
+        register(ArchitectureAgent(ideService, providerManager, settingsStore))
+        register(TestGenerationAgent(ideService, providerManager, settingsStore))
         loadFileBasedAgents()
     }
 

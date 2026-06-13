@@ -130,8 +130,17 @@ class GenerationPipeline(
                         onStateUpdate { copy(compactionReason = chunk.reason) }
                     }
                     is GenerationChunk.ToolStateChanged -> {
+                        val success = chunk.executionState is ExecutionState.Completed
+                        onStateUpdate {
+                            val record = ToolExecutionRecord(
+                                toolName = chunk.toolName,
+                                durationMs = 0,
+                                success = success,
+                                fromCache = false,
+                            )
+                            copy(toolExecutions = toolExecutions + record)
+                        }
                         engineScope.launch {
-                            val success = chunk.executionState is ExecutionState.Completed
                             vibeEventBus.emit(VibeCodingEvent.ToolExecuted(
                                 sessionId = getState().activeSessionId ?: Uuid.random(),
                                 toolName = chunk.toolName,

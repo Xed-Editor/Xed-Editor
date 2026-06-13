@@ -77,7 +77,35 @@ fun SkillBrowserPanel(
                         modifier = Modifier.weight(1f),
                     )
                     FilledTonalButton(
-                        onClick = { /* create new skill */ },
+                        onClick = {
+                            val dir = File(skillsDir)
+                            val baseName = "new-skill"
+                            var skillDir = File(dir, baseName)
+                            var counter = 1
+                            while (skillDir.exists()) {
+                                skillDir = File(dir, "$baseName-$counter")
+                                counter++
+                            }
+                            skillDir.mkdirs()
+                            val skillFile = File(skillDir, "SKILL.md")
+                            skillFile.writeText(
+                                """
+                                |---
+                                |name: ${skillDir.name}
+                                |description: New skill description
+                                |---
+                                |
+                                |# ${skillDir.name}
+                                |
+                                |Write your skill instructions here.
+                                |
+                                |## Usage
+                                |
+                                |Describe when and how to use this skill.
+                                """.trimMargin()
+                            )
+                            onEditSkill(skillFile.absolutePath)
+                        },
                     ) {
                         Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(4.dp))

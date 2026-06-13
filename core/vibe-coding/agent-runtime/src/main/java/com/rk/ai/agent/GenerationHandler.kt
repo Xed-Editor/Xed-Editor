@@ -35,7 +35,6 @@ import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.handleMessageChunk
 import com.rk.ai.models.limitContext
 import com.rk.ai.agent.RecoveryEngine
-import com.rk.ai.agent.prompts.DEFAULT_COMPRESS_PROMPT
 import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.MessageTransformer
 import com.rk.ai.agent.transformers.OutputMessageTransformer

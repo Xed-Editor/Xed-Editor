@@ -179,7 +179,9 @@ class SettingsStore(
             preferences[ASSISTANT_TAGS] = JsonInstant.encodeToString(settings.assistantTags)
             preferences[SEARCH_SERVICES] = JsonInstant.encodeToString(settings.searchServices)
             preferences[SEARCH_COMMON] = JsonInstant.encodeToString(settings.searchCommonOptions)
-            preferences[SEARCH_SELECTED] = settings.searchServiceSelected.coerceIn(0, settings.searchServices.size - 1)
+            preferences[SEARCH_SELECTED] = if (settings.searchServices.isNotEmpty()) {
+                settings.searchServiceSelected.coerceIn(0, settings.searchServices.size - 1)
+            } else { 0 }
             preferences[MCP_SERVERS] = JsonInstant.encodeToString(settings.mcpServers)
             preferences[MODE_INJECTIONS] = JsonInstant.encodeToString(settings.modeInjections)
             preferences[LOREBOOKS] = JsonInstant.encodeToString(settings.lorebooks)
@@ -277,7 +279,10 @@ fun List<ProviderSetting>.findModelById(uuid: Uuid): Model? {
 }
 
 fun Settings.getCurrentAssistant(): Assistant {
-    return this.assistants.find { it.id == assistantId } ?: this.assistants.first()
+    val found = this.assistants.find { it.id == assistantId }
+    if (found != null) return found
+    return this.assistants.firstOrNull()
+        ?: Assistant(id = Uuid.random(), name = "Default", models = emptyList(), providerOverwrites = emptyList())
 }
 
 fun Settings.getAssistantById(id: Uuid): Assistant? {

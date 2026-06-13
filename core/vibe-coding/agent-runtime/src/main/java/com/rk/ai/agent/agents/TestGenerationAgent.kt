@@ -1,16 +1,25 @@
 package com.rk.ai.agent.agents
 
+import com.rk.ai.models.UIMessage
+import com.rk.ai.providers.ProviderManager
+import com.rk.ai.providers.TextGenerationParams
 import com.rk.ai.service.IdeService
+import com.rk.ai.persistence.settings.SettingsStore
+import com.rk.ai.persistence.settings.findModelById
+import com.rk.ai.persistence.settings.getCurrentAssistant
 import java.io.File
 
-class TestGenerationAgent(private val ideService: IdeService) : SubAgent {
+class TestGenerationAgent(
+    private val ideService: IdeService,
+    private val providerManager: ProviderManager,
+    private val settingsStore: SettingsStore,
+) : SubAgent {
     override val name = "test-generator"
-    override val description = "Analyzes source files and generates comprehensive test cases including unit tests, edge cases, and integration tests with coverage analysis."
+    override val description = "Analyzes source files and generates comprehensive test cases including unit tests, edge cases, and integration tests using AI."
     override val capabilities = listOf(
-        AgentCapability("analyze_coverage", "Analyze existing test coverage and find gaps", "sourceFiles: string[]"),
-        AgentCapability("generate_tests", "Generate test cases for specific files", "sourceFiles: string[], framework: string"),
-        AgentCapability("find_test_gaps", "Identify untested code paths and edge cases", "sourceFiles: string[]"),
-        AgentCapability("generate_mocks", "Generate mock definitions for dependencies", "sourceFiles: string[]"),
+        AgentCapability("analyze_coverage", "AI analysis of existing test coverage and gaps", "sourceFiles: string[]"),
+        AgentCapability("generate_tests", "AI generation of test cases for specific files", "sourceFiles: string[], framework: string"),
+        AgentCapability("find_test_gaps", "AI identification of untested code paths", "sourceFiles: string[]"),
     )
 
     override suspend fun execute(task: AgentTask): AgentResult {
@@ -18,93 +27,106 @@ class TestGenerationAgent(private val ideService: IdeService) : SubAgent {
             val workspace = ideService.getPrimaryWorkspacePath()
             val fileRefs = extractFileReferences(task)
 
+            val fileContents = fileRefs.mapNotNull { path ->
+                val file = File(path)
+                if (file.exists()) path to file.readText() else null
+            }
+
+            if (fileContents.isEmpty()) {
+                return AgentResult.Success(
+                    output = "No source files found to analyze for test generation.",
+                    summary = "No files to analyze",
+                )
+            }
+
             val testFramework = detectTestFramework(workspace)
-            val report = buildString {
-                appendLine("# Test Analysis Report")
-                appendLine()
 
-                appendLine("## Task")
-                appendLine("${task.prompt}")
+            val systemPrompt = buildString {
+                appendLine("You are an expert test engineer. Analyze the provided source files and generate test cases.")
+                appendLine("Detected test framework: $testFramework")
+                appendLine()
+                appendLine("Your response should cover:")
+                appendLine()
+                appendLine("## Test Analysis")
+                appendLine("- Public API surface (functions, classes)")
+                appendLine("- Existing test coverage (if any)")
+                appendLine("- Test gaps and risks")
+                appendLine()
+                appendLine("## Generated Test Cases")
+                appendLine("For each function/class, provide:")
+                appendLine("- Normal/positive test case")
+                appendLine("- Edge cases (empty, null, boundary)")
+                appendLine("- Error paths (exceptions, failures)")
+                appendLine("- Suggested test code in the detected framework style")
+                appendLine()
+                appendLine("## Coverage Recommendations")
+                appendLine("- Which tests to prioritize")
+                appendLine("- Integration test suggestions")
+                appendLine("- Mock/stub dependencies needed")
+                appendLine()
+                appendLine("Format test code in proper runnable form using the detected framework.")
+            }
+
+            val userPrompt = buildString {
+                appendLine("## Test Generation Task")
+                appendLine(task.prompt)
                 if (task.contextMessages.isNotEmpty()) {
-                    appendLine("Context: ${task.contextMessages.joinToString("; ").take(200)}")
+                    appendLine()
+                    appendLine("## Context")
+                    task.contextMessages.forEach { appendLine("- $it") }
                 }
-                appendLine("Files to cover: ${fileRefs.size}")
                 appendLine()
-
-                appendLine("## Environment")
-                appendLine("- Detected test framework: $testFramework")
-                appendLine("- Workspace: $workspace")
+                appendLine("## Workspace: $workspace")
+                appendLine("## Detected Framework: $testFramework")
                 appendLine()
-
-                val existingTests = findExistingTests(workspace, fileRefs)
-                if (existingTests.isNotEmpty()) {
-                    appendLine("## Existing Test Files")
-                    existingTests.forEach { (source, testFile) ->
-                        appendLine("- $source → $testFile")
-                    }
+                for ((path, content) in fileContents) {
                     appendLine()
-                }
-
-                fileRefs.forEach { filePath ->
-                    val file = File(filePath)
-                    if (!file.exists()) return@forEach
-                    val content = file.readText()
-
-                    appendLine("## Source: $filePath")
-                    appendLine()
-
-                    val functions = extractFunctions(content)
-                    appendLine("### Public API (${functions.size} functions)")
-                    functions.forEach { fn ->
-                        appendLine("- `${fn.name}`: ${fn.description}")
-                    }
-                    appendLine()
-
-                    appendLine("### Test Cases Needed")
-                    appendLine()
-                    appendLine("#### Unit Tests")
-                    functions.forEachIndexed { i, fn ->
-                        appendLine("${i + 1}. `${fn.name}`")
-                        appendLine("   - Normal case: ${fn.normalCase}")
-                        appendLine("   - Null/empty input: ${fn.nullCase}")
-                        appendLine("   - Boundary: ${fn.boundaryCase}")
-                        appendLine("   - Error path: ${fn.errorCase}")
-                    }
-                    appendLine()
-
-                    appendLine("#### Edge Cases to Cover")
-                    appendLine("- Empty collection / null input")
-                    appendLine("- Maximum values / overflow")
-                    appendLine("- Concurrent access (if applicable)")
-                    appendLine("- Invalid state transitions")
-                    appendLine("- Resource exhaustion")
-                    appendLine("- Unexpected input types")
-                    appendLine()
-
-                    appendLine("#### Suggested Test Structure")
-                    val testClassName = file.nameWithoutExtension + "Test"
+                    appendLine("### Source: $path (${content.lines().size} lines)")
                     appendLine("```")
-                    appendLine("class $testClassName {")
-                    appendLine("    @Test")
-                    appendLine("    fun `test normal case`() {")
-                    appendLine("        // Arrange")
-                    appendLine("        // Act")
-                    appendLine("        // Assert")
-                    appendLine("    }")
-                    appendLine("}")
+                    appendLine(content.take(10000))
                     appendLine("```")
-                    appendLine()
-                    appendLine("---")
-                    appendLine()
                 }
             }
 
+            val result = callLlm(systemPrompt, userPrompt)
             AgentResult.Success(
-                output = report,
-                summary = "Test analysis prepared for ${fileRefs.size} source files using $testFramework",
+                output = result,
+                summary = "AI test analysis completed for ${fileRefs.size} source files",
             )
         } catch (e: Exception) {
             AgentResult.Failure("Test analysis failed: ${e.message}")
+        }
+    }
+
+    private suspend fun callLlm(systemPrompt: String, userPrompt: String): String {
+        val settings = settingsStore.settingsFlow.value
+        val assistant = settings.getCurrentAssistant()
+        val model = settings.findModelById(assistant.chatModelId)
+            ?: return fallbackGeneration(userPrompt)
+        val provider = model.findProvider(settings.providers)
+            ?: return fallbackGeneration(userPrompt)
+
+        val providerImpl = providerManager.getProviderByType(provider)
+        val messages = listOf(UIMessage.system(systemPrompt), UIMessage.user(userPrompt))
+
+        val chunk = providerImpl.generateText(
+            providerSetting = provider,
+            messages = messages,
+            params = TextGenerationParams(model = model, maxTokens = 4096),
+        )
+        return chunk.choices.firstOrNull()?.message?.toText() ?: fallbackGeneration(userPrompt)
+    }
+
+    private fun fallbackGeneration(context: String): String {
+        return buildString {
+            appendLine("# Test Analysis (Fallback)")
+            appendLine()
+            appendLine("LLM was unavailable. Manual testing checklist:")
+            appendLine("- Write unit tests for each public function")
+            appendLine("- Cover null/empty/boundary inputs")
+            appendLine("- Test error handling paths")
+            appendLine("- Verify edge cases in conditional logic")
+            appendLine("- Consider integration tests for cross-module flows")
         }
     }
 
@@ -128,44 +150,7 @@ class TestGenerationAgent(private val ideService: IdeService) : SubAgent {
                 "jasmine" in content.lowercase() -> return "Jasmine"
             }
         }
-        return "unknown (check project configuration)"
-    }
-
-    private fun findExistingTests(workspace: String, sourceFiles: List<String>): List<Pair<String, String>> {
-        val results = mutableListOf<Pair<String, String>>()
-        for (src in sourceFiles) {
-            val srcFile = File(src)
-            val testName = srcFile.nameWithoutExtension + "Test." + srcFile.extension
-            val testDir = File(workspace, "src/test")
-            if (testDir.exists()) {
-                val testFiles = testDir.walkTopDown()
-                    .filter { it.name == testName || it.nameWithoutExtension == srcFile.nameWithoutExtension + "Test" }
-                    .toList()
-                for (tf in testFiles) {
-                    results.add(src to tf.absolutePath)
-                }
-            }
-        }
-        return results
-    }
-
-    private fun extractFunctions(content: String): List<FunctionInfo> {
-        val functions = mutableListOf<FunctionInfo>()
-        val funRegex = Regex("""(fun\s+(\w+)\s*\(([^)]*)\))\s*(\??\.\s*[^:{]*)?\s*""")
-        for (match in funRegex.findAll(content)) {
-            val name = match.groupValues[2]
-            if (name in listOf("main", "toString", "hashCode", "equals", "copy", "component")) continue
-            val params = match.groupValues[3]
-            functions.add(FunctionInfo(
-                name = name,
-                description = "fun $name($params)",
-                normalCase = "Call with valid $params",
-                nullCase = "Call with null/missing parameters",
-                boundaryCase = "Call with min/max/edge values",
-                errorCase = "Call with invalid inputs to trigger error handling",
-            ))
-        }
-        return functions
+        return "unknown"
     }
 
     private fun extractFileReferences(task: AgentTask): List<String> {
@@ -177,13 +162,4 @@ class TestGenerationAgent(private val ideService: IdeService) : SubAgent {
             .take(5)
             .toList()
     }
-
-    private data class FunctionInfo(
-        val name: String,
-        val description: String,
-        val normalCase: String,
-        val nullCase: String,
-        val boundaryCase: String,
-        val errorCase: String,
-    )
 }

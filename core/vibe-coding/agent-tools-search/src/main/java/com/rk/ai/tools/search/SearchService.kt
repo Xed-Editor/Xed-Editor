@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resumeWithException
 import kotlin.uuid.Uuid
 
+fun Response.safeBody(): String = body?.string() ?: ""
+
 interface SearchService<T : SearchServiceOptions> {
     val name: String
 

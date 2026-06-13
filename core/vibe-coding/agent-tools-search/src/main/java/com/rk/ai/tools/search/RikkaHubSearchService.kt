@@ -91,7 +91,7 @@ object RikkaHubSearchService : SearchService<SearchServiceOptions.RikkaHubOption
         commonOptions: SearchCommonOptions,
         serviceOptions: SearchServiceOptions.RikkaHubOptions
     ): Result<ScrapedResult> {
-        error("RikkaHub does not support scraping")
+        return Result.failure(Exception("RikkaHub does not support scraping"))
     }
 
     @Serializable

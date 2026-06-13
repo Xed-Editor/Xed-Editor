@@ -123,7 +123,7 @@ fun VibeCodingToolCard(
                             .padding(top = 6.dp),
                     ) {
                         Button(
-                            onClick = { onApprove?.invoke("") },
+                            onClick = { onApprove?.invoke(part.toolCallId) },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = colorScheme.primary,
