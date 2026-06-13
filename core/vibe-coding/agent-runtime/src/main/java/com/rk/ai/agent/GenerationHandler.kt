@@ -123,6 +123,10 @@ class GenerationHandler(
         var compactionCount = 0
         var previousToolCalls: List<Pair<String, String>> = emptyList()
         var lastFinishReason: String? = null
+        // Pattern-based doom loop detection: track recent tool name sequences
+        val recentToolNameSequences = mutableListOf<List<String>>()
+        val PATTERN_WINDOW = 6 // detect patterns across this many steps
+        val PATTERN_REPEAT_THRESHOLD = 2 // break if pattern repeats this many times
 
         val provider = model.findProvider(settings.providers) ?: error("Provider not found")
         val providerImpl = providerManager.getProviderByType(provider)
@@ -370,6 +374,35 @@ class GenerationHandler(
                     )
                     messages = messages + recoveryMsg
                     emit(GenerationChunk.Messages(messages))
+                    break
+                }
+            }
+
+            // Pattern-based doom loop: detect repeated sequences of tool names (even with different args)
+            val currentToolNames = executedTools.map { it.toolName }
+            recentToolNameSequences.add(currentToolNames)
+            if (recentToolNameSequences.size > PATTERN_WINDOW) {
+                recentToolNameSequences.removeAt(0)
+            }
+            if (recentToolNameSequences.size >= 4) {
+                // Check if the last N steps repeat a pattern
+                val half = recentToolNameSequences.size / 2
+                val firstHalf = recentToolNameSequences.take(half).flatten()
+                val secondHalf = recentToolNameSequences.drop(half).flatten()
+                if (firstHalf == secondHalf && firstHalf.isNotEmpty()) {
+                    Log.w(TAG, "Pattern doom loop detected: tool sequence repeated ${recentToolNameSequences.size} times")
+                    val toolsCalled = firstHalf.distinct().joinToString(", ")
+                    val recoveryMsg = UIMessage(
+                        role = MessageRole.SYSTEM,
+                        parts = listOf(UIMessagePart.Text(
+                            "[SYSTEM: The agent appears to be stuck in a loop calling the same tools repeatedly " +
+                            "($toolsCalled). Stop calling these tools and provide a summary of what you have found so far. " +
+                            "If you need more information, try a completely different approach or ask the user for guidance.]"
+                        ))
+                    )
+                    messages = messages + recoveryMsg
+                    emit(GenerationChunk.Messages(messages))
+                    recentToolNameSequences.clear()
                     break
                 }
             }

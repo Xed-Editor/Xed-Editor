@@ -11,15 +11,22 @@ import com.google.gson.Gson
  */
 class PermissionManager {
     private val storedAutoRespondRules = mutableListOf<PermissionAutoRespondRule>(
-        PermissionAutoRespondRule(toolPattern = "readFile", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow reading files"),
-        PermissionAutoRespondRule(toolPattern = "glob", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow finding files"),
-        PermissionAutoRespondRule(toolPattern = "grep", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow searching text"),
-        PermissionAutoRespondRule(toolPattern = "gitStatus", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow git status"),
-        PermissionAutoRespondRule(toolPattern = "gitDiff", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow git diff"),
+        // Dangerous tools: ask before executing
         PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*rm *", action = PermissionAction.DENY, description = "Deny file removal commands"),
-        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*git *", action = PermissionAction.ALLOW, description = "Allow Git terminal commands"),
-        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*", action = PermissionAction.ASK, description = "Ask for other shell commands"),
-        PermissionAutoRespondRule(toolPattern = "*", argPattern = "*", action = PermissionAction.ASK, description = "Ask for all other tools")
+        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*rmdir *", action = PermissionAction.DENY, description = "Deny directory removal"),
+        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*del *", action = PermissionAction.DENY, description = "Deny file deletion on Windows"),
+        PermissionAutoRespondRule(toolPattern = "writeFile", argPattern = "*", action = PermissionAction.ASK, description = "Ask before writing files"),
+        PermissionAutoRespondRule(toolPattern = "editFile", argPattern = "*", action = PermissionAction.ASK, description = "Ask before editing files"),
+        PermissionAutoRespondRule(toolPattern = "deleteFile", argPattern = "*", action = PermissionAction.ASK, description = "Ask before deleting files"),
+        PermissionAutoRespondRule(toolPattern = "moveFile", argPattern = "*", action = PermissionAction.ASK, description = "Ask before moving files"),
+        PermissionAutoRespondRule(toolPattern = "renameFile", argPattern = "*", action = PermissionAction.ASK, description = "Ask before renaming files"),
+        PermissionAutoRespondRule(toolPattern = "createDirectory", argPattern = "*", action = PermissionAction.ASK, description = "Ask before creating directories"),
+        PermissionAutoRespondRule(toolPattern = "gitCommit", argPattern = "*", action = PermissionAction.ASK, description = "Ask before git commit"),
+        PermissionAutoRespondRule(toolPattern = "gitPush", argPattern = "*", action = PermissionAction.ASK, description = "Ask before git push"),
+        PermissionAutoRespondRule(toolPattern = "gitCheckout", argPattern = "*", action = PermissionAction.ASK, description = "Ask before git checkout"),
+        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*", action = PermissionAction.ASK, description = "Ask for shell commands"),
+        // Default: auto-approve everything else (read-only tools, search, etc.)
+        PermissionAutoRespondRule(toolPattern = "*", argPattern = "*", action = PermissionAction.ALLOW, description = "Auto-approve all other tools")
     )
 
     val rules: List<PermissionAutoRespondRule> get() = storedAutoRespondRules.toList()
