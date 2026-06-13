@@ -654,12 +654,23 @@
     <string name="uninstall_ext_dialog_desc">Apakah Anda yakin ingin menghapus ekstensi \'%s\'?</string>
     <string name="invalid_terminal_extra_keys">Format tombol tambahan terminal tidak valid. Tombol default akan dimuat.</string>
     <string name="clipboard_keybindings">Tombol pintas untuk papan klip</string>
-    <string name="clipboard_keybindings_desc">Aktifkan pintasan tombol salin dan tempel untuk keyboard fisik.</string>
+    <string name="clipboard_keybindings_desc">Aktifkan pintasan tombol salin dan tempel untuk keyboard fisik</string>
     <string name="manage_formatters">Kelola pemformatan</string>
     <string name="manage_formatters_desc">Prioritaskan dan konfigurasikan pemformatan</string>
     <string name="info_formatters">Penerapan pemformatan dilakukan berdasarkan prioritas. Pemformatan pertama yang mendukung bahasa saat ini akan digunakan. Anda dapat menekan dan menahan, lalu menyeret untuk mengubah urutannya.</string>
     <string name="document_highlight">Sorot kemunculan</string>
-    <string name="document_highlight_desc">Sorot kemunculan simbol pada kursor.</string>
+    <string name="document_highlight_desc">Sorot kemunculan simbol pada kursor</string>
     <string name="formatter_lsp_desc">Gunakan server bahasa saat ini</string>
     <string name="browse_extensions">Jelajahi ekstensi</string>
+    <string name="terminal_health">Kondisi terminal</string>
+    <string name="terminal_health_desc">Lakukan pemeriksaan untuk mengidentifikasi masalah pada lingkungan terminal</string>
+    <string name="no_logs">Tidak ada log yang tersedia</string>
+    <string name="pending">Tertunda</string>
+    <string name="check_proot">Periksa PRoot</string>
+    <string name="check_system_shell">Periksa shell sistem</string>
+    <string name="check_storage_permissions">Periksa penyimpanan dan izin</string>
+    <string name="check_ubuntu">Periksa Ubuntu</string>
+    <string name="check_network_access">Periksa akses jaringan</string>
+    <string name="check_abnormalities">Periksa kelainan</string>
+    <string name="samsung_proot_warning">Perangkat Samsung Anda mengalami masalah yang telah diketahui, yang menyebabkan kegagalan penginstalan terminal berbasis PRoot.</string>
 </resources>
