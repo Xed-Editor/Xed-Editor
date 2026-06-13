@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rk.ai.service.IdeService
-import com.rk.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.uuid.ExperimentalUuidApi
@@ -71,9 +70,9 @@ fun VibeCodingFileTreeSidebar(
     Surface(
         modifier = modifier.fillMaxHeight(),
         color = colorScheme.surfaceContainerLow,
-        tonalElevation = DesignTokens.Elevation.small,
+        tonalElevation = 1.dp,
     ) {
-        Column(modifier = Modifier.padding(DesignTokens.Spacing.small)) {
+        Column(modifier = Modifier.padding(8.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -96,7 +95,7 @@ fun VibeCodingFileTreeSidebar(
                 }
             }
 
-            Spacer(Modifier.height(DesignTokens.Spacing.small))
+            Spacer(Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = searchQuery,
@@ -107,7 +106,7 @@ fun VibeCodingFileTreeSidebar(
                 textStyle = MaterialTheme.typography.bodySmall,
             )
 
-            Spacer(Modifier.height(DesignTokens.Spacing.small))
+            Spacer(Modifier.height(8.dp))
 
             if (isLoading) {
                 Box(
@@ -121,7 +120,7 @@ fun VibeCodingFileTreeSidebar(
                     text = "No files found",
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier.padding(DesignTokens.Spacing.small),
+                    modifier = Modifier.padding(8.dp),
                 )
             } else {
                 LazyColumn(
@@ -164,7 +163,7 @@ private fun FileTreeItem(
     onOpen: (String) -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val indent = DesignTokens.Spacing.medium.value * depth
+    val indent = 12f * depth
 
     if (searchQuery.isNotBlank() && !matchesSearch(node, searchQuery)) return
 
@@ -176,7 +175,7 @@ private fun FileTreeItem(
                     if (node.isDirectory) onToggle(node.path)
                     else onOpen(node.path)
                 }
-                .padding(start = indent.dp, end = DesignTokens.Spacing.small, top = DesignTokens.Spacing.xsmall, bottom = DesignTokens.Spacing.xsmall),
+                .padding(start = indent.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (node.isDirectory) {
