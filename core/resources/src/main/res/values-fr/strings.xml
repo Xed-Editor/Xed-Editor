@@ -671,4 +671,14 @@
     <string name="document_highlight_desc">Surligne les occurrences du symbole au niveau du curseur.</string>
     <string name="formatter_lsp_desc">Utilise le serveur de langue actuel</string>
     <string name="browse_extensions">Parcourir les extensions</string>
+    <string name="terminal_health">État du terminal</string>
+    <string name="terminal_health_desc">Lance des diagnostics pour identifier les problèmes avec l\'environnement du terminal</string>
+    <string name="no_logs">Pas de journaux disponibles</string>
+    <string name="pending">En attente</string>
+    <string name="check_proot">Vérifier PRoot</string>
+    <string name="check_storage_permissions">Vérifier le stockage et les permissions</string>
+    <string name="check_ubuntu">Vérifier Ubuntu</string>
+    <string name="check_network_access">Vérifier les accès réseau</string>
+    <string name="check_abnormalities">Vérifier les anomalies</string>
+    <string name="samsung_proot_warning">Votre appareil Samsung est affecté par un problème connu qui cause l\'échec de l\'installation du terminal basé sur PRoot.</string>
 </resources>
