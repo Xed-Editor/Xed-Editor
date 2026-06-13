@@ -647,7 +647,7 @@
     <string name="invalid_terminal_extra_keys">Neplatný Termux formát pro extra klávesy v terminálu. Výchozí klávesy budou načteny.</string>
     <string name="ext_cleanup_failed">Selhalo čištění po doplňku</string>
     <string name="clipboard_keybindings">Klávesové zkratky schránky</string>
-    <string name="clipboard_keybindings_desc">Zapnout klávesové zkratky pro zkopírování a vložení pro fyzické klávesnice.</string>
+    <string name="clipboard_keybindings_desc">Zapnout klávesové zkratky pro zkopírování a vložení pro fyzické klávesnice</string>
     <string name="manage_formatters">Spravovat formátory</string>
     <string name="manage_formatters_desc">Upřednostňovat a nakonfigurovat formátery</string>
     <string name="info_formatters">Formátory jsou použity podle pořadí. První formáter, který podporuje aktuální jazyk, bude využíván. Můžete dlouhým klepnutím a přetáhnutím změnit jejich pořadí.</string>
