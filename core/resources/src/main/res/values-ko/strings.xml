@@ -80,7 +80,7 @@
     <string name="cursor_anim">커서 애니메이션</string>
     <string name="cursor_anim_desc">부드러운 커서 애니메이션을 활성화합니다</string>
     <string name="cursor_style">커서 스타일</string>
-    <string name="cursor_style_desc">커서 스타일을 바꿔요</string>
+    <string name="cursor_style_desc">커서 스타일을 바꿉니다</string>
     <string name="show_line_number">줄 번호 표시하기</string>
     <string name="pin_line_number">줄 번호 고정</string>
     <string name="extra_keys">개별 키</string>
