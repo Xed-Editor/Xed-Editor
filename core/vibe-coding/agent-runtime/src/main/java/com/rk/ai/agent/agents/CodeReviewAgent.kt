@@ -89,7 +89,8 @@ class CodeReviewAgent(
     private suspend fun callLlm(systemPrompt: String, userPrompt: String): String {
         val settings = settingsStore.settingsFlow.value
         val assistant = settings.getCurrentAssistant()
-        val model = settings.findModelById(assistant.chatModelId)
+        val modelId = assistant.chatModelId ?: return fallbackReview(userPrompt)
+        val model = settings.findModelById(modelId)
             ?: return fallbackReview(userPrompt)
         val provider = model.findProvider(settings.providers)
             ?: return fallbackReview(userPrompt)

@@ -282,7 +282,7 @@ fun Settings.getCurrentAssistant(): Assistant {
     val found = this.assistants.find { it.id == assistantId }
     if (found != null) return found
     return this.assistants.firstOrNull()
-        ?: Assistant(id = Uuid.random(), name = "Default", models = emptyList(), providerOverwrites = emptyList())
+        ?: Assistant(id = Uuid.random(), name = "Default")
 }
 
 fun Settings.getAssistantById(id: Uuid): Assistant? {

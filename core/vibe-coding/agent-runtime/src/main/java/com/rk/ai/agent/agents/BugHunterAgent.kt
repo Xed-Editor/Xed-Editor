@@ -95,7 +95,8 @@ class BugHunterAgent(
     private suspend fun callLlm(systemPrompt: String, userPrompt: String): String {
         val settings = settingsStore.settingsFlow.value
         val assistant = settings.getCurrentAssistant()
-        val model = settings.findModelById(assistant.chatModelId)
+        val modelId = assistant.chatModelId ?: return fallbackAnalysis(userPrompt)
+        val model = settings.findModelById(modelId)
             ?: return fallbackAnalysis(userPrompt)
         val provider = model.findProvider(settings.providers)
             ?: return fallbackAnalysis(userPrompt)

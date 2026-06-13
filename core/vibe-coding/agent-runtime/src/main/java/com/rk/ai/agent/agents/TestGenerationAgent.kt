@@ -101,7 +101,8 @@ class TestGenerationAgent(
     private suspend fun callLlm(systemPrompt: String, userPrompt: String): String {
         val settings = settingsStore.settingsFlow.value
         val assistant = settings.getCurrentAssistant()
-        val model = settings.findModelById(assistant.chatModelId)
+        val modelId = assistant.chatModelId ?: return fallbackGeneration(userPrompt)
+        val model = settings.findModelById(modelId)
             ?: return fallbackGeneration(userPrompt)
         val provider = model.findProvider(settings.providers)
             ?: return fallbackGeneration(userPrompt)
