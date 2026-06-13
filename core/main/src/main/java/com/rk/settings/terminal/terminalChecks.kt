@@ -1,22 +1,47 @@
 package com.rk.settings.terminal
 
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.rk.exec.*
-import com.rk.file.*
+import androidx.compose.ui.res.stringResource
+import com.rk.exec.isTerminalInstalled
+import com.rk.exec.readStderr
+import com.rk.exec.ubuntuProcess
+import com.rk.file.child
+import com.rk.file.sandboxDir
+import com.rk.file.sandboxHomeDir
+import com.rk.resources.strings
 import com.rk.utils.application
 import com.rk.utils.getTempDir
 import java.io.File
 
-// these checks are intended for trouble shooting terminal issues
+fun isAffectedSamsungDevice(): Boolean {
+    val model = Build.MODEL.uppercase()
+
+    return model.startsWith("SM-S911") || // S23
+        model.startsWith("SM-S936") || // S25+
+        model.startsWith("SM-F96") || // Fold7
+        model.startsWith("SM-A56") || // A56
+        model.startsWith("SM-A17") || // A17
+        model.startsWith("SM-A16") // A16
+}
+
+/** These checks are intended for troubleshooting terminal issues */
 @Composable
 inline fun terminalChecks(): SnapshotStateList<Check> {
+    val checkProot = stringResource(strings.check_proot)
+    val checkSystemShell = stringResource(strings.check_system_shell)
+    val checkStoragePermissions = stringResource(strings.check_storage_permissions)
+    val checkUbuntu = stringResource(strings.check_ubuntu)
+    val checkNetworkAccess = stringResource(strings.check_network_access)
+    val checkAbnormalities = stringResource(strings.check_abnormalities)
+
     return remember {
-        mutableStateListOf<Check>(
+        mutableStateListOf(
             Check(
-                label = "Check proot",
+                label = checkProot,
                 run = { printLog ->
                     val libproot = File(application!!.applicationInfo.nativeLibraryDir, "libproot.so")
                     val prootloader = File(application!!.applicationInfo.nativeLibraryDir, "libloader.so")
@@ -62,7 +87,7 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                 },
             ),
             Check(
-                label = "Check System shell",
+                label = checkSystemShell,
                 run = { printLog ->
                     val shell = File("/system/bin/sh")
                     printLog("$shell exists: ${shell.exists()}")
@@ -94,7 +119,7 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                 },
             ),
             Check(
-                label = "Check Storage & Permissions",
+                label = checkStoragePermissions,
                 run = { printLog ->
                     val filesDir = application!!.filesDir
                     val totalSpace = filesDir.totalSpace / (1024 * 1024)
@@ -116,7 +141,7 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                 },
             ),
             Check(
-                label = "Check Ubuntu",
+                label = checkUbuntu,
                 run = { printLog ->
                     if (!isTerminalInstalled()) {
                         printLog("Ubuntu not installed, skipping")
@@ -160,7 +185,7 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                 },
             ),
             Check(
-                label = "Check Network Access",
+                label = checkNetworkAccess,
                 run = { printLog ->
                     if (!isTerminalInstalled()) {
                         printLog("Ubuntu not installed, skipping network check.")
@@ -192,7 +217,7 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                 },
             ),
             Check(
-                label = "Check Abnormalities",
+                label = checkAbnormalities,
                 run = { printLog ->
                     if (!isTerminalInstalled()) {
                         printLog("Ubuntu not installed, skipping")

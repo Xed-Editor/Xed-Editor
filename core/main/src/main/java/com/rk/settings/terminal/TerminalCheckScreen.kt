@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,15 +24,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.icons.LucideCircleQuestionMark
-import kotlinx.coroutines.delay
+import com.rk.resources.strings
+import com.rk.theme.greenStatus
+import com.rk.utils.openUrl
 
 enum class CheckStatus {
     PENDING,
@@ -49,7 +54,8 @@ data class Check(
 )
 
 @Composable
-fun TerminalCheckScreen(modifier: Modifier = Modifier) {
+fun TerminalCheckScreen() {
+    val context = LocalContext.current
     val checks = terminalChecks()
 
     LaunchedEffect(Unit) {
@@ -60,18 +66,9 @@ fun TerminalCheckScreen(modifier: Modifier = Modifier) {
 
             val success =
                 try {
-                    val start = System.currentTimeMillis()
-
-                    val result =
-                        check.run { log ->
-                            // Append log to the current check's logs
-                            checks[i] = checks[i].copy(logs = checks[i].logs + log)
-                        }
-
-                    val end = System.currentTimeMillis()
-
-                    if ((end - start) < 1000) {
-                        delay(1000)
+                    val result = check.run { log ->
+                        // Append log to the current check's logs
+                        checks[i] = checks[i].copy(logs = checks[i].logs + log)
                     }
 
                     result
@@ -85,9 +82,20 @@ fun TerminalCheckScreen(modifier: Modifier = Modifier) {
         }
     }
 
-    PreferenceLayout(label = "Terminal Check", backArrowVisible = true) {
+    PreferenceLayout(label = stringResource(strings.terminal_health), backArrowVisible = true) {
+        if (isAffectedSamsungDevice()) {
+            InfoBlock(
+                icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
+                text = stringResource(strings.samsung_proot_warning),
+                warning = true,
+                onClick = {
+                    context.openUrl("https://github.com/Xed-Editor/Xed-Editor/issues/639")
+                },
+            )
+        }
+
         checks.forEachIndexed { index, check ->
-            PreferenceGroup() {
+            PreferenceGroup {
                 PreferenceTemplate(
                     modifier = Modifier.clickable { checks[index] = check.copy(isExpanded = !check.isExpanded) },
                     title = { Text(text = check.label, style = MaterialTheme.typography.bodyLarge) },
@@ -119,7 +127,7 @@ fun TerminalCheckScreen(modifier: Modifier = Modifier) {
                         Column {
                             if (check.logs.isEmpty()) {
                                 Text(
-                                    text = "No logs available",
+                                    text = stringResource(strings.no_logs),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -159,7 +167,7 @@ private fun StatusIcon(status: CheckStatus) {
             CheckStatus.PENDING -> {
                 Icon(
                     imageVector = LucideCircleQuestionMark,
-                    contentDescription = "Pending",
+                    contentDescription = stringResource(strings.pending),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                     modifier = Modifier.size(20.dp),
                 )
@@ -168,7 +176,7 @@ private fun StatusIcon(status: CheckStatus) {
             CheckStatus.LOADING -> {
                 CircularProgressIndicator(
                     modifier = Modifier.size(16.dp),
-                    strokeWidth = 2.dp,
+                    strokeWidth = 4.dp,
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
@@ -176,8 +184,8 @@ private fun StatusIcon(status: CheckStatus) {
             CheckStatus.SUCCESS -> {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Success",
-                    tint = Color(0xFF4CAF50),
+                    contentDescription = stringResource(strings.success),
+                    tint = MaterialTheme.colorScheme.greenStatus,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -185,7 +193,7 @@ private fun StatusIcon(status: CheckStatus) {
             CheckStatus.FAILED -> {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Failed",
+                    contentDescription = stringResource(strings.failed),
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(20.dp),
                 )

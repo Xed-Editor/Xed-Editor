@@ -51,14 +51,14 @@ import com.rk.utils.dpToPx
 import com.rk.utils.getTempDir
 import com.rk.utils.toast
 import com.termux.terminal.TerminalEmulator
-import java.io.File
-import java.io.FileOutputStream
-import java.lang.Runtime.getRuntime
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Runtime.getRuntime
 
 enum class TerminalCursorStyle(val value: String, val stringRes: Int) {
     BLOCK("block", strings.block),
@@ -102,12 +102,11 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 showSwitch = true,
             )
 
-            SettingsItem(
-                label = "Terminal Health",
-                description = "Check if terminal is working",
-                sideEffect = { settingsNavController.get()?.navigate(SettingsRoutes.TerminalCheck.route) },
-                showSwitch = false,
-                default = false,
+            NextScreenCard(
+                label = stringResource(strings.terminal_health),
+                description = stringResource(strings.terminal_health_desc),
+                navController = overrideNavController ?: settingsNavController.get(),
+                route = SettingsRoutes.TerminalCheck,
             )
         }
 
