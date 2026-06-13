@@ -659,10 +659,23 @@
     <string name="uninstall_ext_dialog_desc">Bist du sicher, dass du die Erweiterung \'%s\' deinstallieren möchtest?</string>
     <string name="invalid_terminal_extra_keys">Ungültiges Format für die Terminal-Zusatztasten. Standardtasten werden geladen.</string>
     <string name="clipboard_keybindings">Tastenkombinationen für die Zwischenablage</string>
-    <string name="clipboard_keybindings_desc">Tastenkombinationen zum Kopieren und Einfügen für Hardware-Tastaturen aktivieren.</string>
+    <string name="clipboard_keybindings_desc">Tastenkombinationen zum Kopieren und Einfügen für Hardware-Tastaturen aktivieren</string>
     <string name="manage_formatters">Formatierer verwalten</string>
     <string name="manage_formatters_desc">Formatierer priorisieren und konfigurieren</string>
     <string name="info_formatters">Formatierer werden nach Priorität angewendet. Der erste Formatierer, der die aktuelle Sprache unterstützt, wird verwendet. Du kannst die Reihenfolge durch langes Drücken und Ziehen ändern.</string>
     <string name="formatter_lsp_desc">Aktuellen Sprachserver verwenden</string>
     <string name="browse_extensions">Erweiterungen durchsuchen</string>
+    <string name="terminal_health">Terminal-Status</string>
+    <string name="terminal_health_desc">Diagnosen durchführen, um Probleme mit der Terminalumgebung zu identifizieren</string>
+    <string name="no_logs">Keine Logs verfügbar</string>
+    <string name="pending">Ausstehend</string>
+    <string name="check_proot">PRoot überprüfen</string>
+    <string name="check_system_shell">System-Shell überprüfen</string>
+    <string name="check_storage_permissions">Speicher und Berechtigungen überprüfen</string>
+    <string name="check_ubuntu">Ubuntu überprüfen</string>
+    <string name="check_network_access">Netzwerkzugriff überprüfen</string>
+    <string name="check_abnormalities">Auf Auffälligkeiten überprüfen</string>
+    <string name="samsung_proot_warning">Dein Samsung-Gerät ist von einem bekannten Problem betroffen, das dazu führt, dass die PRoot-basierte Terminal-Installation fehlschlägt.</string>
+    <string name="document_highlight">Vorkommen hervorheben</string>
+    <string name="document_highlight_desc">Vorkommen des Symbols an der Cursorposition hervorheben.</string>
 </resources>
