@@ -659,12 +659,23 @@
     <string name="uninstall_ext_dialog_desc">\'%s\' uzantısını kaldırmak istediğinizden emin misiniz?</string>
     <string name="invalid_terminal_extra_keys">Terminal ek tuşları için geçersiz biçim. Varsayılan tuşlar yüklenecektir.</string>
     <string name="clipboard_keybindings">Pano kısayol tuşları</string>
-    <string name="clipboard_keybindings_desc">Donanım klavyeleri için kopyala ve yapıştır tuş kısayollarını etkinleştir.</string>
+    <string name="clipboard_keybindings_desc">Donanım klavyeleri için kopyala ve yapıştır tuş kısayollarını etkinleştir</string>
     <string name="manage_formatters">Biçimlendiricileri yönet</string>
     <string name="manage_formatters_desc">Önceliklendir ve biçimlendiricileri yapılandır</string>
     <string name="info_formatters">Biçimlendiriciler önceliğe göre uygulanır. Mevcut dili destekleyen ilk biçimlendirici kullanılacaktır. Sıralarını değiştirmek için uzun basıp sürükleyebilirsiniz.</string>
     <string name="document_highlight">Olayları vurgula</string>
-    <string name="document_highlight_desc">İmleçteki sembolün geçtiği yerleri vurgula.</string>
+    <string name="document_highlight_desc">İmleçteki sembolün geçtiği yerleri vurgula</string>
     <string name="formatter_lsp_desc">Mevcut dil sunucusunu kullan</string>
     <string name="browse_extensions">Uzantılara Göz At</string>
+    <string name="terminal_health">Terminal durumu</string>
+    <string name="terminal_health_desc">Terminal ortamındaki sorunları belirlemek için tanılama çalıştırın</string>
+    <string name="no_logs">Kayıt yok</string>
+    <string name="pending">Beklemede</string>
+    <string name="check_proot">PRoot\'u kontrol et</string>
+    <string name="check_system_shell">Sistem kabuğunu kontrol et</string>
+    <string name="check_storage_permissions">Depolama ve izinleri kontrol et</string>
+    <string name="check_ubuntu">Ubuntu\'yu kontrol et</string>
+    <string name="check_network_access">Ağ erişimini kontrol et</string>
+    <string name="check_abnormalities">Anormallikleri kontrol et</string>
+    <string name="samsung_proot_warning">Samsung cihazınız, PRoot tabanlı terminal kurulumunun başarısız olmasına neden olan bilinen bir sorundan etkilenmektedir.</string>
 </resources>
