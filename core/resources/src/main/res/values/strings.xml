@@ -668,5 +668,16 @@
     <string name="formatter_lsp_desc">Use current language server</string>
     <string name="browse_extensions">Browse extensions</string>
     <string name="clipboard_keybindings">Clipboard keybindings</string>
-    <string name="clipboard_keybindings_desc">Enable copy and paste keybindings for hardware keyboards.</string>
+    <string name="clipboard_keybindings_desc">Enable copy and paste keybindings for hardware keyboards</string>
+    <string name="terminal_health">Terminal health</string>
+    <string name="terminal_health_desc">Run diagnostics to identify issues with the terminal environment</string>
+    <string name="no_logs">No logs available</string>
+    <string name="pending">Pending</string>
+    <string name="check_proot">Check PRoot</string>
+    <string name="check_system_shell">Check system shell</string>
+    <string name="check_storage_permissions">Check storage and permissions</string>
+    <string name="check_ubuntu">Check Ubuntu</string>
+    <string name="check_network_access">Check network access</string>
+    <string name="check_abnormalities">Check abnormalities</string>
+    <string name="samsung_proot_warning">Your Samsung device is affected by a known issue that causes the PRoot-based terminal installation to fail.</string>
 </resources>

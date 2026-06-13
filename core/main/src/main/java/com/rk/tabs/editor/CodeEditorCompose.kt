@@ -55,13 +55,13 @@ import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
 import io.github.rosemoe.sora.widget.component.TextActionItem
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.lang.ref.WeakReference
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -262,6 +262,12 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
         val servers = builtin + extension + external
         if (servers.isEmpty()) return@launch
 
+        // Language servers fail with content URIs
+        if (file !is FileWrapper) {
+            logWarn("File ${file.getName()} is not a file wrapper. Skipping language server connection.")
+            return@launch
+        }
+
         // Create another language, as created identifiers cannot be modified retroactively
         val wrapperLanguage =
             editorState.textmateScope
@@ -347,7 +353,7 @@ private suspend fun EditorTab.findActiveLspServers(
             return@forEach
         }
 
-        if (InbuiltFeatures.terminal.state.value && !server.isInstalled(activity) && file is FileWrapper) {
+        if (InbuiltFeatures.terminal.state.value && !server.isInstalled(activity)) {
             logInfo("Server ${server.id} is not installed")
             promptLspInstall(activity, server)
             return@forEach

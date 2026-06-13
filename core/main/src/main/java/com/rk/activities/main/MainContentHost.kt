@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
@@ -41,8 +42,8 @@ import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.XedTheme
 import com.rk.utils.dialogRes
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 var gitViewModel = WeakReference<GitViewModel?>(null)
 var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
@@ -138,7 +139,10 @@ fun MainActivity.MainContentHost(
                     contentWindowInsets =
                         if (Settings.fullscreen) WindowInsets() else ScaffoldDefaults.contentWindowInsets,
                     snackbarHost = {
-                        SnackbarHost(hostState = snackbarHostState) { data ->
+                        SnackbarHost(
+                            hostState = snackbarHostState,
+                            modifier = Modifier.padding(bottom = snackbarBottomPadding),
+                        ) { data ->
                             Snackbar(
                                 snackbarData = data,
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
