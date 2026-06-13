@@ -664,7 +664,7 @@
     <string name="manage_formatters_desc">Prioritize and configure formatters</string>
     <string name="info_formatters">Formatters are applied by priority. The first formatter that supports the current language will be used. You can long-press and drag to change their order.</string>
     <string name="document_highlight">Highlight occurrences</string>
-    <string name="document_highlight_desc">Highlight occurrences of the symbol at the cursor.</string>
+    <string name="document_highlight_desc">Highlight occurrences of the symbol at the cursor</string>
     <string name="formatter_lsp_desc">Use current language server</string>
     <string name="browse_extensions">Browse extensions</string>
     <string name="clipboard_keybindings">Clipboard keybindings</string>
