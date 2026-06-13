@@ -47,11 +47,11 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                     val prootloader = File(application!!.applicationInfo.nativeLibraryDir, "libloader.so")
                     val prootloader32 = File(application!!.applicationInfo.nativeLibraryDir, "libloader32.so")
 
-                    printLog("Proot exists: ${libproot.exists()}")
-                    printLog("Proot readable: ${libproot.canRead()}")
-                    printLog("Proot executable: ${libproot.canExecute()}")
-                    printLog("Proot Loader exists: ${prootloader.exists()}")
-                    printLog("32bit Proot Loader exists: ${prootloader32.exists()}")
+                    printLog("PRoot exists: ${libproot.exists()}")
+                    printLog("PRoot readable: ${libproot.canRead()}")
+                    printLog("PRoot executable: ${libproot.canExecute()}")
+                    printLog("PRoot Loader exists: ${prootloader.exists()}")
+                    printLog("32bit PRoot Loader exists: ${prootloader32.exists()}")
 
                     var exitCode = 999
 
@@ -80,7 +80,7 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                             }
                         }
                     } catch (e: Exception) {
-                        printLog("Error while running proot: ${e.message}")
+                        printLog("Error while running PRoot: ${e.message}")
                     }
 
                     libproot.exists() && exitCode == 0
