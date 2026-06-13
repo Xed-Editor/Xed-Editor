@@ -245,7 +245,7 @@ fun UnifiedToolSheet(
 }
 
 @Composable
-private fun AgentEmptyState(
+internal fun AgentEmptyState(
     isRunning: Boolean,
     agentName: String,
     onStart: () -> Unit,
