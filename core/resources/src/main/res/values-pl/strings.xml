@@ -667,12 +667,23 @@
     <string name="uninstall_ext_dialog_desc">Czy napewno chcesz odinstalować rozszerzenie \'%s\'?</string>
     <string name="invalid_terminal_extra_keys">Nieprawidłowy format dodatkowych klawiszy terminalu. Domyślne klawisze zostaną zastosowane.</string>
     <string name="clipboard_keybindings">Przypisania klawiszy schowka</string>
-    <string name="clipboard_keybindings_desc">Włącz przypisania klawiszy kopiowania oraz wklejania klawiatury fizycznej.</string>
+    <string name="clipboard_keybindings_desc">Włącz skróty klawiszowe do kopiowania i wklejania dla klawiatur sprzętowych</string>
     <string name="manage_formatters">Zarządzaj formatownikami</string>
     <string name="manage_formatters_desc">Ustaw priorytet oraz konfiguruj formatowniki</string>
     <string name="info_formatters">Formatowniki są stosowane według priorytetu. Pierwszy formatownik wspierający obecny język zostanie użyty. Zmień kolejność przytrzymując i przeciągając.</string>
     <string name="document_highlight">Podświetlanie wystąpienia</string>
-    <string name="document_highlight_desc">Podświetl wystąpienia symbolu pod kursorem.</string>
+    <string name="document_highlight_desc">Podświetl wystąpienia symbolu pod kursorem</string>
     <string name="formatter_lsp_desc">Użyj obecnego serwera językowego</string>
     <string name="browse_extensions">Przeglądaj rozszerzenia</string>
+    <string name="terminal_health">Stan techniczny terminala</string>
+    <string name="terminal_health_desc">Przeprowadź diagnostykę w celu wykrycia problemów ze środowiskiem terminala</string>
+    <string name="no_logs">Brak dostępnych logów</string>
+    <string name="pending">Oczekujące</string>
+    <string name="check_proot">Sprawdź PRoot</string>
+    <string name="check_system_shell">Sprawdź powłokę systemu</string>
+    <string name="check_storage_permissions">Sprawdź pamięć i uprawnienia</string>
+    <string name="check_ubuntu">Sprawdź Ubuntu</string>
+    <string name="check_network_access">Sprawdź dostęp do sieci</string>
+    <string name="check_abnormalities">Sprawdź, czy nie ma nieprawidłowości</string>
+    <string name="samsung_proot_warning">W Twoim urządzeniu Samsung występuje znany błąd, który powoduje niepowodzenie instalacji terminala opartego na PRoot.</string>
 </resources>
