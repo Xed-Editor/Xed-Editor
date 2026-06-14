@@ -308,6 +308,12 @@
       "scopeName": "source.sql",
       "grammar": "textmate/sql/syntaxes/sql.tmLanguage.json",
       "languageConfiguration": "textmate/sql/language-configuration.json"
+    },
+    {
+      "grammar": "textmate/nix/syntaxes/nix.tmLanguage.json",
+      "name": "nix",
+      "scopeName": "source.nix",
+      "languageConfiguration": "textmate/nix/language-configuration.json"
     }
   ]
 }

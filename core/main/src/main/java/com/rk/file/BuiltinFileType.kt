@@ -53,6 +53,7 @@ private val diff = drawables.diff
 private val cmake = drawables.cmake
 private val powershell = drawables.powershell
 private val r = drawables.r
+private val nix = drawables.nix
 
 // TODO: Add icon for FileType.EXECUTABLE
 // TODO: Add icon for FileType.PASCAL
@@ -379,6 +380,12 @@ enum class BuiltinFileType(
         icon = Icon.ResourceIcon(r),
         title = "R",
         markdownNames = listOf("r"),
+    ),
+    NIX(
+        extensions = listOf("nix"),
+        textmateScope = "source.nix",
+        icon = Icon.ResourceIcon(nix),
+        title = "Nix"
     ),
 
     // Data Files
