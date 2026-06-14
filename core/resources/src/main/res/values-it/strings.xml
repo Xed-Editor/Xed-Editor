@@ -661,12 +661,23 @@
     <string name="uninstall_ext_dialog_desc">Sei sicuro di voler disinstallare l\'estensione \'%s\'?</string>
     <string name="invalid_terminal_extra_keys">Formato non valido per i tasti extra nel terminale. Verranno caricati i tasti predefiniti.</string>
     <string name="clipboard_keybindings">Scorciatoie da tastiera per gli appunti</string>
-    <string name="clipboard_keybindings_desc">Abilita le scorciatoie da tastiera per copia e incolla per le tastiere fisiche.</string>
+    <string name="clipboard_keybindings_desc">Abilita le scorciatoie da tastiera per copia e incolla per le tastiere fisiche</string>
     <string name="manage_formatters">Gestisci formattatori</string>
     <string name="manage_formatters_desc">Ordina per priorità e configura i formattatori</string>
     <string name="info_formatters">I formattatori vengono applicati in ordine di priorità. Verrà utilizzato il primo formattatore che supporta la lingua corrente. Puoi tenere premuto e trascinare per cambiare il loro ordine.</string>
     <string name="document_highlight">Evidenzia occorrenze</string>
-    <string name="document_highlight_desc">Evidenzia le occorrenze del simbolo in corrispondenza del cursore.</string>
+    <string name="document_highlight_desc">Evidenzia le occorrenze del simbolo in corrispondenza del cursore</string>
     <string name="formatter_lsp_desc">Utilizza il language server corrente</string>
     <string name="browse_extensions">Sfoglia estensioni</string>
+    <string name="terminal_health">Salute del terminale</string>
+    <string name="terminal_health_desc">Esegui la diagnostica per identificare problemi con l\'ambiente del terminale</string>
+    <string name="no_logs">Nessun registro disponibile</string>
+    <string name="pending">In attesa</string>
+    <string name="check_proot">Verifica PRoot</string>
+    <string name="check_system_shell">Verifica shell di sistema</string>
+    <string name="check_storage_permissions">Verifica spazio di archiviazione e autorizzazioni</string>
+    <string name="check_ubuntu">Verifica Ubuntu</string>
+    <string name="check_network_access">Verifica accesso alle rete</string>
+    <string name="check_abnormalities">Verifica anomalie</string>
+    <string name="samsung_proot_warning">Il tuo dispositivo Samsung è interessato da un problema noto che causa il fallimento dell\'installazione del terminale basato su PRoot.</string>
 </resources>
