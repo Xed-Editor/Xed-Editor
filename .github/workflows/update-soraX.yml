@@ -1,0 +1,33 @@
+# .github/workflows/update-submodule.yml
+name: Update soraX Submodule
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update soraX to latest commit
+        run: |
+          git submodule update --remote soraX
+
+      - name: Commit and push if changed
+        run: |
+          git diff --quiet && echo "soraX already up to date, nothing to commit." && exit 0
+          COMMIT=$(git -C soraX rev-parse --short HEAD)
+          git add soraX
+          git commit -m "chore: update soraX submodule to $COMMIT"
+          git push origin main
