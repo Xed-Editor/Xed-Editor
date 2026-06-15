@@ -272,7 +272,7 @@
     <string name="storage">Archiviazione</string>
     <string name="support">Assistenza</string>
     <string name="translate">Traduci</string>
-    <string name="terminal_feature">Terminale ed esecutori</string>
+    <string name="terminal_feature">Terminale, esecutori e language server</string>
     <string name="folder_name">Nome cartella</string>
     <string name="invalid_characters">Carattere non valido</string>
     <string name="properties">Proprietà</string>
@@ -680,4 +680,5 @@
     <string name="check_network_access">Verifica accesso alle rete</string>
     <string name="check_abnormalities">Verifica anomalie</string>
     <string name="samsung_proot_warning">Il tuo dispositivo Samsung è interessato da un problema noto che causa il fallimento dell\'installazione del terminale basato su PRoot.</string>
+    <string name="terminal_degraded_warning">Il terminale è attualmente in esecuzione in una modalità degradata, a causa di un problema di compatibilità noto dovuto da un malfunzionamento nell\'ambiente PRoot su alcuni dispositivi. Alcune funzionalità potrebbero essere limitate o funzionare in maniera diversa.</string>
 </resources>
