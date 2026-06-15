@@ -663,12 +663,12 @@
     <string name="uninstall_ext_dialog_desc">Êtes-vous sûr de vouloir désinstaller l\'extension \'%s\' ?</string>
     <string name="invalid_terminal_extra_keys">Format invalide pour les touches additionnelles du terminal. Les touches par défaut seront chargées.</string>
     <string name="clipboard_keybindings">Raccourcis clavier du presse-papier</string>
-    <string name="clipboard_keybindings_desc">Permet de copier et coller les raccourcis clavier pour les claviers physiques.</string>
+    <string name="clipboard_keybindings_desc">Active les raccourcis clavier pour copier et coller pour les claviers physiques</string>
     <string name="manage_formatters">Gérer les formateurs</string>
     <string name="manage_formatters_desc">Prioriser et configurer les formateurs</string>
     <string name="info_formatters">Les formateurs sont appliqués par ordre de priorité. Le premier formateur qui gère la langue actuelle sera utilisé. Vous pouvez faire un appui long et le déplacer pour changer cet ordre.</string>
     <string name="document_highlight">Surligner les occurrences</string>
-    <string name="document_highlight_desc">Surligne les occurrences du symbole au niveau du curseur.</string>
+    <string name="document_highlight_desc">Surligne les occurrences du symbole au niveau du curseur</string>
     <string name="formatter_lsp_desc">Utilise le serveur de langue actuel</string>
     <string name="browse_extensions">Parcourir les extensions</string>
     <string name="terminal_health">État du terminal</string>
@@ -681,4 +681,5 @@
     <string name="check_network_access">Vérifier les accès réseau</string>
     <string name="check_abnormalities">Vérifier les anomalies</string>
     <string name="samsung_proot_warning">Votre appareil Samsung est affecté par un problème connu qui cause l\'échec de l\'installation du terminal basé sur PRoot.</string>
+    <string name="check_system_shell">Vérifier le shell du système</string>
 </resources>
