@@ -246,7 +246,7 @@ fun DraggableLspFormatter(modifier: Modifier = Modifier) {
         checked = it
     }
 
-    val enabled = false
+    val enabled = false // -> set to InbuiltFeatures.terminal.state.value
 
     Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp, modifier = modifier) {
         PreferenceTemplate(

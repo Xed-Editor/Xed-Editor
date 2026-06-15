@@ -5,6 +5,7 @@ import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
 import io.github.rosemoe.sora.lang.format.Formatter
 
 abstract class FormatterProvider {
@@ -88,7 +89,7 @@ object Formatters {
     }
 
     fun isLspFormatterEnabled(): Boolean {
-        return Preference.getBoolean("formatter_$LSP_FORMATTER_ID", true)
+        return Preference.getBoolean("formatter_$LSP_FORMATTER_ID", true) && InbuiltFeatures.terminal.state.value
     }
 
     fun setLspFormatterEnabled(enabled: Boolean) {

@@ -268,6 +268,11 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
             return@launch
         }
 
+        if (!InbuiltFeatures.terminal.state.value) {
+            logWarn("Terminal is not enabled. Skipping language server connection.")
+            return@launch
+        }
+
         // Create another language, as created identifiers cannot be modified retroactively
         val wrapperLanguage =
             editorState.textmateScope
@@ -353,7 +358,7 @@ private suspend fun EditorTab.findActiveLspServers(
             return@forEach
         }
 
-        if (InbuiltFeatures.terminal.state.value && !server.isInstalled(activity)) {
+        if (!server.isInstalled(activity)) {
             logInfo("Server ${server.id} is not installed")
             promptLspInstall(activity, server)
             return@forEach

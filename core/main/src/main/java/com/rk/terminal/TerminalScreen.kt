@@ -79,6 +79,7 @@ import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.terminal.DEFAULT_TERMINAL_EXTRA_KEYS
 import com.rk.settings.terminal.SettingsTerminalScreen
+import com.rk.settings.terminal.TerminalCheckScreen
 import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
@@ -91,9 +92,9 @@ import com.rk.utils.toast
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Properties
-import kotlinx.coroutines.launch
 
 var terminalView = WeakReference<TerminalView?>(null)
 var virtualKeysView = WeakReference<VirtualKeysView?>(null)
@@ -115,6 +116,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen(navController) }
         composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
         composable(SettingsRoutes.TerminalExtraKeys.route) { TerminalExtraKeys() }
+        composable(SettingsRoutes.TerminalCheck.route) { TerminalCheckScreen() }
     }
 }
 
@@ -394,7 +396,7 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                         Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(strings.add_session))
                     }
 
-                    IconButton(onClick = { navController.navigate("terminal_settings") }) {
+                    IconButton(onClick = { navController.navigate(SettingsRoutes.TerminalSettings.route) }) {
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = stringResource(strings.settings),
@@ -462,7 +464,7 @@ fun Terminal.changeSession(sessionId: String) {
     terminalView.apply {
         post {
             keepScreenOn = true
-            setFocusableInTouchMode(true)
+            isFocusableInTouchMode = true
             requestFocus()
         }
     }

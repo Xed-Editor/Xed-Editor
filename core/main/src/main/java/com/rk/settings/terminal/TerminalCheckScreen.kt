@@ -94,6 +94,14 @@ fun TerminalCheckScreen() {
             )
         }
 
+        if (isTerminalDegraded(context)) {
+            InfoBlock(
+                icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
+                text = stringResource(strings.terminal_degraded_warning),
+                warning = true,
+            )
+        }
+
         checks.forEachIndexed { index, check ->
             PreferenceGroup {
                 PreferenceTemplate(

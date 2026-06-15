@@ -13,6 +13,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object TerminalExtraKeys : SettingsRoutes("terminal_extra_keys")
 
+    data object TerminalCheck : SettingsRoutes("terminal_check")
+
     data object About : SettingsRoutes("about")
 
     data object EditorFontScreen : SettingsRoutes("editor_font_screen")
@@ -60,6 +62,4 @@ sealed class SettingsRoutes(val route: String) {
     data object LspServerLogs : SettingsRoutes("lsp_server_logs")
 
     data object Git : SettingsRoutes("git")
-
-    data object TerminalCheck : SettingsRoutes("terminal_check")
 }
