@@ -278,7 +278,7 @@
     <string name="support">Support</string>
     <string name="support_desc">Support development</string>
     <string name="translate">Translate</string>
-    <string name="terminal_feature">Terminal and runners</string>
+    <string name="terminal_feature">Terminal, runners and language servers</string>
     <string name="folder_name">Folder name</string>
     <string name="invalid_characters">Invalid characters</string>
     <string name="properties">Properties</string>
@@ -680,4 +680,5 @@
     <string name="check_network_access">Check network access</string>
     <string name="check_abnormalities">Check abnormalities</string>
     <string name="samsung_proot_warning">Your Samsung device is affected by a known issue that causes the PRoot-based terminal installation to fail.</string>
+    <string name="terminal_degraded_warning">The terminal is currently running in a degraded mode due to a known compatibility issue caused by a malfunction in the PRoot environment on certain devices. Some features may be limited or behave differently.</string>
 </resources>

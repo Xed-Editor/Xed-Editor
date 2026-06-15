@@ -60,20 +60,21 @@ $PROOT $ARGS /system/bin/sh -c "$COMMAND"
 ret=$?
 set -e
 
+DEGRADED_MARKER="$LOCAL/.sandbox_degraded"
+
 if [ "$ret" -ne 0 ]; then
     warn "PRoot extraction failed (exit code $ret), falling back to direct extraction..."
 
-    mkdir -p "$LOCAL/sandbox" || exit 1
-
-    (
-        cd "$LOCAL/sandbox" &&
-        tar -xf "$TMP_DIR/sandbox.tar.gz"
-    )
+    set +e
+    /bin/sh -c "$COMMAND"
     ret=$?
+    set -e
 
     if [ "$ret" -ne 0 ]; then
-        error "Extraction failed (exit code $ret)"
-        exit "$ret"
+        warn "Extraction failed (exit code $ret), continuing in degraded mode"
+        warn "Sandbox may be incomplete and some features may not work"
+
+        touch "$DEGRADED_MARKER"
     fi
 fi
 

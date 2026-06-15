@@ -57,6 +57,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.Keybindings.route) { KeybindingsScreen() }
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
         composable(SettingsRoutes.TerminalExtraKeys.route) { TerminalExtraKeys() }
+        composable(SettingsRoutes.TerminalCheck.route) { TerminalCheckScreen() }
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
         composable(SettingsRoutes.AppFontScreen.route) { AppFontScreen() }
@@ -120,6 +121,5 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             ExtensionSettings(extension)
         }
         composable(SettingsRoutes.Git.route) { GitSettings() }
-        composable(SettingsRoutes.TerminalCheck.route) { TerminalCheckScreen() }
     }
 }
