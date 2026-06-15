@@ -653,4 +653,8 @@
     <string name="info_formatters">Formátory jsou použity podle pořadí. První formáter, který podporuje aktuální jazyk, bude využíván. Můžete dlouhým klepnutím a přetáhnutím změnit jejich pořadí.</string>
     <string name="formatter_lsp_desc">Používat aktuální jazykový server</string>
     <string name="browse_extensions">Prohlížet doplňky</string>
+    <string name="terminal_health_desc">Spustit kontroly pro identifikování problémů v terminálovém prostředí</string>
+    <string name="terminal_health">Zdraví terminálu</string>
+    <string name="no_logs">Žádné protokoly dostupné</string>
+    <string name="samsung_proot_warning">Vaše zařízení Samsung má známý problém, který způsobuje selhání instalace terminálu pomocí PRoot.</string>
 </resources>
