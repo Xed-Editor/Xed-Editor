@@ -1,4 +1,4 @@
-set -e
+#set -e
 
 source "$LOCAL/bin/utils"
 
