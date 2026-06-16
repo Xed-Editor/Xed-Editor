@@ -256,7 +256,7 @@
     <string name="storage">Penyimpanan</string>
     <string name="support">Dukungan</string>
     <string name="translate">Terjemahkan</string>
-    <string name="terminal_feature">Terminal dan runner</string>
+    <string name="terminal_feature">Terminal, runner dan server bahasa</string>
     <string name="folder_name">Nama folder</string>
     <string name="invalid_characters">Karakter tidak valid</string>
     <string name="properties">Properti</string>
@@ -673,4 +673,5 @@
     <string name="check_network_access">Periksa akses jaringan</string>
     <string name="check_abnormalities">Periksa kelainan</string>
     <string name="samsung_proot_warning">Perangkat Samsung Anda mengalami masalah yang telah diketahui, yang menyebabkan kegagalan penginstalan terminal berbasis PRoot.</string>
+    <string name="terminal_degraded_warning">Terminal saat ini beroperasi dalam mode terbatas akibat masalah kompatibilitas yang telah diketahui, yang disebabkan oleh gangguan pada lingkungan PRoot di perangkat tertentu. Beberapa fitur mungkin terbatas atau berfungsi secara berbeda.</string>
 </resources>
