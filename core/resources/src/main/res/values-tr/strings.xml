@@ -254,7 +254,7 @@
     <string name="storage">Depolama</string>
     <string name="support">Destek</string>
     <string name="translate">Tercüme et</string>
-    <string name="terminal_feature">Terminal ve çalıştırıcılar</string>
+    <string name="terminal_feature">Terminal, çalıştırıcılar ve dil sunucuları</string>
     <string name="folder_name">Klasör adı</string>
     <string name="invalid_characters">Geçersiz karakterler</string>
     <string name="properties">Nitelikler</string>
@@ -678,4 +678,5 @@
     <string name="check_network_access">Ağ erişimini kontrol et</string>
     <string name="check_abnormalities">Anormallikleri kontrol et</string>
     <string name="samsung_proot_warning">Samsung cihazınız, PRoot tabanlı terminal kurulumunun başarısız olmasına neden olan bilinen bir sorundan etkilenmektedir.</string>
+    <string name="terminal_degraded_warning">Terminal, bazı cihazlardaki PRoot ortamında meydana gelen bir arızadan kaynaklanan bilinen bir uyumluluk sorunu nedeniyle şu anda kısıtlı modda çalışmaktadır. Bazı özellikler sınırlı olabilir veya farklı çalışabilir.</string>
 </resources>
