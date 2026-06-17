@@ -256,7 +256,7 @@
     <string name="wrapper_type">包装</string>
     <string name="support">支持</string>
     <string name="translate">翻译</string>
-    <string name="terminal_feature">终端和运行器</string>
+    <string name="terminal_feature">终端、运行器和语言服务器</string>
     <string name="folder_name">文件夹名称</string>
     <string name="invalid_characters">非法字符</string>
     <string name="properties">属性</string>
