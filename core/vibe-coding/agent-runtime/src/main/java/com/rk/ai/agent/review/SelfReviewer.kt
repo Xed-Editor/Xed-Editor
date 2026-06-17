@@ -44,15 +44,7 @@ class SelfReviewer {
         }
 
         val outputText = result.joinToString("\n") { part ->
-            when (part) {
-                is UIMessagePart.Text -> part.text
-                is UIMessagePart.ToolCall -> "[ToolCall: ${part.name}]"
-                is UIMessagePart.ToolResult -> "[ToolResult]"
-                is UIMessagePart.Image -> "[Image]"
-                is UIMessagePart.File -> "[File: ${part.path}]"
-                is UIMessagePart.Error -> "[Error: ${part.message}]"
-                else -> "[Unknown]"
-            }
+            if (part is UIMessagePart.Text) part.text else ""
         }
 
         if (outputText.isBlank() || outputText == "null" || outputText == "[]") {
