@@ -52,7 +52,7 @@ import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
 import com.rk.terminal.changeSession
-import com.rk.terminal.terminalView
+
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
@@ -66,6 +66,8 @@ import kotlinx.coroutines.withContext
 class Terminal : AppCompatActivity() {
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
     var isBound = false
+    var terminalViewRef = WeakReference<com.termux.view.TerminalView?>(null)
+    var virtualKeysViewRef = WeakReference<com.rk.terminal.virtualkeys.VirtualKeysView?>(null)
 
     val serviceConnection =
         object : ServiceConnection {
@@ -105,7 +107,7 @@ class Terminal : AppCompatActivity() {
     fun handleIntent(intent: Intent) {
         this.intent = intent
         val binder = sessionBinder?.get() ?: return
-        terminalView.get() ?: return
+        terminalViewRef.get() ?: return
 
         val pwd = intent.getStringExtra("cwd")
         if (pwd == null) {
@@ -114,7 +116,7 @@ class Terminal : AppCompatActivity() {
         val sessionId = File(pwd).name
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val client = TerminalBackEnd()
+            val client = TerminalBackEnd(this@Terminal)
             val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)
 
             this@Terminal.changeSession(info.id)

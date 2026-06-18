@@ -14,7 +14,14 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
+class TerminalBackEnd(activity: Terminal) : TerminalViewClient, TerminalSessionClient {
+    private val activityRef = java.lang.ref.WeakReference(activity)
+
+    private val terminalView: java.lang.ref.WeakReference<com.termux.view.TerminalView?>
+        get() = activityRef.get()?.terminalViewRef ?: java.lang.ref.WeakReference(null)
+
+    private val virtualKeysView: java.lang.ref.WeakReference<com.rk.terminal.virtualkeys.VirtualKeysView?>
+        get() = activityRef.get()?.virtualKeysViewRef ?: java.lang.ref.WeakReference(null)
     override fun onTextChanged(changedSession: TerminalSession) {
         terminalView.get()?.onScreenUpdated()
     }

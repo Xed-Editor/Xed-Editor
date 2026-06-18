@@ -44,7 +44,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.terminal.terminalView
+import com.rk.activities.terminal.Terminal
 import com.rk.utils.LoadingPopup
 import com.rk.utils.dialogRes
 import com.rk.utils.dpToPx
@@ -123,7 +123,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 default = Settings.terminal_font_size,
                 onValueChanged = {
                     Settings.terminal_font_size = it
-                    terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
+                    (context as? Terminal)?.terminalViewRef?.get()?.setTextSize(dpToPx(it.toFloat(), context))
                 },
             )
 

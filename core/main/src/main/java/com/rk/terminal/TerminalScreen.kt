@@ -96,8 +96,7 @@ import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Properties
 
-var terminalView = WeakReference<TerminalView?>(null)
-var virtualKeysView = WeakReference<VirtualKeysView?>(null)
+
 
 @Composable
 fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
@@ -164,13 +163,13 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
                         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(75.dp)) { page ->
                             when (page) {
                                 0 -> {
-                                    terminalView.get()?.requestFocus()
+                                    terminalActivity.terminalViewRef.get()?.requestFocus()
                                     AndroidView(
                                         factory = { context ->
                                             VirtualKeysView(context, null).apply {
-                                                virtualKeysView = WeakReference(this)
+                                                terminalActivity.virtualKeysViewRef = WeakReference(this)
                                                 virtualKeysViewClient =
-                                                    terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
+                                                    terminalActivity.terminalViewRef.get()?.mTermSession?.let { VirtualKeysListener(it) }
 
                                                 buttonTextColor = onSurfaceColor
 
@@ -217,10 +216,10 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
                                                             KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
                                                         val eventUp =
                                                             KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
-                                                        terminalView.get()?.dispatchKeyEvent(eventDown)
-                                                        terminalView.get()?.dispatchKeyEvent(eventUp)
+                                                        terminalActivity.terminalViewRef.get()?.dispatchKeyEvent(eventDown)
+                                                        terminalActivity.terminalViewRef.get()?.dispatchKeyEvent(eventUp)
                                                     } else {
-                                                        terminalView.get()?.currentSession?.write(text)
+                                                        terminalActivity.terminalViewRef.get()?.currentSession?.write(text)
                                                         text = ""
                                                     }
                                                 }
@@ -262,9 +261,9 @@ private fun ColumnScope.TerminalView(
                     terminalColors = terminalColors,
                 )
 
-                terminalView = WeakReference(this)
+                terminalActivity.terminalViewRef = WeakReference(this)
                 setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                val client = TerminalBackEnd()
+                val client = TerminalBackEnd(terminalActivity)
 
                 val session =
                     if (pendingCommand != null) {
@@ -320,13 +319,11 @@ private fun ColumnScope.TerminalView(
                             } else {
                                 currentTheme.lightTerminalColors
                             }
-                        terminalView
-                            .get()
-                            ?.applyTerminalColors(
-                                surfaceColor = surfaceColor,
-                                onSurfaceColor = onSurfaceColor,
-                                terminalColors = terminalColors,
-                            )
+                        this@apply.applyTerminalColors(
+                            surfaceColor = surfaceColor,
+                            onSurfaceColor = onSurfaceColor,
+                            terminalColors = terminalColors,
+                        )
                     }
                 }
 
@@ -379,8 +376,8 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
 
                                 return newString
                             }
-                            terminalView.get()?.let {
-                                val client = TerminalBackEnd()
+                            terminalActivity.terminalViewRef.get()?.let {
+                                val client = TerminalBackEnd(terminalActivity)
                                 terminalActivity.sessionBinder
                                     ?.get()!!
                                     .createSession(
@@ -451,10 +448,10 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
 }
 
 fun Terminal.changeSession(sessionId: String) {
-    val terminalView = terminalView.get() ?: return
+    val terminalView = terminalViewRef.get() ?: return
     val binder = sessionBinder!!.get()!!
 
-    val client = TerminalBackEnd()
+    val client = TerminalBackEnd(this)
     val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this).session
 
     session.updateTerminalSessionClient(client)
@@ -468,7 +465,7 @@ fun Terminal.changeSession(sessionId: String) {
             requestFocus()
         }
     }
-    virtualKeysView.get()?.apply { virtualKeysViewClient = VirtualKeysListener(terminalView.mTermSession) }
+    virtualKeysViewRef.get()?.apply { virtualKeysViewClient = VirtualKeysListener(terminalView.mTermSession) }
 
     binder.getService().currentSession.value = sessionId
 }
