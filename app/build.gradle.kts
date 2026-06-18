@@ -11,18 +11,6 @@ android {
     namespace = "com.rk.application"
     compileSdk = 37
 
-
-    splits {
-        abi {
-            isEnable = true
-            reset()
-
-            include("armeabi-v7a", "arm64-v8a","x86", "x86_64")
-
-            isUniversalApk = true
-        }
-    }
-
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
