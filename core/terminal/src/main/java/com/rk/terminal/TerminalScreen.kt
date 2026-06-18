@@ -178,6 +178,8 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, controller: TerminalCo
                                     controller.terminateSession(currentId)
                                     if (controller.sessionIds.isNotEmpty()) {
                                         controller.changeSession(controller.sessionIds.first())
+                                    } else {
+                                        onExit?.invoke()
                                     }
                                 }
                             },

@@ -93,6 +93,8 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
                     terminateSession(currentId)
                     if (sessionIds.isNotEmpty()) {
                         changeSession(sessionIds.first())
+                    } else {
+                        finish()
                     }
                 }
             }
