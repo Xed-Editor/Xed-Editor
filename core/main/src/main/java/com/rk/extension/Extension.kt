@@ -251,7 +251,24 @@ val LocalExtension.apkFile
 
         if (!dir.isDirectory) error("Extension [$name, $id] directory not found")
 
-        dir.listFiles { it.extension == "apk" }?.first()?.also { it.setReadOnly() } ?: error("APK not found")
+        val apks = dir.listFiles { it.extension == "apk" } ?: emptyArray()
+        if (apks.isEmpty()) error("APK not found")
+
+        val apk = if (apks.size == 1) {
+            apks.first()
+        } else {
+            val isDebug = com.rk.xededitor.BuildConfig.DEBUG
+            if (isDebug) {
+                apks.find { it.name.contains("debug", ignoreCase = true) }
+                    ?: apks.find { !it.name.contains("release", ignoreCase = true) }
+                    ?: apks.first()
+            } else {
+                apks.find { it.name.contains("release", ignoreCase = true) }
+                    ?: apks.find { !it.name.contains("debug", ignoreCase = true) }
+                    ?: apks.first()
+            }
+        }
+        apk.also { it.setReadOnly() }
     }
 
 fun LocalExtension.getApkPackageInfo(context: Context) = run {
