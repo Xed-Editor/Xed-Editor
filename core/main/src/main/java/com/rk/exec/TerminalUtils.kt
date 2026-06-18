@@ -19,7 +19,7 @@ fun isTerminalInstalled(): Boolean {
 
 suspend fun isTerminalWorking(): Boolean =
     withContext(Dispatchers.IO) {
-        val process = ubuntuProcess(command = arrayOf("true"))
+        val process = termuxProcess(command = arrayOf("true"))
         return@withContext process.waitFor() == 0
     }
 

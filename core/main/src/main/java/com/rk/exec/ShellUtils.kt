@@ -49,7 +49,7 @@ object ShellUtils {
 
     suspend fun runUbuntu(workingDir: String? = null, vararg command: String, timeoutSeconds: Long? = null): Result =
         withContext(Dispatchers.IO) {
-            val process = ubuntuProcess(workingDir = workingDir, command = command.toList())
+            val process = termuxProcess(workingDir = workingDir, command = command.toList())
 
             val output = StringBuilder()
             val error = StringBuilder()

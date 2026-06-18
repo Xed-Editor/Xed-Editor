@@ -9,7 +9,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.res.stringResource
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.readStderr
-import com.rk.exec.ubuntuProcess
+import com.rk.exec.termuxProcess
 import com.rk.file.child
 import com.rk.file.localDir
 import com.rk.file.sandboxDir
@@ -176,7 +176,7 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                     printLog("Testing Ubuntu execution...")
                     var working = false
                     try {
-                        val process = ubuntuProcess(command = listOf("true"))
+                        val process = termuxProcess(command = listOf("true"))
                         val exitCode = process.waitFor()
                         val stderr = process.readStderr().trim()
 
@@ -201,7 +201,7 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
 
                     printLog("Checking DNS resolution (google.com)...")
                     try {
-                        val dnsProcess = ubuntuProcess(command = listOf("getent", "hosts", "google.com"))
+                        val dnsProcess = termuxProcess(command = listOf("getent", "hosts", "google.com"))
                         val dnsExitCode = dnsProcess.waitFor()
                         if (dnsExitCode == 0) {
                             printLog("DNS resolution works.")
@@ -233,9 +233,9 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                     var abnormalities = 0
 
                     try {
-                        val process = ubuntuProcess(command = listOf("touch", "/tmp/.test_xed"))
+                        val process = termuxProcess(command = listOf("touch", "/tmp/.test_xed"))
                         if (process.waitFor() == 0) {
-                            ubuntuProcess(command = listOf("rm", "/tmp/.test_xed")).waitFor()
+                            termuxProcess(command = listOf("rm", "/tmp/.test_xed")).waitFor()
                         } else {
                             printLog("Abnormality: /tmp is not writable inside sandbox.")
                             abnormalities++
