@@ -21,6 +21,8 @@ android {
     namespace = "com.rk.xededitor"
     compileSdk = 37
 
+
+
     defaultConfig {
         minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -69,7 +71,9 @@ val runPrecompileScript by
         outputFile.set(layout.projectDirectory.file("src/main/assets/supported_locales.json"))
     }
 
-tasks.named("preBuild") { dependsOn(runPrecompileScript) }
+tasks.named("preBuild") {
+    dependsOn(runPrecompileScript)
+}
 
 dependencies {
     implementation(libs.androidx.appcompat)

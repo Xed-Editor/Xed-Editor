@@ -25,7 +25,7 @@ object HTML : ScriptedLspServer() {
             return false
         }
 
-        return sandboxDir().child("/usr/bin/$serverName").exists()
+        return java.io.File(context.filesDir, "usr/bin/$serverName").exists()
     }
 
     override suspend fun isUpdatable(context: Context): Boolean {

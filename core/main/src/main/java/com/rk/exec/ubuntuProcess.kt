@@ -16,61 +16,8 @@ import com.rk.xededitor.BuildConfig
 import java.io.File
 import java.io.IOException
 import java.io.OutputStreamWriter
-import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-data class Binding(val outside: String, val inside: String? = null)
-
-private fun MutableList<String>.bind(outside: String, inside: String? = null) {
-    if (File(outside).exists()) {
-        add("-b")
-        add("$outside${if (inside != null){":$inside"}else{""}}")
-    }
-}
-
-fun List<Binding>.attachTo(list: MutableList<String>, excludeMounts: List<String> = listOf<String>()) {
-    forEach {
-        if (!excludeMounts.contains(it.outside)) {
-            list.bind(it.outside, it.inside)
-        }
-    }
-}
-
-fun getDefaultBindings(): List<Binding> {
-    fun MutableList<Binding>.bind(outside: String, inside: String? = null) {
-        if (File(outside).exists()) {
-            add(Binding(outside, inside))
-        }
-    }
-
-    val list = mutableListOf<Binding>()
-
-    with(list) {
-        bind(sandboxHomeDir().absolutePath, "/home")
-        bind("/sdcard")
-        bind("/storage")
-        bind("/data")
-        bind(application!!.filesDir.parentFile!!.absolutePath)
-        bind("/dev")
-        bind("/proc")
-        bind("/system")
-        bind("/sys")
-        bind("/dev/urandom", "/dev/random")
-        bind("/system_ext")
-        bind("/product")
-        bind("/odm")
-        bind("/apex")
-        bind("/vendor")
-        bind("/linkerconfig/ld.config.txt")
-        bind("/linkerconfig/com.android.art/ld.config.txt")
-        bind("/plat_property_contexts", "/property_contexts")
-        bind("/sys")
-        bind("${getTempDir().absolutePath}", "/dev/shm")
-    }
-
-    return list
-}
 
 suspend fun ubuntuProcess(
     excludeMounts: List<String> = listOf(),
@@ -79,47 +26,84 @@ suspend fun ubuntuProcess(
     command: List<String>,
 ): Process =
     withContext(Dispatchers.IO) {
-        if (!root.exists()) throw NoSuchFileException(root)
+        val homePath = sandboxHomeDir().absolutePath
+        val prefixPath = File(application!!.filesDir, "usr").absolutePath
+        val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
 
-        val randomInt = Random.nextInt()
+        val randomInt = kotlin.random.Random.nextInt()
         val tmpDir = getTempDir().child("$randomInt-sandbox")
         if (!tmpDir.exists()) {
             tmpDir.mkdirs()
         }
 
-        val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
+        val resolvedCommand = command.map { arg ->
+            var resolved = arg
+            if (resolved.startsWith("/home/")) {
+                resolved = homePath + "/" + resolved.substring(6)
+            } else if (resolved == "/home") {
+                resolved = homePath
+            }
+            if (resolved.startsWith("/usr/bin/")) {
+                resolved = prefixPath + "/bin/" + resolved.substring(9)
+            } else if (resolved.startsWith("/usr/")) {
+                resolved = prefixPath + "/" + resolved.substring(5)
+            } else if (resolved.startsWith("/bin/")) {
+                resolved = prefixPath + "/bin/" + resolved.substring(5)
+            }
+            resolved
+        }.toMutableList()
 
-        val args =
-            mutableListOf<String>().apply {
-                add("${application!!.applicationInfo.nativeLibraryDir}/libproot.so")
-                add("--kill-on-exit")
+        val bashPath = "$prefixPath/bin/bash"
+        val exeFile = File(resolvedCommand[0])
+        val runArgs = mutableListOf<String>()
 
-                if (workingDir != null) {
-                    add("-w")
-                    add(workingDir)
-                }
-
-                getDefaultBindings().attachTo(this, excludeMounts)
-
-                bind(tmpDir.absolutePath)
-
-                add("-0")
-                add("--link2symlink")
-                add("--sysvipc")
-                add("-L")
-
-                add("-r")
-                add(root.absolutePath)
-                addAll(command)
+        if (exeFile.exists() && exeFile.isFile) {
+            val isScript = try {
+                val header = ByteArray(2)
+                exeFile.inputStream().use { it.read(header) }
+                header[0] == '#'.code.toByte() && header[1] == '!'.code.toByte()
+            } catch (e: Exception) {
+                false
             }
 
-        if (BuildConfig.DEBUG) {
-            Log.i("SANDBOX", args.toList().toString())
+            if (isScript || resolvedCommand[0].endsWith(".sh")) {
+                runArgs.add(linker)
+                runArgs.add(bashPath)
+                runArgs.addAll(resolvedCommand)
+            } else {
+                runArgs.add(linker)
+                runArgs.addAll(resolvedCommand)
+            }
+        } else {
+            val prefixBinFile = File(prefixPath + "/bin/" + resolvedCommand[0])
+            if (prefixBinFile.exists()) {
+                runArgs.add(linker)
+                resolvedCommand[0] = prefixBinFile.absolutePath
+                runArgs.addAll(resolvedCommand)
+            } else {
+                runArgs.addAll(resolvedCommand)
+            }
         }
 
-        val processBuilder = ProcessBuilder(linker, *args.toTypedArray())
+        val processBuilder = ProcessBuilder(runArgs)
+
+        if (workingDir != null) {
+            val resolvedWkDir = if (workingDir.startsWith("/home/")) {
+                homePath + "/" + workingDir.substring(6)
+            } else if (workingDir == "/home") {
+                homePath
+            } else {
+                workingDir
+            }
+            processBuilder.directory(File(resolvedWkDir))
+        }
 
         processBuilder.environment().let { env ->
+            env["PREFIX"] = prefixPath
+            env["LD_PRELOAD"] = "$prefixPath/lib/libtermux-exec.so"
+            env["PROOT"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot.so"
+            env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libloader.so"
+            env["PROOT_TMP_DIR"] = tmpDir.absolutePath
             env["WKDIR"] = workingDir.orEmpty()
             env["COLORTERM"] = "truecolor"
             env["TERM"] = "xterm-256color"
@@ -129,23 +113,10 @@ suspend fun ubuntuProcess(
             env["LOCAL"] = localDir().absolutePath
             env["PRIVATE_DIR"] = application!!.filesDir.parentFile!!.absolutePath
             env["EXT_HOME"] = sandboxHomeDir().absolutePath
-            env["HOME"] =
-                if (Settings.sandbox) {
-                    "/home"
-                } else {
-                    sandboxHomeDir().absolutePath
-                }
+            env["HOME"] = sandboxHomeDir().absolutePath
             env["PROMPT_DIRTRIM"] = "2"
-            env["LINKER"] =
-                if (File("/system/bin/linker64").exists()) {
-                    "/system/bin/linker64"
-                } else {
-                    "/system/bin/linker"
-                }
+            env["LINKER"] = linker
             env["NATIVE_LIB_DIR"] = application!!.applicationInfo.nativeLibraryDir
-            env["PROOT"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot.so"
-            env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libloader.so"
-            env["SANDBOX"] = Settings.sandbox.toString()
             env["TMP_DIR"] = getTempDir().absolutePath
             env["TMPDIR"] = getTempDir().absolutePath
             env["TZ"] = "UTC"
@@ -153,8 +124,12 @@ suspend fun ubuntuProcess(
             env["SOURCE_DIR"] = application!!.applicationInfo.sourceDir
             env["TERMUX_X11_SOURCE_DIR"] = getSourceDirOfPackage(application!!, "com.termux.x11").orEmpty()
             env["DISPLAY"] = ":0"
-            env["LD_LIBRARY_PATH"] = localLibDir().absolutePath
-            env["PROOT_TMP_DIR"] = tmpDir.absolutePath
+            env["LD_LIBRARY_PATH"] = "$prefixPath/lib:${localLibDir().absolutePath}"
+
+            val loader32 = "${application!!.applicationInfo.nativeLibraryDir}/libloader32.so"
+            if (File(loader32).exists()) {
+                env["PROOT_LOADER_32"] = loader32
+            }
 
             env["ANDROID_ART_ROOT"] = System.getenv("ANDROID_ART_ROOT").orEmpty()
             env["ANDROID_DATA"] = System.getenv("ANDROID_DATA").orEmpty()
@@ -165,18 +140,7 @@ suspend fun ubuntuProcess(
             env["BOOTCLASSPATH"] = System.getenv("BOOTCLASSPATH").orEmpty()
             env["DEX2OATBOOTCLASSPATH"] = System.getenv("DEX2OATBOOTCLASSPATH").orEmpty()
             env["EXTERNAL_STORAGE"] = System.getenv("EXTERNAL_STORAGE").orEmpty()
-
-            env["PATH"] =
-                "/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir()}:${System.getenv("PATH")}"
-
-            val loader32 = "${application!!.applicationInfo.nativeLibraryDir}/libloader32.so"
-            if (File(loader32).exists()) {
-                env["PROOT_LOADER_32"] = loader32
-            }
-
-            if (Settings.seccomp) {
-                env["SECCOMP"] = "1"
-            }
+            env["PATH"] = "$prefixPath/bin:$prefixPath/bin/applets:${System.getenv("PATH")}:${localBinDir().absolutePath}"
         }
 
         return@withContext processBuilder.start()

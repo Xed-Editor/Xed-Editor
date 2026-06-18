@@ -43,11 +43,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.rk.XedConstants
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
-import com.rk.file.localBinDir
-import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.terminal.NEXT_STAGE
@@ -55,24 +52,16 @@ import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
 import com.rk.terminal.changeSession
-import com.rk.terminal.getNextStage
 import com.rk.terminal.terminalView
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
-import com.rk.utils.getTempDir
 import com.rk.utils.toast
 import java.io.File
 import java.lang.ref.WeakReference
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 
 class Terminal : AppCompatActivity() {
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
@@ -212,83 +201,35 @@ class Terminal : AppCompatActivity() {
 
         LaunchedEffect(Unit) {
             try {
-                val abi = Build.SUPPORTED_ABIS
+                needsDownload = isTerminalInstalled().not()
+                if (needsDownload) {
+                    setupEnvironment(
+                        context = context,
+                        onProgress = { fileName, downloaded, total ->
+                            downloadedBytes = downloaded
+                            totalBytes = total
+                            currentFileName = fileName
 
-                val filesToDownload = mutableListOf<DownloadFile>()
-
-                if (isTerminalInstalled().not()) {
-                    filesToDownload.add(
-                        DownloadFile(
-                            url =
-                                if (abi.contains("x86_64")) {
-                                    XedConstants.ROOTFS_X64
-                                } else if (abi.contains("arm64-v8a")) {
-                                    XedConstants.ROOTFS_ARM64
-                                } else if (abi.contains("armeabi-v7a")) {
-                                    XedConstants.ROOTFS_ARM
-                                } else {
-                                    throw RuntimeException("Unsupported CPU")
-                                },
-                            outputFile = getTempDir().child("sandbox.tar.gz"),
-                        )
+                            if (total > 0) {
+                                val downloadedMB = formatBytesToMB(downloaded)
+                                val totalMB = formatBytesToMB(total)
+                                progressText =
+                                    "${strings.installing.getString()} ($downloadedMB/$totalMB MB)"
+                            }
+                        },
+                        onComplete = { installNextStage = it },
+                        onError = { error ->
+                            error.printStackTrace()
+                            errorDialog(msg = "Setup failed: ${error.message}")
+                            finish()
+                        },
                     )
-                }
-
-                needsDownload = filesToDownload.any { file -> file.outputFile.exists().not() }
-
-                setupEnvironment(
-                    context = context,
-                    filesToDownload = filesToDownload,
-                    onProgress = { fileName, downloaded, total ->
-                        downloadedBytes = downloaded
-                        totalBytes = total
-                        currentFileName = fileName
-
-                        if (total > 0) {
-                            val downloadedMB = formatBytesToMB(downloaded)
-                            val totalMB = formatBytesToMB(total)
-                            progressText =
-                                "${strings.downloading.getString()} ${fileName.removeSuffix(".so").removePrefix("lib")} ($downloadedMB/$totalMB MB)"
-                        }
-                    },
-                    onComplete = { installNextStage = it },
-                    onError = { error, file ->
-                        when (error) {
-                            is UnknownHostException -> {
-                                toast(strings.network_err.getString())
-                            }
-
-                            is SocketTimeoutException -> {
-                                errorDialog(strings.timeout)
-                            }
-
-                            else -> {
-                                error.printStackTrace()
-                                GlobalScope.launch(Dispatchers.IO) {
-                                    if (file?.absolutePath?.contains(localBinDir().absolutePath) == true) {
-                                        localBinDir().deleteRecursively()
-                                    }
-
-                                    if (file?.name == "sandbox.tar.gz") {
-                                        sandboxDir().deleteRecursively()
-                                        File(getTempDir(), "sandbox.tar.gz").delete()
-                                    }
-                                }
-                                errorDialog(msg = "Setup failed: ${error.message}")
-                            }
-                        }
-                        finish()
-                    },
-                )
-            } catch (e: Exception) {
-                if (e is UnknownHostException) {
-                    toast(strings.network_err.getString())
-                } else if (e is SocketTimeoutException) {
-                    errorDialog(strings.timeout)
                 } else {
-                    e.printStackTrace()
-                    toast("Setup failed: ${e.message}")
+                    installNextStage = NEXT_STAGE.NONE
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                toast("Setup failed: ${e.message}")
                 finish()
             }
         }
@@ -343,92 +284,141 @@ class Terminal : AppCompatActivity() {
         }
     }
 
-    data class DownloadFile(val url: String, val outputFile: File)
-
     @OptIn(DelicateCoroutinesApi::class)
     private suspend fun setupEnvironment(
         context: Context,
-        filesToDownload: List<DownloadFile>,
         onProgress: (fileName: String, downloadedBytes: Long, totalBytes: Long) -> Unit,
         onComplete: (NEXT_STAGE) -> Unit,
-        onError: (Exception, File?) -> Unit,
+        onError: (Exception) -> Unit,
     ) {
-        var currentFile: File? = null
-
         withContext(Dispatchers.IO) {
             try {
-                var completedFiles = 0
+                val usrDir = File(context.filesDir, "usr")
+                if (usrDir.exists()) {
+                    usrDir.deleteRecursively()
+                }
+                usrDir.mkdirs()
 
-                filesToDownload.forEach { file ->
-                    val outputFile = file.outputFile
-                    currentFile = outputFile
-
-                    outputFile.parentFile?.mkdirs()
-
-                    if (!outputFile.exists()) {
-                        downloadFile(
-                            url = file.url,
-                            outputFile = outputFile,
-                            onProgress = { downloaded, total -> onProgress(file.outputFile.name, downloaded, total) },
-                        )
-                    } else {
-                        // Report existing file as already downloaded
-                        onProgress(file.outputFile.name, outputFile.length(), outputFile.length())
+                val abis = listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+                val arch = Build.SUPPORTED_ABIS.firstOrNull { abis.contains(it) } ?: "arm64-v8a"
+                var urlString = "https://github.com/Xed-Editor/Xed-Editor/releases/download/v3.2.9/bootstrap-$arch.zip"
+                
+                var connection: java.net.HttpURLConnection
+                var redirectCount = 0
+                val maxRedirects = 5
+                
+                while (true) {
+                    val url = java.net.URL(urlString)
+                    connection = (url.openConnection() as java.net.HttpURLConnection).apply {
+                        connectTimeout = 30_000
+                        readTimeout = 30_000
+                        requestMethod = "GET"
+                        instanceFollowRedirects = true
                     }
-                    completedFiles++
+                    
+                    val responseCode = connection.responseCode
+                    if (responseCode == java.net.HttpURLConnection.HTTP_MULT_CHOICE ||
+                        responseCode == java.net.HttpURLConnection.HTTP_MOVED_PERM ||
+                        responseCode == java.net.HttpURLConnection.HTTP_MOVED_TEMP ||
+                        responseCode == 307 || responseCode == 308
+                    ) {
+                        val newUrl = connection.getHeaderField("Location")
+                        connection.disconnect()
+                        if (newUrl != null && redirectCount < maxRedirects) {
+                            urlString = newUrl
+                            redirectCount++
+                            continue
+                        }
+                    }
+                    break
+                }
+                
+                val responseCode = connection.responseCode
+                if (responseCode !in 200..299) {
+                    throw java.io.IOException("Server returned HTTP response code: $responseCode for URL: $urlString")
+                }
+                
+                val totalBytes: Long = connection.contentLengthLong
+                val assetStream = connection.inputStream
+                val assetName = "bootstrap-$arch.zip"
 
-                    runCatching { outputFile.setExecutable(true) }.onFailure { it.printStackTrace() }
+                val countingStream = object : java.io.FilterInputStream(assetStream) {
+                    var bytesRead = 0L
+                    override fun read(): Int {
+                        val result = super.read()
+                        if (result != -1) bytesRead++
+                        return result
+                    }
+                    override fun read(b: ByteArray, off: Int, len: Int): Int {
+                        val result = super.read(b, off, len)
+                        if (result != -1) bytesRead += result
+                        return result
+                    }
                 }
 
-                val stage = getNextStage(this@Terminal)
-                onComplete(stage)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                withContext(Dispatchers.Main) { onError(e, currentFile) }
-                if (currentFile?.exists() == true) {
-                    currentFile.delete()
+                val zipInputStream = java.util.zip.ZipInputStream(countingStream)
+                var entry = zipInputStream.nextEntry
+                val symlinkLines = mutableListOf<String>()
+
+                while (entry != null) {
+                    if (!entry.isDirectory) {
+                        val name = entry.name
+                        if (name == "SYMLINKS.txt") {
+                            val bos = java.io.ByteArrayOutputStream()
+                            val buffer = ByteArray(1024)
+                            var len: Int
+                            while (zipInputStream.read(buffer).also { len = it } > 0) {
+                                bos.write(buffer, 0, len)
+                            }
+                            val content = bos.toString("UTF-8")
+                            symlinkLines.addAll(content.lines().filter { it.contains("←") })
+                        } else {
+                            val targetFile = File(usrDir, name)
+                            targetFile.parentFile?.mkdirs()
+                            targetFile.outputStream().use { output ->
+                                zipInputStream.copyTo(output)
+                            }
+                            if (name.startsWith("bin/") || name.endsWith(".so") || name.contains("/bin/") || name.contains("/lib/")) {
+                                targetFile.setExecutable(true, false)
+                                targetFile.setReadable(true, false)
+                            }
+                        }
+                    }
+                    onProgress(assetName, countingStream.bytesRead, totalBytes)
+                    zipInputStream.closeEntry()
+                    entry = zipInputStream.nextEntry
                 }
-            }
-        }
-    }
+                zipInputStream.close()
 
-    private suspend fun downloadFile(
-        url: String,
-        outputFile: File,
-        onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit,
-    ) {
-        withContext(Dispatchers.IO) {
-            val client =
-                OkHttpClient.Builder()
-                    .connectTimeout(1, TimeUnit.MINUTES)
-                    .readTimeout(1, TimeUnit.MINUTES)
-                    .writeTimeout(1, TimeUnit.MINUTES)
-                    .callTimeout(10, TimeUnit.MINUTES)
-                    .build()
-            val request = Request.Builder().url(url).build()
-
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw Exception("Failed to download file: ${response.code}")
-                }
-
-                val body = response.body
-                val totalBytes = body.contentLength()
-
-                var downloadedBytes = 0L
-
-                outputFile.outputStream().use { output ->
-                    body.byteStream().use { input ->
-                        val buffer = ByteArray(8 * 1024)
-                        var bytesRead: Int
-
-                        while (input.read(buffer).also { bytesRead = it } != -1) {
-                            output.write(buffer, 0, bytesRead)
-                            downloadedBytes += bytesRead
-                            withContext(Dispatchers.Main) { onProgress(downloadedBytes, totalBytes) }
+                // Process symlinks
+                for (line in symlinkLines) {
+                    val parts = line.split("←")
+                    if (parts.size == 2) {
+                        val target = parts[0]
+                        var path = parts[1]
+                        if (path.startsWith("./")) {
+                            path = path.substring(2)
+                        }
+                        val linkFile = File(usrDir, path)
+                        linkFile.parentFile?.mkdirs()
+                        if (linkFile.exists()) {
+                            linkFile.delete()
+                        }
+                        try {
+                            android.system.Os.symlink(target, linkFile.absolutePath)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
                     }
                 }
+
+                // Touch the marker file
+                com.rk.file.localDir(context).child(".terminal_setup_ok_DO_NOT_REMOVE").createNewFile()
+
+                onComplete(NEXT_STAGE.NONE)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) { onError(e) }
             }
         }
     }

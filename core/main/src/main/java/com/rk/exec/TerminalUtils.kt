@@ -12,13 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 fun isTerminalInstalled(): Boolean {
-    val rootfs =
-        sandboxDir().listFiles()?.filter {
-            it.absolutePath != sandboxHomeDir().absolutePath &&
-                it.absolutePath != sandboxDir().child("tmp").absolutePath
-        } ?: emptyList()
-
-    return localDir().child(".terminal_setup_ok_DO_NOT_REMOVE").exists() && rootfs.isNotEmpty()
+    val prefix = java.io.File(com.rk.utils.application!!.filesDir, "usr")
+    val hasBash = java.io.File(prefix, "bin/bash").exists()
+    return localDir().child(".terminal_setup_ok_DO_NOT_REMOVE").exists() && hasBash
 }
 
 suspend fun isTerminalWorking(): Boolean =

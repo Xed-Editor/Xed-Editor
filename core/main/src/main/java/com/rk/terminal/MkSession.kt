@@ -29,6 +29,8 @@ object MkSession {
         sessionId: String,
         isExtraction: Boolean = false,
     ): Pair<TerminalSession, SessionPwd> {
+        val prefixPath = File(context.filesDir, "usr").absolutePath
+
         val envVariables =
             mapOf(
                 "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),
@@ -40,21 +42,21 @@ object MkSession {
                 "BOOTCLASSPATH" to System.getenv("BOOTCLASSPATH"),
                 "DEX2OATBOOTCLASSPATH" to System.getenv("DEX2OATBOOTCLASSPATH"),
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE"),
-                "PATH" to "${System.getenv("PATH")}:${localBinDir(context).absolutePath}",
+                "PATH" to "$prefixPath/bin:$prefixPath/bin/applets:${System.getenv("PATH")}:${localBinDir(context).absolutePath}",
             )
 
         val workingDir = runBlocking { getPwd(context) }
 
         val tmpDir = File(getTempDir(), "terminal/$sessionId")
-
         if (tmpDir.exists()) {
             tmpDir.deleteRecursively()
         }
-
         tmpDir.mkdirs()
 
         val env =
             mutableListOf(
+                "PREFIX=$prefixPath",
+                "LD_PRELOAD=$prefixPath/lib/libtermux-exec.so",
                 "PROOT=${application!!.applicationInfo.nativeLibraryDir}/libproot.so",
                 "PROOT_LOADER=${application!!.applicationInfo.nativeLibraryDir}/libloader.so",
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",
@@ -66,13 +68,12 @@ object MkSession {
                 "DEBUG=${BuildConfig.DEBUG}",
                 "LOCAL=${localDir(context).absolutePath}",
                 "PRIVATE_DIR=${context.filesDir.parentFile!!.absolutePath}",
-                "LD_LIBRARY_PATH=${localLibDir(context).absolutePath}",
-                "EXT_HOME=${sandboxHomeDir(context)}",
-                "HOME=${if (Settings.sandbox){ "/home"} else{ sandboxHomeDir(context)}}",
+                "LD_LIBRARY_PATH=$prefixPath/lib:${localLibDir(context).absolutePath}",
+                "EXT_HOME=${sandboxHomeDir(context).absolutePath}",
+                "HOME=${sandboxHomeDir(context).absolutePath}",
                 "PROMPT_DIRTRIM=2",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                 "NATIVE_LIB_DIR=${context.applicationInfo.nativeLibraryDir}",
-                "SANDBOX=${Settings.sandbox}",
                 "TMP_DIR=${getTempDir()}",
                 "TMPDIR=${getTempDir()}",
                 "TZ=UTC",
@@ -87,50 +88,37 @@ object MkSession {
             env.add("PROOT_LOADER_32=$loader32")
         }
 
-        if (Settings.seccomp) {
-            env.add("SECCOMP=1")
-        }
-
         env.addAll(envVariables.map { "${it.key}=${it.value}" })
 
         pendingCommand?.env?.let { env.addAll(it) }
 
-        setupTerminalFiles()
+        val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
+        val bashPath = "$prefixPath/bin/bash"
 
-        val sandboxSH = localBinDir(context).child("sandbox")
-        val setupSH = localBinDir(context).child("setup")
+        val actualShell: String = linker
+        val actualArgs: Array<String>
 
-        val args: Array<String>
-
-        val shell =
-            if (pendingCommand == null) {
-                args =
-                    if (Settings.sandbox) {
-                        arrayOf(sandboxSH.absolutePath)
-                    } else {
-                        arrayOf()
-                    }
-                "/system/bin/sh"
-            } else if (pendingCommand!!.sandbox.not()) {
-                args = pendingCommand!!.args
-                pendingCommand!!.exe
-            } else {
-                args =
-                    mutableListOf(sandboxSH.absolutePath, pendingCommand!!.exe, *pendingCommand!!.args)
-                        .toTypedArray<String>()
-
-                "/system/bin/sh"
+        if (pendingCommand == null) {
+            actualArgs = arrayOf(linker, bashPath, "--login")
+        } else {
+            var exe = pendingCommand!!.exe
+            if (exe.startsWith("/usr/bin/")) {
+                exe = prefixPath + "/bin/" + exe.substring(9)
+            } else if (exe.startsWith("/usr/")) {
+                exe = prefixPath + "/" + exe.substring(5)
+            } else if (exe.startsWith("/bin/")) {
+                exe = prefixPath + "/bin/" + exe.substring(5)
+            } else if (!exe.startsWith("/") && !exe.startsWith(".")) {
+                val fileInPrefix = File("$prefixPath/bin/$exe")
+                if (fileInPrefix.exists()) {
+                    exe = fileInPrefix.absolutePath
+                }
             }
 
-        val actualShell: String
-        val actualArgs: Array<String> =
-            if (isExtraction) {
-                actualShell = "/system/bin/sh"
-                mutableListOf("-c", setupSH.absolutePath, *args).toTypedArray()
-            } else {
-                actualShell = shell
-                arrayOf("-c", *args)
-            }
+            val cmdArgs = mutableListOf(linker, bashPath, "-c", """"$1" "$@"""", "--", exe)
+            cmdArgs.addAll(pendingCommand!!.args)
+            actualArgs = cmdArgs.toTypedArray()
+        }
 
         pendingCommand = null
 

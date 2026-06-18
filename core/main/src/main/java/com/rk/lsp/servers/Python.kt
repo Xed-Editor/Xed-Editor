@@ -25,7 +25,7 @@ object Python : ScriptedLspServer() {
             return false
         }
 
-        return sandboxDir().child("/usr/bin/pyright-langserver").exists()
+        return java.io.File(context.filesDir, "usr/bin/pyright-langserver").exists()
     }
 
     override suspend fun isUpdatable(context: Context): Boolean {

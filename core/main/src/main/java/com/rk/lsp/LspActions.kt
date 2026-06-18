@@ -48,7 +48,7 @@ fun fixHomeLocation(context: Context, uri: String): String {
                 File(sandboxHomeDir(context), uri.toUri().path!!.removePrefix("/home/"))
             }
             path.startsWith("/usr") -> {
-                File(sandboxDir(context).child("usr"), uri.toUri().path!!.removePrefix("/usr/"))
+                File(context.filesDir, "usr").child(uri.toUri().path!!.removePrefix("/usr/"))
             }
             else -> null
         }

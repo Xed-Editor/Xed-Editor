@@ -11,6 +11,18 @@ android {
     namespace = "com.rk.application"
     compileSdk = 37
 
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+
+            include("armeabi-v7a", "arm64-v8a","x86", "x86_64")
+
+            isUniversalApk = true
+        }
+    }
+
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
@@ -80,8 +92,12 @@ android {
 
     buildTypes {
         release {
+
             isMinifyEnabled = false
+
             isShrinkResources = false
+
+
             isCrunchPngs = false
 
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -89,7 +105,8 @@ android {
         }
 
         debug {
-            applicationIdSuffix = ".debug"
+            //application suffix needs to be disabled otherwise terminal will break in debug mode
+            //applicationIdSuffix = ".debug"
             versionNameSuffix = "-DEBUG"
             resValue("string", "app_name", "Xed-Debug")
         }

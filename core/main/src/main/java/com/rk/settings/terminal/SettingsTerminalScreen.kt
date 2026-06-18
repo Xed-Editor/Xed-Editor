@@ -205,11 +205,12 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                                 FileOutputStream(tempFile).use { outputStream -> inputStream.copyTo(outputStream) }
                             }
 
-                            sandboxDir().deleteRecursively()
-                            sandboxDir().mkdirs()
+                            val usrDir = File(context.filesDir, "usr")
+                            usrDir.deleteRecursively()
+                            usrDir.mkdirs()
 
                             val result =
-                                getRuntime().exec("tar -xf ${tempFile.absolutePath} -C ${sandboxDir()}").waitFor()
+                                getRuntime().exec("tar -xf ${tempFile.absolutePath} -C ${usrDir.absolutePath}").waitFor()
                             withContext(Dispatchers.Main) {
                                 loading.hide()
                                 if (result == 0) {
@@ -254,7 +255,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                                 loading.show()
 
                                 try {
-                                    val sandboxDir = sandboxDir().absolutePath
+                                    val usrDir = File(context.filesDir, "usr").absolutePath
                                     val targetPath = targetFile.absolutePath
 
                                     val processBuilder =
@@ -283,7 +284,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                                                 "--exclude=storage",
                                             )
                                             .apply {
-                                                directory(File(sandboxDir))
+                                                directory(File(usrDir))
                                                 redirectErrorStream(true)
                                             }
 
@@ -335,7 +336,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                                 runCatching {
                                     localBinDir().deleteRecursively()
                                     localLibDir().deleteRecursively()
-                                    sandboxDir().deleteRecursively()
+                                    File(context.filesDir, "usr").deleteRecursively()
                                     localDir().child(".terminal_setup_ok_DO_NOT_REMOVE").delete()
                                 }
                                 loading.hide()
