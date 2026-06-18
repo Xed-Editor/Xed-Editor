@@ -22,6 +22,10 @@ class HttpServer(
         start()
     }
 
+    override fun useGzipWhenAccepted(r: Response?): Boolean {
+        return false
+    }
+
     override fun serve(session: IHTTPSession?): Response {
         return runBlocking {
             val uri = session!!.uri
