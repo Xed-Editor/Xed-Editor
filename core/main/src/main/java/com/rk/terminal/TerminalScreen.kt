@@ -374,7 +374,7 @@ fun TerminalView(
                 terminalView.setTerminalViewClient(client)
                 
                 virtualKeysViewRef.get()?.apply {
-                    virtualKeysViewClient = com.rk.terminal.virtualkeys.VirtualKeysListener(session)
+                    virtualKeysViewClient = VirtualKeysListener(session)
                 }
             }
         },

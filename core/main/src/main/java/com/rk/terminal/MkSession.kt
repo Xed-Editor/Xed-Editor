@@ -27,7 +27,6 @@ object MkSession {
         context: Context,
         sessionClient: TerminalSessionClient,
         sessionId: String,
-        isExtraction: Boolean = false,
     ): Pair<TerminalSession, SessionPwd> {
         val prefixPath = File(context.filesDir, "usr").absolutePath
         val homePath = sandboxHomeDir(context).absolutePath

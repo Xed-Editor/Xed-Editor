@@ -47,7 +47,6 @@ import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.terminal.NEXT_STAGE
 import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
@@ -251,7 +250,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
     }
 
     var progressText by mutableStateOf(strings.installing.getString())
-    var installNextStage by mutableStateOf<NEXT_STAGE?>(null)
+    var isSetupComplete by mutableStateOf(false)
 
     @OptIn(DelicateCoroutinesApi::class)
     @Composable
@@ -285,7 +284,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
                                     "${strings.installing.getString()} ($downloadedMB/$totalMB MB)"
                             }
                         },
-                        onComplete = { installNextStage = it },
+                        onComplete = { isSetupComplete = true },
                         onError = { error ->
                             error.printStackTrace()
                             errorDialog(msg = "Setup failed: ${error.message}")
@@ -293,7 +292,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
                         },
                     )
                 } else {
-                    installNextStage = NEXT_STAGE.NONE
+                    isSetupComplete = true
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -312,7 +311,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
                 onDispose { activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
             }
 
-            if (installNextStage == null) {
+            if (!isSetupComplete) {
                 if (needsDownload) {
                     Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                         Column(
@@ -359,7 +358,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
     private suspend fun setupEnvironment(
         context: Context,
         onProgress: (fileName: String, downloadedBytes: Long, totalBytes: Long) -> Unit,
-        onComplete: (NEXT_STAGE) -> Unit,
+        onComplete: () -> Unit,
         onError: (Exception) -> Unit,
     ) {
         withContext(Dispatchers.IO) {
@@ -488,7 +487,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
                 // Touch the marker file
                 com.rk.file.localDir(context).child(".terminal_setup_ok_DO_NOT_REMOVE").createNewFile()
 
-                onComplete(NEXT_STAGE.NONE)
+                onComplete()
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) { onError(e) }

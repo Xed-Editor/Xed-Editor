@@ -42,7 +42,6 @@ class SessionService : Service() {
                     activity,
                     client,
                     id,
-                    activity.installNextStage != null && activity.installNextStage == NEXT_STAGE.EXTRACTION,
                 )
                 .let {
                     val (session, pwd) = it
