@@ -7,7 +7,6 @@ import com.rk.file.child
 import com.rk.file.localDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
-import com.rk.utils.showTerminalNotice
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -28,8 +27,6 @@ suspend fun isTerminalWorking(): Boolean =
     }
 
 fun launchTerminal(activity: Activity, terminalCommand: TerminalCommand) {
-    showTerminalNotice(activity = activity) {
-        pendingCommand = terminalCommand
-        activity.startActivity(Intent(activity, Terminal::class.java))
-    }
+    pendingCommand = terminalCommand
+    activity.startActivity(Intent(activity, Terminal::class.java))
 }

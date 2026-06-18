@@ -11,7 +11,6 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.showTerminalNotice
 
 class TerminalCommand : GlobalCommand() {
     override val id: String = "global.terminal"
@@ -20,28 +19,9 @@ class TerminalCommand : GlobalCommand() {
 
     override fun action(actionContext: ActionContext) {
         val activity = actionContext.currentActivity
-        showTerminalNotice(activity) {
-            val intent =
-                Intent(activity, Terminal::class.java).apply {
-                    commandContext.mainViewModel.currentTab?.file?.let { currentFile ->
-                        //                                //                                val currentFile =
-                        // viewModel.currentTab?.file ?:
-                        //                                // return@apply
-                        //                                //                                val currentPath =
-                        // currentFile.getAbsolutePath()
-                        //                                //                                val project =
-                        //                                //                                    tabs
-                        //                                //                                        .filter {
-                        //                                // currentPath.startsWith(it.fileObject.getAbsolutePath()) }
-                        //                                //                                        .maxByOrNull {
-                        //                                // it.fileObject.getAbsolutePath().length } ?: return@apply
-                        //                                //                                putExtra("cwd",
-
-                        // TODO: Fix this
-                    }
-                }
-            activity.startActivity(intent)
-        }
+        val intent =
+            Intent(activity, Terminal::class.java)
+        activity.startActivity(intent)
     }
 
     override fun isSupported(): Boolean = InbuiltFeatures.terminal.state.value
