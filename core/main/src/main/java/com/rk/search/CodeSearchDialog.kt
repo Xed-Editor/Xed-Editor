@@ -119,14 +119,8 @@ fun CodeSearchDialog(
     }
 
     fun replaceAll(codeItems: List<CodeItem>) {
-        val itemsBackwards =
-            codeItems.toList().sortedWith(compareByDescending<CodeItem> { it.line }.thenByDescending { it.column })
-
         searchViewModel.viewModelScope.launch {
-            for (codeItem in itemsBackwards) {
-                searchViewModel.replaceIn(context, mainViewModel, projectFile, codeItem)
-            }
-            searchViewModel.syncIndex(projectFile)
+            searchViewModel.replaceAllIn(context, mainViewModel, projectFile, codeItems)
             searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
         }
     }

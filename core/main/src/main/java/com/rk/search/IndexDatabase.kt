@@ -68,21 +68,21 @@ abstract class IndexDatabase : RoomDatabase() {
     lateinit var projectRoot: FileObject
 
     companion object {
-        @Volatile private var INSTANCES = mutableMapOf<FileObject, IndexDatabase>()
+        private val INSTANCES = java.util.concurrent.ConcurrentHashMap<FileObject, IndexDatabase>()
 
         fun getDatabase(context: Context, projectRoot: FileObject): IndexDatabase {
             return INSTANCES[projectRoot]
                 ?: synchronized(this) {
-                    val instance =
-                        Room.databaseBuilder(
+                    INSTANCES[projectRoot]
+                        ?: Room.databaseBuilder(
                                 context,
                                 IndexDatabase::class.java,
                                 "index_database_${projectRoot.hashCode()}",
                             )
-                            .build()
-                    instance.projectRoot = projectRoot
-                    INSTANCES[projectRoot] = instance
-                    instance
+                            .build().apply {
+                                this.projectRoot = projectRoot
+                                INSTANCES[projectRoot] = this
+                            }
                 }
         }
 
@@ -93,8 +93,10 @@ abstract class IndexDatabase : RoomDatabase() {
 
         /** Close and remove the in-memory instance for [projectRoot] without deleting the file. */
         fun closeInstance(projectRoot: FileObject) {
-            INSTANCES[projectRoot]?.close()
-            INSTANCES.remove(projectRoot)
+            synchronized(this) {
+                INSTANCES[projectRoot]?.close()
+                INSTANCES.remove(projectRoot)
+            }
         }
 
         suspend fun findDatabasesFor(file: FileObject): List<IndexDatabase> {

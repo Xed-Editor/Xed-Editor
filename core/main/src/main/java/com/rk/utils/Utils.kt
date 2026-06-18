@@ -40,7 +40,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
 import com.caverock.androidsvg.SVG
+import com.rk.activities.main.MainActivity
 import com.rk.activities.main.gitViewModel
+import com.rk.extension.ActivityProvider
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
@@ -91,6 +93,7 @@ suspend fun FileObject.readObject(): Any? =
         }
     }
 
+
 fun toast(message: String?) {
     if (message.isNullOrBlank()) {
         Log.w("UTILS", "Toast with null or empty message")
@@ -100,7 +103,16 @@ fun toast(message: String?) {
         Log.w("TOAST", message)
         return
     }
-    runOnUiThread { Toast.makeText(application!!, message, Toast.LENGTH_SHORT).show() }
+
+    runOnUiThread {
+        val context = ActivityProvider.currentActivity as? Context
+        if (context != null){
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }else{
+            Log.w("Utils","no valid ui context available for making toast: $message")
+        }
+
+    }
 }
 
 /** Returns true if the currently selected user theme is dark. If it's set to system, the system theme is used. */
@@ -115,7 +127,7 @@ fun isDarkTheme(ctx: Context): Boolean {
 /** Returns true if the system theme is dark. **NOTE:** Prefer [isDarkTheme] to respect user settings. */
 fun isSystemInDarkTheme(ctx: Context): Boolean {
     return ((ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-        Configuration.UI_MODE_NIGHT_YES)
+            Configuration.UI_MODE_NIGHT_YES)
 }
 
 inline fun dpToPx(dp: Float, ctx: Context): Int {
@@ -186,57 +198,6 @@ fun expectOOM(requiredMemBytes: Long): Boolean {
     val requiredMemory = requiredMemBytes + safetyBuffer
 
     return requiredMemory > availableMemory
-}
-
-// used for warning purposes
-fun isChinaDevice(context: Context): Boolean {
-    val manufacturer = Build.MANUFACTURER.lowercase()
-
-    if (
-        manufacturer.contains("huawei") ||
-            manufacturer.contains("xiaomi") ||
-            manufacturer.contains("oppo") ||
-            manufacturer.contains("vivo") ||
-            manufacturer.contains("realme") ||
-            manufacturer.contains("oneplus")
-    ) {
-        return true
-    }
-
-    val localeCountry = Locale.getDefault().country
-    if (localeCountry.equals("CN", ignoreCase = true)) return true
-
-    val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-    val simCountry = tm.simCountryIso
-    return simCountry.equals("cn", ignoreCase = true)
-}
-
-fun showTerminalNotice(activity: Activity, onOk: () -> Unit) {
-    if (isChinaDevice(activity) && !Settings.terminal_virus_notice) {
-        dialogRes(
-            activity = activity,
-            title = strings.attention.getString(),
-            msg = strings.terminal_virus_notice.getString(),
-            onOk = {
-                Settings.terminal_virus_notice = true
-                it?.dismiss()
-                onOk()
-            },
-            onCancel = {},
-            cancelable = false,
-        )
-    } else {
-        onOk()
-    }
-}
-
-fun isAppInstalled(context: Context, packageName: String): Boolean {
-    return try {
-        context.packageManager.getPackageInfo(packageName, 0)
-        true // App is installed
-    } catch (e: PackageManager.NameNotFoundException) {
-        false // App not found
-    }
 }
 
 fun getSourceDirOfPackage(context: Context, packageName: String): String? {
@@ -387,9 +348,16 @@ fun getGitColor(changeType: ChangeType): Color =
 
 suspend fun findGitRoot(path: String): String? =
     withContext(Dispatchers.IO) {
-        val startDir = File(path).let { if (it.isDirectory) it else it.parentFile }
-        val repo = FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()
-        repo?.workTree?.canonicalPath
+        runCatching {
+            val startDir = File(path).let { if (it.isDirectory) it else it.parentFile }
+            FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()?.use { repo ->
+                if (!repo.isBare) {
+                    repo.workTree?.canonicalPath
+                } else {
+                    null
+                }
+            }
+        }.getOrNull()
     }
 
 fun hasBinaryChars(text: String): Boolean {

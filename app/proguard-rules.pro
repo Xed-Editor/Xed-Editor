@@ -204,28 +204,98 @@
 -keep class * extends com.google.gson.TypeAdapter { *; }
 
 
--keepclasseswithmembernames class com.rk.plugin.server.api.API {*;}
--keepclasseswithmembernames class com.rk.plugin.server.api.PluginLifeCycle  {*;}
--keepclasseswithmembernames class com.rk.plugin.server.** {*;}
--keep class com.rk.xededitor.MainActivity.MainActivity {*;}
--keepclasseswithmembernames class com.rk.App {*;}
--keepclasseswithmembernames class com.rk.xededitor.BaseActivity {*;}
+-keep class com.rk.plugin.server.** { *; }
+-dontwarn com.rk.plugin.server.**
 
--keepclassmembernames class com.rk.plugin.server.api.API {*;}
--keepclassmembernames class com.rk.plugin.server.api.PluginLifeCycle {*;}
--keepclassmembernames class com.rk.plugin.server.** {*;}
--keepclassmembernames class com.rk.App {*;}
--keepclassmembernames class com.rk.xededitor.BaseActivity {*;}
+# Skip shrinking class if it contains the xed extension point or related to extension related code
+-keep @com.rk.extension.XedExtensionPoint class * { *; }
+-keepclassmembers class * {
+    @com.rk.extension.XedExtensionPoint *;
+}
+-keep class * {
+    @com.rk.extension.XedExtensionPoint <methods>;
+    @com.rk.extension.XedExtensionPoint <fields>;
+}
+-keep class com.rk.extension.** { *; }
 
--keepnames class com.rk.plugin.server.api.API {*;}
--keepnames class com.rk.plugin.server.api.PluginLifeCycle {*;}
--keepnames class com.rk.plugin.server.** {*;}
--keepnames class com.rk.App {*;}
--keepnames class com.rk.xededitor.BaseActivity {*;}
+# Preserve well-known classes that plugins may try to access and keep their names
+-keep class com.rk.commands.** { *; }
+-keep class com.rk.editor.** { *; }
+-keep class com.rk.file.** { *; }
+-keep class com.rk.filetree.** { *; }
+-keep class com.rk.lsp.** { *; }
+-keep class com.rk.runner.** { *; }
+-keep class com.rk.tabs.** { *; }
+-keep class com.rk.utils.** { *; }
+-keep class com.rk.xededitor.** { *; }
+-keep class com.rk.proot.** { *; }
+-keep class com.rk.components.** { *; }
+-keep class com.rk.App { *; }
+-keep class com.rk.XedConstants { *; }
+
+# JVM Libraries Reflection & Compatibility Rules
+
+# LSP4J
+-keep class org.eclipse.lsp4j.** { *; }
+-dontwarn org.eclipse.lsp4j.**
+
+# JGit
+-keep class org.eclipse.jgit.** { *; }
+-dontwarn org.eclipse.jgit.**
+
+# Joni / Jcodings (Regex Library)
+-keep class org.jruby.joni.** { *; }
+-keep class org.jruby.jcodings.** { *; }
+-dontwarn org.jruby.joni.**
+-dontwarn org.jruby.jcodings.**
+
+# SnakeYAML
+-keep class org.yaml.snakeyaml.** { *; }
+-keep class org.snakeyaml.engine.** { *; }
+-dontwarn org.yaml.snakeyaml.**
+-dontwarn org.snakeyaml.engine.**
+
+# Moshi
+-keep class com.squareup.moshi.** { *; }
+-dontwarn com.squareup.moshi.**
+
+# Ec4j Core
+-keep class org.ec4j.core.** { *; }
+-dontwarn org.ec4j.core.**
+
+# Tree-sitter
+-keep class com.itsaky.androidide.treesitter.** { *; }
+-dontwarn com.itsaky.androidide.treesitter.**
+
+# Rosemoe Sora Editor
+-keep class io.github.rosemoe.sora.** { *; }
+-dontwarn io.github.rosemoe.sora.**
+
+# Oniguruma Native
+-keep class io.github.rosemoe.oniguruma.** { *; }
+-dontwarn io.github.rosemoe.oniguruma.**
+
+# UtilCode
+-keep class com.blankj.utilcode.** { *; }
+-dontwarn com.blankj.utilcode.**
+
+# Semver
+-keep class io.github.z4kn4fein.semver.** { *; }
+-dontwarn io.github.z4kn4fein.semver.**
+
+# ANRWatchdog
+-keep class com.github.anrwatchdog.** { *; }
+-dontwarn com.github.anrwatchdog.**
+
+# AndroidSVG
+-keep class com.caverock.androidsvg.** { *; }
+-dontwarn com.caverock.androidsvg.**
 
 -dontwarn sun.security.x509.X509Key
--dontobfuscate
--dontshrink
--keepattributes *Annotation*
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod,Metadata
+
+# slf4j missing static binders
+-dontwarn org.slf4j.impl.**
+
 
 

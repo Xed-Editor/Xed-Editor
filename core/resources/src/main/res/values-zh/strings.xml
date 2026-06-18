@@ -256,7 +256,7 @@
     <string name="wrapper_type">包装</string>
     <string name="support">支持</string>
     <string name="translate">翻译</string>
-    <string name="terminal_feature">终端和运行器</string>
+    <string name="terminal_feature">终端、运行器和语言服务器</string>
     <string name="folder_name">文件夹名称</string>
     <string name="invalid_characters">非法字符</string>
     <string name="properties">属性</string>
@@ -663,4 +663,16 @@
     <string name="browse_extensions">浏览扩展</string>
     <string name="clipboard_keybindings">剪贴板快捷键</string>
     <string name="clipboard_keybindings_desc">启用实体键盘的复制和粘贴快捷键</string>
+    <string name="terminal_health">终端诊断</string>
+    <string name="terminal_health_desc">诊断终端环境是否异常</string>
+    <string name="no_logs">无日志</string>
+    <string name="pending">检查即将开始</string>
+    <string name="check_proot">检查 PRoot</string>
+    <string name="check_system_shell">检查系统 shell</string>
+    <string name="check_storage_permissions">检查存储和权限</string>
+    <string name="check_ubuntu">检查 Ubuntu®</string>
+    <string name="check_network_access">检查网络</string>
+    <string name="check_abnormalities">检查异常</string>
+    <string name="samsung_proot_warning">你的三星®设备存在一个会导致基于 PRoot 的终端发生故障的已知问题。</string>
+    <string name="terminal_degraded_warning">由于一个已知的兼容性问题，PRoot 环境的终端正以降级模式运行。部分特性暂时受限或行为异常。</string>
 </resources>

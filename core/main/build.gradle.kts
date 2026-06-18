@@ -8,14 +8,34 @@ plugins {
     alias(libs.plugins.ktfmt)
 }
 
-val gitCommitHash: Provider<String> =
-    providers.exec { commandLine("git", "rev-parse", "--short=8", "HEAD") }.standardOutput.asText.map { it.trim() }
+val isGitRepo = generateSequence(rootProject.projectDir) { it.parentFile }.any { File(it, ".git").exists() }
 
-val fullGitCommitHash: Provider<String> =
-    providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.map { it.trim() }
+val gitCommitHash: Provider<String> = if (isGitRepo) {
+    providers.exec {
+        commandLine("git", "rev-parse", "--short=8", "HEAD")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.map { it.trim().ifEmpty { "unknown" } }
+} else {
+    providers.provider { "unknown" }
+}
 
-val gitCommitDate: Provider<String> =
-    providers.exec { commandLine("git", "show", "-s", "--format=%cI", "HEAD") }.standardOutput.asText.map { it.trim() }
+val fullGitCommitHash: Provider<String> = if (isGitRepo) {
+    providers.exec {
+        commandLine("git", "rev-parse", "HEAD")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.map { it.trim().ifEmpty { "unknown" } }
+} else {
+    providers.provider { "unknown" }
+}
+
+val gitCommitDate: Provider<String> = if (isGitRepo) {
+    providers.exec {
+        commandLine("git", "show", "-s", "--format=%cI", "HEAD")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.map { it.trim().ifEmpty { "unknown" } }
+} else {
+    providers.provider { "unknown" }
+}
 
 android {
     namespace = "com.rk.xededitor"

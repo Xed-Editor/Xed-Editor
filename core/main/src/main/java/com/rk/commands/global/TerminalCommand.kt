@@ -2,6 +2,7 @@ package com.rk.commands.global
 
 import android.content.Intent
 import android.view.KeyEvent
+import com.rk.activities.terminal.TerminalNavigation
 import com.rk.commands.ActionContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
@@ -10,8 +11,6 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.showTerminalNotice
-import com.rk.activities.terminal.TerminalNavigation
 
 class TerminalCommand : GlobalCommand() {
     override val id: String = "global.terminal"
@@ -20,9 +19,7 @@ class TerminalCommand : GlobalCommand() {
 
     override fun action(actionContext: ActionContext) {
         val activity = actionContext.currentActivity
-        showTerminalNotice(activity) {
-            TerminalNavigation.startTerminal(activity)
-        }
+        TerminalNavigation.startTerminal(activity)
     }
 
     override fun isSupported(): Boolean = InbuiltFeatures.terminal.state.value

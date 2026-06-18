@@ -232,7 +232,7 @@
     <string name="cant_write">Nelze zapisovat do souboru (žádná oprávnění zapisování)</string>
     <string name="storage">Úložiště</string>
     <string name="translate">Přeložit</string>
-    <string name="terminal_feature">Terminál a spouštěče</string>
+    <string name="terminal_feature">Terminál, spouštěče a jazykové servery</string>
     <string name="folder_name">Jméno složky</string>
     <string name="invalid_characters">Neplatné znaky</string>
     <string name="properties">Podrobnosti</string>
@@ -657,4 +657,5 @@
     <string name="terminal_health">Zdraví terminálu</string>
     <string name="no_logs">Žádné protokoly dostupné</string>
     <string name="samsung_proot_warning">Vaše zařízení Samsung má známý problém, který způsobuje selhání instalace terminálu pomocí PRoot.</string>
+    <string name="terminal_degraded_warning">Terminál teď běží v degredovaném režimu kvůli známé chyby kompatibility způsobena problémem v prostředí PRoot na některých zařízení. Některé funkce mohou být omezené nebo se budou rozdílně chovat.</string>
 </resources>

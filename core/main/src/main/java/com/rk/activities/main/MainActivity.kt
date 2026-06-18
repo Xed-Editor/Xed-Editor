@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -136,14 +137,16 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val navController = rememberNavController()
+            val startDestination = remember {
+                if (Settings.shown_disclaimer) {
+                    MainRoutes.Main.route
+                } else {
+                    MainRoutes.Disclaimer.route
+                }
+            }
             NavHost(
                 navController = navController,
-                startDestination =
-                    if (Settings.shown_disclaimer) {
-                        MainRoutes.Main.route
-                    } else {
-                        MainRoutes.Disclaimer.route
-                    },
+                startDestination = startDestination,
             ) {
                 composable(MainRoutes.Main.route) {
                     MainContentHost()

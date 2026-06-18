@@ -21,6 +21,8 @@ import java.lang.ref.WeakReference
 
 object FilePermission {
     private const val REQUEST_CODE_STORAGE_PERMISSIONS = 1259
+    private var isRequesting = false
+    private var activeActivity = WeakReference<Activity?>(null)
 
     fun onRequestPermissionsResult(
         requestCode: Int,
@@ -41,6 +43,11 @@ object FilePermission {
     private var dialogRef = WeakReference<AlertDialog?>(null)
 
     fun verifyStoragePermission(activity: Activity) {
+        if (isRequesting && activeActivity.get() == activity) {
+            return
+        }
+        activeActivity = WeakReference(activity)
+
         dialogRef.get()?.apply {
             if (isShowing) {
                 dismiss()
@@ -71,6 +78,7 @@ object FilePermission {
             }
         }
         if (shouldAsk) {
+            isRequesting = true
             dialogRes(
                 activity = activity,
                 title = strings.manage_storage.getString(),
@@ -78,6 +86,7 @@ object FilePermission {
                 cancelRes = strings.ignore,
                 okRes = strings.ok,
                 onOk = {
+                    isRequesting = false
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                         val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                         intent.data = "package:${activity.packageName}".toUri()
@@ -93,7 +102,10 @@ object FilePermission {
                         ActivityCompat.requestPermissions(activity, perms, REQUEST_CODE_STORAGE_PERMISSIONS)
                     }
                 },
-                onCancel = { Settings.ignore_storage_permission = true },
+                onCancel = {
+                    Settings.ignore_storage_permission = true
+                    isRequesting = false
+                },
                 cancelable = false,
             )
         }

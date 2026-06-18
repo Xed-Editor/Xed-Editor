@@ -24,7 +24,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
-import com.rk.utils.showTerminalNotice
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
@@ -113,9 +112,9 @@ object TerminalAction : FileAction() {
         val file = context.file
         val context = context.context
 
-        showTerminalNotice(activity = MainActivity.instance!!) {
+
             TerminalNavigation.startTerminal(context, cwd = file.getAbsolutePath())
-        }
+
     }
 
     override fun isSupported(file: FileObject): Boolean {
