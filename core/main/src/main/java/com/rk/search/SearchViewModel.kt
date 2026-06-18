@@ -976,6 +976,65 @@ class SearchViewModel : ViewModel() {
         }
     }
 
+    suspend fun replaceAllIn(context: Context, mainViewModel: MainViewModel, projectRoot: FileObject, codeItems: List<CodeItem>) {
+        if (codeItems.isEmpty()) return
+        cancelCodeSearch()
+        isReplacing = true
+
+        try {
+            val groupedItems = codeItems.groupBy { it.file }
+
+            withContext(Dispatchers.IO) {
+                for ((file, items) in groupedItems) {
+                    val itemsSorted = items.sortedWith(compareByDescending<CodeItem> { it.line }.thenByDescending { it.column })
+                    val firstItem = itemsSorted.first()
+                    if (firstItem.isOpen) {
+                        val tab = mainViewModel.tabs.filterIsInstance<EditorTab>().find { tab -> tab.file == file }
+                        val editor = tab?.editorState?.editor?.get()
+                        if (editor != null) {
+                            withContext(Dispatchers.Main) {
+                                for (codeItem in itemsSorted) {
+                                    val lineIndex = codeItem.line
+                                    val startCol = codeItem.column
+                                    val diff = codeItem.snippet.highlight.endIndex - codeItem.snippet.highlight.startIndex
+                                    val endCol = codeItem.column + diff
+                                    editor.text.replace(lineIndex, startCol, lineIndex, endCol, codeReplaceQuery)
+                                }
+                            }
+                        }
+                    } else {
+                        val content = file.readText() ?: continue
+                        val lines = content.lines().toMutableList()
+                        
+                        for (codeItem in itemsSorted) {
+                            val lineIndex = codeItem.line
+                            val startCol = codeItem.column
+                            val diff = codeItem.snippet.highlight.endIndex - codeItem.snippet.highlight.startIndex
+                            val endCol = codeItem.column + diff
+                            
+                            val line = lines.getOrNull(lineIndex) ?: continue
+                            val newLine = line.replaceRange(startCol, endCol, codeReplaceQuery)
+                            lines[lineIndex] = newLine
+                        }
+                        
+                        val charset = Charset.forName(Settings.encoding)
+                        val lineEnding = LineEnding.detect(content)
+                        val normalizedContent = lines.joinToString(lineEnding.char)
+                        file.writeText(normalizedContent, charset)
+                    }
+
+                    syncIndex(file)
+                }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            logError(e, "Error replacing all text")
+        } finally {
+            isReplacing = false
+        }
+    }
+
     fun isIndexing(projectRoot: FileObject): Boolean {
         return isIndexing[projectRoot] ?: false
     }
