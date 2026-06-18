@@ -334,7 +334,9 @@ class Terminal : AppCompatActivity() {
                 }
                 
                 val responseCode = connection.responseCode
-                if (responseCode !in 200..299) {
+                if (responseCode == java.net.HttpURLConnection.HTTP_NOT_FOUND) {
+                    throw java.io.IOException("Bootstrap zip for your CPU architecture ($arch) is not supported or published")
+                } else if (responseCode !in 200..299) {
                     throw java.io.IOException("Server returned HTTP response code: $responseCode for URL: $urlString")
                 }
                 
