@@ -376,7 +376,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
 
                 val abis = listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
                 val arch = Build.SUPPORTED_ABIS.firstOrNull { abis.contains(it) } ?: "arm64-v8a"
-                var urlString = "https://github.com/Xed-Editor/Xed-Editor/releases/download/v3.2.9/bootstrap-$arch.zip"
+                var urlString = "https://github.com/Xed-Editor/Xed-Editor/releases/download/bootstrap/bootstrap-$arch.zip"
                 
                 var connection: java.net.HttpURLConnection
                 var redirectCount = 0
