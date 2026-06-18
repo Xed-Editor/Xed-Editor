@@ -348,9 +348,16 @@ fun getGitColor(changeType: ChangeType): Color =
 
 suspend fun findGitRoot(path: String): String? =
     withContext(Dispatchers.IO) {
-        val startDir = File(path).let { if (it.isDirectory) it else it.parentFile }
-        val repo = FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()
-        repo?.workTree?.canonicalPath
+        runCatching {
+            val startDir = File(path).let { if (it.isDirectory) it else it.parentFile }
+            FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()?.use { repo ->
+                if (!repo.isBare) {
+                    repo.workTree?.canonicalPath
+                } else {
+                    null
+                }
+            }
+        }.getOrNull()
     }
 
 fun hasBinaryChars(text: String): Boolean {
