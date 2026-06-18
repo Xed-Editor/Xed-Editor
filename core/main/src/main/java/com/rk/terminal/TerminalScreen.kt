@@ -90,6 +90,7 @@ import com.rk.theme.ThemeHolder
 import com.rk.utils.dpToPx
 import com.rk.utils.toast
 import com.termux.terminal.TerminalColors
+import com.termux.terminal.TerminalSession
 import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
 import kotlinx.coroutines.launch
@@ -157,7 +158,33 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, controller: TerminalCo
                     }
                 ) { paddingValues ->
                     Column(modifier = Modifier.padding(paddingValues)) {
-                        TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, controller)
+                        val session =
+                            if (pendingCommand != null) {
+                                val session = controller.createSession(pendingCommand!!.id)
+                                controller.changeSession(pendingCommand!!.id)
+                                session
+                            } else {
+                                val currentId = controller.currentSessionId ?: "main"
+                                controller.createSession(currentId)
+                            }
+
+                        TerminalView(
+                            modifier = Modifier.fillMaxWidth().weight(1f),
+                            session = session,
+                            virtualKeysViewRef = controller.virtualKeysViewRef,
+                            onEnterKeyOnFinishedSession = { finishedSession ->
+                                val currentId = controller.currentSessionId
+                                if (currentId != null) {
+                                    controller.terminateSession(currentId)
+                                    if (controller.sessionIds.isNotEmpty()) {
+                                        controller.changeSession(controller.sessionIds.first())
+                                    }
+                                }
+                            },
+                            onViewInitialized = { view ->
+                                controller.terminalViewRef = WeakReference(view)
+                            }
+                        )
 
                         val pagerState = rememberPagerState(pageCount = { 2 })
                         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(75.dp)) { page ->
@@ -239,16 +266,21 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, controller: TerminalCo
 }
 
 @Composable
-private fun ColumnScope.TerminalView(
-    isDarkMode: Boolean,
-    currentTheme: ThemeHolder,
-    surfaceColor: Int,
-    onSurfaceColor: Int,
-    controller: TerminalController,
+fun TerminalView(
+    modifier: Modifier = Modifier,
+    session: TerminalSession,
+    virtualKeysViewRef: WeakReference<VirtualKeysView?> = WeakReference(null),
+    onEnterKeyOnFinishedSession: ((TerminalSession) -> Unit)? = null,
+    onViewInitialized: ((com.termux.view.TerminalView) -> Unit)? = null,
 ) {
+    val isDarkMode = isSystemInDarkTheme()
+    val currentTheme = LocalThemeHolder.current
+    val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
+
     AndroidView(
         factory = { context ->
-            TerminalView(context, null).apply {
+            com.termux.view.TerminalView(context, null).apply {
                 val terminalColors =
                     if (isDarkMode) {
                         currentTheme.darkTerminalColors
@@ -261,19 +293,13 @@ private fun ColumnScope.TerminalView(
                     terminalColors = terminalColors,
                 )
 
-                controller.terminalViewRef = WeakReference(this)
+                onViewInitialized?.invoke(this)
                 setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                val client = TerminalBackEnd(controller)
-
-                val session =
-                    if (pendingCommand != null) {
-                        val session = controller.createSession(pendingCommand!!.id)
-                        controller.changeSession(pendingCommand!!.id)
-                        session
-                    } else {
-                        val currentId = controller.currentSessionId ?: "main"
-                        controller.createSession(currentId)
-                    }
+                val client = TerminalBackEnd(
+                    terminalViewRef = WeakReference(this),
+                    virtualKeysViewRef = virtualKeysViewRef,
+                    onEnterKeyOnFinishedSession = onEnterKeyOnFinishedSession,
+                )
 
                 session.updateTerminalSessionClient(client)
                 attachSession(session)
@@ -296,12 +322,12 @@ private fun ColumnScope.TerminalView(
                     setTypeface(font)
                 }
 
-                addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+                addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
                     val widthChanged = (right - left) != (oldRight - oldLeft)
                     val heightChanged = (bottom - top) != (oldBottom - oldTop)
 
                     if (widthChanged || heightChanged) {
-                        val terminalColors =
+                        val colors =
                             if (isDarkMode) {
                                 currentTheme.darkTerminalColors
                             } else {
@@ -310,7 +336,7 @@ private fun ColumnScope.TerminalView(
                         this@apply.applyTerminalColors(
                             surfaceColor = surfaceColor,
                             onSurfaceColor = onSurfaceColor,
-                            terminalColors = terminalColors,
+                            terminalColors = colors,
                         )
                     }
                 }
@@ -322,7 +348,7 @@ private fun ColumnScope.TerminalView(
                 }
             }
         },
-        modifier = Modifier.fillMaxWidth().weight(1f),
+        modifier = modifier,
         update = { terminalView ->
             val terminalColors =
                 if (isDarkMode) {
@@ -336,6 +362,21 @@ private fun ColumnScope.TerminalView(
                 onSurfaceColor = onSurfaceColor,
                 terminalColors = terminalColors,
             )
+
+            if (terminalView.mTermSession != session) {
+                val client = TerminalBackEnd(
+                    terminalViewRef = WeakReference(terminalView),
+                    virtualKeysViewRef = virtualKeysViewRef,
+                    onEnterKeyOnFinishedSession = onEnterKeyOnFinishedSession,
+                )
+                session.updateTerminalSessionClient(client)
+                terminalView.attachSession(session)
+                terminalView.setTerminalViewClient(client)
+                
+                virtualKeysViewRef.get()?.apply {
+                    virtualKeysViewClient = com.rk.terminal.virtualkeys.VirtualKeysListener(session)
+                }
+            }
         },
     )
 }

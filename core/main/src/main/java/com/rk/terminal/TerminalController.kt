@@ -42,12 +42,28 @@ class InMemoryTerminalController(private val context: Context) : TerminalControl
     override var terminalViewRef = WeakReference<TerminalView?>(null)
     override var virtualKeysViewRef = WeakReference<VirtualKeysView?>(null)
 
+    private fun createTerminalBackEnd(): TerminalBackEnd {
+        return TerminalBackEnd(
+            terminalViewRef = terminalViewRef,
+            virtualKeysViewRef = virtualKeysViewRef,
+            onEnterKeyOnFinishedSession = { finishedSession ->
+                val currentId = currentSessionId
+                if (currentId != null) {
+                    terminateSession(currentId)
+                    if (sessionIds.isNotEmpty()) {
+                        changeSession(sessionIds.first())
+                    }
+                }
+            }
+        )
+    }
+
     override fun createSession(sessionId: String): TerminalSession {
         val existing = sessionsMap[sessionId]
         if (existing != null) {
             return existing
         }
-        val client = TerminalBackEnd(this)
+        val client = createTerminalBackEnd()
         val session = MkSession.createSession(context, client, sessionId).first
         sessionsMap[sessionId] = session
         sessionListState.add(sessionId)
@@ -70,7 +86,7 @@ class InMemoryTerminalController(private val context: Context) : TerminalControl
 
     override fun changeSession(sessionId: String) {
         val terminalView = terminalViewRef.get() ?: return
-        val client = TerminalBackEnd(this)
+        val client = createTerminalBackEnd()
         val session = sessionsMap[sessionId] ?: createSession(sessionId)
 
         session.updateTerminalSessionClient(client)

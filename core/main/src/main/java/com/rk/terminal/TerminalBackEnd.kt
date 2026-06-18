@@ -14,13 +14,17 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(val controller: TerminalController) : TerminalViewClient, TerminalSessionClient {
+class TerminalBackEnd(
+    private val terminalViewRef: java.lang.ref.WeakReference<com.termux.view.TerminalView?>,
+    private val virtualKeysViewRef: java.lang.ref.WeakReference<com.rk.terminal.virtualkeys.VirtualKeysView?> = java.lang.ref.WeakReference(null),
+    private val onEnterKeyOnFinishedSession: ((TerminalSession) -> Unit)? = null,
+) : TerminalViewClient, TerminalSessionClient {
 
     private val terminalView: java.lang.ref.WeakReference<com.termux.view.TerminalView?>
-        get() = controller.terminalViewRef
+        get() = terminalViewRef
 
     private val virtualKeysView: java.lang.ref.WeakReference<com.rk.terminal.virtualkeys.VirtualKeysView?>
-        get() = controller.virtualKeysViewRef
+        get() = virtualKeysViewRef
     override fun onTextChanged(changedSession: TerminalSession) {
         terminalView.get()?.onScreenUpdated()
     }
@@ -120,11 +124,7 @@ class TerminalBackEnd(val controller: TerminalController) : TerminalViewClient, 
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            val currentSessionId = controller.currentSessionId ?: return false
-            controller.terminateSession(currentSessionId)
-            if (controller.sessionIds.isNotEmpty()) {
-                controller.changeSession(controller.sessionIds.first())
-            }
+            onEnterKeyOnFinishedSession?.invoke(session)
             return true
         }
         return false

@@ -81,13 +81,29 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
     override val currentSession: com.termux.terminal.TerminalSession?
         get() = currentSessionId?.let { sessionBinder?.get()?.getSession(it) }
 
+    private fun createTerminalBackEnd(): com.rk.terminal.TerminalBackEnd {
+        return com.rk.terminal.TerminalBackEnd(
+            terminalViewRef = terminalViewRef,
+            virtualKeysViewRef = virtualKeysViewRef,
+            onEnterKeyOnFinishedSession = { finishedSession ->
+                val currentId = currentSessionId
+                if (currentId != null) {
+                    terminateSession(currentId)
+                    if (sessionIds.isNotEmpty()) {
+                        changeSession(sessionIds.first())
+                    }
+                }
+            }
+        )
+    }
+
     override fun createSession(sessionId: String): com.termux.terminal.TerminalSession {
         val binder = sessionBinder?.get() ?: throw IllegalStateException("Service not bound")
         val existing = binder.getSession(sessionId)
         if (existing != null) {
             return existing
         }
-        val client = com.rk.terminal.TerminalBackEnd(this)
+        val client = createTerminalBackEnd()
         return binder.createSession(sessionId, client, this).session
     }
 
@@ -100,7 +116,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
         val terminalView = terminalViewRef.get() ?: return
         val binder = sessionBinder?.get() ?: return
 
-        val client = com.rk.terminal.TerminalBackEnd(this)
+        val client = createTerminalBackEnd()
         val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this).session
 
         session.updateTerminalSessionClient(client)
@@ -166,7 +182,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
         val sessionId = File(pwd).name
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val client = TerminalBackEnd(this@Terminal)
+            val client = createTerminalBackEnd()
             val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)
 
             this@Terminal.changeSession(info.id)
