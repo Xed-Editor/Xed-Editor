@@ -50,6 +50,9 @@ import com.rk.resources.strings
 import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
+import com.rk.settings.terminal.SettingsTerminalScreen
+import com.rk.settings.terminal.TerminalExtraKeys
+import com.rk.settings.terminal.TerminalCheckScreen
 
 
 import com.rk.theme.XedTheme
@@ -80,8 +83,8 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
     override val currentSession: com.termux.terminal.TerminalSession?
         get() = currentSessionId?.let { sessionBinder?.get()?.getSession(it) }
 
-    private fun createTerminalBackEnd(): com.rk.terminal.TerminalBackEnd {
-        return com.rk.terminal.TerminalBackEnd(
+    private fun createTerminalBackEnd(): TerminalBackEnd {
+        return TerminalBackEnd(
             terminalViewRef = terminalViewRef,
             virtualKeysViewRef = virtualKeysViewRef,
             onEnterKeyOnFinishedSession = { finishedSession ->
@@ -249,7 +252,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
         super.onDestroy()
     }
 
-    var progressText by mutableStateOf(strings.installing.getString())
+    var progressText by mutableStateOf(strings.downloading.getString())
     var isSetupComplete by mutableStateOf(false)
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -281,7 +284,7 @@ class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
                                 val downloadedMB = formatBytesToMB(downloaded)
                                 val totalMB = formatBytesToMB(total)
                                 progressText =
-                                    "${strings.installing.getString()} ($downloadedMB/$totalMB MB)"
+                                    "${strings.downloading.getString()} ($downloadedMB/$totalMB MB)"
                             }
                         },
                         onComplete = { isSetupComplete = true },

@@ -2,6 +2,7 @@ package com.rk.filetree
 
 import android.content.Context
 import android.content.Intent
+import com.rk.activities.terminal.TerminalNavigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
@@ -10,7 +11,6 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
-import com.rk.activities.terminal.Terminal
 import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
@@ -114,9 +114,7 @@ object TerminalAction : FileAction() {
         val context = context.context
 
         showTerminalNotice(activity = MainActivity.instance!!) {
-            val intent = Intent(context, Terminal::class.java)
-            intent.putExtra("cwd", file.getAbsolutePath())
-            context.startActivity(intent)
+            TerminalNavigation.startTerminal(context, cwd = file.getAbsolutePath())
         }
     }
 

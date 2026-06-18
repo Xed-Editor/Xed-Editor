@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.rk.terminal">
+
+    <application>
+        <provider
+            android:name="com.rk.terminal.TerminalInitializerProvider"
+            android:authorities="${applicationId}.terminalinitializerprovider"
+            android:exported="false"
+            android:initOrder="100" />
+    </application>
+</manifest>

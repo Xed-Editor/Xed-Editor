@@ -16,7 +16,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
-import com.rk.terminal.setupAssetFile
+import com.rk.exec.setupAssetFile
 import com.rk.utils.dialogRes
 import kotlinx.coroutines.launch
 

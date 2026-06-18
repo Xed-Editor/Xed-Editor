@@ -2,7 +2,6 @@ package com.rk.commands.global
 
 import android.content.Intent
 import android.view.KeyEvent
-import com.rk.activities.terminal.Terminal
 import com.rk.commands.ActionContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
@@ -12,6 +11,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.showTerminalNotice
+import com.rk.activities.terminal.TerminalNavigation
 
 class TerminalCommand : GlobalCommand() {
     override val id: String = "global.terminal"
@@ -21,26 +21,7 @@ class TerminalCommand : GlobalCommand() {
     override fun action(actionContext: ActionContext) {
         val activity = actionContext.currentActivity
         showTerminalNotice(activity) {
-            val intent =
-                Intent(activity, Terminal::class.java).apply {
-                    commandContext.mainViewModel.currentTab?.file?.let { currentFile ->
-                        //                                //                                val currentFile =
-                        // viewModel.currentTab?.file ?:
-                        //                                // return@apply
-                        //                                //                                val currentPath =
-                        // currentFile.getAbsolutePath()
-                        //                                //                                val project =
-                        //                                //                                    tabs
-                        //                                //                                        .filter {
-                        //                                // currentPath.startsWith(it.fileObject.getAbsolutePath()) }
-                        //                                //                                        .maxByOrNull {
-                        //                                // it.fileObject.getAbsolutePath().length } ?: return@apply
-                        //                                //                                putExtra("cwd",
-
-                        // TODO: Fix this
-                    }
-                }
-            activity.startActivity(intent)
+            TerminalNavigation.startTerminal(activity)
         }
     }
 

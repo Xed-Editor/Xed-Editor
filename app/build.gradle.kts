@@ -115,4 +115,5 @@ dependencies {
 
     baselineProfile(project(":baselineprofile"))
     implementation(project(":core:main"))
+    implementation(project(":core:terminal"))
 }

@@ -13,7 +13,6 @@ import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_DRAWER
 import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_SEARCH
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
-import com.rk.settings.terminal.DEFAULT_TERMINAL_EXTRA_KEYS
 import com.rk.theme.blueberry
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
@@ -407,3 +406,31 @@ class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWritePrope
         state = value
     }
 }
+
+const val DEFAULT_TERMINAL_EXTRA_KEYS =
+    ("[" +
+        "\n  [" +
+        "\n    \"ESC\"," +
+        "\n    {" +
+        "\n      \"key\": \"/\"," +
+        "\n      \"popup\": \"\\\\\"" +
+        "\n    }," +
+        "\n    {" +
+        "\n      \"key\": \"-\"," +
+        "\n      \"popup\": \"|\"" +
+        "\n    }," +
+        "\n    \"HOME\"," +
+        "\n    \"UP\"," +
+        "\n    \"END\"," +
+        "\n    \"PGUP\"" +
+        "\n  ]," +
+        "\n  [" +
+        "\n    \"TAB\"," +
+        "\n    \"CTRL\"," +
+        "\n    \"ALT\"," +
+        "\n    \"LEFT\"," +
+        "\n    \"DOWN\"," +
+        "\n    \"RIGHT\"," +
+        "\n    \"PGDN\"" +
+        "\n  ]" +
+        "\n]")

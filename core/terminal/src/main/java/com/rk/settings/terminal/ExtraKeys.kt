@@ -33,6 +33,7 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.settings.DEFAULT_TERMINAL_EXTRA_KEYS
 import com.rk.tabs.editor.EditorNotice
 import com.rk.utils.isSystemInDarkTheme
 import com.rk.utils.openUrl
@@ -40,33 +41,7 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
 
-const val DEFAULT_TERMINAL_EXTRA_KEYS =
-    ("[" +
-        "\n  [" +
-        "\n    \"ESC\"," +
-        "\n    {" +
-        "\n      \"key\": \"/\"," +
-        "\n      \"popup\": \"\\\\\"" +
-        "\n    }," +
-        "\n    {" +
-        "\n      \"key\": \"-\"," +
-        "\n      \"popup\": \"|\"" +
-        "\n    }," +
-        "\n    \"HOME\"," +
-        "\n    \"UP\"," +
-        "\n    \"END\"," +
-        "\n    \"PGUP\"" +
-        "\n  ]," +
-        "\n  [" +
-        "\n    \"TAB\"," +
-        "\n    \"CTRL\"," +
-        "\n    \"ALT\"," +
-        "\n    \"LEFT\"," +
-        "\n    \"DOWN\"," +
-        "\n    \"RIGHT\"," +
-        "\n    \"PGDN\"" +
-        "\n  ]" +
-        "\n]")
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

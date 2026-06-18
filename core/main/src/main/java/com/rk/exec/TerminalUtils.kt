@@ -2,8 +2,9 @@ package com.rk.exec
 
 import android.app.Activity
 import android.content.Intent
-import com.rk.activities.terminal.Terminal
+import com.rk.activities.terminal.TerminalNavigation
 import com.rk.file.child
+import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
@@ -23,9 +24,21 @@ suspend fun isTerminalWorking(): Boolean =
         return@withContext process.waitFor() == 0
     }
 
+
+
 fun launchTerminal(activity: Activity, terminalCommand: TerminalCommand) {
     showTerminalNotice(activity = activity) {
         pendingCommand = terminalCommand
-        activity.startActivity(Intent(activity, Terminal::class.java))
+        TerminalNavigation.startTerminal(activity)
+    }
+}
+
+fun setupAssetFile(fileName: String) {
+    with(com.rk.file.localBinDir().child(fileName)) {
+        parentFile?.mkdir()
+        if (exists().not()) {
+            createFileIfNot()
+            writeText(com.rk.utils.application!!.assets.open("terminal/$fileName.sh").bufferedReader().use { it.readText() })
+        }
     }
 }

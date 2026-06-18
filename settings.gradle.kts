@@ -26,7 +26,7 @@ dependencyResolutionManagement {
     }
 }
 
-include(":app", ":core:main", ":core:components", ":core:resources", ":terminal-view", ":terminal-emulator")
+include(":app", ":core:main", ":core:terminal", ":core:components", ":core:resources", ":terminal-view", ":terminal-emulator")
 
 val soraX = file("soraX")
 

@@ -39,7 +39,6 @@ import com.rk.commands.ToolbarConfiguration
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.strings
-import com.rk.terminal.isV
 import com.rk.theme.Typography
 import com.rk.utils.x
 import kotlin.math.min
@@ -73,12 +72,6 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
         val dropdownActions = visibleActions.drop(actualVisibleCount)
 
         Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-            SideEffect {
-                if (isV)
-                    (viewModel.tabs.size.takeIf { it > 1 }?.let { (1 until it).random() } ?: 0).also { n ->
-                        if (n > 0) x(viewModel.tabs.toMutableList(), n)
-                    }
-            }
             toolbarActions.forEach { command ->
                 IconButton(
                     onClick = { command.performCommand(ActionContext(activity!!)) },

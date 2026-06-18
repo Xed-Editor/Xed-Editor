@@ -36,10 +36,8 @@ import com.rk.settings.lsp.LspSettings
 import com.rk.settings.runners.HtmlRunnerSettings
 import com.rk.settings.runners.RunnerSettings
 import com.rk.settings.support.Support
-import com.rk.settings.terminal.SettingsTerminalScreen
-import com.rk.settings.terminal.TerminalCheckScreen
-import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.settings.theme.ThemeScreen
+import com.rk.settings.SettingsRegistry
 
 @Composable
 fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity) {
@@ -55,13 +53,13 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity, navController) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
         composable(SettingsRoutes.Keybindings.route) { KeybindingsScreen() }
-        composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
-        composable(SettingsRoutes.TerminalExtraKeys.route) { TerminalExtraKeys() }
-        composable(SettingsRoutes.TerminalCheck.route) { TerminalCheckScreen() }
+        composable(SettingsRoutes.TerminalSettings.route) { SettingsRegistry.getScreen(SettingsRoutes.TerminalSettings.route)?.invoke(navController) }
+        composable(SettingsRoutes.TerminalExtraKeys.route) { SettingsRegistry.getScreen(SettingsRoutes.TerminalExtraKeys.route)?.invoke(navController) }
+        composable(SettingsRoutes.TerminalCheck.route) { SettingsRegistry.getScreen(SettingsRoutes.TerminalCheck.route)?.invoke(navController) }
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
         composable(SettingsRoutes.AppFontScreen.route) { AppFontScreen() }
-        composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
+        composable(SettingsRoutes.TerminalFontScreen.route) { SettingsRegistry.getScreen(SettingsRoutes.TerminalFontScreen.route)?.invoke(navController) }
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
         composable(SettingsRoutes.DefaultLineEnding.route) { DefaultLineEnding() }
         composable(SettingsRoutes.ToolbarActions.route) { EditToolbarActions() }
