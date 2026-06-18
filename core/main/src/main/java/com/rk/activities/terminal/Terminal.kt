@@ -51,7 +51,7 @@ import com.rk.terminal.NEXT_STAGE
 import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
-import com.rk.terminal.changeSession
+
 
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
@@ -63,11 +63,61 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class Terminal : AppCompatActivity() {
+class Terminal : AppCompatActivity(), com.rk.terminal.TerminalController {
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
     var isBound = false
-    var terminalViewRef = WeakReference<com.termux.view.TerminalView?>(null)
-    var virtualKeysViewRef = WeakReference<com.rk.terminal.virtualkeys.VirtualKeysView?>(null)
+    override var terminalViewRef = WeakReference<com.termux.view.TerminalView?>(null)
+    override var virtualKeysViewRef = WeakReference<com.rk.terminal.virtualkeys.VirtualKeysView?>(null)
+
+    override val sessions: List<com.termux.terminal.TerminalSession>
+        get() = sessionBinder?.get()?.getService()?.sessionList?.mapNotNull { sessionBinder?.get()?.getSession(it) } ?: emptyList()
+
+    override val sessionIds: List<String>
+        get() = sessionBinder?.get()?.getService()?.sessionList ?: emptyList()
+
+    override val currentSessionId: String?
+        get() = sessionBinder?.get()?.getService()?.currentSession?.value
+
+    override val currentSession: com.termux.terminal.TerminalSession?
+        get() = currentSessionId?.let { sessionBinder?.get()?.getSession(it) }
+
+    override fun createSession(sessionId: String): com.termux.terminal.TerminalSession {
+        val binder = sessionBinder?.get() ?: throw IllegalStateException("Service not bound")
+        val existing = binder.getSession(sessionId)
+        if (existing != null) {
+            return existing
+        }
+        val client = com.rk.terminal.TerminalBackEnd(this)
+        return binder.createSession(sessionId, client, this).session
+    }
+
+    override fun terminateSession(sessionId: String) {
+        val binder = sessionBinder?.get() ?: return
+        binder.terminateSession(sessionId)
+    }
+
+    override fun changeSession(sessionId: String) {
+        val terminalView = terminalViewRef.get() ?: return
+        val binder = sessionBinder?.get() ?: return
+
+        val client = com.rk.terminal.TerminalBackEnd(this)
+        val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this).session
+
+        session.updateTerminalSessionClient(client)
+        terminalView.attachSession(session)
+        terminalView.setTerminalViewClient(client)
+
+        terminalView.apply {
+            post {
+                keepScreenOn = true
+                isFocusableInTouchMode = true
+                requestFocus()
+            }
+        }
+        virtualKeysViewRef.get()?.apply { virtualKeysViewClient = com.rk.terminal.virtualkeys.VirtualKeysListener(terminalView.mTermSession) }
+
+        binder.getService().currentSession.value = sessionId
+    }
 
     val serviceConnection =
         object : ServiceConnection {
@@ -281,7 +331,10 @@ class Terminal : AppCompatActivity() {
                     }
                 }
             } else {
-                TerminalScreen(terminalActivity = this@Terminal)
+                TerminalScreen(
+                    controller = this@Terminal,
+                    onExit = { finish() }
+                )
             }
         }
     }

@@ -5,7 +5,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
-import com.rk.activities.terminal.Terminal
+
 import com.rk.settings.Settings
 import com.rk.settings.terminal.TerminalCursorStyle
 import com.rk.terminal.virtualkeys.SpecialButton
@@ -14,14 +14,13 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(activity: Terminal) : TerminalViewClient, TerminalSessionClient {
-    private val activityRef = java.lang.ref.WeakReference(activity)
+class TerminalBackEnd(val controller: TerminalController) : TerminalViewClient, TerminalSessionClient {
 
     private val terminalView: java.lang.ref.WeakReference<com.termux.view.TerminalView?>
-        get() = activityRef.get()?.terminalViewRef ?: java.lang.ref.WeakReference(null)
+        get() = controller.terminalViewRef
 
     private val virtualKeysView: java.lang.ref.WeakReference<com.rk.terminal.virtualkeys.VirtualKeysView?>
-        get() = activityRef.get()?.virtualKeysViewRef ?: java.lang.ref.WeakReference(null)
+        get() = controller.virtualKeysViewRef
     override fun onTextChanged(changedSession: TerminalSession) {
         terminalView.get()?.onScreenUpdated()
     }
@@ -121,13 +120,10 @@ class TerminalBackEnd(activity: Terminal) : TerminalViewClient, TerminalSessionC
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            val activity = Terminal.instance ?: return false
-            val sessionBinder = activity.sessionBinder?.get() ?: return false
-            sessionBinder.terminateSession(sessionBinder.getService().currentSession.value)
-            if (sessionBinder.getService().sessionList.isEmpty()) {
-                activity.finish()
-            } else {
-                activity.changeSession(sessionBinder.getService().sessionList.first())
+            val currentSessionId = controller.currentSessionId ?: return false
+            controller.terminateSession(currentSessionId)
+            if (controller.sessionIds.isNotEmpty()) {
+                controller.changeSession(controller.sessionIds.first())
             }
             return true
         }

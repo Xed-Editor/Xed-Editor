@@ -67,7 +67,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rk.activities.settings.SettingsRoutes
-import com.rk.activities.terminal.Terminal
+
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.editor.FontCache
 import com.rk.exec.pendingCommand
@@ -99,7 +99,7 @@ import java.util.Properties
 
 
 @Composable
-fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
+fun TerminalScreen(modifier: Modifier = Modifier, controller: TerminalController, onExit: (() -> Unit)? = null) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -110,7 +110,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
         popExitTransition = { NavigationAnimationTransitions.popExitTransition },
     ) {
         composable("terminal") {
-            TerminalScreenInternal(terminalActivity = terminalActivity, navController = navController)
+            TerminalScreenInternal(controller = controller, onExit = onExit, navController = navController)
         }
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen(navController) }
         composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
@@ -121,7 +121,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Terminal, navController: NavController) {
+fun TerminalScreenInternal(modifier: Modifier = Modifier, controller: TerminalController, onExit: (() -> Unit)? = null, navController: NavController) {
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
     val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
     val isDarkMode = isSystemInDarkTheme()
@@ -142,7 +142,7 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
         ModalNavigationDrawer(
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen,
-            drawerContent = { TerminalDrawer(drawerWidth, terminalActivity, navController) },
+            drawerContent = { TerminalDrawer(drawerWidth, controller, onExit, navController) },
             content = {
                 Scaffold(
                     topBar = {
@@ -157,19 +157,19 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
                     }
                 ) { paddingValues ->
                     Column(modifier = Modifier.padding(paddingValues)) {
-                        TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, terminalActivity)
+                        TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, controller)
 
                         val pagerState = rememberPagerState(pageCount = { 2 })
                         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(75.dp)) { page ->
                             when (page) {
                                 0 -> {
-                                    terminalActivity.terminalViewRef.get()?.requestFocus()
+                                    controller.virtualKeysViewRef.get()?.requestFocus()
                                     AndroidView(
                                         factory = { context ->
                                             VirtualKeysView(context, null).apply {
-                                                terminalActivity.virtualKeysViewRef = WeakReference(this)
+                                                controller.virtualKeysViewRef = WeakReference(this)
                                                 virtualKeysViewClient =
-                                                    terminalActivity.terminalViewRef.get()?.mTermSession?.let { VirtualKeysListener(it) }
+                                                    controller.terminalViewRef.get()?.mTermSession?.let { VirtualKeysListener(it) }
 
                                                 buttonTextColor = onSurfaceColor
 
@@ -216,10 +216,10 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
                                                             KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
                                                         val eventUp =
                                                             KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
-                                                        terminalActivity.terminalViewRef.get()?.dispatchKeyEvent(eventDown)
-                                                        terminalActivity.terminalViewRef.get()?.dispatchKeyEvent(eventUp)
+                                                        controller.terminalViewRef.get()?.dispatchKeyEvent(eventDown)
+                                                        controller.terminalViewRef.get()?.dispatchKeyEvent(eventUp)
                                                     } else {
-                                                        terminalActivity.terminalViewRef.get()?.currentSession?.write(text)
+                                                        controller.terminalViewRef.get()?.currentSession?.write(text)
                                                         text = ""
                                                     }
                                                 }
@@ -244,7 +244,7 @@ private fun ColumnScope.TerminalView(
     currentTheme: ThemeHolder,
     surfaceColor: Int,
     onSurfaceColor: Int,
-    terminalActivity: Terminal,
+    controller: TerminalController,
 ) {
     AndroidView(
         factory = { context ->
@@ -261,30 +261,18 @@ private fun ColumnScope.TerminalView(
                     terminalColors = terminalColors,
                 )
 
-                terminalActivity.terminalViewRef = WeakReference(this)
+                controller.terminalViewRef = WeakReference(this)
                 setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                val client = TerminalBackEnd(terminalActivity)
+                val client = TerminalBackEnd(controller)
 
                 val session =
                     if (pendingCommand != null) {
-                        terminalActivity.sessionBinder?.get()!!.getService().currentSession.value = pendingCommand!!.id
-                        terminalActivity.sessionBinder?.get()!!.getSession(pendingCommand!!.id)
-                            ?: terminalActivity.sessionBinder
-                                ?.get()!!
-                                .createSession(pendingCommand!!.id, client, terminalActivity)
-                                .session
+                        val session = controller.createSession(pendingCommand!!.id)
+                        controller.changeSession(pendingCommand!!.id)
+                        session
                     } else {
-                        terminalActivity.sessionBinder
-                            ?.get()!!
-                            .getSession(terminalActivity.sessionBinder?.get()!!.getService().currentSession.value)
-                            ?: terminalActivity.sessionBinder
-                                ?.get()!!
-                                .createSession(
-                                    terminalActivity.sessionBinder?.get()!!.getService().currentSession.value,
-                                    client,
-                                    terminalActivity,
-                                )
-                                .session
+                        val currentId = controller.currentSessionId ?: "main"
+                        controller.createSession(currentId)
                     }
 
                 session.updateTerminalSessionClient(client)
@@ -353,7 +341,7 @@ private fun ColumnScope.TerminalView(
 }
 
 @Composable
-private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navController: NavController) {
+private fun TerminalDrawer(drawerWidth: Dp, controller: TerminalController, onExit: (() -> Unit)?, navController: NavController) {
     ModalDrawerSheet(modifier = Modifier.width(drawerWidth)) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(
@@ -376,17 +364,10 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
 
                                 return newString
                             }
-                            terminalActivity.terminalViewRef.get()?.let {
-                                val client = TerminalBackEnd(terminalActivity)
-                                terminalActivity.sessionBinder
-                                    ?.get()!!
-                                    .createSession(
-                                        generateUniqueString(
-                                            terminalActivity.sessionBinder?.get()!!.getService().sessionList
-                                        ),
-                                        client,
-                                        terminalActivity,
-                                    )
+                            controller.terminalViewRef.get()?.let {
+                                val uniqueId = generateUniqueString(controller.sessionIds)
+                                controller.createSession(uniqueId)
+                                controller.changeSession(uniqueId)
                             }
                         }
                     ) {
@@ -402,72 +383,46 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                 }
             }
 
-            val service = terminalActivity.sessionBinder?.get()?.getService()
-            service?.sessionList?.let {
-                LazyColumn {
-                    items(it) { sessionId ->
-                        val isSelected = sessionId == service.currentSession.value
-                        NavigationDrawerItem(
-                            label = { Text(text = sessionId) },
-                            selected = isSelected,
-                            onClick = { terminalActivity.changeSession(sessionId) },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                            badge = {
-                                IconButton(
-                                    onClick = {
-                                        if (isSelected) {
-                                            val index = service.sessionList.indexOf(sessionId)
-                                            val sessionBefore = service.sessionList.getOrNull(index - 1)
-                                            val sessionAfter = service.sessionList.getOrNull(index + 1)
-                                            val neighborSession = sessionBefore ?: sessionAfter
-                                            neighborSession?.let { terminalActivity.changeSession(it) }
-                                        }
+            val sessionIds = controller.sessionIds
+            LazyColumn {
+                items(sessionIds) { sessionId ->
+                    val isSelected = sessionId == controller.currentSessionId
+                    NavigationDrawerItem(
+                        label = { Text(text = sessionId) },
+                        selected = isSelected,
+                        onClick = { controller.changeSession(sessionId) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        badge = {
+                            IconButton(
+                                onClick = {
+                                    if (isSelected) {
+                                        val index = sessionIds.indexOf(sessionId)
+                                        val sessionBefore = sessionIds.getOrNull(index - 1)
+                                        val sessionAfter = sessionIds.getOrNull(index + 1)
+                                        val neighborSession = sessionBefore ?: sessionAfter
+                                        neighborSession?.let { controller.changeSession(it) }
+                                    }
 
-                                        terminalActivity.sessionBinder?.get()?.terminateSession(sessionId)
+                                    controller.terminateSession(sessionId)
 
-                                        if (service.sessionList.isEmpty()) {
-                                            terminalActivity.finish()
-                                            service.actionExit()
-                                        }
-                                    },
-                                    modifier = Modifier.size(24.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Delete,
-                                        contentDescription = stringResource(strings.delete),
-                                        modifier = Modifier.size(20.dp),
-                                    )
-                                }
-                            },
-                        )
-                    }
+                                    if (controller.sessionIds.isEmpty()) {
+                                        onExit?.invoke()
+                                    }
+                                },
+                                modifier = Modifier.size(24.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Delete,
+                                    contentDescription = stringResource(strings.delete),
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        },
+                    )
                 }
             }
         }
     }
-}
-
-fun Terminal.changeSession(sessionId: String) {
-    val terminalView = terminalViewRef.get() ?: return
-    val binder = sessionBinder!!.get()!!
-
-    val client = TerminalBackEnd(this)
-    val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this).session
-
-    session.updateTerminalSessionClient(client)
-    terminalView.attachSession(session)
-    terminalView.setTerminalViewClient(client)
-
-    terminalView.apply {
-        post {
-            keepScreenOn = true
-            isFocusableInTouchMode = true
-            requestFocus()
-        }
-    }
-    virtualKeysViewRef.get()?.apply { virtualKeysViewClient = VirtualKeysListener(terminalView.mTermSession) }
-
-    binder.getService().currentSession.value = sessionId
 }
 
 private fun TerminalView.applyTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {
