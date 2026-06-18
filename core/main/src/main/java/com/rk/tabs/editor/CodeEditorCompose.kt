@@ -322,7 +322,17 @@ private fun EditorTab.promptLspInstall(activity: Activity, server: LspServer) {
                 duration = SnackbarDuration.Short,
             )
         if (result == SnackbarResult.ActionPerformed) {
+            val ext = file.getExtension().lowercase()
+            if (ext.isNotEmpty()) {
+                Preference.setInt("lsp_install_reject_count_$ext", 0)
+            }
             server.install(activity)
+        } else if (result == SnackbarResult.Dismissed) {
+            val ext = file.getExtension().lowercase()
+            if (ext.isNotEmpty()) {
+                val rejectCount = Preference.getInt("lsp_install_reject_count_$ext", 0)
+                Preference.setInt("lsp_install_reject_count_$ext", rejectCount + 1)
+            }
         }
     }
 }
@@ -360,6 +370,10 @@ private suspend fun EditorTab.findActiveLspServers(
 
         if (!server.isInstalled(activity)) {
             logInfo("Server ${server.id} is not installed")
+            val ext = file.getExtension().lowercase()
+            if (ext.isNotEmpty() && Preference.getInt("lsp_install_reject_count_$ext", 0) >= 3) {
+                return@forEach
+            }
             promptLspInstall(activity, server)
             return@forEach
         }
