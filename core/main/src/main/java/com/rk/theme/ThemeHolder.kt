@@ -1,9 +1,11 @@
 package com.rk.theme
 
+import androidx.annotation.Keep
 import androidx.compose.material3.ColorScheme
 import com.google.gson.JsonArray
 import java.util.Properties
 
+@Keep
 data class ThemeHolder(
     val id: String,
     val name: String,

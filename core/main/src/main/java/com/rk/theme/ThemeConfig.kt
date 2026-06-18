@@ -1,5 +1,6 @@
 package com.rk.theme
 
+import androidx.annotation.Keep
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import java.io.ObjectInputStream
@@ -7,6 +8,7 @@ import java.io.ObjectOutputStream
 import java.io.Serial
 import java.io.Serializable
 
+@Keep
 data class BaseColors(
     val primary: String? = null,
     val onPrimary: String? = null,
@@ -46,6 +48,7 @@ data class BaseColors(
     val surfaceContainerHighest: String? = null,
 ) : Serializable
 
+@Keep
 data class ThemePalette(
     val baseColors: BaseColors?,
     val terminalColors: Map<String, String>? = null,
@@ -101,6 +104,7 @@ data class ThemePalette(
     }
 }
 
+@Keep
 data class ThemeConfig(
     val id: String?,
     val name: String?,
