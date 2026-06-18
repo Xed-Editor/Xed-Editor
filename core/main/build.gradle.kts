@@ -129,7 +129,7 @@ dependencies {
     implementation(project(":editor"))
     implementation(project(":editor-lsp"))
     implementation(project(":language-textmate"))
-    implementation(project(":core:proot"))
+    //implementation(project(":core:proot"))
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

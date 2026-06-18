@@ -53,4 +53,4 @@ project(":editor-lsp").projectDir = file("soraX/editor-lsp")
 project(":language-textmate").projectDir = file("soraX/language-textmate")
 
 include(":baselineprofile", ":benchmark", ":benchmark2")
-include(":core:proot")
+//include(":core:proot")
