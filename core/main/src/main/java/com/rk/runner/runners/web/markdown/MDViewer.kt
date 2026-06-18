@@ -127,12 +127,17 @@ class MDViewer : WebActivity() {
 
     private suspend fun fetchMarkdownFile(url: String): String {
         return withContext(Dispatchers.IO) {
-            val connection = URL(url).openConnection() as HttpURLConnection
             try {
-                connection.requestMethod = "GET"
-                connection.inputStream.bufferedReader().use { it.readText() }
-            } finally {
-                connection.disconnect()
+                val connection = URL(url).openConnection() as HttpURLConnection
+                try {
+                    connection.requestMethod = "GET"
+                    connection.inputStream.bufferedReader().use { it.readText() }
+                } finally {
+                    connection.disconnect()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ""
             }
         }
     }
