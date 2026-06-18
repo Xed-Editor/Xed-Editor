@@ -89,18 +89,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 )
             }
 
-            var seccomp by remember { mutableStateOf(Settings.seccomp) }
 
-            SettingsItem(
-                label = "SECCOMP",
-                default = seccomp,
-                description = stringResource(strings.seccomp_desc),
-                sideEffect = {
-                    Settings.seccomp = it
-                    seccomp = it
-                },
-                showSwitch = true,
-            )
 
             NextScreenCard(
                 label = stringResource(strings.terminal_health),

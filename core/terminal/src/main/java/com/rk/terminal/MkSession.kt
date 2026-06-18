@@ -47,12 +47,17 @@ object MkSession {
 
         val bashPath = "$prefixPath/bin/bash"
 
-        val actualShell: String = linker
+        val actualShell: String
         val actualArgs: Array<String>
 
-        if (pendingCommand == null) {
+        if (Settings.sandbox.not()) {
+            actualShell = "/system/bin/sh"
+            actualArgs = arrayOf()
+        } else if (pendingCommand == null) {
+            actualShell = linker
             actualArgs = arrayOf(linker, bashPath, "--login")
         } else {
+            actualShell = linker
             var exe = pendingCommand!!.exe
             exe = com.rk.exec.ProcessEnv.resolvePath(exe, prefixPath, homePath)
             if (!exe.startsWith("/") && !exe.startsWith(".")) {
