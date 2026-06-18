@@ -114,7 +114,15 @@ class SessionService : Service() {
         super.onCreate()
         createNotificationChannel()
         val notification = createNotification()
-        startForeground(1, notification)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                1,
+                notification,
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+            )
+        } else {
+            startForeground(1, notification)
+        }
 
         if (deamonRunning.not()) {
             GlobalScope.launch(Dispatchers.IO) { deamonRunning = true }
