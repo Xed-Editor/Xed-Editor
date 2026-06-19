@@ -291,17 +291,17 @@ fun VibeCodingPanel(
                         // Todo panel
                         AnimatedVisibility(
                             visible = hasTodos,
-                            enter = slideInVertically { -it.height } + fadeIn(),
-                            exit = slideOutVertically { -it.height } + fadeOut(),
+                            enter = slideInVertically { -it } + fadeIn(),
+                            exit = slideOutVertically { -it } + fadeOut(),
                         ) {
                             TodoPanel(
                                 todos = state.todos,
                                 completedCount = state.completedTodos,
                                 onClear = {
-                                    engine.setSessionTodos(
-                                        state.activeSessionId ?: return@AnimatedVisibility,
-                                        emptyList()
-                                    )
+                                    val sessionId = state.activeSessionId
+                                    if (sessionId != null) {
+                                        engine.setSessionTodos(sessionId, emptyList())
+                                    }
                                 },
                                 colorScheme = colorScheme,
                             )
@@ -310,8 +310,8 @@ fun VibeCodingPanel(
                         // Agent activity
                         AnimatedVisibility(
                             visible = showAgentActivity && state.agentActivities.isNotEmpty(),
-                            enter = slideInVertically { -it.height } + fadeIn(),
-                            exit = slideOutVertically { -it.height } + fadeOut(),
+                            enter = slideInVertically { -it } + fadeIn(),
+                            exit = slideOutVertically { -it } + fadeOut(),
                         ) {
                             AgentActivitySection(
                                 activities = state.agentActivities,
