@@ -28,9 +28,11 @@ import com.rk.components.StateScreen
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import io.github.rosemoe.sora.lsp.editor.text.SimpleMarkdownRenderer
+import com.rk.utils.okHttpClient
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -52,11 +54,12 @@ sealed interface MarkdownStatus {
 fun MarkdownViewer(url: String?, refreshKey: Int, onLoaded: () -> Unit, modifier: Modifier = Modifier) {
     var state by remember(url) { mutableStateOf<MarkdownStatus>(MarkdownStatus.Loading) }
     val primaryColor = MaterialTheme.colorScheme.primary
-    val client = remember { OkHttpClient() }
+    val client = remember { okHttpClient }
 
     LaunchedEffect(url, refreshKey) {
         state = MarkdownStatus.Loading
-        state = loadMarkdown(url, primaryColor.toArgb(), client)
+        val forceRefresh = refreshKey > 0
+        state = loadMarkdown(url, primaryColor.toArgb(), client, forceRefresh)
         onLoaded()
     }
     AnimatedContent(targetState = state, modifier = modifier.fillMaxWidth()) { state ->
@@ -98,7 +101,12 @@ fun MarkdownViewer(url: String?, refreshKey: Int, onLoaded: () -> Unit, modifier
     }
 }
 
-private suspend fun loadMarkdown(url: String?, primaryColor: Int, client: OkHttpClient): MarkdownStatus {
+private suspend fun loadMarkdown(
+    url: String?,
+    primaryColor: Int,
+    client: OkHttpClient,
+    forceRefresh: Boolean = false
+): MarkdownStatus {
     return withContext(Dispatchers.IO) {
         if (url == null) {
             return@withContext MarkdownStatus.Error.Empty
@@ -107,7 +115,11 @@ private suspend fun loadMarkdown(url: String?, primaryColor: Int, client: OkHttp
         runCatching {
                 val markdown =
                     if (url.startsWith("http://") || url.startsWith("https://")) {
-                        val request = Request.Builder().url(url).build()
+                        val requestBuilder = Request.Builder().url(url)
+                        if (forceRefresh) {
+                            requestBuilder.cacheControl(CacheControl.FORCE_NETWORK)
+                        }
+                        val request = requestBuilder.build()
                         client.newCall(request).execute().use { response ->
                             if (!response.isSuccessful) {
                                 return@withContext when (response.code) {

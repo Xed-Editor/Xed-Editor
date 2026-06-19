@@ -232,6 +232,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 extensionDir.deleteRecursively()
                 localExtensions.remove(extensionId)
                 context.compiledDexDir().deleteWithPackageName(extension.manifest.id)
+                disabledPrefs.edit().remove(extensionId).apply()
 
                 Result.success(Unit)
             } catch (err: Exception) {

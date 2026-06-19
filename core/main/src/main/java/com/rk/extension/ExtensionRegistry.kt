@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import com.rk.utils.okHttpClient
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -23,7 +24,7 @@ object ExtensionRegistry {
     private const val TAG = "ExtensionRegistry"
     private const val BASE_URL = "https://xed-editor.app/api/extensions"
 
-    private val client: OkHttpClient = OkHttpClient()
+    private val client: OkHttpClient = okHttpClient
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun fetchExtensions(): List<ExtensionManifest> =

@@ -35,6 +35,7 @@ import com.rk.utils.copyToClipboard
 import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.rk.utils.okHttpClient
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -117,7 +118,7 @@ fun AboutScreen() {
             val stars = remember { mutableStateOf(strings.loading.getString()) }
 
             LaunchedEffect(Unit) {
-                val client = OkHttpClient()
+                val client = okHttpClient
                 val url = "https://api.github.com/repos/Xed-Editor/Xed-Editor"
                 val request = Request.Builder().url(url).build()
 

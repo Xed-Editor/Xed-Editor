@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.rk.utils.okHttpClient
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
@@ -46,7 +47,7 @@ object UpdateChecker {
                 }
 
                 val url = "https://api.github.com/repos/Xed-Editor/Xed-Editor/commits?sha=$branch"
-                val client = OkHttpClient()
+                val client = okHttpClient
 
                 val request = Request.Builder().url(url).build()
 
