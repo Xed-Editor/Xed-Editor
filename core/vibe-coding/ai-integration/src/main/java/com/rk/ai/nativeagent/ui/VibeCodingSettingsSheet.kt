@@ -28,6 +28,7 @@ import com.rk.ai.models.Assistant
 import com.rk.ai.models.McpCommonOptions
 import com.rk.ai.models.McpServerConfig
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
+import com.rk.components.XedBottomSheet
 import com.rk.ai.persistence.settings.getCurrentAssistant
 import com.rk.ai.providers.Model
 import com.rk.ai.providers.ModelType
@@ -70,15 +71,10 @@ fun VibeCodingSettingsSheet(
             }
     }
 
-    ModalBottomSheet(
+    XedBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 16.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

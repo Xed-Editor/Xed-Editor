@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rk.ai.agent.events.SessionTodoStatus
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
+import com.rk.components.XedBottomSheet
 import com.rk.ai.nativeagent.ui.components.*
 import com.rk.ai.nativeagent.ui.panels.*
 import com.rk.ai.persistence.settings.getCurrentAssistant
@@ -88,7 +89,7 @@ fun VibeCodingPanel(
 
     // Bottom sheet panel content
     if (activePanel != ToolPanel.NONE) {
-        ModalBottomSheet(
+        XedBottomSheet(
             onDismissRequest = { activePanel = ToolPanel.NONE },
             sheetState = sheetState,
         ) {

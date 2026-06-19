@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -28,6 +30,7 @@ import com.termux.terminal.TerminalSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 @Stable
 class ToolSheetState(
@@ -150,7 +153,6 @@ fun ToolSheetContainer(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolSheetModalContainer(
     onDismissRequest: () -> Unit,
@@ -163,9 +165,6 @@ fun ToolSheetModalContainer(
     bottomBar: (@Composable () -> Unit)? = null,
     content: (@Composable () -> Unit)? = null,
 ) {
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-
     val density = LocalDensity.current
     val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
@@ -173,6 +172,7 @@ fun ToolSheetModalContainer(
     val statusBarHeightDp = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
 
     val isTablet = screenWidthDp >= 600.dp
+    val colorScheme = MaterialTheme.colorScheme
 
     val availableHeight = (screenHeightDp - imeHeightDp - statusBarHeightDp).coerceAtLeast(320.dp)
     val maxHeight = (availableHeight * if (isTablet) 0.88f else 0.94f).coerceAtLeast(320.dp)
@@ -185,24 +185,22 @@ fun ToolSheetModalContainer(
         maxHeight = maxHeight,
     )
 
-    LaunchedEffect(Unit) {
-        runCatching { sheetState.expand() }
-    }
-
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        modifier = modifier.fillMaxWidth(),
-        sheetState = sheetState,
-        sheetGesturesEnabled = false,
-        dragHandle = null,
-        containerColor = Color.Transparent,
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DesignTokens.BottomSheet.scrimColor)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onDismissRequest,
+            ),
     ) {
         ToolSheetContent(
             state = state,
             onDismissRequest = onDismissRequest,
             cwd = cwd,
             session = session,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier,
             showTerminal = showTerminal,
             isTablet = isTablet,
             headerContent = headerContent,
@@ -229,10 +227,15 @@ private fun ToolSheetContent(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
 
     val shape = if (isTablet) DesignTokens.BottomSheet.shapeTablet else DesignTokens.BottomSheet.shape
 
     var isDragging by remember { mutableStateOf(false) }
+
+    // Convert velocity threshold to density-aware value (roughly 600dp/s)
+    val velocityThresholdDp = 600f
+    val velocityThresholdPx = with(density) { velocityThresholdDp * density }
 
     Box(
         modifier = modifier
@@ -292,8 +295,8 @@ private fun ToolSheetContent(
                             val heightVelocity = -velocity
                             coroutineScope.launch {
                                 val targetPx = when {
-                                    heightVelocity > 1200f -> maxPx
-                                    heightVelocity < -1200f -> minPx
+                                    heightVelocity > velocityThresholdPx -> maxPx
+                                    heightVelocity < -velocityThresholdPx -> minPx
                                     else -> {
                                         val current = state.heightPx
                                         val distMin = (current - minPx).absoluteValue
@@ -394,6 +397,7 @@ private fun ToolSheetContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(colorScheme.surfaceContainerLow)
+                        .navigationBarsPadding(),
                 ) {
                     it()
                 }
@@ -401,5 +405,3 @@ private fun ToolSheetContent(
         }
     }
 }
-
-

@@ -25,9 +25,11 @@ fun XedBottomSheet(
         sheetState = sheetState,
         shape = DesignTokens.BottomSheet.shape,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         scrimColor = DesignTokens.BottomSheet.scrimColor,
         tonalElevation = DesignTokens.BottomSheet.elevation,
         dragHandle = dragHandle,
+        useDefaultSizing = false,
         content = content,
     )
 }
