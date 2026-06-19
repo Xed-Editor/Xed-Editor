@@ -84,7 +84,7 @@ android {
             isShrinkResources = true
             isCrunchPngs = false
 
-            val mappingFile = file("src/main/assets/mapping.txt")
+            val mappingFile = rootProject.file("mapping.txt")
             if (mappingFile.exists()) {
                 proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -119,13 +119,12 @@ android {
                 )
 
                 val copyMappingTask = project.tasks.register("copyReleaseMapping") {
-                    val destFile = project.file("src/main/assets/mapping.txt")
+                    val destFile = rootProject.file("mapping.txt")
                     inputs.file(mappingFileProvider)
                     outputs.file(destFile)
                     doLast {
                         val srcFile = mappingFileProvider.get().asFile
                         if (srcFile.exists()) {
-                            destFile.parentFile.mkdirs()
                             srcFile.copyTo(destFile, overwrite = true)
                             println("Copied R8 mapping file to: ${destFile.absolutePath}")
                         }
