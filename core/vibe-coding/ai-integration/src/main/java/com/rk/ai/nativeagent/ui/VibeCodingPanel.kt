@@ -8,13 +8,17 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -23,21 +27,32 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rk.ai.agent.events.SessionTodo
 import com.rk.ai.agent.events.SessionTodoStatus
+import com.rk.ai.nativeagent.engine.AgentActivity
+import com.rk.ai.nativeagent.engine.SessionNode
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
-import com.rk.components.XedBottomSheet
+import com.rk.ai.nativeagent.engine.VibeCodingState
 import com.rk.ai.nativeagent.ui.components.*
 import com.rk.ai.nativeagent.ui.panels.*
 import com.rk.ai.persistence.settings.getCurrentAssistant
+
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 
 enum class ToolPanel {
     NONE, COMMANDS, SKILLS, AGENTS, PERMISSIONS, INSTRUCTIONS, PLUGINS
+}
+
+private enum class InfoTab { PLAN, TOOLS, CONTEXT, CHANGES }
+
+private enum class OverflowAction {
+    SKILLS, AGENTS, RULES, PLUGINS, PERMS, CLEAR
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,13 +67,10 @@ fun VibeCodingPanel(
     var showClearDialog by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var showFiles by remember { mutableStateOf(false) }
-    var showAgentPanel by remember { mutableStateOf(false) }
-    var showSuggestionPanel by remember { mutableStateOf(false) }
-    var showExecutionGraph by remember { mutableStateOf(false) }
-    var showToolActivity by remember { mutableStateOf(false) }
-    var showContext by remember { mutableStateOf(false) }
-    var showFileChanges by remember { mutableStateOf(false) }
+    var selectedInfoTab by remember { mutableStateOf<InfoTab?>(null) }
+    var showAgentActivity by remember { mutableStateOf(false) }
     var activePanel by remember { mutableStateOf(ToolPanel.NONE) }
+    var showOverflow by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
@@ -68,30 +80,30 @@ fun VibeCodingPanel(
         } catch (_: Exception) { "/" }
     }
 
-    val dockProgress by animateDpAsState(
-        targetValue = if (state.dockOpen) 0.dp else (-200).dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow,
-        ),
-        label = "dockAnimation",
-    )
-
     val hasTodos = state.todos.isNotEmpty() && state.dockOpen
-    val todoProgress by animateDpAsState(
-        targetValue = if (hasTodos) 0.dp else (-120).dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow,
-        ),
-        label = "todoAnimation",
-    )
 
-    // Bottom sheet panel content
+    // Build list of visible info panels
+    val visibleInfoTabs = remember(selectedInfoTab) {
+        buildList {
+            add(InfoTab.PLAN)
+            add(InfoTab.TOOLS)
+            add(InfoTab.CONTEXT)
+            add(InfoTab.CHANGES)
+        }
+    }
+
+    // Current tab index into visible list
+    val currentInfoTabIndex = remember(selectedInfoTab, visibleInfoTabs) {
+        selectedInfoTab?.let { visibleInfoTabs.indexOf(it).coerceAtLeast(0) } ?: 0
+    }
+
     if (activePanel != ToolPanel.NONE) {
-        XedBottomSheet(
+        ModalBottomSheet(
             onDismissRequest = { activePanel = ToolPanel.NONE },
             sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         ) {
             when (activePanel) {
                 ToolPanel.COMMANDS -> {
@@ -214,307 +226,129 @@ fun VibeCodingPanel(
 
             Column(modifier = Modifier.fillMaxSize()) {
                 // Top toolbar
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = colorScheme.surfaceContainerLow,
-                    tonalElevation = 0.5.dp,
-                ) {
+                ToolbarSection(
+                    engine = engine,
+                    state = state,
+                    colorScheme = colorScheme,
+                    showFiles = showFiles,
+                    showHistory = showHistory,
+                    showAgentActivity = showAgentActivity,
+                    selectedInfoTab = selectedInfoTab,
+                    showOverflow = showOverflow,
+                    onToggleFiles = { showFiles = !showFiles },
+                    onToggleHistory = { showHistory = !showHistory },
+                    onToggleAgentActivity = { showAgentActivity = !showAgentActivity },
+                    onSelectInfoTab = { selectedInfoTab = if (selectedInfoTab == it) null else it },
+                    onOpenPanel = { activePanel = it },
+                    onOverflowAction = { action ->
+                        showOverflow = false
+                        when (action) {
+                            OverflowAction.SKILLS -> activePanel = ToolPanel.SKILLS
+                            OverflowAction.AGENTS -> activePanel = ToolPanel.AGENTS
+                            OverflowAction.RULES -> activePanel = ToolPanel.INSTRUCTIONS
+                            OverflowAction.PLUGINS -> activePanel = ToolPanel.PLUGINS
+                            OverflowAction.PERMS -> activePanel = ToolPanel.PERMISSIONS
+                            OverflowAction.CLEAR -> showClearDialog = true
+                        }
+                    },
+                    onToggleOverflow = { showOverflow = !showOverflow },
+                    onSettings = { showSettings = true },
+                )
+
+                // Session tabs
+                if (state.sessionTree.isNotEmpty()) {
+                    SessionTabsRow(
+                        sessionTree = state.sessionTree,
+                        activeSessionId = state.activeSessionId,
+                        isProcessing = state.isProcessing,
+                        onSwitchSession = { engine.switchToSession(it) },
+                        onNewBranch = {
+                            val parent = state.activeSessionId ?: return@SessionTabsRow
+                            engine.createBranchSession(parent)
+                        },
+                    )
+                }
+
+                // Main content area
+                Box(modifier = Modifier.weight(1f)) {
                     Column {
-                        // Main toolbar row
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                val settings by engine.settingsStore.settingsFlow.collectAsState()
-                                val modelName = remember(settings.chatModelId, settings.providers) {
-                                    val model = settings.providers.flatMap { it.models }
-                                        .firstOrNull { it.id == settings.chatModelId }
-                                    model?.displayName?.ifEmpty { model.modelId } ?: "No model"
-                                }
-
-                                Text(
-                                    text = modelName,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Medium,
-                                    color = colorScheme.primary,
-                                )
-                            }
-
-                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                ToolbarButton(
-                                    icon = Icons.Outlined.Terminal,
-                                    label = "Commands",
-                                    onClick = { activePanel = ToolPanel.COMMANDS },
-                                )
-                                ToolbarButton(
-                                    icon = Icons.Outlined.AutoAwesome,
-                                    label = "Skills",
-                                    onClick = { activePanel = ToolPanel.SKILLS },
-                                )
-                                ToolbarButton(
-                                    icon = Icons.Outlined.Psychology,
-                                    label = "Agents",
-                                    onClick = { activePanel = ToolPanel.AGENTS },
-                                )
-                                ToolbarButton(
-                                    icon = Icons.Outlined.Code,
-                                    label = "Files",
-                                    onClick = { showFiles = !showFiles },
-                                )
-                                ToolbarButton(
-                                    icon = Icons.Outlined.List,
-                                    label = "History",
-                                    onClick = { showHistory = !showHistory },
-                                )
-                                PanelToggleButton(
-                                    icon = Icons.Outlined.Checklist,
-                                    label = "Plan",
-                                    isActive = showExecutionGraph,
-                                    onClick = { showExecutionGraph = !showExecutionGraph },
-                                )
-                                PanelToggleButton(
-                                    icon = Icons.Outlined.Build,
-                                    label = "Tools",
-                                    isActive = showToolActivity,
-                                    onClick = { showToolActivity = !showToolActivity },
-                                )
-                                PanelToggleButton(
-                                    icon = Icons.Outlined.Info,
-                                    label = "Ctx",
-                                    isActive = showContext,
-                                    onClick = { showContext = !showContext },
-                                )
-                                PanelToggleButton(
-                                    icon = Icons.Outlined.Folder,
-                                    label = "Changes",
-                                    isActive = showFileChanges,
-                                    onClick = { showFileChanges = !showFileChanges },
-                                )
-                                PanelToggleButton(
-                                    icon = Icons.Outlined.Notifications,
-                                    label = "Agent",
-                                    isActive = showAgentPanel,
-                                    onClick = { showAgentPanel = !showAgentPanel },
-                                )
-                                ToolbarButton(
-                                    icon = Icons.Outlined.Description,
-                                    label = "Rules",
-                                    onClick = { activePanel = ToolPanel.INSTRUCTIONS },
-                                )
-                                ToolbarButton(
-                                    icon = Icons.Outlined.Extension,
-                                    label = "Plugins",
-                                    onClick = { activePanel = ToolPanel.PLUGINS },
-                                )
-                                ToolbarButton(
-                                    icon = Icons.Outlined.Security,
-                                    label = "Perms",
-                                    onClick = { activePanel = ToolPanel.PERMISSIONS },
-                                )
-                                ToolbarButton(
-                                    icon = Icons.Outlined.Settings,
-                                    label = "Settings",
-                                    onClick = { showSettings = true },
-                                )
-                                ToolbarButton(
-                                    icon = Icons.Outlined.Delete,
-                                    label = "Clear",
-                                    onClick = { showClearDialog = true },
-                                    enabled = state.messages.isNotEmpty(),
-                                )
-                            }
-                        }
-
-                        // Session tabs row
-                        if (state.sessionTree.isNotEmpty()) {
-                            SessionTabsRow(
-                                sessionTree = state.sessionTree,
-                                activeSessionId = state.activeSessionId,
-                                isProcessing = state.isProcessing,
-                                onSwitchSession = { engine.switchToSession(it) },
-                                onNewBranch = {
-                                    val parent = state.activeSessionId ?: return@SessionTabsRow
-                                    engine.createBranchSession(parent)
-                                },
-                            )
-                        }
-                    }
-                }
-
-                // Security alerts
-                if (state.hasSecurityAlerts) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 160.dp),
-                    ) {
-                        items(state.securityAlerts.takeLast(3)) { alert ->
-                            SecurityAlertBanner(
-                                alert = alert,
-                                onDismiss = { engine.clearSecurityAlerts() },
-                            )
-                        }
-                    }
-                }
-
-                // Todo dock (animated)
-                AnimatedVisibility(
-                    visible = hasTodos,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                ) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        color = colorScheme.surfaceContainerHigh,
-                        tonalElevation = 2.dp,
-                    ) {
-                        Column(modifier = Modifier.padding(8.dp)) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(
-                                    text = "Tasks (${state.completedTodos}/${state.todos.size})",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                                TextButton(
-                                    onClick = { engine.setSessionTodos(state.activeSessionId ?: return@TextButton, emptyList()) },
-                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                                ) {
-                                    Text("Clear", style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                            Spacer(Modifier.height(4.dp))
-                            state.todos.take(3).forEach { todo ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 2.dp),
-                                ) {
-                                    val icon = when (todo.status) {
-                                        SessionTodoStatus.COMPLETED -> Icons.Outlined.CheckCircle
-                                        SessionTodoStatus.IN_PROGRESS -> Icons.Outlined.PlayCircle
-                                        SessionTodoStatus.CANCELLED -> Icons.Outlined.Cancel
-                                        SessionTodoStatus.PENDING -> Icons.Outlined.RadioButtonUnchecked
-                                    }
-                                    Icon(
-                                        icon,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(14.dp),
-                                        tint = when (todo.status) {
-                                            SessionTodoStatus.COMPLETED -> colorScheme.primary
-                                            SessionTodoStatus.IN_PROGRESS -> colorScheme.tertiary
-                                            SessionTodoStatus.CANCELLED -> colorScheme.error
-                                            SessionTodoStatus.PENDING -> colorScheme.onSurfaceVariant
-                                        },
-                                    )
-                                    Spacer(Modifier.width(6.dp))
-                                    Text(
-                                        text = todo.description,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Agent activity panel (collapsible)
-                AnimatedVisibility(
-                    visible = showAgentPanel && state.agentActivities.isNotEmpty(),
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                ) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 200.dp)
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        items(state.agentActivities.takeLast(5)) { activity ->
-                            AgentActivityCard(
-                                activity = activity,
-                            )
-                        }
-                    }
-                }
-
-                // Agent info panels (responsive row)
-                val hasAnyPanel = showExecutionGraph || showToolActivity || showContext || showFileChanges
-                if (hasAnyPanel) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 280.dp)
-                            .padding(horizontal = 4.dp, vertical = 2.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        color = colorScheme.surfaceContainerLowest,
-                    ) {
-                        var selectedPanelIndex by remember { mutableStateOf(0) }
-                        Column {
-                            Row(
+                        // Security alerts
+                        if (state.hasSecurityAlerts) {
+                            LazyColumn(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 8.dp, vertical = 2.dp),
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    .heightIn(max = 120.dp),
                             ) {
-                                val panelTabs = listOf(
-                                    showExecutionGraph to "Plan",
-                                    showToolActivity to "Tools",
-                                    showContext to "Context",
-                                    showFileChanges to "Files",
-                                )
-                                panelTabs.forEachIndexed { index, (visible, label) ->
-                                    if (visible) {
-                                        FilterChip(
-                                            selected = selectedPanelIndex == index,
-                                            onClick = { selectedPanelIndex = index },
-                                            label = { Text(label, style = MaterialTheme.typography.labelSmall, fontSize = 10.sp) },
-                                            modifier = Modifier.height(24.dp),
-                                        )
-                                    }
+                                items(state.securityAlerts.takeLast(3)) { alert ->
+                                    SecurityAlertBanner(
+                                        alert = alert,
+                                        onDismiss = { engine.clearSecurityAlerts() },
+                                    )
                                 }
                             }
-                            when (selectedPanelIndex) {
-                                0 -> ExecutionGraphPanel(taskTree = state.taskTree, modifier = Modifier.weight(1f))
-                                1 -> ToolActivityPanel(toolExecutions = state.toolExecutions, modifier = Modifier.weight(1f))
-                                2 -> {
-                                    val contextInfo = ContextInfo(
-                                        currentGoal = engine.contextMemoryManager.conversation.getCurrentGoal(),
-                                        modifiedFiles = state.modifiedFiles,
-                                        projectIndexed = state.projectIndexed,
-                                        toolCalls = state.toolExecutions.size,
+                        }
+
+                        // Todo panel
+                        AnimatedVisibility(
+                            visible = hasTodos,
+                            enter = slideInVertically { -it.height } + fadeIn(),
+                            exit = slideOutVertically { -it.height } + fadeOut(),
+                        ) {
+                            TodoPanel(
+                                todos = state.todos,
+                                completedCount = state.completedTodos,
+                                onClear = {
+                                    engine.setSessionTodos(
+                                        state.activeSessionId ?: return@AnimatedVisibility,
+                                        emptyList()
                                     )
-                                    ContextPanel(info = contextInfo, modifier = Modifier.weight(1f))
-                                }
-                                3 -> FileChangePanel(modifiedFiles = state.modifiedFiles, currentPhase = state.currentPhase, modifier = Modifier.weight(1f))
+                                },
+                                colorScheme = colorScheme,
+                            )
+                        }
+
+                        // Agent activity
+                        AnimatedVisibility(
+                            visible = showAgentActivity && state.agentActivities.isNotEmpty(),
+                            enter = slideInVertically { -it.height } + fadeIn(),
+                            exit = slideOutVertically { -it.height } + fadeOut(),
+                        ) {
+                            AgentActivitySection(
+                                activities = state.agentActivities,
+                                colorScheme = colorScheme,
+                            )
+                        }
+
+                        // Info panels (Plan, Tools, Context, Changes)
+                        if (selectedInfoTab != null) {
+                            InfoPanelSection(
+                                selectedInfoTab = selectedInfoTab!!,
+                                visibleTabs = visibleInfoTabs,
+                                currentTabIndex = currentInfoTabIndex,
+                                state = state,
+                                engine = engine,
+                                colorScheme = colorScheme,
+                                onSelectTab = { selectedInfoTab = if (selectedInfoTab == it) null else it },
+                            )
+                        }
+
+                        // Main message list
+                        Box(modifier = Modifier.weight(1f)) {
+                            if (state.messages.isEmpty()) {
+                                EmptyState(colorScheme)
+                            } else {
+                                VibeCodingMessageList(
+                                    messages = state.messages,
+                                    isProcessing = state.isProcessing,
+                                    onApproveTool = { toolCallId -> engine.approveTool(toolCallId) },
+                                    onDenyTool = { toolCallId, reason -> engine.denyTool(toolCallId, reason) },
+                                    onAnswerTool = { toolCallId, answer -> engine.answerTool(toolCallId, answer) },
+                                    modifier = Modifier.fillMaxSize(),
+                                )
                             }
                         }
                     }
                 }
-
-                // Main message list
-                VibeCodingMessageList(
-                    messages = state.messages,
-                    isProcessing = state.isProcessing,
-                    onApproveTool = { toolCallId -> engine.approveTool(toolCallId) },
-                    onDenyTool = { toolCallId, reason -> engine.denyTool(toolCallId, reason) },
-                    onAnswerTool = { toolCallId, answer -> engine.answerTool(toolCallId, answer) },
-                    modifier = Modifier.weight(1f),
-                )
 
                 // Error banner
                 AnimatedVisibility(
@@ -619,8 +453,463 @@ fun VibeCodingPanel(
 }
 
 @Composable
+private fun ToolbarSection(
+    engine: VibeCodingEngine,
+    state: VibeCodingState,
+    colorScheme: ColorScheme,
+    showFiles: Boolean,
+    showHistory: Boolean,
+    showAgentActivity: Boolean,
+    selectedInfoTab: InfoTab?,
+    showOverflow: Boolean,
+    onToggleFiles: () -> Unit,
+    onToggleHistory: () -> Unit,
+    onToggleAgentActivity: () -> Unit,
+    onSelectInfoTab: (InfoTab) -> Unit,
+    onOpenPanel: (ToolPanel) -> Unit,
+    onOverflowAction: (OverflowAction) -> Unit,
+    onToggleOverflow: () -> Unit,
+    onSettings: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = colorScheme.surfaceContainerLow,
+        tonalElevation = 0.5.dp,
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                // Model name label
+                val settings by engine.settingsStore.settingsFlow.collectAsState()
+                val modelName = remember(settings.chatModelId, settings.providers) {
+                    val model = settings.providers.flatMap { it.models }
+                        .firstOrNull { it.id == settings.chatModelId }
+                    model?.displayName?.ifEmpty { model.modelId } ?: "No model"
+                }
+
+                Text(
+                    text = modelName,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.widthIn(max = 100.dp),
+                )
+
+                Spacer(Modifier.width(4.dp))
+
+                HorizontalDivider(
+                    modifier = Modifier.height(16.dp).width(1.dp),
+                    color = colorScheme.outlineVariant.copy(alpha = 0.3f),
+                )
+
+                Spacer(Modifier.width(4.dp))
+
+                // Primary actions
+                ToolbarChip(
+                    icon = Icons.Outlined.Terminal,
+                    label = "Commands",
+                    onClick = { onOpenPanel(ToolPanel.COMMANDS) },
+                    colorScheme = colorScheme,
+                )
+
+                ToolbarChip(
+                    icon = Icons.Outlined.Code,
+                    label = "Files",
+                    isActive = showFiles,
+                    onClick = onToggleFiles,
+                    colorScheme = colorScheme,
+                )
+
+                ToolbarChip(
+                    icon = Icons.Outlined.List,
+                    label = "History",
+                    isActive = showHistory,
+                    onClick = onToggleHistory,
+                    colorScheme = colorScheme,
+                )
+
+                // Info panel toggles
+                ToolbarToggleButton(
+                    icon = Icons.Outlined.Checklist,
+                    label = "Plan",
+                    isActive = selectedInfoTab == InfoTab.PLAN,
+                    onClick = { onSelectInfoTab(InfoTab.PLAN) },
+                    colorScheme = colorScheme,
+                )
+
+                ToolbarToggleButton(
+                    icon = Icons.Outlined.Build,
+                    label = "Tools",
+                    isActive = selectedInfoTab == InfoTab.TOOLS,
+                    onClick = { onSelectInfoTab(InfoTab.TOOLS) },
+                    colorScheme = colorScheme,
+                )
+
+                ToolbarToggleButton(
+                    icon = Icons.Outlined.Info,
+                    label = "Context",
+                    isActive = selectedInfoTab == InfoTab.CONTEXT,
+                    onClick = { onSelectInfoTab(InfoTab.CONTEXT) },
+                    colorScheme = colorScheme,
+                )
+
+                ToolbarToggleButton(
+                    icon = Icons.Outlined.Folder,
+                    label = "Changes",
+                    isActive = selectedInfoTab == InfoTab.CHANGES,
+                    onClick = { onSelectInfoTab(InfoTab.CHANGES) },
+                    colorScheme = colorScheme,
+                )
+
+                ToolbarToggleButton(
+                    icon = Icons.Outlined.Notifications,
+                    label = "Agent",
+                    isActive = showAgentActivity,
+                    onClick = onToggleAgentActivity,
+                    colorScheme = colorScheme,
+                )
+
+                Spacer(Modifier.width(4.dp))
+
+                HorizontalDivider(
+                    modifier = Modifier.height(16.dp).width(1.dp),
+                    color = colorScheme.outlineVariant.copy(alpha = 0.3f),
+                )
+
+                Spacer(Modifier.width(4.dp))
+
+                // Settings
+                IconButton(
+                    onClick = onSettings,
+                    modifier = Modifier.size(28.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.Settings,
+                        contentDescription = "Settings",
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+
+                // Overflow menu (⋮)
+                Box {
+                    IconButton(
+                        onClick = onToggleOverflow,
+                        modifier = Modifier.size(28.dp),
+                    ) {
+                        Icon(
+                            Icons.Outlined.MoreVert,
+                            contentDescription = "More",
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showOverflow,
+                        onDismissRequest = onToggleOverflow,
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Skills", style = MaterialTheme.typography.bodySmall) },
+                            onClick = { onOverflowAction(OverflowAction.SKILLS) },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.AutoAwesome, null, Modifier.size(16.dp))
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Agents", style = MaterialTheme.typography.bodySmall) },
+                            onClick = { onOverflowAction(OverflowAction.AGENTS) },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.Psychology, null, Modifier.size(16.dp))
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Rules", style = MaterialTheme.typography.bodySmall) },
+                            onClick = { onOverflowAction(OverflowAction.RULES) },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.Description, null, Modifier.size(16.dp))
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Plugins", style = MaterialTheme.typography.bodySmall) },
+                            onClick = { onOverflowAction(OverflowAction.PLUGINS) },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.Extension, null, Modifier.size(16.dp))
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Permissions", style = MaterialTheme.typography.bodySmall) },
+                            onClick = { onOverflowAction(OverflowAction.PERMS) },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.Security, null, Modifier.size(16.dp))
+                            },
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = {
+                                Text("Clear chat", color = colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                            },
+                            onClick = { onOverflowAction(OverflowAction.CLEAR) },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.Delete, null, Modifier.size(16.dp), tint = colorScheme.error)
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ToolbarChip(
+    icon: ImageVector,
+    label: String,
+    isActive: Boolean = false,
+    onClick: () -> Unit,
+    colorScheme: ColorScheme,
+) {
+    val bg = if (isActive) colorScheme.primaryContainer else colorScheme.surfaceContainerHigh
+    val content = if (isActive) colorScheme.onPrimaryContainer else colorScheme.onSurface
+
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        color = bg,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Icon(icon, contentDescription = label, modifier = Modifier.size(14.dp), tint = content)
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = content,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ToolbarToggleButton(
+    icon: ImageVector,
+    label: String,
+    isActive: Boolean,
+    onClick: () -> Unit,
+    colorScheme: ColorScheme,
+) {
+    FilledTonalIconButton(
+        onClick = onClick,
+        modifier = Modifier.size(28.dp),
+    ) {
+        Icon(
+            icon,
+            contentDescription = label,
+            modifier = Modifier.size(14.dp),
+            tint = if (isActive) colorScheme.primary else colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun TodoPanel(
+    todos: List<SessionTodo>,
+    completedCount: Int,
+    onClear: () -> Unit,
+    colorScheme: ColorScheme,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 2.dp),
+        shape = RoundedCornerShape(8.dp),
+        color = colorScheme.surfaceContainerHigh,
+        tonalElevation = 2.dp,
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = "Tasks ($completedCount/${todos.size})",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                TextButton(
+                    onClick = onClear,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                ) {
+                    Text("Clear", style = MaterialTheme.typography.labelSmall)
+                }
+            }
+            Spacer(Modifier.height(4.dp))
+            todos.take(3).forEach { todo ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                ) {
+                    val icon = when (todo.status) {
+                        SessionTodoStatus.COMPLETED -> Icons.Outlined.CheckCircle
+                        SessionTodoStatus.IN_PROGRESS -> Icons.Outlined.PlayCircle
+                        SessionTodoStatus.CANCELLED -> Icons.Outlined.Cancel
+                        SessionTodoStatus.PENDING -> Icons.Outlined.RadioButtonUnchecked
+                    }
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = when (todo.status) {
+                            SessionTodoStatus.COMPLETED -> colorScheme.primary
+                            SessionTodoStatus.IN_PROGRESS -> colorScheme.tertiary
+                            SessionTodoStatus.CANCELLED -> colorScheme.error
+                            SessionTodoStatus.PENDING -> colorScheme.onSurfaceVariant
+                        },
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = todo.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AgentActivitySection(
+    activities: List<AgentActivity>,
+    colorScheme: ColorScheme,
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = 160.dp)
+            .padding(horizontal = 8.dp, vertical = 2.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        items(activities.takeLast(5)) { activity ->
+            AgentActivityCard(activity = activity)
+        }
+    }
+}
+
+@Composable
+private fun InfoPanelSection(
+    selectedInfoTab: InfoTab,
+    visibleTabs: List<InfoTab>,
+    currentTabIndex: Int,
+    state: VibeCodingState,
+    engine: VibeCodingEngine,
+    colorScheme: ColorScheme,
+    onSelectTab: (InfoTab) -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = 260.dp)
+            .padding(horizontal = 4.dp, vertical = 2.dp),
+        shape = RoundedCornerShape(8.dp),
+        color = colorScheme.surfaceContainerLowest,
+    ) {
+        Column {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                items(visibleTabs) { tab ->
+                    val label = tab.name.lowercase().replaceFirstChar { it.uppercase() }
+                    FilterChip(
+                        selected = tab == selectedInfoTab,
+                        onClick = { onSelectTab(tab) },
+                        label = {
+                            Text(label, style = MaterialTheme.typography.labelSmall)
+                        },
+                        modifier = Modifier.height(24.dp),
+                    )
+                }
+            }
+
+            when (selectedInfoTab) {
+                InfoTab.PLAN -> ExecutionGraphPanel(
+                    taskTree = state.taskTree,
+                    modifier = Modifier.weight(1f),
+                )
+                InfoTab.TOOLS -> ToolActivityPanel(
+                    toolExecutions = state.toolExecutions,
+                    modifier = Modifier.weight(1f),
+                )
+                InfoTab.CONTEXT -> {
+                    val contextInfo = ContextInfo(
+                        currentGoal = engine.contextMemoryManager.conversation.getCurrentGoal(),
+                        modifiedFiles = state.modifiedFiles,
+                        projectIndexed = state.projectIndexed,
+                        toolCalls = state.toolExecutions.size,
+                    )
+                    ContextPanel(info = contextInfo, modifier = Modifier.weight(1f))
+                }
+                InfoTab.CHANGES -> FileChangePanel(
+                    modifiedFiles = state.modifiedFiles,
+                    currentPhase = state.currentPhase,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyState(
+    colorScheme: ColorScheme,
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                Icons.Outlined.AutoFixHigh,
+                contentDescription = null,
+                modifier = Modifier.size(40.dp),
+                tint = colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+            )
+            Text(
+                text = "VibeCoding Ready",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = "Ask a question or describe what you want to build",
+                style = MaterialTheme.typography.bodySmall,
+                color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            )
+        }
+    }
+}
+
+@Composable
 private fun SessionTabsRow(
-    sessionTree: List<com.rk.ai.nativeagent.engine.SessionNode>,
+    sessionTree: List<SessionNode>,
     activeSessionId: kotlin.uuid.Uuid?,
     isProcessing: Boolean,
     onSwitchSession: (kotlin.uuid.Uuid) -> Unit,
@@ -672,13 +961,11 @@ private fun SessionTab(
     val bg = if (isActive) MaterialTheme.colorScheme.surfaceContainerHigh
     else MaterialTheme.colorScheme.surfaceContainerLow
 
-    val maxWidth = 160.dp
-
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(6.dp),
         color = bg,
-        modifier = Modifier.widthIn(max = maxWidth),
+        modifier = Modifier.widthIn(max = 160.dp),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -700,46 +987,5 @@ private fun SessionTab(
                 overflow = TextOverflow.Ellipsis,
             )
         }
-    }
-}
-
-@Composable
-private fun ToolbarButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    onClick: () -> Unit,
-    enabled: Boolean = true,
-) {
-    FilledTonalIconButton(
-        onClick = onClick,
-        modifier = Modifier.size(28.dp),
-        enabled = enabled,
-    ) {
-        Icon(
-            icon,
-            contentDescription = label,
-            modifier = Modifier.size(14.dp),
-        )
-    }
-}
-
-@Composable
-private fun PanelToggleButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    isActive: Boolean,
-    onClick: () -> Unit,
-) {
-    FilledTonalIconButton(
-        onClick = onClick,
-        modifier = Modifier.size(28.dp),
-    ) {
-        Icon(
-            icon,
-            contentDescription = label,
-            modifier = Modifier.size(14.dp),
-            tint = if (isActive) MaterialTheme.colorScheme.primary
-                   else MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
