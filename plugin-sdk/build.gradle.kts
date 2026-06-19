@@ -12,13 +12,6 @@ tasks.named<ShadowJar>("shadowJar") {
     archiveFileName.set("sdk.jar")
     isZip64 = true
     destinationDirectory.set(file("./output"))
-    
-    val mappingFile = file("../app/build/outputs/mapping/release/mapping.txt")
-    if (mappingFile.exists()) {
-        from(mappingFile)
-    } else {
-        logger.warn("R8 mapping.txt not found at: ${mappingFile.absolutePath}. The sdk.jar will not include mapping.txt.")
-    }
 }
 
 

@@ -80,20 +80,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             isCrunchPngs = false
 
-            val mappingFile = rootProject.file("mapping.txt")
-            if (mappingFile.exists()) {
-                proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro",
-                    "proguard-rules-apply.pro"
-                )
-            } else {
-                proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            }
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
 
             signingConfig = signingConfigs.getByName("release")
         }
@@ -108,33 +99,6 @@ android {
             initWith(buildTypes.getByName("release"))
             matchingFallbacks += listOf("release")
             isDebuggable = false
-        }
-    }
-
-    androidComponents {
-        onVariants(selector().all()) { variant ->
-            if (variant.name == "release") {
-                val mappingFileProvider = variant.artifacts.get(
-                    com.android.build.api.artifact.SingleArtifact.OBFUSCATION_MAPPING_FILE
-                )
-
-                val copyMappingTask = project.tasks.register("copyReleaseMapping") {
-                    val destFile = rootProject.file("mapping.txt")
-                    inputs.file(mappingFileProvider)
-                    outputs.file(destFile)
-                    doLast {
-                        val srcFile = mappingFileProvider.get().asFile
-                        if (srcFile.exists()) {
-                            srcFile.copyTo(destFile, overwrite = true)
-                            println("Copied R8 mapping file to: ${destFile.absolutePath}")
-                        }
-                    }
-                }
-
-                project.tasks.matching { it.name == "assembleRelease" || it.name == "bundleRelease" }.configureEach {
-                    finalizedBy(copyMappingTask)
-                }
-            }
         }
     }
 }
