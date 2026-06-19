@@ -16,6 +16,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 fun LocalExtension.load(application: Application, initialInstallation: Boolean = false) = run {
+    if (isMainThread()) {
+        return@run Result.failure(
+            RuntimeException(
+                "Attempted to load extension '${manifest.name}' on the main thread. Extension loading must be performed on a background thread."
+            )
+        )
+    }
+
     val classLoader =
         try {
             classLoader(application.classLoader)
@@ -27,14 +35,6 @@ fun LocalExtension.load(application: Application, initialInstallation: Boolean =
                 )
             )
         }
-
-    if (isMainThread()) {
-        return@run Result.failure(
-            RuntimeException(
-                "Attempted to load extension '${manifest.name}' on the main thread. Extension loading must be performed on a background thread."
-            )
-        )
-    }
 
     val minAppVersion = manifest.minAppVersion
     val maxAppVersion = manifest.maxAppVersion
@@ -56,63 +56,39 @@ fun LocalExtension.load(application: Application, initialInstallation: Boolean =
     val mainClassInstance =
         try {
             classLoader.loadClass(manifest.mainClass)
-        } catch (err: Exception) {
-            return@run Result.failure(
-                RuntimeException(
-                    "Failed to load main class '${manifest.mainClass}' for extension '${manifest.name}'. Details: ${err.message}",
-                    err,
-                )
-            )
+        } catch (err: Throwable) {
+            return@run Result.failure(err)
         }
 
     if (ExtensionAPI::class.java.isAssignableFrom(mainClassInstance)) {
-        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineName("Extension: $id"))
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineName("Extension: $id"))
         val extContext = ExtensionContext(extension = this, appContext = application, scope = scope)
         val instance =
-            mainClassInstance.getDeclaredConstructor(ExtensionContext::class.java).newInstance(extContext)
-                as? ExtensionAPI
-                ?: return@run Result.failure(
-                    RuntimeException(
-                        "Failed to instantiate main class '${mainClassInstance.name}' for extension '${manifest.name}'. Ensure the class implements the ExtensionAPI interface and declares a public constructor accepting ExtensionContext."
+            try {
+                mainClassInstance.getDeclaredConstructor(ExtensionContext::class.java).newInstance(extContext)
+                    as? ExtensionAPI
+                    ?: return@run Result.failure(
+                        RuntimeException(
+                            "Failed to instantiate main class '${mainClassInstance.name}' for extension '${manifest.name}'. Ensure the class implements the ExtensionAPI interface and declares a public constructor accepting ExtensionContext."
+                        )
                     )
-                )
+            } catch (err: Throwable) {
+                val realError = if (err is java.lang.reflect.InvocationTargetException) err.cause ?: err else err
+                return@run Result.failure(realError)
+            }
 
         if (initialInstallation) {
             try {
                 instance.onInstalled()
-            } catch (err: Exception) {
-                return@run Result.failure(
-                    RuntimeException(
-                        "Failed to initialize extension '${manifest.name}': An error occurred during the installation hook. This might indicate a problem in the extension's installation logic. Details: ${err.message}",
-                        err,
-                    )
-                )
+            } catch (err: Throwable) {
+                return@run Result.failure(err)
             }
         }
 
         try {
             instance.onExtensionLoaded()
-        } catch (err: ClassNotFoundException) {
-            return@run Result.failure(
-                RuntimeException(
-                    "Failed to initialize extension '${manifest.name}': A required class was not found. This might indicate a missing dependency or an issue with the extension's packaging. Details: ${err.message}",
-                    err,
-                )
-            )
-        } catch (err: NoClassDefFoundError) {
-            return@run Result.failure(
-                RuntimeException(
-                    "Failed to initialize extension '${manifest.name}': A class definition was not found. This usually means a class was available at compile time but is missing at runtime. Check the extension's dependencies. Details: ${err.message}",
-                    err,
-                )
-            )
-        } catch (err: Exception) {
-            return@run Result.failure(
-                RuntimeException(
-                    "Failed to initialize extension '${manifest.name}': An unexpected error occurred during the onExtensionLoaded call. Details: ${err.message}",
-                    err,
-                )
-            )
+        } catch (err: Throwable) {
+            return@run Result.failure(err)
         }
 
         App.extensionManager.loadedExtensions[this] = LoadedExtension(instance, scope)
@@ -134,9 +110,15 @@ suspend fun ExtensionManager.installExtensionFromZip(fileObject: FileObject) = r
 suspend fun ExtensionManager.loadAllExtensions() =
     withContext(Dispatchers.IO) {
         for ((_, extension) in localExtensions) {
+            if (isExtensionDisabled(extension.id)) {
+                continue
+            }
             launch(Dispatchers.IO) {
-                extension.load(application!!).onFailure {
-                    errorDialog(msg = it.message ?: "Failed to load extension '${extension.name}'")
+                extension.load(application!!).onFailure { error ->
+                    setExtensionDisabled(extension.id, true)
+                    withContext(Dispatchers.Main) {
+                        com.rk.crashhandler.CrashActivity.start(application!!, extension, error)
+                    }
                 }
             }
         }

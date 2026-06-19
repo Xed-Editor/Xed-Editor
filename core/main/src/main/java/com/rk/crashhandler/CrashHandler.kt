@@ -23,10 +23,11 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
                 }
 
                 if (
-                    ex.stackTrace.toString().contains("android.view.View${"$"}BaseSavedState") ||
-                        ex.stackTrace.toString().contains("android.widget.HorizontalScrollView${"$"}SavedState")
+                    ex.stackTrace.contentToString().contains($$"android.view.View$BaseSavedState") ||
+                        ex.stackTrace.contentToString().contains($$"android.widget.HorizontalScrollView$SavedState")
                 ) {
                     Log.w("CrashHandler", "Ignoring crash")
+                    ex.printStackTrace()
                     // return@runCatching
                 }
 
@@ -58,6 +59,7 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
                 exitProcess(1)
             }
 
+        //try to keep main thread alive
         if (Looper.myLooper() != null) {
             while (true) {
                 try {

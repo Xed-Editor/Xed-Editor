@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -65,12 +66,6 @@ import com.rk.utils.openDocs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-private enum class ExtensionCategories(val drawableRes: Int, val stringRes: Int) {
-    ALL(drawables.widgets, strings.all),
-    LOCAL(drawables.sd_card, strings.local),
-    STORE(drawables.store, strings.store),
-}
-
 private enum class ExtensionSortOptions(val stringRes: Int) {
     NAME(strings.name),
     RATING(strings.rating),
@@ -96,12 +91,30 @@ fun ExtensionScreen(navController: NavController) {
     var currentFilterOption by remember { mutableStateOf(ExtensionFilterOptions.ALL) }
     val searchQuery = rememberTextFieldState("")
 
-    LaunchedEffect(Unit) {
-        launch(Dispatchers.IO) {
-            runCatching {
-                extensionManager.indexLocalExtensions()
-                extensionManager.indexStoreExtensions()
+    var isIndexing by remember { mutableStateOf(false) }
+    var isFetching by remember { mutableStateOf(false) }
+
+    LaunchedEffect(refreshKey) {
+        val shouldLoad = refreshKey > 0 ||
+                extensionManager.localExtensions.isEmpty() ||
+                extensionManager.storeExtension.isEmpty()
+
+        if (shouldLoad) {
+            isIndexing = true
+            isFetching = true
+
+            val localJob = launch(Dispatchers.IO) {
+                runCatching { extensionManager.indexLocalExtensions() }
+                isIndexing = false
             }
+            val storeJob = launch(Dispatchers.IO) {
+                runCatching { extensionManager.indexStoreExtensions() }
+                isFetching = false
+            }
+
+            localJob.join()
+            storeJob.join()
+            isRefreshing = false
         }
     }
 
@@ -110,48 +123,18 @@ fun ExtensionScreen(navController: NavController) {
             installExtensionFromUri(scope, uri, activity)
         }
 
-    var selectedCategory by remember { mutableStateOf(ExtensionCategories.ALL) }
-    val extensions by
-        remember(selectedCategory) {
-            derivedStateOf {
-                when (selectedCategory) {
-                    ExtensionCategories.ALL -> extensionManager.getSyncedExtensions()
-                    ExtensionCategories.LOCAL -> extensionManager.getLocalExtensions()
-                    ExtensionCategories.STORE -> extensionManager.getStoreExtensions()
-                }
+    val sortedExtension by remember {
+        derivedStateOf {
+            val rawList = extensionManager.getSyncedExtensions()
+            val filtered = applyFilter(searchQuery, rawList, currentFilterOption)
+            when (currentSortOption) {
+                ExtensionSortOptions.NAME -> filtered.sortedBy { it.name }
+                ExtensionSortOptions.RATING -> filtered.sortedBy { it.id } // TODO: RATING
+                ExtensionSortOptions.DATE_ADDED -> filtered.sortedBy { it.id } // TODO: DATE_ADDED
             }
         }
-    val filteredExtensions by
-        remember(searchQuery.text, extensions, currentFilterOption) {
-            derivedStateOf { applyFilter(searchQuery, extensions, currentFilterOption) }
-        }
-    val sortedExtension by
-        produceState(filteredExtensions, filteredExtensions, currentSortOption) {
-            value = applySort(currentSortOption, filteredExtensions)
-        }
-
-    var isIndexing by remember { mutableStateOf(false) }
-    var isFetching by remember { mutableStateOf(false) }
-
-    LaunchedEffect(refreshKey, selectedCategory) {
-        if (selectedCategory == ExtensionCategories.STORE) return@LaunchedEffect
-        isIndexing = true
-        extensionManager.indexLocalExtensions()
-        isIndexing = false
-        isRefreshing = false
     }
 
-    LaunchedEffect(refreshKey, selectedCategory) {
-        if (selectedCategory == ExtensionCategories.LOCAL) return@LaunchedEffect
-        runCatching {
-                isFetching = true
-                extensionManager.indexStoreExtensions()
-            }
-            .also {
-                isFetching = false
-                isRefreshing = false
-            }
-    }
 
     RefreshablePreferenceLayoutLazyColumn(
         label = stringResource(strings.ext),
@@ -189,58 +172,42 @@ fun ExtensionScreen(navController: NavController) {
             )
         }
 
-        item {
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)) {
-                ExtensionCategories.entries.forEach { category ->
-                    SegmentedButton(
-                        selected = selectedCategory == category,
-                        onClick = { selectedCategory = category },
-                        label = { Text(stringResource(category.stringRes)) },
-                        icon = { Icon(painterResource(category.drawableRes), null) },
-                        shape =
-                            SegmentedButtonDefaults.itemShape(
-                                index = category.ordinal,
-                                count = ExtensionCategories.entries.size,
-                            ),
-                    )
-                }
-            }
-        }
-
         if (sortedExtension.isNotEmpty() || isIndexing || isFetching) {
             item {
                 PreferenceGroup {
                     sortedExtension.forEach { extension ->
-                        var installState by
-                            remember(extension) {
-                                mutableStateOf(
-                                    if (extensionManager.isInstalled(extension.id)) {
-                                        if (extension is UpdatableExtension && extension.isUpdatable()) {
-                                            InstallState.Updatable
+                        key(extension.id) {
+                            var installState by
+                                remember(extension) {
+                                    mutableStateOf(
+                                        if (extensionManager.isInstalled(extension.id)) {
+                                            if (extension is UpdatableExtension && extension.isUpdatable()) {
+                                                InstallState.Updatable
+                                            } else {
+                                                InstallState.Installed
+                                            }
                                         } else {
-                                            InstallState.Installed
+                                            InstallState.Idle
                                         }
-                                    } else {
-                                        InstallState.Idle
-                                    }
-                                )
-                            }
+                                    )
+                                }
 
-                        ExtensionCard(
-                            extension = extension,
-                            installState = installState,
-                            onInstallClick = {
-                                runExtensionInstallAction(extension, { installState = it }, scope, context, activity)
-                            },
-                            onUninstallClick = {
-                                runExtensionUninstallAction(extension, { installState = it }, scope, activity)
-                            },
-                            onUpdateClick = {
-                                if (extension !is UpdatableExtension) return@ExtensionCard
-                                runExtensionUpdateAction(extension, { installState = it }, scope, context, activity)
-                            },
-                            onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
-                        )
+                            ExtensionCard(
+                                extension = extension,
+                                installState = installState,
+                                onInstallClick = {
+                                    runExtensionInstallAction(extension, { installState = it }, context, activity)
+                                },
+                                onUninstallClick = {
+                                    runExtensionUninstallAction(extension, { installState = it }, scope, activity)
+                                },
+                                onUpdateClick = {
+                                    if (extension !is UpdatableExtension) return@ExtensionCard
+                                    runExtensionUpdateAction(extension, { installState = it }, context, activity)
+                                },
+                                onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
+                            )
+                        }
                     }
                 }
             }
@@ -336,16 +303,7 @@ private fun ExtensionSearchBar(
     )
 }
 
-private suspend fun applySort(
-    currentSortOption: ExtensionSortOptions,
-    filteredExtensions: List<Extension>,
-): List<Extension> =
-    when (currentSortOption) {
-        ExtensionSortOptions.NAME -> filteredExtensions.sortedBy { it.name }
-        ExtensionSortOptions.RATING -> filteredExtensions.sortedBy { it.id } // TODO: RATING
 
-        ExtensionSortOptions.DATE_ADDED -> filteredExtensions.sortedBy { it.id } // TODO: DATE_ADDED
-    }
 
 private fun applyFilter(
     searchQuery: TextFieldState,

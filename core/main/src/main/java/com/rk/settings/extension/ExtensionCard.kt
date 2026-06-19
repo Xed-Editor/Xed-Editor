@@ -25,6 +25,9 @@ import coil.request.ImageRequest
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.extension.Extension
 import com.rk.extension.UpdatableExtension
+import androidx.compose.ui.res.stringResource
+import com.rk.App.Companion.extensionManager
+import com.rk.resources.strings
 import com.rk.resources.drawables
 import com.rk.theme.Typography
 
@@ -45,8 +48,7 @@ fun ExtensionCard(
     val minAppVersion = extension.minAppVersion
     val maxAppVersion = extension.maxAppVersion
 
-    val pm = context.packageManager
-    val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
+    val xedVersionCode = com.rk.App.versionCode
 
     val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
     val outdatedExtension = maxAppVersion != null && xedVersionCode > maxAppVersion
@@ -88,6 +90,16 @@ fun ExtensionCard(
                         text = " → v${extension.newVersion}",
                         style = Typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
+                if (extensionManager.isExtensionDisabled(extension.id)) {
+                    Text(
+                        text = " • ${stringResource(strings.disabled_crashed)}",
+                        style = Typography.labelMedium,
+                        color = MaterialTheme.colorScheme.error,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )

@@ -245,8 +245,7 @@ private fun AboutSection(
     val minAppVersion = extension.minAppVersion
     val maxAppVersion = extension.maxAppVersion
 
-    val pm = context.packageManager
-    val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
+    val xedVersionCode = com.rk.App.versionCode
 
     val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
     val outdatedExtension = maxAppVersion != null && xedVersionCode > maxAppVersion
@@ -256,11 +255,11 @@ private fun AboutSection(
         modifier = Modifier.fillMaxWidth(),
         installState = installState,
         scope = scope,
-        onInstallClick = { runExtensionInstallAction(extension, updateInstallState, scope, context, activity) },
+        onInstallClick = { runExtensionInstallAction(extension, updateInstallState, context, activity) },
         onUninstallClick = { runExtensionUninstallAction(extension, updateInstallState, scope, activity) },
         onUpdateClick = {
             if (extension !is UpdatableExtension) return@ExtensionActionButtons
-            runExtensionUpdateAction(extension, updateInstallState, scope, context, activity)
+            runExtensionUpdateAction(extension, updateInstallState, context, activity)
         },
     )
 

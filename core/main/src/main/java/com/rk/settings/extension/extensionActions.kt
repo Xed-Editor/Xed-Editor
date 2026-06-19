@@ -42,12 +42,16 @@ fun runExtensionUninstallAction(
         msg = strings.uninstall_ext_dialog_desc.getFilledString(extension.name),
         okRes = strings.uninstall,
         onOk = {
-            scope.launch(Dispatchers.Default) {
-                extensionManager.uninstallExtension(extension.id).onFailure {
-                    errorDialog(activity, it)
+            scope.launch(Dispatchers.IO) {
+                extensionManager.uninstallExtension(extension.id).onFailure { error ->
+                    withContext(Dispatchers.Main) {
+                        errorDialog(activity, error)
+                    }
                     return@launch
                 }
-                updateInstallState(InstallState.Idle)
+                withContext(Dispatchers.Main) {
+                    updateInstallState(InstallState.Idle)
+                }
             }
         },
         onCancel = {},
@@ -57,83 +61,93 @@ fun runExtensionUninstallAction(
 suspend fun runExtensionInstallAction(
     extension: Extension,
     updateInstallState: (InstallState) -> Unit,
-    scope: CoroutineScope,
     context: Context,
     activity: AppCompatActivity?,
-) {
-    updateInstallState(InstallState.Installing)
+) = withContext(Dispatchers.IO) {
+    withContext(Dispatchers.Main) {
+        updateInstallState(InstallState.Installing)
+    }
     var loading: LoadingPopup? = null
+    withContext(Dispatchers.Main) {
+        loading = LoadingPopup(activity).show()
+        loading.setMessage(strings.installing.getString())
+    }
 
-    runCatching {
-            val extension = extension as? StoreExtension ?: return
-
-            loading = LoadingPopup(activity).show()
-            loading.setMessage(strings.installing.getString())
-
-            val result =
-                extensionManager.installStoreExtension(context, extension).getOrElse {
-                    loading.hide()
-                    errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
-                    updateInstallState(InstallState.Idle)
-                    return@runCatching
-                }
-
-            handleInstallResult(result, activity, { updateInstallState(InstallState.Idle) }) { ext ->
-                updateInstallState(InstallState.Installed)
-
-                scope.launch(Dispatchers.Default) {
-                    ext.load(application!!, true).onFailure {
-                        errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
-                    }
-                }
-            }
-            loading.hide()
-        }
-        .onFailure {
+    val result = extensionManager.installStoreExtension(context, extension as StoreExtension).getOrElse {
+        withContext(Dispatchers.Main) {
             loading?.hide()
-            errorDialog(activity, it)
+            errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
             updateInstallState(InstallState.Idle)
         }
+        return@withContext
+    }
+
+    if (result is InstallResult.Success) {
+        extensionManager.setExtensionDisabled(result.extension.id, false)
+        result.extension.load(application!!, true).onFailure { error ->
+            extensionManager.setExtensionDisabled(result.extension.id, true)
+            withContext(Dispatchers.Main) {
+                activity?.let {
+                    com.rk.crashhandler.CrashActivity.start(it, result.extension, error)
+                } ?: run {
+                    errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
+                }
+            }
+        }
+    }
+
+    withContext(Dispatchers.Main) {
+        handleInstallResult(result, activity, { updateInstallState(InstallState.Idle) }) { ext ->
+            updateInstallState(InstallState.Installed)
+        }
+        loading?.hide()
+    }
 }
 
 suspend fun runExtensionUpdateAction(
     extension: UpdatableExtension,
     updateInstallState: (InstallState) -> Unit,
-    scope: CoroutineScope,
     context: Context,
     activity: AppCompatActivity?,
-) {
-    updateInstallState(InstallState.Updating)
+) = withContext(Dispatchers.IO) {
+    withContext(Dispatchers.Main) {
+        updateInstallState(InstallState.Updating)
+    }
     var loading: LoadingPopup? = null
+    withContext(Dispatchers.Main) {
+        loading = LoadingPopup(activity).show()
+        loading.setMessage(strings.updating.getString())
+    }
 
-    runCatching {
-            loading = LoadingPopup(activity).show()
-            loading.setMessage(strings.updating.getString())
+    val result = extensionManager.installStoreExtension(context, extension.store).getOrElse {
+        withContext(Dispatchers.Main) {
+            loading?.hide()
+            errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
+            updateInstallState(InstallState.Idle)
+        }
+        return@withContext
+    }
 
-            val result =
-                extensionManager.installStoreExtension(context, extension.store).getOrElse {
-                    loading.hide()
-                    errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
-                    updateInstallState(InstallState.Idle)
-                    return@runCatching
-                }
-
-            handleInstallResult(result, activity, { updateInstallState(InstallState.Idle) }) { ext ->
-                updateInstallState(InstallState.Installed)
-
-                scope.launch(Dispatchers.Default) {
-                    ext.load(application!!).onFailure {
-                        errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
-                    }
+    if (result is InstallResult.Success) {
+        extensionManager.setExtensionDisabled(result.extension.id, false)
+        result.extension.load(application!!).onFailure { error ->
+            extensionManager.setExtensionDisabled(result.extension.id, true)
+            withContext(Dispatchers.Main) {
+                activity?.let {
+                    com.rk.crashhandler.CrashActivity.start(it, result.extension, error)
+                } ?: run {
+                    errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
                 }
             }
-            loading.hide()
         }
-        .onFailure {
-            loading?.hide()
-            errorDialog(activity, it)
-            updateInstallState(InstallState.Updatable)
+    }
+
+    withContext(Dispatchers.Main) {
+        handleInstallResult(result, activity, { updateInstallState(InstallState.Idle) }) { ext ->
+            updateInstallState(InstallState.Installed)
         }
+        loading?.hide()
+    }
 }
 
 fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompatActivity?) {
@@ -141,46 +155,54 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
 
     scope.launch(Dispatchers.IO) {
         runCatching {
-                if (uri == null) return@runCatching
+            if (uri == null) return@runCatching
 
-                val fileObject = uri.toFileObject(expectedIsFile = true)
-                val exists = fileObject.exists()
-                val canRead = fileObject.canRead()
-                val isZip = fileObject.getName().endsWith(".zip")
+            val fileObject = uri.toFileObject(expectedIsFile = true)
+            val exists = fileObject.exists()
+            val canRead = fileObject.canRead()
+            val isZip = fileObject.getName().endsWith(".zip")
 
-                if (exists && canRead && isZip) {
-                    withContext(Dispatchers.Main) {
-                        loading = LoadingPopup(activity).show()
-                        loading.setMessage(strings.installing.getString())
-                    }
+            if (exists && canRead && isZip) {
+                withContext(Dispatchers.Main) {
+                    loading = LoadingPopup(activity).show()
+                    loading.setMessage(strings.installing.getString())
+                }
 
-                    val result = extensionManager.installExtensionFromZip(fileObject)
+                val result = extensionManager.installExtensionFromZip(fileObject)
 
-                    withContext(Dispatchers.Main) {
-                        handleInstallResult(result, activity) { ext ->
-                            scope.launch(Dispatchers.Default) {
-                                val initialInstallation =
-                                    (result as? InstallResult.Success)?.performedUpdate?.not() ?: true
-                                ext.load(application!!, initialInstallation).onFailure {
-                                    errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
-                                }
+                if (result is InstallResult.Success) {
+                    extensionManager.setExtensionDisabled(result.extension.id, false)
+                    val initialInstallation = !result.performedUpdate
+                    result.extension.load(application!!, initialInstallation).onFailure { error ->
+                        extensionManager.setExtensionDisabled(result.extension.id, true)
+                        withContext(Dispatchers.Main) {
+                            activity?.let {
+                                com.rk.crashhandler.CrashActivity.start(it, result.extension, error)
+                            } ?: run {
+                                errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
                             }
                         }
-
-                        loading?.hide()
                     }
-                } else {
+                }
+
+                withContext(Dispatchers.Main) {
+                    handleInstallResult(result, activity)
+                    loading?.hide()
+                }
+            } else {
+                withContext(Dispatchers.Main) {
                     errorDialog(
                         activity,
-                        msg =
-                            "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
+                        msg = "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
                     )
                 }
             }
-            .onFailure {
+        }.onFailure { error ->
+            withContext(Dispatchers.Main) {
                 loading?.hide()
-                errorDialog(activity, it)
+                errorDialog(activity, error)
             }
+        }
     }
 }
 

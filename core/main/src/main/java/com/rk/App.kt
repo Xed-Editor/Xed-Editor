@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Build
 import android.os.StrictMode
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.os.LocaleListCompat
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.activities.main.SessionManager
@@ -43,6 +44,13 @@ import kotlinx.coroutines.launch
 @OptIn(DelicateCoroutinesApi::class)
 class App : Application() {
     companion object {
+        val versionCode: Long by lazy {
+            val app = application ?: throw IllegalStateException("Application is not initialized yet")
+            PackageInfoCompat.getLongVersionCode(
+                app.packageManager.getPackageInfo(app.packageName, 0)
+            )
+        }
+
         private var _extensionManager: ExtensionManager? = null
         val extensionManager: ExtensionManager
             get() {

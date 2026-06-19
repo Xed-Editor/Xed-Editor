@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -81,6 +82,34 @@ class CrashActivity : ComponentActivity() {
             }
             return true
         }
+
+        fun start(context: Context, extension: com.rk.extension.Extension, error: Throwable) {
+            val intent = Intent(context, CrashActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                putExtra("is_extension_crash", true)
+                putExtra("extension_id", extension.id)
+                putExtra("extension_name", extension.name)
+                putExtra("extension_version", extension.version)
+                putExtra("extension_author", extension.author.toString())
+                putExtra("repository", extension.repository)
+                putExtra("thread", Thread.currentThread().name)
+                putExtra("force_crash", false)
+                putExtra("msg", error.message)
+
+                var cause = error.cause?.toString() ?: error.toString()
+                val prefix = "java.lang.Throwable:"
+                if (cause.startsWith(prefix)) {
+                    cause = cause.removePrefix(prefix)
+                }
+                putExtra("error_cause", cause)
+
+                val stringWriter = java.io.StringWriter()
+                val printWriter = java.io.PrintWriter(stringWriter)
+                error.printStackTrace(printWriter)
+                putExtra("stacktrace", stringWriter.toString())
+            }
+            context.startActivity(intent)
+        }
     }
 
     fun isMainThreadCrashed(): Boolean {
@@ -123,7 +152,11 @@ class CrashActivity : ComponentActivity() {
                                                 }
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = if (mainThreadCrashed){
+                                                        Icons.Default.Close
+                                                    }else{
+                                                        Icons.AutoMirrored.Filled.ArrowBack
+                                                    },
                                                     contentDescription = "Back",
                                                 )
                                             }
@@ -193,8 +226,18 @@ class CrashActivity : ComponentActivity() {
     }
 
     private fun reportLogs(crashText: String, context: Context) {
+        val repo = intent.getStringExtra("repository")
+        val baseUrl = if (!repo.isNullOrEmpty()) {
+            if (repo.startsWith("http")) {
+                repo.removeSuffix("/")
+            } else {
+                "https://github.com/$repo"
+            }
+        } else {
+            "https://github.com/Xed-Editor/Xed-Editor"
+        }
         val url =
-            "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+            "$baseUrl/issues/new?title=Crash%20Report&body=" +
                 URLEncoder.encode("``` \n$crashText\n ```", StandardCharsets.UTF_8.toString())
         val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
         context.startActivity(browserIntent)
@@ -210,7 +253,19 @@ class CrashActivity : ComponentActivity() {
         val maxMem = runtime.maxMemory() / (1024 * 1024)
 
         return buildString {
-            append("Unexpected crash occurred").appendLine().appendLine()
+            val isExtension = intent.getBooleanExtra("is_extension_crash", false)
+            if (isExtension) {
+                append("Extension Crashed").appendLine().appendLine()
+
+
+                append("Extension ID: ").append(intent.getStringExtra("extension_id")).appendLine()
+                append("Extension Name: ").append(intent.getStringExtra("extension_name")).appendLine()
+                append("Extension Version: ").append(intent.getStringExtra("extension_version")).appendLine()
+                append("Extension Author: ").append(intent.getStringExtra("extension_author")).appendLine()
+                appendLine()
+            } else {
+                append("Unexpected crash occurred").appendLine().appendLine()
+            }
 
             append("Thread: ").append(intent.getStringExtra("thread")).appendLine()
             append("App version: ").append(versionName).appendLine()

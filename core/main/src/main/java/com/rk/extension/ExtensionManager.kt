@@ -47,6 +47,18 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         }
     }
 
+    private val disabledPrefs by lazy {
+        context.getSharedPreferences("disabled_extensions", Context.MODE_PRIVATE)
+    }
+
+    fun isExtensionDisabled(id: ExtensionId): Boolean {
+        return disabledPrefs.getBoolean(id, false)
+    }
+
+    fun setExtensionDisabled(id: ExtensionId, disabled: Boolean) {
+        disabledPrefs.edit().putBoolean(id, disabled).apply()
+    }
+
     fun isInstalled(extensionId: ExtensionId) = localExtensions.containsKey(extensionId)
 
     fun getExtension(extensionId: ExtensionId): Extension? {
@@ -75,9 +87,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     suspend fun indexLocalExtensions() = mutex.withLock {
-        localExtensions.clear()
-
-        withContext(Dispatchers.IO) {
+        val newExtensions = withContext(Dispatchers.IO) {
+            val map = mutableMapOf<ExtensionId, LocalExtension>()
             val extensionFolders = context.extensionDir.listFiles()?.filter { it.isDirectory }
             extensionFolders?.forEach { dir ->
                 val extensionJson = dir.resolve("manifest.json")
@@ -85,18 +96,28 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                     runCatching {
                         val extensionManifest = json.decodeFromString<ExtensionManifest>(extensionJson.readText())
                         val extension = LocalExtension(manifest = extensionManifest, installPath = dir.absolutePath)
-                        localExtensions[extensionManifest.id] = extension
+                        map[extensionManifest.id] = extension
                     }
                 }
             }
+            map
+        }
+        withContext(Dispatchers.Main) {
+            val toRemove = localExtensions.keys.filter { it !in newExtensions }
+            toRemove.forEach { localExtensions.remove(it) }
+            localExtensions.putAll(newExtensions)
         }
     }
 
     suspend fun indexStoreExtensions() =
         withContext(Dispatchers.IO) {
             val extensions = ExtensionRegistry.fetchExtensions()
-            storeExtension.clear()
-            storeExtension.putAll(extensions.associate { it.id to StoreExtension(it) })
+            val newExtensions = extensions.associate { it.id to StoreExtension(it) }
+            withContext(Dispatchers.Main) {
+                val toRemove = storeExtension.keys.filter { it !in newExtensions }
+                toRemove.forEach { storeExtension.remove(it) }
+                storeExtension.putAll(newExtensions)
+            }
         }
 
     suspend fun installStoreExtension(context: Context, extension: StoreExtension) = runCatching {
