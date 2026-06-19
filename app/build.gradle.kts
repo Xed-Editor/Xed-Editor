@@ -84,7 +84,20 @@ android {
             isShrinkResources = true
             isCrunchPngs = false
 
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            val mappingFile = file("mapping.txt")
+            if (mappingFile.exists()) {
+                val applyMappingFile = file("build/intermediates/proguard-rules/proguard-apply.pro")
+                applyMappingFile.parentFile.mkdirs()
+                applyMappingFile.writeText("-applymapping ${mappingFile.absolutePath}\n")
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro",
+                    applyMappingFile
+                )
+            } else {
+                proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            }
+
             signingConfig = signingConfigs.getByName("release")
         }
 
@@ -98,6 +111,33 @@ android {
             initWith(buildTypes.getByName("release"))
             matchingFallbacks += listOf("release")
             isDebuggable = false
+        }
+    }
+
+    androidComponents {
+        onVariants(selector().all()) { variant ->
+            if (variant.name == "release") {
+                val mappingFileProvider = variant.artifacts.get(
+                    com.android.build.api.artifact.SingleArtifact.OBFUSCATION_MAPPING_FILE
+                )
+
+                val copyMappingTask = project.tasks.register("copyReleaseMapping") {
+                    val destFile = project.file("mapping.txt")
+                    inputs.file(mappingFileProvider)
+                    outputs.file(destFile)
+                    doLast {
+                        val srcFile = mappingFileProvider.get().asFile
+                        if (srcFile.exists()) {
+                            srcFile.copyTo(destFile, overwrite = true)
+                            println("Copied R8 mapping file to: ${destFile.absolutePath}")
+                        }
+                    }
+                }
+
+                project.tasks.matching { it.name == "assembleRelease" }.configureEach {
+                    finalizedBy(copyMappingTask)
+                }
+            }
         }
     }
 }
