@@ -174,8 +174,9 @@ suspend fun ubuntuProcess(
                 env["PROOT_LOADER_32"] = loader32
             }
 
-            if (Settings.seccomp) {
-                env["SECCOMP"] = "1"
+            when (Settings.seccomp_mode) {
+                "yes" -> env["SECCOMP"] = "1"
+                "no" -> env["PROOT_NO_SECCOMP"] = "1"
             }
         }
 

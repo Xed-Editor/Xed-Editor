@@ -72,7 +72,7 @@ object Settings {
     var sandbox by CachedPreference("sandbox", true)
     var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
     var textmate_suggestions by CachedPreference("textmate_suggestions", true)
-    var seccomp by CachedPreference("seccomp", false)
+    var seccomp_mode by CachedPreference("seccomp_mode", "unspecified")
     var desktop_mode by CachedPreference("desktop_mode", false)
     var theme_flipper by CachedPreference("theme_flipper", false)
     var format_on_save by CachedPreference("format_on_save", false)
@@ -156,6 +156,22 @@ object Settings {
 
     var last_used_command by CachedPreference("last_used_command", "")
     var action_items by CachedPreference("action_items", ToolbarConfiguration.DEFAULT_EDITOR_TOOLBAR_COMMANDS)
+
+    init {
+        if (Preference.getAll().containsKey("seccomp")) {
+            try {
+                val legacySeccomp = Preference.getBoolean("seccomp", false)
+                if (legacySeccomp) {
+                    Preference.setString("seccomp_mode", "yes")
+                } else {
+                    Preference.setString("seccomp_mode", "unspecified")
+                }
+                Preference.removeKey("seccomp")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
 
 object Preference {

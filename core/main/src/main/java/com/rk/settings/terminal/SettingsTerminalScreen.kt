@@ -5,7 +5,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -89,18 +92,62 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 )
             }
 
-            var seccomp by remember { mutableStateOf(Settings.seccomp) }
+            var showSeccompDialog by remember { mutableStateOf(false) }
+            var seccompMode by remember { mutableStateOf(Settings.seccomp_mode) }
 
             SettingsItem(
                 label = "SECCOMP",
-                default = seccomp,
                 description = stringResource(strings.seccomp_desc),
-                sideEffect = {
-                    Settings.seccomp = it
-                    seccomp = it
-                },
-                showSwitch = true,
+                default = false,
+                showSwitch = false,
+                onClick = { showSeccompDialog = true },
             )
+
+            if (showSeccompDialog) {
+                var tempSeccompMode by remember { mutableStateOf(seccompMode) }
+                AlertDialog(
+                    onDismissRequest = {
+                        showSeccompDialog = false
+                    },
+                    title = { Text("SECCOMP") },
+                    text = {
+                        Column {
+                            listOf(
+                                "unspecified" to strings.seccomp_unspecified,
+                                "no" to strings.seccomp_no_seccomp,
+                                "yes" to strings.seccomp_seccomp
+                            ).forEach { (mode, stringRes) ->
+                                PreferenceTemplate(
+                                    modifier =
+                                        Modifier.clip(MaterialTheme.shapes.large).clickable { tempSeccompMode = mode },
+                                    title = { Text(stringResource(stringRes)) },
+                                    startWidget = { RadioButton(selected = tempSeccompMode == mode, onClick = null) },
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showSeccompDialog = false
+                                Settings.seccomp_mode = tempSeccompMode
+                                seccompMode = tempSeccompMode
+                            }
+                        ) {
+                            Text(stringResource(strings.apply))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showSeccompDialog = false
+                            }
+                        ) {
+                            Text(stringResource(strings.cancel))
+                        }
+                    },
+                )
+            }
 
             NextScreenCard(
                 label = stringResource(strings.terminal_health),

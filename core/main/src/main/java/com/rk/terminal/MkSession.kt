@@ -87,8 +87,9 @@ object MkSession {
             env.add("PROOT_LOADER_32=$loader32")
         }
 
-        if (Settings.seccomp) {
-            env.add("SECCOMP=1")
+        when (Settings.seccomp_mode) {
+            "yes" -> env.add("SECCOMP=1")
+            "no" -> env.add("PROOT_NO_SECCOMP=1")
         }
 
         env.addAll(envVariables.map { "${it.key}=${it.value}" })
