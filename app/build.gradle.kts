@@ -131,7 +131,7 @@ android {
                     }
                 }
 
-                project.tasks.matching { it.name == "assembleRelease" }.configureEach {
+                project.tasks.matching { it.name == "assembleRelease" || it.name == "bundleRelease" }.configureEach {
                     finalizedBy(copyMappingTask)
                 }
             }
