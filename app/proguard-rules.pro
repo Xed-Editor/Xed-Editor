@@ -216,7 +216,7 @@
     @com.rk.extension.XedExtensionPoint <methods>;
     @com.rk.extension.XedExtensionPoint <fields>;
 }
--keep class com.rk.extension.** { *; }
+
 
 # Preserve well-known classes that plugins may try to access and keep their names
 -keep class com.rk.commands.** { *; }
@@ -227,11 +227,15 @@
 -keep class com.rk.runner.** { *; }
 -keep class com.rk.tabs.** { *; }
 -keep class com.rk.utils.** { *; }
--keep class com.rk.xededitor.** { *; }
 -keep class com.rk.proot.** { *; }
 -keep class com.rk.components.** { *; }
 -keep class com.rk.App { *; }
 -keep class com.rk.XedConstants { *; }
+-keep class com.rk.extension.** { *; }
+-keep class java.io.** { *; }
+-keep class kotlin.** { *; }
+-keep class kotlinx.** { *; }
+-keep class okio.** { *; }
 
 # JVM Libraries Reflection & Compatibility Rules
 
@@ -297,5 +301,10 @@
 # slf4j missing static binders
 -dontwarn org.slf4j.impl.**
 
+-dontobfuscate
 
-
+# Fix for AbstractMethodError: abstract method "double androidx.compose.ui.graphics.colorspace.DoubleFunction.invoke(double)"
+-keep,allowoptimization interface androidx.compose.ui.graphics.colorspace.DoubleFunction { *; }
+-keep,allowoptimization class androidx.compose.ui.graphics.colorspace.TransferParameters { *; }
+-keep,allowoptimization class androidx.compose.ui.graphics.colorspace.Rgb { *; }
+-keep class coil.util.** { *; }

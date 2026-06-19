@@ -4,9 +4,12 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
 import android.util.Log
+import androidx.annotation.Keep
 import com.rk.settings.debugOptions.LogCollector
 import kotlinx.coroutines.CoroutineScope
 
+@XedExtensionPoint
+@Keep
 class ExtensionContext(val extension: LocalExtension, val appContext: Context, val scope: CoroutineScope) {
     val settings = SharedPrefExtensionSettings(extension.id)
 
