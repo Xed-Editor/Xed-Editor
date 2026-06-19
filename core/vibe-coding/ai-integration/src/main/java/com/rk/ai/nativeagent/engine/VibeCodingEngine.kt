@@ -156,7 +156,7 @@ class VibeCodingEngine(
         aiLoggingManager = AILoggingManager(),
     )
 
-    val toolRegistry = VibeCodingToolRegistry(ideService, context)
+    val toolRegistry = VibeCodingToolRegistry(ideService, context, providerManager, settingsStore)
     val hookManager = HookManager()
     val permissionManager = PermissionManager()
 

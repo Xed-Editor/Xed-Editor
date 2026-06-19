@@ -127,9 +127,10 @@ private fun TaskNodeView(node: TaskNode, depth: Int) {
             )
         }
 
-        if (node.error != null) {
+        val errorText = node.error
+        if (errorText != null) {
             Text(
-                text = node.error,
+                text = errorText,
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 9.sp,
                 color = colorScheme.error,
