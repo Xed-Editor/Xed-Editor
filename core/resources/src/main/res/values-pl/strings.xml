@@ -687,4 +687,5 @@
     <string name="check_abnormalities">Sprawdź, czy nie ma nieprawidłowości</string>
     <string name="samsung_proot_warning">W Twoim urządzeniu Samsung występuje znany błąd, który powoduje niepowodzenie instalacji terminala opartego na PRoot.</string>
     <string name="terminal_degraded_warning">Terminal działa obecnie w trybie ograniczonym z powodu znanego problemu kompatybilności spowodowanego nieprawidłowym działaniem środowiska PRoot na niektórych urządzeniach. Niektóre funkcje mogą być ograniczone lub działać inaczej niż zwykle.</string>
+    <string name="disabled_crashed">Nieaktywne (Awaria)</string>
 </resources>
