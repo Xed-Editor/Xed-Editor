@@ -728,7 +728,7 @@ class VibeCodingEngine(
                 )
             }
             engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationFinished) }
-            onSaveConversation()
+            saveConversation()
         }
     }
 
