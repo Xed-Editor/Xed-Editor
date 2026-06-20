@@ -9,6 +9,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
+import kotlinx.serialization.json.putJsonArray
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -209,6 +210,78 @@ class VibeCodingFileTools(private val ideService: IdeService) {
             }
             listOf(UIMessagePart.Text("Edited $resolvedPath$note"))
         },
+    )
+
+    private val multiEditFile = Tool(
+        name = "multiEditFile",
+        description = "RECOMMENDED for targeted edits. Replace multiple non-contiguous blocks of text in a single file atomically. Provide an array of edits with oldString and newString. Fails if any oldString is not found exactly once.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file") }
+                    putJsonObject("edits") { 
+                        put("type", "array")
+                        put("description", "Array of objects containing oldString and newString")
+                        putJsonObject("items") {
+                            put("type", "object")
+                            putJsonObject("properties") {
+                                putJsonObject("oldString") { put("type", "string"); put("description", "Exact text to replace") }
+                                putJsonObject("newString") { put("type", "string"); put("description", "Replacement text") }
+                            }
+                            putJsonArray("required") {
+                                add("oldString")
+                                add("newString")
+                            }
+                        }
+                    }
+                },
+                required = listOf("filePath", "edits"),
+            )
+        },
+        execute = { args ->
+            val obj = args.asJsonObject
+            val filePath = obj["filePath"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing filePath"))
+            val editsArr = obj["edits"]?.asJsonArray ?: return@Tool listOf(UIMessagePart.Text("Missing edits array"))
+            
+            val file = ideService.resolvePath(filePath)
+            if (file == null) return@Tool listOf(UIMessagePart.Text("Path could not be resolved: $filePath"))
+            
+            var content = ideService.getFileContent(file.absolutePath, null, null) 
+                ?: return@Tool listOf(UIMessagePart.Text("File not found: ${file.absolutePath}"))
+            
+            var successCount = 0
+            var errorCount = 0
+            val errors = mutableListOf<String>()
+            
+            for (i in 0 until editsArr.size()) {
+                val editObj = editsArr[i].asJsonObject
+                val oldString = editObj["oldString"]?.asJsonPrimitive?.asString ?: ""
+                val newString = editObj["newString"]?.asJsonPrimitive?.asString ?: ""
+                
+                if (oldString.isEmpty()) continue
+                
+                val matchCount = content.split(oldString).size - 1
+                if (matchCount == 0) {
+                    errorCount++
+                    errors.add("Edit ${i+1}: Could not find exact text to replace:\n```\n$oldString\n```")
+                } else if (matchCount > 1) {
+                    errorCount++
+                    errors.add("Edit ${i+1}: Found $matchCount matches. Please provide more context to uniquely identify the text.")
+                } else {
+                    content = content.replaceFirst(oldString, newString)
+                    successCount++
+                }
+            }
+            
+            if (successCount > 0 && errorCount == 0) {
+                ideService.writeFile(file, content)
+                listOf(UIMessagePart.Text("Successfully applied $successCount edits to ${file.absolutePath}"))
+            } else if (successCount > 0 && errorCount > 0) {
+                listOf(UIMessagePart.Text("Failed to apply all edits. No changes were written to disk. Errors:\n" + errors.joinToString("\n")))
+            } else {
+                listOf(UIMessagePart.Text("Failed to apply any edits. No changes were written to disk. Errors:\n" + errors.joinToString("\n")))
+            }
+        }
     )
 
     private val applyBatchEdits = Tool(
@@ -573,7 +646,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
     )
 
     val all: List<Tool> = listOf(
-        readFile, cat, readFiles, writeFile, editFile, applyBatchEdits,
+        readFile, cat, readFiles, writeFile, editFile, multiEditFile, applyBatchEdits,
         createFile, deleteFile, renameFile,
         listFiles, ls, findFiles, glob,
         head, tail, wc, countLines, stat,

@@ -12,8 +12,11 @@ import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.service.IdeService
 import java.io.File
+import com.rk.ai.agent.indexer.ProjectIndexer
 
 class VibeCodingProjectTools(private val ideService: IdeService) {
+
+    private val projectIndexer = ProjectIndexer(ideService)
 
     private val getProjectStructure = Tool(
         name = "getProjectStructure",
@@ -214,21 +217,23 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
 
             val result = when (action.lowercase()) {
                 "build" -> {
-                    val structure = ideService.getProjectStructure(workspacePath, depth, 500)
-                    "## Codebase Index Built\n\n**Workspace:** $workspacePath\n**Depth:** $depth\n\n### Project Structure:\n$structure"
+                    val index = projectIndexer.index(workspacePath)
+                    "## Codebase Index Built\n\n**Workspace:** $workspacePath\n\nIndexed ${index.files.size} files, ${index.symbols.size} symbols, ${index.modules.size} modules."
                 }
                 "search" -> {
-                    val structure = ideService.getProjectStructure(workspacePath, 5, 200)
-                    "## Index Search Results\n\n**Query:** $query\n\n$structure"
+                    val index = projectIndexer.index(workspacePath)
+                    val matchingSymbols = index.symbols.filter { it.name.contains(query, ignoreCase = true) }
+                    "## Index Search Results\n\n**Query:** $query\n\n### Matching Symbols:\n${matchingSymbols.take(50).joinToString("\n") { "- [${it.kind}] ${it.name} in ${it.file.substringAfterLast("/")}:${it.line}" }}"
                 }
                 "stats" -> {
-                    val structure = ideService.getProjectStructure(workspacePath, 3, 200)
-                    "## Codebase Statistics\n\n**Workspace:** $workspacePath\n\n### Structure:\n$structure"
+                    val index = projectIndexer.index(workspacePath)
+                    "## Codebase Statistics\n\n**Workspace:** $workspacePath\n\n- Files: ${index.files.size}\n- Symbols: ${index.symbols.size}\n- Modules: ${index.modules.size}\n- Dependencies: ${index.dependencies.size}"
                 }
                 "architecture" -> {
                     val config = ideService.getProjectConfig(workspacePath)
-                    val structure = ideService.getProjectStructure(workspacePath, 2, 100)
-                    "## Architecture Overview\n\n**Project:** ${config["name"]?.asString ?: workspacePath.split("/").lastOrNull()}\n\n### Config:\n$config\n\n### Structure:\n$structure"
+                    val index = projectIndexer.index(workspacePath)
+                    val mainPackages = index.packageStructure.keys.sortedByDescending { index.packageStructure[it]?.size ?: 0 }.take(15)
+                    "## Architecture Overview\n\n**Project:** ${config["name"]?.asString ?: workspacePath.split("/").lastOrNull()}\n\n### Modules:\n${index.modules.joinToString("\n") { "- ${it.name} (${it.path.substringAfterLast("/")})" }}\n\n### Main Packages:\n${mainPackages.joinToString("\n") { "- $it (${index.packageStructure[it]?.size ?: 0} files)" }}"
                 }
                 "keyFiles" -> {
                     val structure = ideService.getProjectStructure(workspacePath, 4, 200)
@@ -263,12 +268,37 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
             val results = mutableListOf<String>()
             val queryLower = query.lowercase()
 
-            // Search by concept or pattern
-            val structure = ideService.getProjectStructure(workspacePath, 6, 500)
-            results.add("## Semantic Search: $query\n\n### Project Structure:\n$structure")
-
-            if (query.isNotBlank()) {
-                results.add("\n### Search Tips:\n- Use 'searchCode' for exact text search\n- Use 'grep_search' for regex patterns\n- Use 'indexCodebase' for project overview")
+            val index = projectIndexer.index(workspacePath)
+            
+            // Search symbols
+            val matchingSymbols = index.symbols.filter { 
+                it.name.lowercase().contains(queryLower) || it.file.lowercase().contains(queryLower) 
+            }
+            // Search files
+            val matchingFiles = index.files.filter { 
+                it.path.lowercase().contains(queryLower) 
+            }
+            
+            results.add("## Semantic Search: $query")
+            
+            if (matchingSymbols.isNotEmpty()) {
+                results.add("\n### Matching Symbols:")
+                matchingSymbols.take(maxResults).forEach { sym ->
+                    results.add("- [${sym.kind}] ${sym.name} in ${sym.file}:${sym.line}")
+                }
+            } else {
+                results.add("\n### Matching Symbols: None")
+            }
+            
+            if (matchingFiles.isNotEmpty()) {
+                results.add("\n### Matching Files:")
+                matchingFiles.take(maxResults).forEach { f ->
+                    results.add("- ${f.path}")
+                }
+            }
+            
+            if (matchingSymbols.isEmpty() && matchingFiles.isEmpty()) {
+                results.add("\nNo matches found for '$query'. Try a different concept or pattern.")
             }
 
             listOf(UIMessagePart.Text(results.joinToString("\n")))

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.UIMessagePart
+import kotlinx.serialization.json.jsonPrimitive
 
 private const val MAX_PREVIEW_CHARS = 500
 
@@ -300,8 +301,19 @@ fun VibeCodingToolCard(
                         CodePreviewLabel("Input:")
                         CodePreviewText(part.input.toString().truncatePreview(), colorScheme)
 
-                        // Output section
-                        if (part.output.isNotEmpty()) {
+                        // Output or Preview Diff section
+                        val previewDiff = part.metadata?.get("previewDiff")?.let {
+                            try { it.jsonPrimitive.content } catch (e: Exception) { null }
+                        }
+
+                        if (previewDiff != null && isPending) {
+                            Spacer(Modifier.height(4.dp))
+                            CodePreviewLabel("Pending Changes (Diff Preview):")
+                            DiffPreviewText(
+                                text = previewDiff,
+                                colorScheme = colorScheme,
+                            )
+                        } else if (part.output.isNotEmpty()) {
                             Spacer(Modifier.height(4.dp))
 
                             // Check if output has diff-like content

@@ -15,6 +15,14 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.StringWriter
 import java.io.PrintWriter
 import com.rk.ai.core.MessageRole
@@ -278,7 +286,15 @@ class GenerationHandler(
                         // Tool needs approval and state is Auto -> set to Pending
                         toolDef != null && toolDef.needsApproval && tool.approvalState is ToolApprovalState.Auto -> {
                             hasPendingApproval = true
-                            tool.copy(approvalState = ToolApprovalState.Pending)
+                            var meta = tool.metadata
+                            val diff = computeDiffPreview(tool.toolName, tool.input)
+                            if (diff != null) {
+                                meta = buildJsonObject {
+                                    meta?.let { m -> m.forEach { (k, v) -> put(k, v) } }
+                                    put("previewDiff", diff)
+                                }
+                            }
+                            tool.copy(approvalState = ToolApprovalState.Pending, metadata = meta)
                         }
                         // State is Pending -> keep waiting
                         tool.approvalState is ToolApprovalState.Pending -> {
@@ -317,36 +333,45 @@ class GenerationHandler(
                 toolsToProcess = messages.last().getTools().filter { it.canResumeExecution }
             }
 
-            // Handle tools (sequential execution, preserving original order)
+            // Handle tools (parallel execution, preserving original order)
             val executedTools = arrayListOf<UIMessagePart.Tool>()
-            toolsToProcess.forEach { tool ->
-                when (tool.approvalState) {
-                    is ToolApprovalState.Denied -> {
-                        val reason = (tool.approvalState as ToolApprovalState.Denied).reason
-                        val deniedTool = tool.copy(
-                            executionState = ExecutionState.Error("Denied by user: ${reason.ifBlank { "No reason provided" }}"),
-                            output = listOf(UIMessagePart.Text("Tool '${tool.toolName}' execution denied by user. Reason: ${reason.ifBlank { "No reason provided" }}"))
-                        )
-                        executedTools += deniedTool
-                        emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, deniedTool.executionState))
-                    }
-                    is ToolApprovalState.Answered -> {
-                        val answer = (tool.approvalState as ToolApprovalState.Answered).answer
-                        val answeredTool = tool.copy(
-                            executionState = ExecutionState.Completed(title = "answered"),
-                            output = listOf(UIMessagePart.Text(answer))
-                        )
-                        executedTools += answeredTool
-                        emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, answeredTool.executionState))
-                    }
-                    is ToolApprovalState.Pending -> { }
-                    else -> {
-                        emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, ExecutionState.Running()))
-                        val resultTool = executeSingleTool(tool, toolsInternal)
-                        executedTools += resultTool
-                        emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, resultTool.executionState))
+            val emitMutex = Mutex()
+            
+            coroutineScope {
+                val deferredResults = toolsToProcess.map { tool ->
+                    async {
+                        when (tool.approvalState) {
+                            is ToolApprovalState.Denied -> {
+                                val reason = (tool.approvalState as ToolApprovalState.Denied).reason
+                                val deniedTool = tool.copy(
+                                    executionState = ExecutionState.Error("Denied by user: ${reason.ifBlank { "No reason provided" }}"),
+                                    output = listOf(UIMessagePart.Text("Tool '${tool.toolName}' execution denied by user. Reason: ${reason.ifBlank { "No reason provided" }}"))
+                                )
+                                emitMutex.withLock { emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, deniedTool.executionState)) }
+                                deniedTool
+                            }
+                            is ToolApprovalState.Answered -> {
+                                val answer = (tool.approvalState as ToolApprovalState.Answered).answer
+                                val answeredTool = tool.copy(
+                                    executionState = ExecutionState.Completed(title = "answered"),
+                                    output = listOf(UIMessagePart.Text(answer))
+                                )
+                                emitMutex.withLock { emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, answeredTool.executionState)) }
+                                answeredTool
+                            }
+                            is ToolApprovalState.Pending -> tool
+                            else -> {
+                                emitMutex.withLock { emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, ExecutionState.Running())) }
+                                val resultTool = executeSingleTool(tool, toolsInternal, emitMutex)
+                                emitMutex.withLock { emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, resultTool.executionState)) }
+                                resultTool
+                            }
+                        }
                     }
                 }
+                
+                val results = deferredResults.awaitAll()
+                executedTools.addAll(results.filter { it.approvalState !is ToolApprovalState.Pending })
             }
 
             if (executedTools.isEmpty()) {
@@ -560,6 +585,7 @@ class GenerationHandler(
     private suspend fun executeSingleTool(
         tool: UIMessagePart.Tool,
         toolsInternal: List<Tool>,
+        mutex: Mutex? = null,
     ): UIMessagePart.Tool {
         return try {
             val toolDef = toolsInternal.find { it.name == tool.toolName }
@@ -584,8 +610,13 @@ class GenerationHandler(
             }
             val executionState = ExecutionState.Completed(title = toolDef.name)
 
-            contextMemory?.log("Tool executed: ${tool.toolName} — success")
-            contextMemory?.recordEdit(tool.toolName, "executed")
+            mutex?.withLock {
+                contextMemory?.log("Tool executed: ${tool.toolName} — success")
+                contextMemory?.recordEdit(tool.toolName, "executed")
+            } ?: run {
+                contextMemory?.log("Tool executed: ${tool.toolName} — success")
+                contextMemory?.recordEdit(tool.toolName, "executed")
+            }
 
             // Self-review: evaluate tool result quality
             val review = selfReviewer.reviewToolResults(
@@ -603,7 +634,11 @@ class GenerationHandler(
             } else truncatedOutput
 
             if (!review.passed) {
-                contextMemory?.log("Self-review: ${tool.toolName} — ${review.feedback.take(100)}")
+                mutex?.withLock {
+                    contextMemory?.log("Self-review: ${tool.toolName} — ${review.feedback.take(100)}")
+                } ?: run {
+                    contextMemory?.log("Self-review: ${tool.toolName} — ${review.feedback.take(100)}")
+                }
             }
 
             tool.copy(
@@ -612,7 +647,11 @@ class GenerationHandler(
             )
         } catch (e: Exception) {
             Log.w(TAG, "executeSingleTool failed: ${tool.toolName}", e)
-            contextMemory?.log("Tool failed: ${tool.toolName} — ${e.message?.take(100)}")
+            mutex?.withLock {
+                contextMemory?.log("Tool failed: ${tool.toolName} — ${e.message?.take(100)}")
+            } ?: run {
+                contextMemory?.log("Tool failed: ${tool.toolName} — ${e.message?.take(100)}")
+            }
             tool.copy(
                 executionState = ExecutionState.Error(e.message ?: "Unknown error"),
                 output = listOf(UIMessagePart.Text("Error: ${e.message}"))
@@ -632,6 +671,48 @@ class GenerationHandler(
                 val path = match.groupValues[1].trim()
                 if (path.startsWith("/") || path.contains(".")) return path
             }
+        }
+        return null
+    }
+
+    private fun computeDiffPreview(toolName: String, args: String): String? {
+        try {
+            val obj = json.parseToJsonElement(args.ifBlank { "{}" }).jsonObject
+            when (toolName) {
+                "writeFile" -> {
+                    val filePath = obj["filePath"]?.jsonPrimitive?.content ?: return null
+                    val newContent = obj["content"]?.jsonPrimitive?.content ?: return null
+                    val fileName = filePath.substringAfterLast("/")
+                    return "--- a/$fileName\n+++ b/$fileName\n@@ Entire File Content @@\n" +
+                           newContent.take(2000) + if(newContent.length > 2000) "\n... [truncated]" else ""
+                }
+                "editFile" -> {
+                    val filePath = obj["filePath"]?.jsonPrimitive?.content ?: return null
+                    val oldString = obj["oldString"]?.jsonPrimitive?.content ?: return null
+                    val newString = obj["newString"]?.jsonPrimitive?.content ?: return null
+                    val fileName = filePath.substringAfterLast("/")
+                    return "--- a/$fileName\n+++ b/$fileName\n@@ Edit chunk @@\n" +
+                           oldString.lines().joinToString("\n") { "-$it" } + "\n" +
+                           newString.lines().joinToString("\n") { "+$it" }
+                }
+                "multiEditFile" -> {
+                    val filePath = obj["filePath"]?.jsonPrimitive?.content ?: return null
+                    val fileName = filePath.substringAfterLast("/")
+                    val edits = obj["edits"]?.jsonArray ?: return null
+                    var diff = "--- a/$fileName\n+++ b/$fileName\n"
+                    for (i in 0 until edits.size) {
+                        val edit = edits[i].jsonObject
+                        val oldString = edit["oldString"]?.jsonPrimitive?.content ?: ""
+                        val newString = edit["newString"]?.jsonPrimitive?.content ?: ""
+                        diff += "@@ Edit chunk ${i+1} @@\n" +
+                                oldString.lines().joinToString("\n") { "-$it" } + "\n" +
+                                newString.lines().joinToString("\n") { "+$it" } + "\n"
+                    }
+                    return diff
+                }
+            }
+        } catch (e: Exception) {
+            // ignore
         }
         return null
     }

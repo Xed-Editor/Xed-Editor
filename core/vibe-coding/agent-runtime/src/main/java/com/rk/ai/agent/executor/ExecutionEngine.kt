@@ -99,7 +99,7 @@ class ExecutionEngine(
                 toolCache.put(toolCall.name, argsHash, result)
                 toolRouter.recordExecution(toolCall.name, toolCall.input, duration, true, false)
 
-                if (toolCall.name in listOf("editFile", "writeFile", "createFile", "renameFile")) {
+                if (toolCall.name in listOf("editFile", "multiEditFile", "writeFile", "createFile", "renameFile")) {
                     val filePath = extractFilePath(toolCall.input)
                     if (filePath != null) {
                         modifiedFiles.add(filePath)
