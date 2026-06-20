@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -52,7 +53,7 @@ enum class ToolPanel {
 private enum class InfoTab { PLAN, TOOLS, CONTEXT, CHANGES }
 
 private enum class OverflowAction {
-    SKILLS, AGENTS, RULES, PLUGINS, PERMS, CLEAR
+    SKILLS, AGENTS, RULES, PLUGINS, PERMS, CLEAR, EXPORT
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +66,7 @@ fun VibeCodingPanel(
     val colorScheme = MaterialTheme.colorScheme
     var showSettings by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var showFiles by remember { mutableStateOf(false) }
     var selectedInfoTab by remember { mutableStateOf<InfoTab?>(null) }
@@ -249,6 +251,7 @@ fun VibeCodingPanel(
                             OverflowAction.PLUGINS -> activePanel = ToolPanel.PLUGINS
                             OverflowAction.PERMS -> activePanel = ToolPanel.PERMISSIONS
                             OverflowAction.CLEAR -> showClearDialog = true
+                            OverflowAction.EXPORT -> showExportDialog = true
                         }
                     },
                     onToggleOverflow = { showOverflow = !showOverflow },
@@ -334,12 +337,13 @@ fun VibeCodingPanel(
 
                         // Main message list
                         Box(modifier = Modifier.weight(1f)) {
-                            if (state.messages.isEmpty()) {
+                            if (state.messages.isEmpty() && !state.isProcessing) {
                                 EmptyState(colorScheme)
                             } else {
                                 VibeCodingMessageList(
                                     messages = state.messages,
                                     isProcessing = state.isProcessing,
+                                    currentPhase = state.currentPhase,
                                     onApproveTool = { toolCallId -> engine.approveTool(toolCallId) },
                                     onDenyTool = { toolCallId, reason -> engine.denyTool(toolCallId, reason) },
                                     onAnswerTool = { toolCallId, answer -> engine.answerTool(toolCallId, answer) },
@@ -419,6 +423,54 @@ fun VibeCodingPanel(
                     .fillMaxHeight(),
             )
         }
+    }
+
+    if (showExportDialog) {
+        val exportContent = remember(state.messages) { state.exportAsMarkdown() }
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            title = { Text("Export Conversation") },
+            text = {
+                Column {
+                    Text(
+                        "Conversation export as Markdown:",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 300.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    ) {
+                        Text(
+                            text = exportContent.take(2000) + if (exportContent.length > 2000) "\n\n..." else "",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                fontSize = 10.sp,
+                            ),
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .verticalScroll(rememberScrollState()),
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    engine.ideService.writeToClipboard(exportContent)
+                    showExportDialog = false
+                }) {
+                    Text("Copy to Clipboard")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExportDialog = false }) {
+                    Text("Close")
+                }
+            },
+        )
     }
 
     if (showClearDialog) {
@@ -647,6 +699,13 @@ private fun ToolbarSection(
                             onClick = { onOverflowAction(OverflowAction.PERMS) },
                             leadingIcon = {
                                 Icon(Icons.Outlined.Security, null, Modifier.size(16.dp))
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Export", style = MaterialTheme.typography.bodySmall) },
+                            onClick = { onOverflowAction(OverflowAction.EXPORT) },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.FileDownload, null, Modifier.size(16.dp))
                             },
                         )
                         HorizontalDivider()

@@ -29,7 +29,8 @@ class UriWrapper : FileObject {
     var file: DocumentFile
         get() {
             if (_file == null) {
-                _file = Uri.parse(uri).getDocumentFile(isTree)!!
+                _file = Uri.parse(uri).getDocumentFile(isTree)
+                    ?: error("Failed to resolve DocumentFile for URI: $uri")
             }
             return _file!!
         }
@@ -43,8 +44,10 @@ class UriWrapper : FileObject {
         isTree = file.isDirectory
     }
 
-    @Throws(IllegalArgumentException::class)
-    constructor(uri: Uri, isTree: Boolean) : this(uri.getDocumentFile(isTree)!!)
+    constructor(uri: Uri, isTree: Boolean) : this(
+        uri.getDocumentFile(isTree)
+            ?: throw IllegalArgumentException("Failed to resolve DocumentFile for URI: $uri")
+    )
 
     override suspend fun listFiles(): List<FileObject> =
         withContext(Dispatchers.IO) {

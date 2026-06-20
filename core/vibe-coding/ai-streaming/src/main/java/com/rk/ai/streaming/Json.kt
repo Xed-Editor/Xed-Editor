@@ -3,8 +3,6 @@ package com.rk.ai.streaming
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -45,12 +43,9 @@ fun <T> Flow<T>.toMutableStateFlow(
     scope: CoroutineScope,
     initialValue: T,
 ): MutableStateFlow<T> {
-    val stateFlow = stateIn(scope, SharingStarted.Eagerly, initialValue)
-    return MutableStateFlow(initialValue).also { mutable ->
-        scope.launch {
-            stateFlow.collect { value ->
-                mutable.value = value
-            }
-        }
+    val mutable = MutableStateFlow(initialValue)
+    scope.launch {
+        collect { value -> mutable.value = value }
     }
+    return mutable
 }

@@ -155,6 +155,7 @@ class VibeCodingEngine(
         memoryRepo = memoryRepo,
         conversationRepo = conversationRepo,
         aiLoggingManager = AILoggingManager(),
+        contextMemory = contextMemoryManager,
     )
 
     val toolRegistry = VibeCodingToolRegistry(ideService, context, providerManager, settingsStore)
@@ -682,8 +683,14 @@ class VibeCodingEngine(
 
     fun sendMessage(text: String, extraParts: List<UIMessagePart> = emptyList()) {
         ensureSessionExists(text.trim())
+        val trimmed = text.trim()
+        // Route complex multi-step tasks through the orchestrator
+        if (isComplexTask(trimmed) && extraParts.isEmpty()) {
+            sendOrchestrated(trimmed)
+            return
+        }
         generationPipeline.execute(
-            text = text,
+            text = trimmed,
             extraParts = extraParts,
             buildConfig = ::buildGenerationConfig,
         )
@@ -787,12 +794,18 @@ class VibeCodingEngine(
             "refactor", "implement", "create", "build", "fix",
             "add feature", "change", "update", "migrate",
             "write tests", "restructure", "complete", "full",
-            "entire", "module", "feature",
+            "entire", "module", "feature", "rewrite", "convert",
+            "optimize", "clean up", "add error handling",
+            "add logging", "extract", "inline", "rename",
         )
         val lower = text.lowercase()
         val hasSignal = signals.any { lower.contains(it) }
-        val isLong = text.length > 80
-        return hasSignal || isLong
+        val isLong = text.length > 60
+        val hasStepIndicators = listOf(
+            "first", "then", "after", "finally", "step", "phase",
+            "1.", "2.", "3.",
+        ).any { lower.contains(it) }
+        return hasSignal || isLong || hasStepIndicators
     }
 
     private fun ensureSessionExists(titleHint: String) {

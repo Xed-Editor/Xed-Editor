@@ -13,8 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object Preference {
-    private var sharedPreferences: SharedPreferences =
-        application!!.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+    private var sharedPreferences: SharedPreferences by lazy {
+        val ctx = application ?: error("Application context not initialized")
+        ctx.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+    }
 
     val preferenceTypes: Map<String, KClass<*>> by lazy {
         Settings::class
@@ -24,7 +26,8 @@ object Preference {
                     prop.isAccessible = true
                     val delegate = prop.getDelegate(Settings)
                     if (delegate is CachedPreference<*>) {
-                        delegate.key to delegate.defaultValue!!::class
+                        val default = delegate.defaultValue
+                        if (default != null) delegate.key to default::class else null
                     } else null
                 } catch (_: Exception) {
                     null

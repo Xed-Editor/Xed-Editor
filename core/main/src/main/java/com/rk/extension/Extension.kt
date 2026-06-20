@@ -216,16 +216,22 @@ val LocalExtension.apkFile
     get() = run {
         val dir = File(installPath)
 
-        if (!dir.isDirectory) error("Extension [$name, $id] directory not found")
+        require(dir.isDirectory) { "Extension [$name, $id] directory not found" }
 
-        dir.listFiles { it.extension == "apk" }?.first()?.also { it.setReadOnly() } ?: error("APK not found")
+        dir.listFiles { it.extension == "apk" }?.first()?.also { it.setReadOnly() }
+            ?: error("APK not found in extension [$name, $id]")
     }
 
-fun LocalExtension.getApkPackageInfo(context: Context) = run {
+fun LocalExtension.getApkPackageInfo(context: Context): Result<android.content.pm.PackageInfo> = runCatching {
     val pm = context.packageManager
-    pm.getPackageArchiveInfo(apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
-        .apply {
-            applicationInfo!!.sourceDir = apkFile.absolutePath
-            applicationInfo!!.publicSourceDir = apkFile.absolutePath
-        }
+    val info = pm.getPackageArchiveInfo(
+        apkFile.absolutePath,
+        PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES
+    ) ?: error("Failed to get package archive info for extension [$name, $id]")
+
+    info.applicationInfo?.let { appInfo ->
+        appInfo.sourceDir = apkFile.absolutePath
+        appInfo.publicSourceDir = apkFile.absolutePath
+    }
+    info
 }

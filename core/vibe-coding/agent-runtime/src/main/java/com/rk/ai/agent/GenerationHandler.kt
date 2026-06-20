@@ -34,6 +34,8 @@ import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.handleMessageChunk
 import com.rk.ai.models.limitContext
+import com.rk.ai.agent.context.ContextMemoryManager
+import com.rk.ai.agent.review.SelfReviewer
 import com.rk.ai.agent.RecoveryEngine
 import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.MessageTransformer
@@ -102,7 +104,9 @@ class GenerationHandler(
     private val memoryRepo: MemoryRepository,
     val conversationRepo: ConversationRepository,
     private val aiLoggingManager: AILoggingManager,
+    private val contextMemory: ContextMemoryManager? = null,
 ) {
+    private val selfReviewer = SelfReviewer()
     fun generateText(
         settings: Settings,
         model: Model,
@@ -349,6 +353,27 @@ class GenerationHandler(
                 break
             }
 
+            // Track facts about tool execution
+            for (et in executedTools) {
+                when (et.executionState) {
+                    is ExecutionState.Completed -> {
+                        contextMemory?.addFact("Executed ${et.toolName} successfully")
+                        val filePath = et.output.firstNotNullOfOrNull { part ->
+                            if (part is UIMessagePart.Text) {
+                                extractFilePath(et.input)
+                            } else null
+                        }
+                        if (filePath != null) {
+                            contextMemory?.recordEdit(filePath, et.toolName)
+                        }
+                    }
+                    is ExecutionState.Error -> {
+                        contextMemory?.addFact("Tool ${et.toolName} failed: ${(et.executionState as ExecutionState.Error).error?.take(100)}")
+                    }
+                    else -> {}
+                }
+            }
+
             // Doom loop detection: check if same tool called repeatedly with same input
             val currentToolCalls = executedTools.map { it.toolName to it.input }
             if (currentToolCalls == previousToolCalls) {
@@ -557,12 +582,37 @@ class GenerationHandler(
                     else -> part
                 }
             }
+            val executionState = ExecutionState.Completed(title = toolDef.name)
+
+            contextMemory?.log("Tool executed: ${tool.toolName} — success")
+            contextMemory?.recordEdit(tool.toolName, "executed")
+
+            // Self-review: evaluate tool result quality
+            val review = selfReviewer.reviewToolResults(
+                toolName = tool.toolName,
+                toolInput = tool.input,
+                result = truncatedOutput,
+                executionState = executionState,
+                context = null,
+            )
+            val finalOutput = if (!review.passed) {
+                val reviewNote = UIMessagePart.Text(
+                    "[Self-Review: ${review.feedback.take(200)}${if (review.suggestions.isNotEmpty()) " Suggestion: ${review.suggestions.first().take(100)}" else ""}]"
+                )
+                truncatedOutput + reviewNote
+            } else truncatedOutput
+
+            if (!review.passed) {
+                contextMemory?.log("Self-review: ${tool.toolName} — ${review.feedback.take(100)}")
+            }
+
             tool.copy(
-                executionState = ExecutionState.Completed(title = toolDef.name),
-                output = truncatedOutput
+                executionState = executionState,
+                output = finalOutput
             )
         } catch (e: Exception) {
             Log.w(TAG, "executeSingleTool failed: ${tool.toolName}", e)
+            contextMemory?.log("Tool failed: ${tool.toolName} — ${e.message?.take(100)}")
             tool.copy(
                 executionState = ExecutionState.Error(e.message ?: "Unknown error"),
                 output = listOf(UIMessagePart.Text("Error: ${e.message}"))
@@ -570,9 +620,28 @@ class GenerationHandler(
         }
     }
 
+    private fun extractFilePath(input: String): String? {
+        val patterns = listOf(
+            Regex("""filePath["\s:=]+([^"\,}\s]+)"""),
+            Regex("""path["\s:=]+([^"\,}\s]+)"""),
+            Regex("""file["\s:=]+([^"\,}\s]+)"""),
+        )
+        for (pattern in patterns) {
+            val match = pattern.find(input)
+            if (match != null) {
+                val path = match.groupValues[1].trim()
+                if (path.startsWith("/") || path.contains(".")) return path
+            }
+        }
+        return null
+    }
+
     private fun checkFinishReason(messages: List<UIMessage>, finishReason: String?): Boolean {
         if (messages.isEmpty()) return false
-        return finishReason == "length"
+        if (finishReason == "length") return true
+        val lastMsg = messages.lastOrNull() ?: return false
+        val lastPart = lastMsg.parts.lastOrNull()
+        return lastPart is UIMessagePart.Text && lastPart.text.contains("[length]")
     }
 
     private suspend fun generateInternal(

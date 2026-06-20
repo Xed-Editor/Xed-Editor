@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,7 +33,13 @@ fun VibeCodingMessageBubble(
     modifier: Modifier = Modifier,
 ) {
     val isUser = message.role == MessageRole.USER
+    val isSystem = message.role == MessageRole.SYSTEM
     val colorScheme = MaterialTheme.colorScheme
+
+    if (isSystem) {
+        SystemMessage(message = message)
+        return
+    }
 
     Column(
         modifier = modifier
@@ -68,12 +76,60 @@ fun VibeCodingMessageBubble(
                     if (totalTokens > 0) {
                         Spacer(Modifier.height(2.dp))
                         Text(
-                            text = "△ $promptTokens / ◻ $completionTokens / ∑ $totalTokens tok",
+                            text = "Δ $promptTokens / ◻ $completionTokens / ∑ $totalTokens tok",
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SystemMessage(message: UIMessage) {
+    val colorScheme = MaterialTheme.colorScheme
+    var expanded by remember { mutableStateOf(false) }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 2.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .clickable { expanded = !expanded },
+        color = colorScheme.surfaceContainerLowest.copy(alpha = 0.5f),
+        shape = RoundedCornerShape(6.dp),
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = null,
+                    modifier = Modifier.size(12.dp),
+                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = if (expanded) "System ▼" else "System ▶",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                )
+            }
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                Text(
+                    text = message.toText().take(500),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 10.sp,
+                        fontFamily = FontFamily.Monospace,
+                    ),
+                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(top = 4.dp),
+                )
             }
         }
     }
@@ -110,38 +166,84 @@ private fun MessagePartContent(
             onDeny = { reason -> onDenyTool?.invoke(part.toolCallId, reason) },
             onAnswer = { answer -> onAnswerTool?.invoke(part.toolCallId, answer) },
         )
-        is UIMessagePart.StepStart -> {
-            val colorScheme = MaterialTheme.colorScheme
-            Surface(
-                shape = RoundedCornerShape(4.dp),
-                color = colorScheme.primaryContainer.copy(alpha = 0.3f),
-            ) {
-                Text(
-                    text = "Step ${part.stepIndex + 1}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                )
-            }
-        }
-        is UIMessagePart.StepFinish -> {
-            val colorScheme = MaterialTheme.colorScheme
-            val tokenInfo = buildString {
-                if (part.inputTokens > 0) append("Δ ${part.inputTokens} ")
-                if (part.outputTokens > 0) append("◻ ${part.outputTokens} ")
-                if (part.reasoningTokens > 0) append("~ ${part.reasoningTokens} ")
-                if (part.cost > 0f) append("$${String.format("%.4f", part.cost)}")
-            }
+        is UIMessagePart.StepStart -> StepIndicator(part.stepIndex, part.totalSteps)
+        is UIMessagePart.StepFinish -> StepFinishIndicator(
+            stepIndex = part.stepIndex,
+            inputTokens = part.inputTokens,
+            outputTokens = part.outputTokens,
+            reasoningTokens = part.reasoningTokens,
+            cost = part.cost,
+        )
+        is UIMessagePart.Image -> AttachmentLabel("🖼 [Image: ${part.url.take(60)}]")
+        is UIMessagePart.Document -> AttachmentLabel("📎 [Document: ${part.fileName}]")
+        else -> AttachmentLabel("[${part::class.simpleName}]", muted = true)
+    }
+}
+
+@Composable
+private fun StepIndicator(stepIndex: Int, totalSteps: Int) {
+    val colorScheme = MaterialTheme.colorScheme
+    Surface(
+        shape = RoundedCornerShape(4.dp),
+        color = colorScheme.primaryContainer.copy(alpha = 0.3f),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Icon(
+                Icons.Outlined.PlayArrow,
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+                tint = colorScheme.onPrimaryContainer,
+            )
             Text(
-                text = "Step ${part.stepIndex + 1} done | ${tokenInfo.ifEmpty { "done" }}",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
-                color = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                text = "Step ${stepIndex + 1}${if (totalSteps > 0) " of $totalSteps" else ""}",
+                style = MaterialTheme.typography.labelSmall,
+                color = colorScheme.onPrimaryContainer,
+                fontWeight = FontWeight.SemiBold,
             )
         }
-        is UIMessagePart.Image -> AttachmentLabel("[Image: ${part.url.take(60)}]")
-        is UIMessagePart.Document -> AttachmentLabel("[Document: ${part.fileName}]")
-        else -> AttachmentLabel("[${part::class.simpleName}]", muted = true)
+    }
+}
+
+@Composable
+private fun StepFinishIndicator(
+    stepIndex: Int,
+    inputTokens: Int,
+    outputTokens: Int,
+    reasoningTokens: Int,
+    cost: Float,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val tokenInfo = buildString {
+        if (inputTokens > 0) append("Δ $inputTokens ")
+        if (outputTokens > 0) append("◻ $outputTokens ")
+        if (reasoningTokens > 0) append("~ $reasoningTokens ")
+        if (cost > 0f) append("$${String.format("%.4f", cost)}")
+    }
+    Surface(
+        shape = RoundedCornerShape(4.dp),
+        color = colorScheme.secondaryContainer.copy(alpha = 0.2f),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Icon(
+                Icons.Outlined.CheckCircleOutline,
+                contentDescription = null,
+                modifier = Modifier.size(10.dp),
+                tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            )
+            Text(
+                text = "Step ${stepIndex + 1} done | ${tokenInfo.ifEmpty { "complete" }}",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            )
+        }
     }
 }
 

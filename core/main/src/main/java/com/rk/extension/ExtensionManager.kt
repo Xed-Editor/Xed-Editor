@@ -20,7 +20,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 private val Context.localDir: File
-    get() = filesDir.parentFile!!.resolve("local").apply { if (!exists()) mkdirs() }
+    get() = (filesDir.parentFile ?: filesDir).resolve("local").apply { if (!exists()) mkdirs() }
 
 val Context.extensionDir: File
     get() = localDir.resolve("extensions").apply { if (!exists()) mkdirs() }

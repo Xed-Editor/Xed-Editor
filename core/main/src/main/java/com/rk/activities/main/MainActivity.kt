@@ -15,6 +15,7 @@ import androidx.navigation.compose.*
 import com.rk.BaseActivity
 import com.rk.commands.KeybindingsManager
 import com.rk.file.FileManager
+import com.rk.AppDispatchers
 import com.rk.AppScope
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
@@ -22,6 +23,7 @@ import com.rk.filetree.DrawerPersistence
 import com.rk.lsp.LspRegistry
 import com.rk.resources.getFilledString
 import com.rk.resources.strings
+import com.rk.safeLaunch
 import com.rk.settings.Settings
 import com.rk.settings.support.handleSupport
 import com.rk.tabs.editor.EditorTab
@@ -29,10 +31,7 @@ import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
 import java.lang.ref.WeakReference
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : BaseActivity() {
@@ -52,10 +51,9 @@ class MainActivity : BaseActivity() {
             }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onPause() {
         isPaused = true
-        AppScope.launch(Dispatchers.IO) {
+        AppScope.safeLaunch(AppDispatchers.IO) {
             SessionManager.saveSession(viewModel.tabs, viewModel.currentTabIndex)
             DrawerPersistence.saveState()
             foregroundListener.values.forEach { it.invoke(false) }
@@ -69,7 +67,7 @@ class MainActivity : BaseActivity() {
         super.onResume()
         isPaused = false
         instance = this
-        lifecycleScope.launch(Dispatchers.IO) {
+        safeLaunch(AppDispatchers.IO) {
             handleIntent(intent)
             foregroundListener.values.forEach { it.invoke(true) }
             delay(1000)

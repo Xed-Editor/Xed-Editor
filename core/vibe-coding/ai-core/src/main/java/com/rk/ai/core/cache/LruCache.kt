@@ -4,13 +4,13 @@ import java.util.LinkedHashMap
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-class LruCache<K, V>(
+class LruCache<K : Any, V>(
     private val capacity: Int,
     private val store: CacheStore<K, V>,
     private val deleteOnEvict: Boolean = false,
     preloadFromStore: Boolean = false,
     private val expireAfterWriteMillis: Long? = null
-) where K : Any {
+) {
     private val lock = ReentrantLock()
 
     private val map = object : LinkedHashMap<K, CacheEntry<V>>(capacity, 0.75f, true) {

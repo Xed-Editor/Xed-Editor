@@ -241,86 +241,65 @@ fun List<UIMessage>.handleMessageChunk(chunk: MessageChunk, modelId: Uuid? = nul
     }
 }
 
-/**
- * 判断这个消息是否有有任何用户**可输入内容**
- *
- * 例如: 文本，图片, 文档
- */
-fun List<UIMessagePart>.isEmptyInputMessage(): Boolean {
-    if (this.isEmpty()) return true
-    return this.all { message ->
-        when (message) {
-            is UIMessagePart.Text -> message.text.isBlank()
-            is UIMessagePart.Image -> message.url.isBlank()
-            is UIMessagePart.Document -> message.url.isBlank()
-            is UIMessagePart.Video -> message.url.isBlank()
-            is UIMessagePart.Audio -> message.url.isBlank()
-            else -> true
-        }
+private fun List<UIMessagePart>.allBlank(check: (UIMessagePart) -> Boolean): Boolean {
+    if (isEmpty()) return true
+    return all { check(it) }
+}
+
+fun List<UIMessagePart>.isEmptyInputMessage(): Boolean = allBlank { part ->
+    when (part) {
+        is UIMessagePart.Text -> part.text.isBlank()
+        is UIMessagePart.Image -> part.url.isBlank()
+        is UIMessagePart.Document -> part.url.isBlank()
+        is UIMessagePart.Video -> part.url.isBlank()
+        is UIMessagePart.Audio -> part.url.isBlank()
+        else -> true
     }
 }
 
-/**
- * 判断这个消息在UI上是否显示任何内容
- */
-fun List<UIMessagePart>.isEmptyUIMessage(): Boolean {
-    if (this.isEmpty()) return true
-    return this.all { message ->
-        when (message) {
-            is UIMessagePart.Text -> message.text.isBlank()
-            is UIMessagePart.Image -> message.url.isBlank()
-            is UIMessagePart.Document -> message.url.isBlank()
-            is UIMessagePart.Reasoning -> message.reasoning.isBlank()
-            is UIMessagePart.Video -> message.url.isBlank()
-            is UIMessagePart.Audio -> message.url.isBlank()
-            else -> true
-        }
+fun List<UIMessagePart>.isEmptyUIMessage(): Boolean = allBlank { part ->
+    when (part) {
+        is UIMessagePart.Text -> part.text.isBlank()
+        is UIMessagePart.Image -> part.url.isBlank()
+        is UIMessagePart.Document -> part.url.isBlank()
+        is UIMessagePart.Reasoning -> part.reasoning.isBlank()
+        is UIMessagePart.Video -> part.url.isBlank()
+        is UIMessagePart.Audio -> part.url.isBlank()
+        else -> true
     }
 }
 
 fun List<UIMessage>.limitContext(size: Int): List<UIMessage> {
     if (size <= 0 || this.size <= size) return this
 
-    val startIndex = this.size - size
-    var adjustedStartIndex = startIndex
+    var adjusted = size.coerceAtMost(this.size)
+    val cutoff = this.size - adjusted
+    val visited = mutableSetOf<Int>()
 
-    // 循环往前查找，直到满足所有依赖条件
-    var needsAdjustment = true
-    val visitedIndices = mutableSetOf<Int>()
+    while (adjusted < this.size && adjusted > cutoff) {
+        if (!visited.add(adjusted)) break
+        val msg = this[adjusted]
+        val hasExecuted = msg.getTools().any { it.isExecuted }
+        val hasUnExecuted = msg.getTools().any { !it.isExecuted }
 
-    while (needsAdjustment && adjustedStartIndex > 0) {
-        needsAdjustment = false
-
-        // 防止无限循环
-        if (adjustedStartIndex in visitedIndices) break
-        visitedIndices.add(adjustedStartIndex)
-
-        val currentMessage = this[adjustedStartIndex]
-
-        // 如果当前消息包含已执行的tool（有output），往前查找对应的tool call
-        if (currentMessage.getTools().any { it.isExecuted }) {
-            for (i in adjustedStartIndex - 1 downTo 0) {
-                if (this[i].getTools().any { !it.isExecuted }) {
-                    adjustedStartIndex = i
-                    needsAdjustment = true
-                    break
+        when {
+            hasExecuted -> {
+                val idx = (adjusted - 1 downTo 0).firstOrNull { i ->
+                    this[i].getTools().any { !it.isExecuted }
                 }
+                if (idx != null) { adjusted = idx.coerceAtMost(this.size - size); continue }
+            }
+            hasUnExecuted -> {
+                val idx = (adjusted - 1 downTo 0).firstOrNull { i ->
+                    this[i].role == MessageRole.USER
+                }
+                if (idx != null) { adjusted = idx.coerceAtMost(this.size - size); continue }
             }
         }
-
-        // 如果当前消息包含未执行的tool call，往前查找对应的用户消息
-        if (currentMessage.getTools().any { !it.isExecuted }) {
-            for (i in adjustedStartIndex - 1 downTo 0) {
-                if (this[i].role == MessageRole.USER) {
-                    adjustedStartIndex = i
-                    needsAdjustment = true
-                    break
-                }
-            }
-        }
+        adjusted++
     }
 
-    return this.subList(adjustedStartIndex, this.size)
+    return this.subList(adjusted.coerceAtMost(this.size - 1), this.size)
 }
 
 @Serializable
@@ -514,6 +493,18 @@ sealed class UIMessagePart {
 
         /** Whether generation can resume and handle this tool immediately */
         val canResumeExecution: Boolean get() = !isExecuted && !isRunning && approvalState.canResumeToolExecution()
+
+        /** Human-readable status label */
+        val statusLabel: String get() = when {
+            isRunning -> "running"
+            executionState is ExecutionState.Completed -> "completed"
+            executionState is ExecutionState.Error -> "error"
+            approvalState is ToolApprovalState.Pending -> "pending"
+            approvalState is ToolApprovalState.Denied -> "denied"
+            approvalState is ToolApprovalState.Answered -> "answered"
+            approvalState is ToolApprovalState.Approved -> "approved"
+            else -> "auto"
+        }
 
         /** Parse input string as JsonElement */
         fun inputAsJson(): JsonElement = runCatching {

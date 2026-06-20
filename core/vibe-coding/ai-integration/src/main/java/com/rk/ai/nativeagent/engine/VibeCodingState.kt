@@ -173,4 +173,42 @@ data class VibeCodingState(
     fun toSessionNavigationState(): SessionNavigationState = SessionNavigationState(sessionTree, activeSessionId, parentSessionId)
     fun toTaskState(): TaskState = TaskState(todos)
     fun toUIState(): UIState = UIState(commandCatalog, dockOpen, dockClosing, compactionReason)
+
+    fun exportAsMarkdown(): String = buildString {
+        appendLine("# VibeCoding Conversation")
+        appendLine()
+        for (msg in messages) {
+            val role = when (msg.role) {
+                com.rk.ai.core.MessageRole.USER -> "**User**"
+                com.rk.ai.core.MessageRole.ASSISTANT -> "**Assistant**"
+                com.rk.ai.core.MessageRole.SYSTEM -> "*System*"
+                else -> "**${msg.role.name}**"
+            }
+            appendLine("### $role")
+            appendLine()
+            val text = msg.toText()
+            if (text.isNotBlank()) {
+                appendLine(text)
+                appendLine()
+            }
+            val tools = msg.getTools()
+            if (tools.isNotEmpty()) {
+                for (tool in tools) {
+                    appendLine("> Tool: `${tool.toolName}` — ${tool.statusLabel}")
+                    if (tool.output.isNotEmpty()) {
+                        appendLine("> ```")
+                        tool.output.forEach { part ->
+                            if (part is com.rk.ai.models.UIMessagePart.Text) {
+                                appendLine("> ${part.text.take(200)}")
+                            }
+                        }
+                        appendLine("> ```")
+                    }
+                }
+                appendLine()
+            }
+        }
+        appendLine("---")
+        appendLine("*Exported from Xed-Editor VibeCoding*")
+    }
 }

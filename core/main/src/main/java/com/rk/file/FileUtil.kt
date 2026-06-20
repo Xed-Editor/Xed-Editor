@@ -17,20 +17,22 @@ fun File.child(fileName: String): File {
 }
 
 fun File.createFileIfNot(): File {
-    if (parentFile?.exists()?.not() == true) {
-        parentFile!!.mkdirs()
+    val parent = parentFile
+    if (parent?.exists() == false) {
+        parent.mkdirs()
     }
-    if (exists().not()) {
+    if (!exists()) {
         createNewFile()
     }
     return this
 }
 
 suspend fun FileObject.createFileIfNot(): FileObject {
-    if (getParentFile()?.exists()?.not() == true) {
-        getParentFile()!!.mkdirs()
+    val parent = getParentFile()
+    if (parent?.exists() == false) {
+        parent.mkdirs()
     }
-    if (exists().not()) {
+    if (!exists()) {
         createNewFile()
     }
     return this

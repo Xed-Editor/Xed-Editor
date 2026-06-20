@@ -11,26 +11,13 @@ data class TokenUsage(
 )
 
 fun TokenUsage?.merge(other: TokenUsage): TokenUsage {
-    val promptTokens = if (other.promptTokens > 0) {
-        other.promptTokens
-    } else {
-        this?.promptTokens ?: 0
-    }
-    val completionTokens = if (other.completionTokens > 0) {
-        other.completionTokens
-    } else {
-        this?.completionTokens ?: 0
-    }
-    val totalTokens = promptTokens + completionTokens
-    val cachedTokens = if (other.cachedTokens > 0) {
-        other.cachedTokens
-    } else {
-        this?.cachedTokens ?: 0
-    }
+    val promptTokens = other.promptTokens.takeIf { it > 0 } ?: (this?.promptTokens ?: 0)
+    val completionTokens = other.completionTokens.takeIf { it > 0 } ?: (this?.completionTokens ?: 0)
+    val cachedTokens = other.cachedTokens.takeIf { it > 0 } ?: (this?.cachedTokens ?: 0)
     return TokenUsage(
         promptTokens = promptTokens,
         completionTokens = completionTokens,
-        totalTokens = totalTokens,
+        totalTokens = promptTokens + completionTokens,
         cachedTokens = cachedTokens
     )
 }

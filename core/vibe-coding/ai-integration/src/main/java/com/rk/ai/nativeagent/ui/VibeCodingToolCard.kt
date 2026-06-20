@@ -1,18 +1,24 @@
 package com.rk.ai.nativeagent.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.*
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,25 +49,49 @@ fun VibeCodingToolCard(
     val isPending = part.approvalState is ToolApprovalState.Pending
     val isAnswered = part.approvalState is ToolApprovalState.Answered
     val isRunning = part.isRunning
+    val hasError = part.executionState is ExecutionState.Error
+    val isDenied = part.approvalState is ToolApprovalState.Denied
+
+    // Running animation
+    val infiniteTransition = rememberInfiniteTransition(label = "toolRunning")
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(600, easing = EaseInOutCubic),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "pulseAlpha",
+    )
 
     val statusColor = when {
         isRunning -> colorScheme.tertiary
-        part.executionState is ExecutionState.Error -> colorScheme.error
-        part.approvalState is ToolApprovalState.Denied -> colorScheme.error
-        part.approvalState is ToolApprovalState.Pending -> colorScheme.tertiary
-        part.approvalState is ToolApprovalState.Answered -> colorScheme.secondary
+        hasError -> colorScheme.error
+        isDenied -> colorScheme.error
+        isPending -> colorScheme.tertiary
+        isAnswered -> colorScheme.secondary
         else -> colorScheme.primary
     }
 
     val statusLabel = when {
-        isRunning -> "running…"
-        part.executionState is ExecutionState.Completed -> "completed"
-        part.executionState is ExecutionState.Error -> "error"
-        part.approvalState is ToolApprovalState.Pending -> "pending"
-        part.approvalState is ToolApprovalState.Denied -> "denied"
-        part.approvalState is ToolApprovalState.Answered -> "answered"
+        isRunning -> "running"
+        hasError -> "error"
+        isDenied -> "denied"
+        isPending -> "pending"
+        isAnswered -> "answered"
+        part.executionState is ExecutionState.Completed -> "done"
         part.approvalState is ToolApprovalState.Approved -> "approved"
         else -> "auto"
+    }
+
+    val statusIcon = when {
+        isRunning -> Icons.Outlined.Refresh
+        hasError -> Icons.Outlined.ErrorOutline
+        isDenied -> Icons.Outlined.Cancel
+        isPending -> Icons.Outlined.HourglassTop
+        isAnswered -> Icons.Outlined.QuestionAnswer
+        part.executionState is ExecutionState.Completed -> Icons.Outlined.CheckCircle
+        else -> Icons.Outlined.CheckCircle
     }
 
     Surface(
@@ -69,7 +99,12 @@ fun VibeCodingToolCard(
             .fillMaxWidth()
             .padding(vertical = 2.dp),
         shape = RoundedCornerShape(8.dp),
-        color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        color = when {
+            hasError -> colorScheme.errorContainer.copy(alpha = 0.3f)
+            isDenied -> colorScheme.errorContainer.copy(alpha = 0.2f)
+            isRunning -> colorScheme.tertiaryContainer.copy(alpha = 0.2f)
+            else -> colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        },
         tonalElevation = 0.5.dp,
     ) {
         Column {
@@ -86,6 +121,7 @@ fun VibeCodingToolCard(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Expand indicator
                         Text(
                             text = if (expanded) "▼" else "▶",
                             style = MaterialTheme.typography.labelSmall,
@@ -93,24 +129,41 @@ fun VibeCodingToolCard(
                             modifier = Modifier.width(14.dp),
                         )
                         Spacer(Modifier.width(4.dp))
+
+                        // Status icon
+                        Icon(
+                            imageVector = statusIcon,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(14.dp)
+                                .alpha(if (isRunning) pulseAlpha else 1f),
+                            tint = statusColor,
+                        )
+                        Spacer(Modifier.width(4.dp))
+
+                        // Tool name
                         Text(
-                            text = "Tool: ${part.toolName}",
+                            text = part.toolName,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = colorScheme.onSurfaceVariant,
                         )
                     }
-                    Surface(
-                        shape = RoundedCornerShape(4.dp),
-                        color = statusColor.copy(alpha = 0.15f),
-                    ) {
-                        Text(
-                            text = statusLabel,
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                            color = statusColor,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                        )
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        // Status badge
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = statusColor.copy(alpha = if (isRunning) pulseAlpha else 0.15f),
+                        ) {
+                            Text(
+                                text = statusLabel,
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                color = statusColor,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            )
+                        }
                     }
                 }
 
@@ -130,10 +183,13 @@ fun VibeCodingToolCard(
                             ),
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                         ) {
-                            Text(
-                                "Approve",
-                                style = MaterialTheme.typography.labelSmall,
+                            Icon(
+                                Icons.Outlined.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
                             )
+                            Spacer(Modifier.width(4.dp))
+                            Text("Approve", style = MaterialTheme.typography.labelSmall)
                         }
 
                         OutlinedButton(
@@ -144,27 +200,32 @@ fun VibeCodingToolCard(
                             ),
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                         ) {
-                            Text(
-                                "Deny",
-                                style = MaterialTheme.typography.labelSmall,
+                            Icon(
+                                Icons.Outlined.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
                             )
+                            Spacer(Modifier.width(4.dp))
+                            Text("Deny", style = MaterialTheme.typography.labelSmall)
                         }
 
-                        if (part.toolName == "ask_user" || part.toolName == "question") {
-                            OutlinedButton(
-                                onClick = { showAnswerInput = !showAnswerInput },
-                                modifier = Modifier.weight(1f),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                            ) {
-                                Text(
-                                    "Answer",
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            }
+                        OutlinedButton(
+                            onClick = { showAnswerInput = !showAnswerInput },
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                        ) {
+                            Icon(
+                                Icons.Outlined.QuestionAnswer,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text("Answer", style = MaterialTheme.typography.labelSmall)
                         }
                     }
 
-                    if (showDenyInput) {
+                    // Deny reason input
+                    AnimatedVisibility(visible = showDenyInput) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -175,7 +236,12 @@ fun VibeCodingToolCard(
                                 value = denyReason,
                                 onValueChange = { denyReason = it },
                                 modifier = Modifier.weight(1f),
-                                placeholder = { Text("Reason...", style = MaterialTheme.typography.bodySmall) },
+                                placeholder = {
+                                    Text(
+                                        "Reason for denial...",
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                },
                                 singleLine = true,
                                 textStyle = MaterialTheme.typography.bodySmall,
                             )
@@ -190,7 +256,8 @@ fun VibeCodingToolCard(
                         }
                     }
 
-                    if (showAnswerInput) {
+                    // Answer input
+                    AnimatedVisibility(visible = showAnswerInput) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -201,7 +268,12 @@ fun VibeCodingToolCard(
                                 value = answerText,
                                 onValueChange = { answerText = it },
                                 modifier = Modifier.weight(1f),
-                                placeholder = { Text("Your answer...", style = MaterialTheme.typography.bodySmall) },
+                                placeholder = {
+                                    Text(
+                                        "Your answer...",
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                },
                                 singleLine = true,
                                 textStyle = MaterialTheme.typography.bodySmall,
                             )
@@ -224,38 +296,88 @@ fun VibeCodingToolCard(
                     exit = shrinkVertically(),
                 ) {
                     Column(modifier = Modifier.padding(top = 6.dp)) {
+                        // Input section
                         CodePreviewLabel("Input:")
                         CodePreviewText(part.input.toString().truncatePreview(), colorScheme)
 
+                        // Output section
                         if (part.output.isNotEmpty()) {
                             Spacer(Modifier.height(4.dp))
-                            CodePreviewLabel("Output:")
+
+                            // Check if output has diff-like content
+                            val hasDiffContent = part.output.any { outputPart ->
+                                outputPart is UIMessagePart.Text &&
+                                    (outputPart.text.contains("---") || outputPart.text.contains("+++") ||
+                                        outputPart.text.contains("@@"))
+                            }
+
+                            if (hasDiffContent) {
+                                CodePreviewLabel("Output (diff):")
+                            } else {
+                                CodePreviewLabel("Output:")
+                            }
+
                             part.output.forEach { outputPart ->
                                 when (outputPart) {
-                                    is com.rk.ai.models.UIMessagePart.Text -> CodePreviewText(
-                                        text = outputPart.text.truncatePreview(),
-                                        colorScheme = colorScheme,
-                                    )
-                                    else -> Text(
-                                        text = "[${outputPart::class.simpleName}]",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                                    )
+                                    is UIMessagePart.Text -> {
+                                        if (hasDiffContent) {
+                                            DiffPreviewText(
+                                                text = outputPart.text.truncatePreview(),
+                                                colorScheme = colorScheme,
+                                            )
+                                        } else {
+                                            CodePreviewText(
+                                                text = outputPart.text.truncatePreview(),
+                                                colorScheme = colorScheme,
+                                            )
+                                        }
+                                    }
+                                    else -> {
+                                        Text(
+                                            text = "[${outputPart::class.simpleName}]",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                        )
+                                    }
                                 }
+                            }
+                        }
+
+                        // Error details
+                        if (hasError) {
+                            val errorMsg =
+                                (part.executionState as ExecutionState.Error).error ?: "Unknown error"
+                            Spacer(Modifier.height(4.dp))
+                            CodePreviewLabel("Error:")
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = colorScheme.errorContainer.copy(alpha = 0.3f),
+                            ) {
+                                Text(
+                                    text = errorMsg,
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        fontFamily = FontFamily.Monospace,
+                                        fontSize = 11.sp,
+                                    ),
+                                    color = colorScheme.onErrorContainer,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(6.dp),
+                                )
                             }
                         }
                     }
                 }
 
                 // Denied reason display
-                if (part.approvalState is ToolApprovalState.Denied) {
+                if (isDenied) {
                     val reason = (part.approvalState as ToolApprovalState.Denied).reason
                     if (reason.isNotBlank()) {
                         Spacer(Modifier.height(4.dp))
                         Text(
                             text = "Reason: $reason",
                             style = MaterialTheme.typography.bodySmall.copy(
-                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                fontStyle = FontStyle.Italic,
                             ),
                             color = colorScheme.error,
                         )
@@ -271,6 +393,16 @@ fun VibeCodingToolCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.secondary,
                         fontWeight = FontWeight.Medium,
+                    )
+                }
+
+                // Retry hint for errors
+                if (hasError) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "Tip: You can ask the agent to retry with a different approach",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     )
                 }
             }
@@ -302,4 +434,41 @@ private fun CodePreviewText(text: String, colorScheme: ColorScheme) {
             .background(colorScheme.surface.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
             .padding(6.dp),
     )
+}
+
+@Composable
+private fun DiffPreviewText(text: String, colorScheme: ColorScheme) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorScheme.surface.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+            .padding(6.dp),
+    ) {
+        text.lines().forEach { line ->
+            val lineColor = when {
+                line.startsWith("+") && !line.startsWith("+++") -> Color(0xFF2E7D32).copy(alpha = 0.8f)
+                line.startsWith("-") && !line.startsWith("---") -> Color(0xFFC62828).copy(alpha = 0.8f)
+                line.startsWith("@@") -> colorScheme.primary.copy(alpha = 0.6f)
+                line.startsWith("diff --git") || line.startsWith("index") -> colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                else -> colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            }
+            val bgColor = when {
+                line.startsWith("+") && !line.startsWith("+++") -> Color(0xFF2E7D32).copy(alpha = 0.08f)
+                line.startsWith("-") && !line.startsWith("---") -> Color(0xFFC62828).copy(alpha = 0.08f)
+                else -> Color.Transparent
+            }
+            Text(
+                text = line,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 10.sp,
+                ),
+                color = lineColor,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(bgColor)
+                    .padding(horizontal = 4.dp, vertical = 0.5.dp),
+            )
+        }
+    }
 }

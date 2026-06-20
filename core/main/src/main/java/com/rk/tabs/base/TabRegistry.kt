@@ -5,13 +5,14 @@ import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
 import com.rk.tabs.image.ImageTab
+import java.util.concurrent.ConcurrentHashMap
 
 fun interface TabFactory {
     fun createTab(file: FileObject, projectRoot: FileObject?, viewModel: MainViewModel): Tab
 }
 
 object TabRegistry {
-    private val registeredTabs = java.util.concurrent.ConcurrentHashMap<String, TabFactory>()
+    private val registeredTabs = ConcurrentHashMap<String, TabFactory>()
 
     fun registerTab(tabFactory: TabFactory, fileExtensions: List<String>) {
         fileExtensions.forEach { registeredTabs[it] = tabFactory }

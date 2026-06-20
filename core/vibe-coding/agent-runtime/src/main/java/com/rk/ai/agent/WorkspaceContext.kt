@@ -14,6 +14,8 @@ data class WorkspaceSnapshot(
     val cursorPosition: Int = -1,
     val gitBranch: String = "",
     val gitChanges: Int = 0,
+    val gitDiffSummary: String = "",
+    val modifiedFiles: List<String> = emptyList(),
     val projectLanguage: String = "",
     val buildSystem: String = "",
     val diagnosticCount: Int = 0,
@@ -37,6 +39,14 @@ data class WorkspaceSnapshot(
         if (cursorPosition >= 0) appendLine("  cursor_position: line $cursorPosition")
         if (gitBranch.isNotBlank()) appendLine("  git_branch: $gitBranch")
         if (gitChanges > 0) appendLine("  git_uncommitted: $gitChanges")
+        if (modifiedFiles.isNotEmpty()) {
+            appendLine("  modified_files:")
+            modifiedFiles.forEach { appendLine("    - $it") }
+        }
+        if (gitDiffSummary.isNotBlank()) {
+            appendLine("  git_diff:")
+            gitDiffSummary.lines().forEach { appendLine("    $it") }
+        }
         if (projectLanguage.isNotBlank()) appendLine("  project_language: $projectLanguage")
         if (buildSystem.isNotBlank()) appendLine("  build_system: $buildSystem")
         if (diagnosticCount > 0) appendLine("  lsp_diagnostics: $diagnosticCount")
@@ -60,6 +70,10 @@ class WorkspaceContextCollector(
                 ideService.getGitStatus(workspaceRoot)
             } catch (_: Exception) { com.google.gson.JsonObject() }
 
+            val gitDiff = try {
+                ideService.getGitDiff(workspaceRoot)
+            } catch (_: Exception) { null }
+
             val activeFileData = try {
                 ideService.getActiveFile()
             } catch (_: Exception) { null }
@@ -76,6 +90,15 @@ class WorkspaceContextCollector(
                 activeFileData?.let { ideService.getDiagnostics(activeFileData["path"]?.asString ?: "") }
             } catch (_: Exception) { null }
 
+            val modifiedFiles = try {
+                val changes = gitStatus["changes"]?.asJsonArray
+                changes?.mapNotNull { change ->
+                    change.asJsonObject["file"]?.asString ?: change.asJsonObject["path"]?.asString
+                } ?: emptyList()
+            } catch (_: Exception) { emptyList() }
+
+            val diffSummary = gitDiff?.take(1000) // Keep diff summary under 1K chars
+
             WorkspaceSnapshot(
                 workspaceRoot = workspaceRoot,
                 projectRoot = projectConfig["projectDir"]?.asString ?: workspaceRoot,
@@ -90,7 +113,9 @@ class WorkspaceContextCollector(
                     it["cursorLine"]?.asInt ?: -1
                 } ?: -1,
                 gitBranch = gitStatus["branch"]?.asString ?: "",
-                gitChanges = gitStatus["changes"]?.asJsonArray?.size() ?: 0,
+                gitChanges = modifiedFiles.size,
+                gitDiffSummary = diffSummary ?: "",
+                modifiedFiles = modifiedFiles,
                 projectLanguage = projectConfig["language"]?.asString ?: "",
                 buildSystem = projectConfig["buildSystem"]?.asString ?: "",
                 diagnosticCount = diagnostics?.asJsonArray?.size() ?: 0,
