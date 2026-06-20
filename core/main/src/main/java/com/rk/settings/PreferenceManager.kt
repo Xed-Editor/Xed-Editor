@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object Preference {
-    private var sharedPreferences: SharedPreferences by lazy {
+    private val sharedPreferences: SharedPreferences by lazy {
         val ctx = application ?: error("Application context not initialized")
         ctx.getSharedPreferences("Settings", Context.MODE_PRIVATE)
     }
