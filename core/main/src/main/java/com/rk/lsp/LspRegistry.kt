@@ -7,8 +7,6 @@ import com.rk.lsp.servers.Bash
 import com.rk.lsp.servers.CSS
 import com.rk.lsp.servers.Emmet
 import com.rk.lsp.servers.HTML
-import com.rk.lsp.servers.JSON
-import com.rk.lsp.servers.Python
 import com.rk.lsp.servers.TypeScript
 import com.rk.lsp.servers.XML
 
@@ -17,7 +15,7 @@ object LspRegistry {
     val extensionServers: List<LspServer>
         get() = _extensionServers.toList()
 
-    val builtInServer = listOf(Python, HTML, Emmet, CSS, TypeScript, JSON, Bash, XML)
+    val builtInServer = listOf(HTML, Emmet, CSS, TypeScript, Bash, XML)
 
     private val _externalServers = mutableStateListOf<LspServer>()
     val externalServers: List<LspServer>
