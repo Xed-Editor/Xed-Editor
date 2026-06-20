@@ -4,6 +4,7 @@ package com.rk.ai.nativeagent.engine
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
+import com.rk.ai.agent.GenerationChunk
 import com.rk.ai.agent.AILoggingManager
 import com.rk.ai.agent.AppEventBus
 import com.rk.ai.agent.GenerationHandler
@@ -167,7 +168,7 @@ class VibeCodingEngine(
         engineScope = engineScope,
         onStateUpdate = { transform -> _state.value = _state.value.transform() },
         onSaveSession = { saveCurrentSessionMessages() },
-        onSaveConversation = { saveConversation() },
+        onSaveConversation = suspend { saveConversation() },
         getState = { _state.value },
     )
 
@@ -681,61 +682,95 @@ class VibeCodingEngine(
 
     fun sendMessage(text: String, extraParts: List<UIMessagePart> = emptyList()) {
         ensureSessionExists(text.trim())
-        if (isComplexTask(text) && !_state.value.isProcessing) {
-            engineScope.launch {
-                _state.value = _state.value.copy(isProcessing = true, currentPhase = AgentPhase.PLANNING)
-                val result = orchestrator.execute(text)
-                _state.value = _state.value.copy(
-                    isProcessing = false,
-                    currentPhase = result.phase,
-                    taskTree = result.taskTree,
-                    modifiedFiles = result.modifiedFiles,
-                )
-                if (result.success) {
-                    val msg = UIMessage(
-                        role = MessageRole.ASSISTANT,
-                        parts = listOf(UIMessagePart.Text(result.summary)),
-                    )
-                    _state.value = _state.value.copy(
-                        messages = _state.value.messages + msg,
-                    )
-                } else {
-                    val errorMsg = UIMessage(
-                        role = MessageRole.ASSISTANT,
-                        parts = listOf(UIMessagePart.Text("Failed: ${result.errors.joinToString(", ")}")),
-                    )
-                    _state.value = _state.value.copy(
-                        messages = _state.value.messages + errorMsg,
-                        error = result.errors.joinToString(", "),
-                    )
-                }
-            }
-        } else {
-            generationPipeline.execute(
-                text = text,
-                extraParts = extraParts,
-                buildConfig = ::buildGenerationConfig,
-            )
-        }
+        generationPipeline.execute(
+            text = text,
+            extraParts = extraParts,
+            buildConfig = ::buildGenerationConfig,
+        )
     }
 
-    fun runAutonomous(goal: String) {
+    fun sendOrchestrated(goal: String) {
         ensureSessionExists(goal.trim())
         engineScope.launch {
-            _state.value = _state.value.copy(isProcessing = true, currentPhase = AgentPhase.PLANNING)
-            val result = orchestrator.execute(goal)
+            val userMsg = UIMessage(
+                role = MessageRole.USER,
+                parts = listOf(UIMessagePart.Text(goal.trim())),
+            )
+            _state.value = _state.value.copy(
+                isProcessing = true,
+                currentPhase = AgentPhase.PLANNING,
+                messages = _state.value.messages + userMsg,
+            )
+            engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationStarted) }
+            val config = buildGenerationConfig()
+            val tools = config?.tools ?: emptyList()
+            val result = orchestrator.execute(goal, tools, ::generateWithLLM)
             _state.value = _state.value.copy(
                 isProcessing = false,
                 currentPhase = result.phase,
                 taskTree = result.taskTree,
                 modifiedFiles = result.modifiedFiles,
             )
-            val msg = UIMessage(
-                role = MessageRole.ASSISTANT,
-                parts = listOf(UIMessagePart.Text(result.summary)),
-            )
-            _state.value = _state.value.copy(messages = _state.value.messages + msg)
+            if (result.success) {
+                val msg = UIMessage(
+                    role = MessageRole.ASSISTANT,
+                    parts = listOf(UIMessagePart.Text(result.summary)),
+                )
+                _state.value = _state.value.copy(messages = _state.value.messages + msg)
+            } else {
+                val errorMsg = UIMessage(
+                    role = MessageRole.ASSISTANT,
+                    parts = listOf(UIMessagePart.Text("Failed: ${result.errors.joinToString(", ")}")),
+                )
+                _state.value = _state.value.copy(
+                    messages = _state.value.messages + errorMsg,
+                    error = result.errors.joinToString(", "),
+                )
+            }
+            engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationFinished) }
+            onSaveConversation()
         }
+    }
+
+    private suspend fun generateWithLLM(
+        messages: List<UIMessage>,
+        tools: List<Tool>,
+        systemPrompt: String,
+    ): String {
+        val config = buildGenerationConfig() ?: return ""
+        val settings = config.settings
+        val model = config.model
+        val assistant = config.assistant
+        val memories = config.memories
+        val inputTransformers = config.inputTransformers
+        val outputTransformers = config.outputTransformers
+        var resultText = ""
+        generationHandler.generateText(
+            settings = settings,
+            model = model,
+            messages = messages,
+            assistant = assistant,
+            memories = memories,
+            tools = tools,
+            inputTransformers = inputTransformers,
+            outputTransformers = outputTransformers,
+        ).collect { chunk ->
+            when (chunk) {
+                is GenerationChunk.Messages -> {
+                    val lastMsg = chunk.messages.lastOrNull()
+                    if (lastMsg != null) {
+                        resultText = lastMsg.toText()
+                    }
+                }
+                is GenerationChunk.GenerationError -> { }
+                else -> { }
+            }
+        }
+        return resultText
+    }
+
+    fun runAutonomous(goal: String) {
+        sendOrchestrated(goal)
     }
 
     fun stopGeneration() {

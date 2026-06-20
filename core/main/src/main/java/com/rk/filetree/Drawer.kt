@@ -71,6 +71,7 @@ import com.rk.activities.main.gitViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.DoubleInputDialog
 import com.rk.components.XedBottomSheet
+import com.rk.theme.DesignTokens
 import com.rk.AppScope
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
@@ -417,7 +418,7 @@ fun DrawerContent(fullscreen: Boolean) {
                 val showHorizontalDivider by remember { derivedStateOf { lazyListState.canScrollForward } }
 
                 NavigationRail(
-                    modifier = Modifier.width(56.dp),
+                    modifier = Modifier.width(DesignTokens.NavigationRailSize.compactWidth),
                     containerColor = MaterialTheme.colorScheme.surface,
                     windowInsets = if (fullscreen) WindowInsets() else NavigationRailDefaults.windowInsets,
                 ) {

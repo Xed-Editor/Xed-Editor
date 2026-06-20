@@ -66,7 +66,7 @@ fun PreferenceSwitch(
                     }
                 },
             ),
-        contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
+        contentModifier = Modifier.fillMaxHeight().padding(vertical = 12.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
         description = {
             description?.let {
@@ -91,7 +91,7 @@ fun PreferenceSwitch(
                     )
                 }
                 Switch(
-                    modifier = Modifier.padding(all = 16.dp).height(24.dp),
+                    modifier = Modifier.padding(start = 8.dp, end = 16.dp).height(24.dp),
                     checked = checked,
                     onCheckedChange = onCheckedChange,
                     enabled = enabled,

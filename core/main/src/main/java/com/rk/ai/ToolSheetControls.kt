@@ -40,14 +40,14 @@ fun ToolSheetControls(
                 FilledTonalIconButton(
                     onClick = onUndo,
                     enabled = canUndo,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(34.dp),
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        containerColor = colorScheme.surfaceContainerHigh
                     )
                 ) {
                     XedIcon(
                         com.rk.icons.Icon.DrawableRes(drawables.undo),
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(18.dp),
                         tint = if (canUndo) colorScheme.onSurface else colorScheme.onSurface.copy(alpha = 0.38f)
                     )
                 }
@@ -55,44 +55,44 @@ fun ToolSheetControls(
                 FilledTonalIconButton(
                     onClick = onRedo,
                     enabled = canRedo,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(34.dp),
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        containerColor = colorScheme.surfaceContainerHigh
                     )
                 ) {
                     XedIcon(
                         com.rk.icons.Icon.DrawableRes(drawables.redo),
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(18.dp),
                         tint = if (canRedo) colorScheme.onSurface else colorScheme.onSurface.copy(alpha = 0.38f)
                     )
                 }
 
                 FilledTonalIconButton(
                     onClick = onRestartAgent,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(34.dp),
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        containerColor = colorScheme.surfaceContainerHigh
                     )
                 ) {
                     Icon(
                         Icons.Outlined.Refresh,
                         contentDescription = "Restart",
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(18.dp),
                         tint = colorScheme.onSurfaceVariant
                     )
                 }
 
                 FilledTonalIconButton(
                     onClick = onSyncFiles,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(34.dp),
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        containerColor = colorScheme.surfaceContainerHigh
                     )
                 ) {
                     Icon(
                         Icons.Outlined.Save,
                         contentDescription = "Sync",
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(18.dp),
                         tint = colorScheme.onSurfaceVariant
                     )
                 }
@@ -113,15 +113,15 @@ fun ToolSheetControls(
                             ctx.startActivity(this)
                         }
                     },
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(34.dp),
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        containerColor = colorScheme.surfaceContainerHigh
                     )
                 ) {
                     Icon(
                         Icons.Outlined.Settings,
                         contentDescription = "Settings",
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(18.dp),
                         tint = colorScheme.onSurfaceVariant
                     )
                 }

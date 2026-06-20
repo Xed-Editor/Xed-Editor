@@ -164,7 +164,7 @@ private fun SessionChips(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colorScheme.surfaceContainerHigh.copy(alpha = 0.5f))
+            .background(colorScheme.surfaceContainerLow)
             .horizontalScroll(rememberScrollState())
             .padding(horizontal = 4.dp, vertical = 3.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -267,8 +267,8 @@ private fun SessionChips(
 }
 
 @Composable
-private fun DividerThin(colorScheme: androidx.compose.material3.ColorScheme) {
-    HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.12f), thickness = 0.5.dp)
+private fun DividerThin(colorScheme: ColorScheme) {
+    HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.2f), thickness = 0.5.dp)
 }
 
 @Composable
@@ -299,6 +299,7 @@ private fun TerminalQuickActions(
                 }
             },
             color = colorScheme.secondaryContainer,
+            labelColor = colorScheme.onSecondaryContainer,
         )
 
         ActionChip(
@@ -308,6 +309,7 @@ private fun TerminalQuickActions(
                 terminalViewModel.terminalView?.mTermSession?.write("clear\n")
             },
             color = colorScheme.secondaryContainer,
+            labelColor = colorScheme.onSecondaryContainer,
         )
 
         ActionChip(
@@ -335,7 +337,7 @@ private fun TerminalQuickActions(
                     }
                 }
             },
-            color = colorScheme.surfaceVariant,
+            color = colorScheme.surfaceContainerHigh,
         )
 
         ActionChip(
@@ -361,7 +363,7 @@ private fun TerminalQuickActions(
                 }
             },
             color = colorScheme.errorContainer,
-            labelColor = colorScheme.error,
+            labelColor = colorScheme.onErrorContainer,
         )
     }
 }
@@ -714,7 +716,7 @@ private fun QuickActions(
             icon = { Icon(Icons.Outlined.Settings, contentDescription = null, modifier = Modifier.size(15.dp)) },
             label = "Bridge",
             onClick = { onAction("/doctor") },
-            color = colorScheme.surfaceVariant,
+            color = colorScheme.surfaceContainerHigh,
         )
 
         ActionChip(
@@ -722,6 +724,7 @@ private fun QuickActions(
             label = "Fix",
             onClick = { onAction(prompt("Fix bugs and issues")) },
             color = colorScheme.tertiaryContainer,
+            labelColor = colorScheme.onTertiaryContainer,
         )
 
         ActionChip(
@@ -729,6 +732,7 @@ private fun QuickActions(
             label = "Explain",
             onClick = { onAction(prompt("Explain the code")) },
             color = colorScheme.secondaryContainer,
+            labelColor = colorScheme.onSecondaryContainer,
         )
 
         ActionChip(
@@ -736,6 +740,7 @@ private fun QuickActions(
             label = "Refactor",
             onClick = { onAction(prompt("Refactor and improve code quality")) },
             color = colorScheme.secondaryContainer,
+            labelColor = colorScheme.onSecondaryContainer,
         )
 
         ActionChip(
@@ -743,6 +748,7 @@ private fun QuickActions(
             label = "Review",
             onClick = { onAction(prompt("Review code for improvements and issues")) },
             color = colorScheme.secondaryContainer,
+            labelColor = colorScheme.onSecondaryContainer,
         )
 
         if (currentFile.isNotBlank()) {
@@ -751,6 +757,7 @@ private fun QuickActions(
                 label = "Add test",
                 onClick = { onAction(prompt("Write unit tests")) },
                 color = colorScheme.tertiaryContainer,
+                labelColor = colorScheme.onTertiaryContainer,
             )
         }
     }
@@ -768,7 +775,8 @@ private fun ActionChip(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(6.dp),
-        color = color.copy(alpha = 0.5f),
+        color = color,
+        tonalElevation = 0.dp,
         modifier = modifier.height(32.dp),
     ) {
         Row(

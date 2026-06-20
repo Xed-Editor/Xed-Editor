@@ -164,7 +164,10 @@ fun FileTreeNodeItem(
             Spacer(modifier = Modifier.width(8.dp))
 
             val underlineColor = getUnderlineColor(context, viewModel, node.file)
-            Row(modifier = Modifier.width((getDrawerWidth() - 61.dp)), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.weight(1f, fill = false),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
                     text = displayName,
                     style = MaterialTheme.typography.bodyMedium,

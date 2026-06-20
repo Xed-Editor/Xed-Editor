@@ -28,7 +28,7 @@ import com.rk.settings.Settings
 inline fun getDrawerWidth(): Dp {
     val density = LocalDensity.current
     val widthPx = LocalWindowInfo.current.containerSize.width
-    val width = with(density) { (widthPx * 0.8f).toDp().coerceAtMost(360.dp) }
+    val width = with(density) { (widthPx * 0.78f).toDp().coerceIn(280.dp, 380.dp) }
     return width
 }
 
@@ -55,7 +55,7 @@ fun ResponsiveDrawer(
                 PermanentDrawerSheet(
                     windowInsets = if (fullscreen) WindowInsets() else DrawerDefaults.windowInsets,
                     drawerShape = RectangleShape,
-                    modifier = Modifier.width(300.dp),
+                    modifier = Modifier.width(320.dp),
                     content = sheetContent,
                 )
             },

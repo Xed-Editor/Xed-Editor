@@ -127,10 +127,10 @@ fun ToolSheetContainer(
 
     val isTablet = screenWidthDp >= 600.dp
 
-    val availableHeight = (screenHeightDp - imeHeightDp - statusBarHeightDp).coerceAtLeast(320.dp)
-    val maxHeight = (availableHeight * if (isTablet) 0.88f else 0.94f).coerceAtLeast(320.dp)
-    val minHeight = 220.dp.coerceAtMost(maxHeight)
-    val initialHeight = (availableHeight * if (isTablet) 0.62f else 0.58f).coerceIn(minHeight, maxHeight)
+    val availableHeight = (screenHeightDp - imeHeightDp - statusBarHeightDp).coerceAtLeast(360.dp)
+    val maxHeight = (availableHeight * if (isTablet) 0.88f else 0.94f).coerceAtLeast(360.dp)
+    val minHeight = 260.dp.coerceAtMost(maxHeight)
+    val initialHeight = (availableHeight * if (isTablet) 0.60f else 0.55f).coerceIn(minHeight, maxHeight)
 
     val state = rememberToolSheetState(
         minHeight = minHeight,
@@ -174,10 +174,10 @@ fun ToolSheetModalContainer(
     val isTablet = screenWidthDp >= 600.dp
     val colorScheme = MaterialTheme.colorScheme
 
-    val availableHeight = (screenHeightDp - imeHeightDp - statusBarHeightDp).coerceAtLeast(320.dp)
-    val maxHeight = (availableHeight * if (isTablet) 0.88f else 0.94f).coerceAtLeast(320.dp)
-    val minHeight = 220.dp.coerceAtMost(maxHeight)
-    val initialHeight = (availableHeight * if (isTablet) 0.62f else 0.58f).coerceIn(minHeight, maxHeight)
+    val availableHeight = (screenHeightDp - imeHeightDp - statusBarHeightDp).coerceAtLeast(360.dp)
+    val maxHeight = (availableHeight * if (isTablet) 0.88f else 0.94f).coerceAtLeast(360.dp)
+    val minHeight = 260.dp.coerceAtMost(maxHeight)
+    val initialHeight = (availableHeight * if (isTablet) 0.60f else 0.55f).coerceIn(minHeight, maxHeight)
 
     val state = rememberToolSheetState(
         minHeight = minHeight,

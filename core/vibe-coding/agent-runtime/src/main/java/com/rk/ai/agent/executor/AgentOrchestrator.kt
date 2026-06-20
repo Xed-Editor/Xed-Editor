@@ -46,7 +46,11 @@ class AgentOrchestrator(
 
     fun getPhase(): AgentPhase = currentPhase
 
-    suspend fun execute(goal: String): OrchestratorResult {
+    suspend fun execute(
+        goal: String,
+        tools: List<com.rk.ai.models.Tool> = emptyList(),
+        generateWithLLM: suspend (List<com.rk.ai.models.UIMessage>, List<com.rk.ai.models.Tool>, String) -> String = { _, _, _ -> "" },
+    ): OrchestratorResult {
         val startTime = System.currentTimeMillis()
         val allModifiedFiles = mutableListOf<String>()
         val allErrors = mutableListOf<String>()
@@ -88,8 +92,8 @@ class AgentOrchestrator(
 
                 taskResult = executionEngine.executeTask(
                     task = nextTask,
-                    tools = emptyList(),
-                    generateWithLLM = { _, _, _ -> "" },
+                    tools = tools,
+                    generateWithLLM = generateWithLLM,
                 )
 
                 if (taskResult.success) {

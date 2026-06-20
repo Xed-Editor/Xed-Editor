@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.material3.DrawerState
@@ -144,6 +145,17 @@ fun MainActivity.MainContentHost(
                         if (Settings.fullscreen) WindowInsets() else ScaffoldDefaults.contentWindowInsets,
                     snackbarHost = {
                         SnackbarHost(hostState = snackbarHostState) { data ->
+                            Snackbar(
+                                snackbarData = data,
+                                containerColor = MaterialTheme.colorScheme.inverseSurface,
+                                contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                                actionColor = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(10.dp),
+                                dismissActionContentColor = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.7f),
+                                modifier = if (snackbarBottomPadding > 0.dp) {
+                                    Modifier.padding(bottom = snackbarBottomPadding)
+                                } else Modifier,
+                            )
                             Snackbar(
                                 snackbarData = data,
                                 containerColor = MaterialTheme.colorScheme.inverseSurface,

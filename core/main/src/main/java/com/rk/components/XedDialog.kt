@@ -24,6 +24,10 @@ fun XedDialog(
     content: @Composable () -> Unit,
 ) {
     val config = LocalConfiguration.current
+    val isTablet = config.screenWidthDp >= 600.dp
+    val dialogWidth =
+        if (isTablet) (config.screenWidthDp * 0.55f).dp.coerceIn(360.dp, 560.dp)
+        else (config.screenWidthDp * 0.88f).dp.coerceAtMost(420.dp)
 
     Dialog(onDismissRequest = onDismissRequest, properties = dialogProperties) {
         Box(
@@ -31,7 +35,7 @@ fun XedDialog(
                 modifier
                     .padding(horizontal = 16.dp, vertical = 32.dp)
                     .clip(shape = RoundedCornerShape(16.dp))
-                    .width((config.screenWidthDp / 1.25).dp)
+                    .width(dialogWidth)
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             contentAlignment = Alignment.Center,
         ) {

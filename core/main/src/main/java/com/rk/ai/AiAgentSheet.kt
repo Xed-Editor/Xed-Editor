@@ -158,6 +158,8 @@ fun UnifiedToolSheet(
         }
     }
 
+    // Engine lifecycle managed via remember + DisposableEffect above
+
     ToolSheetContainer(
         onDismissRequest = onDismissRequest,
         cwd = cwd.value,
