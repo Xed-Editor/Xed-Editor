@@ -147,6 +147,7 @@ class VibeCodingEngine(
     private val localTools = LocalTools(context, eventBus)
 
     val vibeEventBus = VibeCodingEventBus()
+    val contextMemoryManager = ContextMemoryManager()
 
     val generationHandler = GenerationHandler(
         context = context,
@@ -176,7 +177,6 @@ class VibeCodingEngine(
     val toolCache = ToolCache()
     val toolRouter = ToolRouter(toolCache, null)
     val projectIndexer = ProjectIndexer(ideService)
-    val contextMemoryManager = ContextMemoryManager()
     val executionEngine = ExecutionEngine(
         ideService = ideService,
         contextMemory = contextMemoryManager,

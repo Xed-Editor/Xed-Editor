@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,9 +21,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -75,7 +75,6 @@ fun VibeCodingInput(
     var attachedParts by remember { mutableStateOf<List<UIMessagePart>>(emptyList()) }
     var showSlashMenu by remember { mutableStateOf(false) }
     var showQuickActions by remember { mutableStateOf(true) }
-    val focusManager = LocalFocusManager.current
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -160,7 +159,7 @@ fun VibeCodingInput(
                             label = {
                                 Text(action.label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
                             },
-                            leadingIcon = {
+                            icon = {
                                 Icon(
                                     action.icon,
                                     contentDescription = null,
@@ -250,7 +249,7 @@ fun VibeCodingInput(
                     LazyColumn(
                         modifier = Modifier.padding(vertical = 4.dp),
                     ) {
-                        items(filtered) { cmd ->
+                        items(filtered) { cmd: SlashCommand ->
                             Surface(
                                 onClick = {
                                     textFieldValue = TextFieldValue("/${cmd.id} ")
@@ -349,15 +348,7 @@ fun VibeCodingInput(
                     modifier =
                         Modifier
                             .weight(1f)
-                            .heightIn(min = 40.dp, max = 160.dp)
-                            .onKeyEvent { event ->
-                                if (event.key == Key.Enter && !event.isShiftPressed) {
-                                    if (textFieldValue.text.isNotBlank() || attachedParts.isNotEmpty()) {
-                                        send()
-                                    }
-                                    true
-                                } else false
-                            },
+                            .heightIn(min = 40.dp, max = 160.dp),
                     placeholder = {
                         Text(
                             "Ask or type / for commands...",
@@ -427,7 +418,7 @@ fun VibeCodingInput(
             // Hint text
             if (!isProcessing && textFieldValue.text.isBlank()) {
                 Text(
-                    text = "Enter to send · Shift+Enter for new line · / for commands",
+                    text = "Enter to send · / for commands",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
                     color = colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
                     modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp, start = 12.dp),

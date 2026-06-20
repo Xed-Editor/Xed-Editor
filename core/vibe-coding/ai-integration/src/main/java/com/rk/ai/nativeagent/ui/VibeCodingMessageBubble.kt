@@ -166,7 +166,7 @@ private fun MessagePartContent(
             onDeny = { reason -> onDenyTool?.invoke(part.toolCallId, reason) },
             onAnswer = { answer -> onAnswerTool?.invoke(part.toolCallId, answer) },
         )
-        is UIMessagePart.StepStart -> StepIndicator(part.stepIndex, part.totalSteps)
+        is UIMessagePart.StepStart -> StepIndicator(stepIndex = part.stepIndex, totalSteps = 0)
         is UIMessagePart.StepFinish -> StepFinishIndicator(
             stepIndex = part.stepIndex,
             inputTokens = part.inputTokens,

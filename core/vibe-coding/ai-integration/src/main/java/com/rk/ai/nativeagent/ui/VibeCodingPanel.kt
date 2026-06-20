@@ -26,6 +26,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -427,6 +428,7 @@ fun VibeCodingPanel(
 
     if (showExportDialog) {
         val exportContent = remember(state.messages) { state.exportAsMarkdown() }
+        val panelContext = LocalContext.current
         AlertDialog(
             onDismissRequest = { showExportDialog = false },
             title = { Text("Export Conversation") },
@@ -459,7 +461,8 @@ fun VibeCodingPanel(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    engine.ideService.writeToClipboard(exportContent)
+                    val cm = panelContext.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("VibeCoding", exportContent))
                     showExportDialog = false
                 }) {
                     Text("Copy to Clipboard")
