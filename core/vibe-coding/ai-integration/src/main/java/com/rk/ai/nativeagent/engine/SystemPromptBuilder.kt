@@ -8,38 +8,29 @@ import com.rk.ai.service.IdeService
 class SystemPromptBuilder(
     private val ideService: IdeService,
 ) {
-    private var injected = false
-    private var modelPromptInjected = false
+    private var systemPromptInjected = false
     private val contextCollector = WorkspaceContextCollector(ideService)
     var projectInstructions: String? = null
 
-    fun isInjected(): Boolean = injected
+    fun isInjected(): Boolean = systemPromptInjected
 
     fun reset() {
-        injected = false
-        modelPromptInjected = false
+        systemPromptInjected = false
     }
 
-    suspend fun build(model: Model? = null): String {
-        if (injected) return ""
-        injected = true
-
-        val modelPrompt = if (model != null && !modelPromptInjected) {
-            modelPromptInjected = true
+    fun buildInitialSystemPrompt(model: Model?): String {
+        val modelPrompt = if (model != null) {
             ModelPrompts.forModel(model, VibeCodingSystemTools.SYSTEM_INSTRUCTIONS)
         } else {
             VibeCodingSystemTools.SYSTEM_INSTRUCTIONS
         }
 
-        val ctxBlock = buildWorkspaceContext()
         val instructionsBlock = buildProjectInstructions()
 
         return (listOfNotNull(
             modelPrompt,
-            "",
-            ctxBlock,
             instructionsBlock,
-        )).joinToString("\n")
+        )).joinToString("\n\n")
     }
 
     suspend fun buildWorkspaceContext(): String {

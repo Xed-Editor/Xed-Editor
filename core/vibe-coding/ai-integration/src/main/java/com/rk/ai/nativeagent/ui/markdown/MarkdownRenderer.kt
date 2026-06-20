@@ -255,6 +255,8 @@ private fun CodeBlockRenderer(
         SyntaxHighlighter.highlightWithColors(code, language, colors)
     }
 
+    var copyCount by remember { mutableStateOf(0) }
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
@@ -282,6 +284,7 @@ private fun CodeBlockRenderer(
                     onClick = {
                         clipboardManager.setText(AnnotatedString(code))
                         showCopied = true
+                        copyCount++
                     },
                     shape = RoundedCornerShape(4.dp),
                     color = colors.copyButton,
@@ -294,7 +297,7 @@ private fun CodeBlockRenderer(
                     )
                 }
                 if (showCopied) {
-                    LaunchedEffect(Unit) {
+                    LaunchedEffect(copyCount) {
                         kotlinx.coroutines.delay(2000)
                         showCopied = false
                     }
@@ -386,9 +389,27 @@ private fun InlineStyleText(
     }
 
     if (styles.any { it.link != null }) {
+        val context = LocalContext.current
         val linkMap = mutableMapOf<String, String>()
         styles.filter { it.link != null }.forEach { linkMap[it.text] = it.link!! }
-        Text(text = annotated, style = style)
+        ClickableText(
+            text = annotated,
+            style = style,
+            onClick = { offset ->
+                var pos = 0
+                for (s in styles) {
+                    if (offset in pos until (pos + s.text.length)) {
+                        s.link?.let { url ->
+                            try {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                            } catch (_: Exception) { }
+                        }
+                        break
+                    }
+                    pos += s.text.length
+                }
+            },
+        )
     } else {
         Text(text = annotated, style = style)
     }

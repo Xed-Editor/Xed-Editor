@@ -627,16 +627,48 @@ class VibeCodingEngine(
     private val systemPromptBuilder = SystemPromptBuilder(ideService)
 
     private inner class SystemPromptTransformer : InputMessageTransformer {
+        private var initialPromptInjected = false
+
         override suspend fun transform(
             ctx: TransformerContext,
             messages: List<UIMessage>,
         ): List<UIMessage> {
-            if (systemPromptBuilder.isInjected() || messages.isEmpty()) return messages
-            val workspaceContext = systemPromptBuilder.build(ctx.model)
-            return listOf(UIMessage.system(workspaceContext.toString())) + messages
+            if (messages.isEmpty()) return messages
+
+            val result = mutableListOf<UIMessage>()
+
+            // Inject system prompt once at the very beginning
+            if (!initialPromptInjected) {
+                val systemPrompt = systemPromptBuilder.buildInitialSystemPrompt(ctx.model)
+                if (systemPrompt.isNotBlank()) {
+                    result.add(UIMessage.system(systemPrompt))
+                }
+                initialPromptInjected = true
+            }
+
+            // Strip stale workspace context messages from existing history
+            val cleaned = messages.filterNot { msg ->
+                msg.role == com.rk.ai.core.MessageRole.SYSTEM &&
+                msg.parts.any { part ->
+                    part is UIMessagePart.Text && part.text.contains("<workspace_context>")
+                }
+            }
+
+            result.addAll(cleaned)
+
+            // Append fresh workspace context right before the newest user message
+            val ctxBlock = systemPromptBuilder.buildWorkspaceContext()
+            if (ctxBlock.isNotBlank()) {
+                result.add(UIMessage.system(ctxBlock))
+            }
+
+            return result
         }
 
-        fun reset() { systemPromptBuilder.reset() }
+        fun reset() {
+            initialPromptInjected = false
+            systemPromptBuilder.reset()
+        }
     }
 
     private val systemPromptTransformer = SystemPromptTransformer()
@@ -699,6 +731,7 @@ class VibeCodingEngine(
     fun sendOrchestrated(goal: String) {
         ensureSessionExists(goal.trim())
         engineScope.launch {
+            val currentMessages = _state.value.messages
             val userMsg = UIMessage(
                 role = MessageRole.USER,
                 parts = listOf(UIMessagePart.Text(goal.trim())),
@@ -706,12 +739,19 @@ class VibeCodingEngine(
             _state.value = _state.value.copy(
                 isProcessing = true,
                 currentPhase = AgentPhase.PLANNING,
-                messages = _state.value.messages + userMsg,
+                messages = currentMessages + userMsg,
             )
             engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationStarted) }
             val config = buildGenerationConfig()
             val tools = config?.tools ?: emptyList()
-            val result = orchestrator.execute(goal, tools, ::generateWithLLM)
+            val result = orchestrator.execute(goal, tools) { prompt, contextTools, contextBundle ->
+                generateWithLLM(
+                    prompt = prompt,
+                    tools = contextTools,
+                    context = contextBundle,
+                    conversationHistory = currentMessages,
+                )
+            }
             _state.value = _state.value.copy(
                 isProcessing = false,
                 currentPhase = result.phase,
@@ -743,6 +783,7 @@ class VibeCodingEngine(
         prompt: String,
         tools: List<Tool>,
         context: com.rk.ai.agent.context.ContextBundle,
+        conversationHistory: List<UIMessage> = emptyList(),
     ): String {
         val config = buildGenerationConfig() ?: return ""
         val settings = config.settings
@@ -751,7 +792,9 @@ class VibeCodingEngine(
         val memories = config.memories
         val inputTransformers = config.inputTransformers
         val outputTransformers = config.outputTransformers
-        val messages = listOf(
+
+        // Include conversation history so the LLM has context
+        val messages = conversationHistory + listOf(
             UIMessage.user(prompt)
         )
         var resultText = ""
@@ -764,6 +807,7 @@ class VibeCodingEngine(
             tools = tools,
             inputTransformers = inputTransformers,
             outputTransformers = outputTransformers,
+            maxSteps = 50,
         ).collect { chunk ->
             when (chunk) {
                 is GenerationChunk.Messages -> {

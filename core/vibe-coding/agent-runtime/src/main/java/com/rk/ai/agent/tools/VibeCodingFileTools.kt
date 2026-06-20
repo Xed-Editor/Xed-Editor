@@ -160,45 +160,54 @@ class VibeCodingFileTools(private val ideService: IdeService) {
             val resolvedPath = file.absolutePath
             val content = ideService.getFileContent(resolvedPath, null, null) ?: return@Tool listOf(UIMessagePart.Text("File not found: $resolvedPath"))
 
-            val matches = if (replaceAll) {
-                if (content.contains(oldString)) 1 else 0
-            } else {
-                var idx = 0
-                var count = 0
-                while (true) {
-                    idx = content.indexOf(oldString, idx)
-                    if (idx == -1) break
-                    count++
-                    idx += oldString.length
-                }
-                count
+            // Count occurrences of oldString
+            var matchCount = 0
+            var searchIdx = 0
+            while (true) {
+                searchIdx = content.indexOf(oldString, searchIdx)
+                if (searchIdx == -1) break
+                matchCount++
+                searchIdx += oldString.length
             }
 
-            if (replaceAll && content.contains(oldString)) {
-                if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $resolvedPath (replaceAll: ${oldString.length} chars -> ${newString.length} chars)"))
-                val result = content.replace(oldString, newString)
-                ideService.writeFile(file, result)
-                listOf(UIMessagePart.Text("Edited $resolvedPath (replaced all occurrences)"))
-            } else if (matches == 1) {
-                if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $resolvedPath (${oldString.length} chars -> ${newString.length} chars)"))
-                val result = content.replace(oldString, newString)
-                ideService.writeFile(file, result)
-                listOf(UIMessagePart.Text("Edited $resolvedPath"))
-            } else if (matches > 1) {
-                listOf(UIMessagePart.Text("Found $matches matches in $resolvedPath. Provide more surrounding context in oldString to identify the correct match, or use replaceAll=true."))
-            } else if (partialMatch) {
-                val idx = content.indexOf(oldString.take(20))
-                if (idx != -1) {
-                    if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $resolvedPath via partial match"))
-                    val result = content.replace(oldString, newString)
-                    ideService.writeFile(file, result)
-                    listOf(UIMessagePart.Text("Edited $resolvedPath (partial match)"))
-                } else {
-                    listOf(UIMessagePart.Text("Could not find the specified text in $resolvedPath (tried partial match too)"))
+            // Handle exact match not found
+            if (matchCount == 0) {
+                if (partialMatch) {
+                    val partialIdx = content.indexOf(oldString.take(minOf(oldString.length, 30)))
+                    if (partialIdx != -1) {
+                        if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $resolvedPath via partial match"))
+                        val result = content.replace(oldString, newString)
+                        ideService.writeFile(file, result)
+                        return@Tool listOf(UIMessagePart.Text("Edited $resolvedPath (partial match)"))
+                    }
                 }
-            } else {
-                listOf(UIMessagePart.Text("Could not find the specified text in $resolvedPath"))
+                return@Tool listOf(UIMessagePart.Text("Could not find the specified text in $resolvedPath"))
             }
+
+            // Handle multiple matches without replaceAll
+            if (matchCount > 1 && !replaceAll) {
+                return@Tool listOf(UIMessagePart.Text(
+                    "Found $matchCount matches in $resolvedPath. " +
+                    "Provide more surrounding context in oldString to identify the correct match, or use replaceAll=true."
+                ))
+            }
+
+            // Dry run
+            if (dryRun) {
+                val mode = if (replaceAll) "replaceAll" else "single"
+                return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $resolvedPath ($mode: ${oldString.length} chars -> ${newString.length} chars)"))
+            }
+
+            // Execute edit
+            val result = content.replace(oldString, newString)
+            ideService.writeFile(file, result)
+
+            val note = when {
+                replaceAll -> " (replaced all $matchCount occurrences)"
+                matchCount == 1 -> ""
+                else -> ""
+            }
+            listOf(UIMessagePart.Text("Edited $resolvedPath$note"))
         },
     )
 

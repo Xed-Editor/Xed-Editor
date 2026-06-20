@@ -243,38 +243,67 @@ private fun FileTreeItem(
     }
 }
 
-private fun parseStructure(jsonString: String): List<FileNode> {
-    // Simplified: parse from the getProjectStructure JSON format
-    // Expected format: hierarchical tree with "name", "type" (file/dir), "children"
+private fun parseStructure(treeText: String): List<FileNode> {
+    // Parse text tree format from ProjectService.getProjectStructure:
+    //   [D] project/
+    //     [F] build.gradle.kts
+    //     [D] src/
+    //       [F] MainActivity.kt
     return try {
-        val json = com.google.gson.JsonParser.parseString(jsonString)
-        parseJsonNode(json, "")
+        val lines = treeText.lines().filter { it.isNotBlank() }
+        val rootNodes = mutableListOf<FileNode>()
+        val stack = mutableListOf<Pair<Int, MutableList<FileNode>>>() // depth -> sibling list
+
+        for (line in lines) {
+            val stripped = line.trimStart()
+            val indent = line.length - stripped.length
+            val depth = indent / 2
+            val isDir = stripped.startsWith("[D]")
+            val isFile = stripped.startsWith("[F]")
+            if (!isDir && !isFile) continue
+            val name = stripped.removePrefix("[D] ").removePrefix("[F] ").trimEnd('/')
+            val path = buildString {
+                // Build path by walking the stack
+                for (i in 1 until depth) {
+                    val parent = stack.getOrNull(i - 1)?.second?.lastOrNull()
+                    if (parent != null) append(parent.name).append('/')
+                }
+                append(name)
+            }
+
+            // Pop stack to correct depth
+            while (stack.isNotEmpty() && stack.last().first >= depth) {
+                stack.removeAt(stack.lastIndex)
+            }
+
+            if (isDir) {
+                val children = mutableListOf<FileNode>()
+                val node = FileNode(name, path, true, children)
+                if (stack.isNotEmpty()) {
+                    stack.last().second.add(node)
+                } else {
+                    rootNodes.add(node)
+                }
+                stack.add(depth to children)
+            } else {
+                val node = FileNode(name, path, false)
+                if (stack.isNotEmpty()) {
+                    stack.last().second.add(node)
+                } else {
+                    rootNodes.add(node)
+                }
+            }
+        }
+
+        // Determine the proper root: strip the top-level project dir if present
+        if (rootNodes.size == 1 && rootNodes[0].isDirectory) {
+            rootNodes[0].children
+        } else {
+            rootNodes
+        }
     } catch (_: Exception) {
         emptyList()
     }
-}
-
-private fun parseJsonNode(json: com.google.gson.JsonElement, parentPath: String): List<FileNode> {
-    val nodes = mutableListOf<FileNode>()
-    if (json.isJsonArray) {
-        json.asJsonArray.forEach { element ->
-            nodes.addAll(parseJsonNode(element, parentPath))
-        }
-    } else if (json.isJsonObject) {
-        val obj = json.asJsonObject
-        val name = obj["name"]?.asString ?: return nodes
-        val type = obj["type"]?.asString ?: obj["kind"]?.asString ?: "file"
-        val path = "$parentPath/$name"
-        if (type == "directory" || type == "dir") {
-            val children = if (obj.has("children")) {
-                parseJsonNode(obj["children"], path)
-            } else emptyList()
-            nodes.add(FileNode(name, path, true, children))
-        } else {
-            nodes.add(FileNode(name, path, false))
-        }
-    }
-    return nodes
 }
 
 private fun filterNodes(nodes: List<FileNode>, query: String): List<FileNode> {

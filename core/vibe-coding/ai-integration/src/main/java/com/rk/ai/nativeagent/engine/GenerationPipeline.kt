@@ -151,8 +151,12 @@ class GenerationPipeline(
                     is GenerationChunk.GenerationError -> {
                         onStateUpdate { copy(error = chunk.errorMessage) }
                     }
-                    is GenerationChunk.StepStarted,
-                    is GenerationChunk.StepFinished -> { }
+                    is GenerationChunk.StepStarted -> {
+                        onStateUpdate { copy(currentPhase = com.rk.ai.agent.executor.AgentPhase.EXECUTING) }
+                    }
+                    is GenerationChunk.StepFinished -> {
+                        onStateUpdate { copy(currentPhase = com.rk.ai.agent.executor.AgentPhase.IDLE) }
+                    }
                 }
             }
         }.onFailure { e ->
