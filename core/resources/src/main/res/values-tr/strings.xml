@@ -680,4 +680,7 @@
     <string name="samsung_proot_warning">Samsung cihazınız, PRoot tabanlı terminal kurulumunun başarısız olmasına neden olan bilinen bir sorundan etkilenmektedir.</string>
     <string name="terminal_degraded_warning">Terminal, bazı cihazlardaki PRoot ortamında meydana gelen bir arızadan kaynaklanan bilinen bir uyumluluk sorunu nedeniyle şu anda kısıtlı modda çalışmaktadır. Bazı özellikler sınırlı olabilir veya farklı çalışabilir.</string>
     <string name="disabled_crashed">Devre dışı (Çöktü)</string>
+    <string name="seccomp_unspecified">Belirtilmemiş</string>
+    <string name="seccomp_no_seccomp">Seccomp yok</string>
+    <string name="seccomp_seccomp">Güvenli Hesaplama Modu</string>
 </resources>
