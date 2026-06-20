@@ -77,10 +77,12 @@ fun VibeCodingPanel(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
-    val workspacePath = remember {
-        try {
-            engine.ideService.getPrimaryWorkspacePath()
-        } catch (_: Exception) { "/" }
+    val workspacePath by remember {
+        derivedStateOf {
+            try {
+                engine.ideService.getPrimaryWorkspacePath()
+            } catch (_: Exception) { "" }
+        }
     }
 
     val hasTodos = state.todos.isNotEmpty() && state.dockOpen

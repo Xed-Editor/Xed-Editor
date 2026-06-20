@@ -11,8 +11,17 @@ import kotlinx.coroutines.withContext
 class TerminalService {
 
     suspend fun runCommand(command: String, timeoutSeconds: Long): CommandResult {
+        val workspace = IdeBridge.primaryWorkspacePath()
+        val workingDir = if (workspace.isNotBlank() && java.io.File(workspace).exists()) {
+            workspace
+        } else {
+            // Fall back to the active terminal session's working directory or home
+            val sessionWorkDir = AiSessionManager.cwd
+            if (!sessionWorkDir.isNullOrBlank()) sessionWorkDir
+            else com.rk.file.sandboxHomeDir().absolutePath
+        }
         val result = ShellUtils.runUbuntu(
-            IdeBridge.primaryWorkspacePath(),
+            workingDir,
             "/bin/bash", "-lc", command,
             timeoutSeconds = timeoutSeconds.coerceIn(1, 600),
         )

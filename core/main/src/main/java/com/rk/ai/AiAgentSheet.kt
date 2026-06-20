@@ -147,9 +147,14 @@ fun UnifiedToolSheet(
 
     val vibecodingEngine = remember(activity) {
         activity?.let { act ->
+            AiProvider.ideBridge?.setWorkspacePath(cwd.value)
             val factory = AiProvider.ideServiceFactory ?: return@let null
             VibeCodingEngine(context = act, ideService = factory.create(viewModel))
         }
+    }
+
+    LaunchedEffect(cwd.value) {
+        AiProvider.ideBridge?.setWorkspacePath(cwd.value)
     }
 
     DisposableEffect(activity) {

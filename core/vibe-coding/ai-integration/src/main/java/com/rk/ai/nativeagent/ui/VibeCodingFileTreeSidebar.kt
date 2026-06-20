@@ -53,17 +53,24 @@ fun VibeCodingFileTreeSidebar(
     var isLoading by remember { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
 
-    LaunchedEffect(workspacePath) {
+    // Check if workspace is configured
+    val hasWorkspace = remember(workspacePath) {
+        workspacePath.isNotBlank() && runCatching { java.io.File(workspacePath).exists() }.getOrDefault(false)
+    }
+
+    LaunchedEffect(workspacePath, hasWorkspace) {
         isLoading = true
         expandedPaths = emptySet()
-        rootNodes = withContext(Dispatchers.IO) {
-            try {
-                val structure = ideService.getProjectStructure(workspacePath, 3, 200)
-                parseStructure(structure)
-            } catch (_: Exception) {
-                emptyList()
+        rootNodes = if (hasWorkspace) {
+            withContext(Dispatchers.IO) {
+                try {
+                    val structure = ideService.getProjectStructure(workspacePath, 3, 200)
+                    parseStructure(structure)
+                } catch (_: Exception) {
+                    emptyList()
+                }
             }
-        }
+        } else emptyList()
         isLoading = false
     }
 
@@ -117,7 +124,7 @@ fun VibeCodingFileTreeSidebar(
                 }
             } else if (rootNodes.isEmpty()) {
                 Text(
-                    text = "No files found",
+                    text = if (hasWorkspace) "No files found" else "Open a project from the file tree first",
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     modifier = Modifier.padding(8.dp),

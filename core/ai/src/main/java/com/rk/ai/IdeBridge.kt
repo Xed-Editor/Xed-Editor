@@ -120,6 +120,10 @@ object IdeBridge {
     
     fun workspacePathForResolution(): String = synchronized(workspacePathsLock) { workspacePaths.joinToString(File.pathSeparator) }
 
+    fun hasWorkspacePath(): Boolean = synchronized(workspacePathsLock) { workspacePaths.isNotEmpty() }
+
+    fun workspacePaths(): List<String> = synchronized(workspacePathsLock) { workspacePaths.toList() }
+
     private fun newToken(): String {
         val bytes = ByteArray(24)
         secureRandom.nextBytes(bytes)

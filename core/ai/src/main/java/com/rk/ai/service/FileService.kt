@@ -32,10 +32,18 @@ class FileService(private val tabRepository: TabRepository) {
         pathCache[normalized]?.let {
             if (it.file.exists() && System.currentTimeMillis() - it.timestamp < 5000) return it.file
         }
-        val resolved = if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
-            resolveRelativePathFromOpenEditor(normalized, tabRepository) ?: resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
+        val workspaceStr = IdeBridge.workspacePathForResolution()
+        val resolved = if (normalized.isBlank()) {
+            val primary = IdeBridge.primaryWorkspacePath()
+            if (primary.isNotBlank()) File(primary) else null
+        } else if (!normalized.startsWith("file:") && !File(normalized).isAbsolute) {
+            resolveRelativePathFromOpenEditor(normalized, tabRepository) ?: resolveWorkspacePath(workspaceStr, path)
+        } else if (workspaceStr.isBlank() && File(normalized).isAbsolute) {
+            // No workspace configured - try direct absolute path
+            val f = File(normalized)
+            if (f.exists()) f.canonicalFile else null
         } else {
-            resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
+            resolveWorkspacePath(workspaceStr, path)
         }
         if (resolved != null) {
             pathCache[normalized] = PathCacheEntry(resolved, System.currentTimeMillis())

@@ -184,8 +184,11 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
             }
         }
 
-        val dir = resolvePath(path) ?: throw IllegalArgumentException("path outside workspace: $path")
-        if (!dir.exists() || !dir.isDirectory) throw IllegalArgumentException("not a directory: $path")
+        val effectivePath = if (path.isBlank()) getPrimaryWorkspacePath() else path
+        if (effectivePath.isBlank()) return "[!] No workspace configured. Open a project from the file tree first."
+
+        val dir = resolvePath(effectivePath) ?: return "[!] Path outside workspace: $path"
+        if (!dir.exists() || !dir.isDirectory) return "[!] Directory not found: $effectivePath"
         val ignored = AiConfig.ignoredDirectories
         val output = StringBuilder(4096)
         var count = 0
@@ -265,9 +268,19 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
 
     private fun resolvePath(path: String): File? {
         val normalized = path.trim()
-        if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
+        if (normalized.isBlank()) {
+            val primary = getPrimaryWorkspacePath()
+            if (primary.isNotBlank()) return File(primary)
+            return null
+        }
+        if (!normalized.startsWith("file:") && !File(normalized).isAbsolute) {
             resolveRelativePathFromOpenEditor(normalized, tabRepo)?.let { return it }
         }
-        return com.rk.ai.resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
+        val workspaceStr = IdeBridge.workspacePathForResolution()
+        if (workspaceStr.isBlank() && File(normalized).isAbsolute) {
+            val f = File(normalized)
+            if (f.exists()) return f.canonicalFile
+        }
+        return com.rk.ai.resolveWorkspacePath(workspaceStr, path)
     }
 }
