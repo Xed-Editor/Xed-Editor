@@ -733,9 +733,9 @@ class VibeCodingEngine(
     }
 
     private suspend fun generateWithLLM(
-        messages: List<UIMessage>,
+        prompt: String,
         tools: List<Tool>,
-        systemPrompt: String,
+        context: com.rk.ai.agent.context.ContextBundle,
     ): String {
         val config = buildGenerationConfig() ?: return ""
         val settings = config.settings
@@ -744,6 +744,9 @@ class VibeCodingEngine(
         val memories = config.memories
         val inputTransformers = config.inputTransformers
         val outputTransformers = config.outputTransformers
+        val messages = listOf(
+            UIMessage.user(prompt)
+        )
         var resultText = ""
         generationHandler.generateText(
             settings = settings,

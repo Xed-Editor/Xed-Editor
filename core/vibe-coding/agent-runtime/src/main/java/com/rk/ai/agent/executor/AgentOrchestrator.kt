@@ -9,6 +9,8 @@ import com.rk.ai.agent.planner.TaskTree
 import com.rk.ai.agent.tools.ToolCache
 import com.rk.ai.agent.tools.ToolRouter
 import kotlinx.coroutines.delay
+import com.rk.ai.agent.context.ContextBundle
+import com.rk.ai.models.Tool
 import com.rk.ai.service.IdeService
 
 private const val TAG = "AgentOrchestrator"
@@ -48,8 +50,8 @@ class AgentOrchestrator(
 
     suspend fun execute(
         goal: String,
-        tools: List<com.rk.ai.models.Tool> = emptyList(),
-        generateWithLLM: suspend (List<com.rk.ai.models.UIMessage>, List<com.rk.ai.models.Tool>, String) -> String = { _, _, _ -> "" },
+        tools: List<Tool> = emptyList(),
+        generateWithLLM: suspend (String, List<Tool>, ContextBundle) -> String = { _, _, _ -> "" },
     ): OrchestratorResult {
         val startTime = System.currentTimeMillis()
         val allModifiedFiles = mutableListOf<String>()
