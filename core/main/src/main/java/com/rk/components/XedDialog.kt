@@ -24,7 +24,7 @@ fun XedDialog(
     content: @Composable () -> Unit,
 ) {
     val config = LocalConfiguration.current
-    val isTablet = config.screenWidthDp >= 600.dp
+    val isTablet = config.screenWidthDp >= 600
     val dialogWidth =
         if (isTablet) (config.screenWidthDp * 0.55f).dp.coerceIn(360.dp, 560.dp)
         else (config.screenWidthDp * 0.88f).dp.coerceAtMost(420.dp)
