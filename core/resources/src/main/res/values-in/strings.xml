@@ -674,4 +674,8 @@
     <string name="check_abnormalities">Periksa kelainan</string>
     <string name="samsung_proot_warning">Perangkat Samsung Anda mengalami masalah yang telah diketahui, yang menyebabkan kegagalan penginstalan terminal berbasis PRoot.</string>
     <string name="terminal_degraded_warning">Terminal saat ini beroperasi dalam mode terbatas akibat masalah kompatibilitas yang telah diketahui, yang disebabkan oleh gangguan pada lingkungan PRoot di perangkat tertentu. Beberapa fitur mungkin terbatas atau berfungsi secara berbeda.</string>
+    <string name="seccomp_unspecified">Tidak ditentukan</string>
+    <string name="seccomp_no_seccomp">Tanpa seccomp</string>
+    <string name="seccomp_seccomp">Seccomp</string>
+    <string name="disabled_crashed">Tidak berfungsi (Rusak)</string>
 </resources>
