@@ -29,7 +29,6 @@ fun XedBottomSheet(
         scrimColor = DesignTokens.BottomSheet.scrimColor,
         tonalElevation = DesignTokens.BottomSheet.elevation,
         dragHandle = dragHandle,
-        useDefaultSizing = false,
         content = content,
     )
 }

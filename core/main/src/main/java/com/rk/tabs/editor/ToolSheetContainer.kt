@@ -234,8 +234,7 @@ private fun ToolSheetContent(
     var isDragging by remember { mutableStateOf(false) }
 
     // Convert velocity threshold to density-aware value (roughly 600dp/s)
-    val velocityThresholdDp = 600f
-    val velocityThresholdPx = with(density) { velocityThresholdDp * density }
+    val velocityThresholdPx = with(density) { 600.dp.toPx() }
 
     Box(
         modifier = modifier
