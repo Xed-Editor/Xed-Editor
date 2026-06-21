@@ -100,7 +100,6 @@ class GitService {
                     val baos = java.io.ByteArrayOutputStream()
                     val formatter = org.eclipse.jgit.diff.DiffFormatter(baos)
                     formatter.setRepository(repo)
-                    formatter.setCloseTree(false)
 
                     runCatching {
                         val unstagedDiff = git.diff().call()
