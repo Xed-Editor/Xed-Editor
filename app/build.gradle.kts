@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.baselineprofile)
     alias(libs.plugins.android.application)
@@ -22,10 +20,15 @@ android {
         // versioning — read from root version.properties
         val versionProps = rootProject.file("version.properties")
             .takeIf { it.exists() }
-            ?.let { java.util.Properties().apply { load(it.inputStream()) } }
+            ?.readLines()
+            ?.mapNotNull { line ->
+                val idx = line.indexOf('=')
+                if (idx > 0) line.substring(0, idx).trim() to line.substring(idx + 1).trim() else null
+            }
+            ?.toMap() ?: emptyMap()
 
-        versionCode = versionProps?.getProperty("versionCode")?.toIntOrNull() ?: 87
-        versionName = versionProps?.getProperty("versionName") ?: "3.2.9"
+        versionCode = versionProps["versionCode"]?.toIntOrNull() ?: 87
+        versionName = versionProps["versionName"] ?: "3.2.9"
         vectorDrawables { useSupportLibrary = true }
     }
 

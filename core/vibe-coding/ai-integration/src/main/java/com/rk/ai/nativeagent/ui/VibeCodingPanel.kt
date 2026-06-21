@@ -781,7 +781,7 @@ private fun ToolbarSection(
                 )
 
                 ToolbarChip(
-                    icon = Icons.Outlined.Lightbulb,
+                    icon = Icons.Outlined.AutoAwesome,
                     label = "Suggestions",
                     isActive = showSuggestions,
                     onClick = onToggleSuggestions,
