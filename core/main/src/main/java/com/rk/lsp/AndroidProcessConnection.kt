@@ -60,12 +60,16 @@ class AndroidProcessConnection(private val cmd: Array<String>, instance: LspServ
         loggingInput =
             LoggingInputStream(process!!.inputStream) { json ->
                 Log.d("AndroidProcessConnection", "[stdout] $json")
-                instance.addLog(LspLogEntry(MessageSource.RPC, null, "→ $json"))
+                if (com.rk.settings.Preference.getBoolean("debug_mode", com.rk.xededitor.BuildConfig.DEBUG)) {
+                    instance.addLog(LspLogEntry(MessageSource.RPC, null, "→ $json"))
+                }
             }
         loggingOutput =
             LoggingOutputStream(process!!.outputStream) { json ->
                 Log.d("AndroidProcessConnection", "[stdin] $json")
-                instance.addLog(LspLogEntry(MessageSource.RPC, null, "← $json"))
+                if (com.rk.settings.Preference.getBoolean("debug_mode", com.rk.xededitor.BuildConfig.DEBUG)) {
+                    instance.addLog(LspLogEntry(MessageSource.RPC, null, "← $json"))
+                }
             }
 
         scope!!.launch {

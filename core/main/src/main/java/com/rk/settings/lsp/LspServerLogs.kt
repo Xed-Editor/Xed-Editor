@@ -47,7 +47,7 @@ fun LspServerLogs(server: LspServer, id: String) {
     val scope = rememberCoroutineScope()
     var messageType by remember { mutableStateOf(MessageType.Info) }
 
-    val messageSources = remember { mutableStateSetOf(MessageSource.LSP, MessageSource.Runtime, MessageSource.Client) }
+    val messageSources = remember { mutableStateSetOf(MessageSource.LSP, MessageSource.Runtime, MessageSource.Client, MessageSource.RPC) }
     var sourceDropdownExpanded by remember { mutableStateOf(false) }
 
     val instance = server.instances.find { it.id == id }
@@ -139,7 +139,7 @@ private fun buildLogs(
         instance
             .getLspLogs()
             .filter { messageSources.contains(it.source) }
-            .filter { it.type == null || it.type.value <= messageType.value }
+            .filter { it.source == MessageSource.RPC || it.type == null || it.type.value <= messageType.value }
             .joinToString("\n") {
                 val sourceString = it.source.name.uppercase().let { source -> "[$source]" }
                 val levelString = it.type?.name?.uppercase() ?: ""

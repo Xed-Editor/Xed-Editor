@@ -35,12 +35,16 @@ class SocketConnection(private val port: Int, private val host: String? = null, 
         loggingInput =
             LoggingInputStream(socket!!.getInputStream()) { json ->
                 Log.d("SocketConnection", "[stdout] $json")
-                instance.addLog(LspLogEntry(MessageSource.RPC, MessageType.Log, "→ $json"))
+                if (com.rk.settings.Preference.getBoolean("debug_mode", com.rk.xededitor.BuildConfig.DEBUG)) {
+                    instance.addLog(LspLogEntry(MessageSource.RPC, null, "→ $json"))
+                }
             }
         loggingOutput =
             LoggingOutputStream(socket!!.getOutputStream()) { json ->
                 Log.d("SocketConnection", "[stdin] $json")
-                instance.addLog(LspLogEntry(MessageSource.RPC, MessageType.Log, "← $json"))
+                if (com.rk.settings.Preference.getBoolean("debug_mode", com.rk.xededitor.BuildConfig.DEBUG)) {
+                    instance.addLog(LspLogEntry(MessageSource.RPC, null, "← $json"))
+                }
             }
     }
 
