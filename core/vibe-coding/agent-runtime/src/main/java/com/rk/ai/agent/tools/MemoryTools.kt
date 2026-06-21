@@ -47,9 +47,9 @@ fun buildMemoryTools(
                         put(
                             "enum",
                             buildJsonArray {
-                                add("create")
-                                add("edit")
-                                add("delete")
+                                add(kotlinx.serialization.json.JsonPrimitive("create"))
+                                add(kotlinx.serialization.json.JsonPrimitive("edit"))
+                                add(kotlinx.serialization.json.JsonPrimitive("delete"))
                             }
                         )
                         put("description", "Operation to perform: create, edit, or delete")

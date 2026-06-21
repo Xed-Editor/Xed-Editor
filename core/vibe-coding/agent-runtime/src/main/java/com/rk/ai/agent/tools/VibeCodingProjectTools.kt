@@ -118,7 +118,9 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         },
         execute = { args ->
             val workspace = args.asJsonObject["workspacePath"]?.asJsonPrimitive?.asString ?: ideService.getPrimaryWorkspacePath()
+            if (workspace.isBlank()) return@Tool listOf(UIMessagePart.Text("No workspace configured. Open a project first."))
             val workspaceFile = File(workspace)
+            if (!workspaceFile.exists() || !workspaceFile.isDirectory) return@Tool listOf(UIMessagePart.Text("Workspace path does not exist: $workspace"))
             val sections = mutableListOf<String>()
 
             val rootCandidates = listOf(
@@ -135,13 +137,13 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
             }
 
             val agentsFiles = mutableListOf<File>()
-            var dir = workspaceFile
+            var dir: File? = workspaceFile
             while (dir != null && dir.exists() && dir.isDirectory) {
                 val agentsFile = dir.resolve("AGENTS.md")
                 if (agentsFile.exists() && agentsFile.isFile) {
                     agentsFiles.add(agentsFile)
                 }
-                dir = dir.parentFile
+                dir = if (dir.parentFile != null && dir.parentFile != dir) dir.parentFile else null
             }
             for (file in agentsFiles.reversed()) {
                 sections.add("=== AGENTS.md (${file.parentFile?.name ?: "/"}) ===\n${file.readText()}")
@@ -169,19 +171,21 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         execute = { args ->
             val searchPath = args.asJsonObject["path"]?.asJsonPrimitive?.asString
                 ?: return@Tool listOf(UIMessagePart.Text("Missing path argument"))
+            if (searchPath.isBlank()) return@Tool listOf(UIMessagePart.Text("Missing path argument"))
             val searchFile = File(searchPath)
+            if (!searchFile.exists()) return@Tool listOf(UIMessagePart.Text("Path does not exist: $searchPath"))
             val found = mutableListOf<File>()
 
             val directAgents = searchFile.resolve("AGENTS.md")
             if (directAgents.exists() && directAgents.isFile) found.add(directAgents)
 
-            var dir = searchFile
+            var dir: File? = searchFile
             while (dir != null && dir.exists() && dir.isDirectory) {
                 val agentsFile = dir.resolve("AGENTS.md")
                 if (agentsFile.exists() && agentsFile.isFile) {
                     found.add(agentsFile)
                 }
-                dir = dir.parentFile
+                dir = if (dir.parentFile != null && dir.parentFile != dir) dir.parentFile else null
             }
 
             if (found.isNotEmpty()) {

@@ -84,15 +84,49 @@ class GitService {
             runCatching {
                 val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
                 val repo = git.repository
-                val baos = java.io.ByteArrayOutputStream()
-                val formatter = org.eclipse.jgit.diff.DiffFormatter(baos)
-                formatter.setRepository(repo)
-                val stagedDiff = git.diff().setCached(true).call()
-                formatter.format(stagedDiff)
-                val unstagedDiff = git.diff().call()
-                formatter.format(unstagedDiff)
-                formatter.close()
-                baos.toString(Charsets.UTF_8.name()).ifEmpty { "no changes" }
+
+                val output = StringBuilder()
+
+                val status = git.status().call()
+                val changedFiles = status.added + status.changed + status.removed +
+                    status.missing + status.modified + status.untracked + status.conflicting
+                if (changedFiles.isNotEmpty()) {
+                    output.appendLine("Changed files:")
+                    changedFiles.sorted().forEach { output.appendLine("  $it") }
+                    output.appendLine()
+                }
+
+                runCatching {
+                    val baos = java.io.ByteArrayOutputStream()
+                    val formatter = org.eclipse.jgit.diff.DiffFormatter(baos)
+                    formatter.setRepository(repo)
+                    formatter.setCloseTree(false)
+
+                    runCatching {
+                        val unstagedDiff = git.diff().call()
+                        formatter.format(unstagedDiff)
+                    }.onFailure { e ->
+                        if (output.isEmpty()) output.appendLine("unstaged diff error: ${e.message}")
+                    }
+                    runCatching {
+                        val stagedDiff = git.diff().setCached(true).call()
+                        formatter.format(stagedDiff)
+                    }.onFailure { e ->
+                        if (output.isEmpty()) output.appendLine("staged diff error: ${e.message}")
+                    }
+
+                    formatter.close()
+
+                    val diffOutput = baos.toString(Charsets.UTF_8.name())
+                    if (diffOutput.isNotBlank()) {
+                        if (output.isNotEmpty()) output.appendLine("--- diff ---\n")
+                        output.append(diffOutput)
+                    }
+                }.onFailure { e ->
+                    if (output.isEmpty()) output.appendLine("diff error: ${e.message}")
+                }
+
+                output.toString().ifBlank { "no changes" }
             }.getOrElse { "error: ${it.message}" }
         }
     }

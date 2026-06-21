@@ -147,9 +147,13 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
             when (c) {
                 '*' -> {
                     if (i + 1 < glob.length && glob[i + 1] == '*') {
-                        sb.append(".*")
-                        i++
-                        if (i + 1 < glob.length && glob[i + 1] == '/') i++
+                        if (i + 2 < glob.length && glob[i + 2] == '/') {
+                            sb.append("(?:.+/)?")
+                            i += 2
+                        } else {
+                            sb.append(".*")
+                            i++
+                        }
                     } else {
                         sb.append("[^/]*")
                     }

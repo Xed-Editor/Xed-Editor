@@ -33,10 +33,14 @@ class VibeCodingGitTools(private val ideService: IdeService) {
             val status = ideService.getGitStatus(workspace)
             val text = buildString {
                 status.keySet().forEach { key ->
-                    val items = status.getAsJsonArray(key)
-                    if (items.size() > 0) {
-                        appendLine("$key:")
-                        items.forEach { appendLine("  ${it.asString}") }
+                    val element = status.get(key)
+                    if (element is com.google.gson.JsonArray) {
+                        if (element.size() > 0) {
+                            appendLine("$key:")
+                            element.forEach { appendLine("  ${it.asString}") }
+                        }
+                    } else {
+                        appendLine("$key: ${element.asString}")
                     }
                 }
             }

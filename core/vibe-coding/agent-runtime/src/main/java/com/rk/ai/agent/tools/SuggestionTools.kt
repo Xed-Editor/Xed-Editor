@@ -51,7 +51,7 @@ class SuggestionTools(private val ideService: IdeService) {
                             put("line", buildJsonObject { put("type", "integer"); put("description", "Line number where the diagnostic occurs") })
                             put("message", buildJsonObject { put("type", "string"); put("description", "Diagnostic message text") })
                         }
-                        put("required", buildJsonArray { add("file"); add("line"); add("message") })
+                        put("required", buildJsonArray { add(kotlinx.serialization.json.JsonPrimitive("file")); add(kotlinx.serialization.json.JsonPrimitive("line")); add(kotlinx.serialization.json.JsonPrimitive("message")) })
                     }
                     put("maxCount", buildJsonObject { put("type", "integer"); put("description", "Maximum number of suggestions to generate"); put("default", 5) })
                 },
@@ -61,22 +61,59 @@ class SuggestionTools(private val ideService: IdeService) {
         // Structured output ensures the model returns valid JSON matching the schema above.
         needsApproval = false,
         execute = { args ->
-            // Build a prompt that includes any diagnostic info if supplied.
             val diag = args.asJsonObject["diagnostic"]?.asJsonObject
             val maxCount = args.asJsonObject["maxCount"]?.asJsonPrimitive?.asInt ?: 5
-            val basePrompt = "Generate up to $maxCount suggestions based on the following context."
-            val fullPrompt = if (diag != null) {
+
+            if (diag != null) {
                 val file = diag["file"]?.asJsonPrimitive?.asString ?: ""
                 val line = diag["line"]?.asJsonPrimitive?.asInt ?: 0
                 val message = diag["message"]?.asJsonPrimitive?.asString ?: ""
-                "$basePrompt Diagnostic in $file at line $line: $message"
-            } else {
-                basePrompt
+                val suggestions = buildJsonArray {
+                    addJsonObject {
+                        put("text", "Fix diagnostic: $message at $file:$line")
+                        put("confidence", 0.5)
+                        put("source", "getSuggestions-diagnostic")
+                        putJsonObject("diagnostic") {
+                            put("file", file)
+                            put("line", line)
+                            put("message", message)
+                        }
+                    }
+                }
+                return@Tool listOf(UIMessagePart.Text(suggestions.toString()))
             }
-            // The actual generation is delegated to the VibeCoding model pipeline via the tool's execution.
-            // Here we simply return a placeholder indicating the model should run.
-            // The framework will replace this with the real model call because tools can emit a special UIMessagePart.ToolResponse.
-            // For now we return an empty array – the model will fill it.
+
+            val file = args.asJsonObject["file"]?.asJsonPrimitive?.asString
+            if (file != null) {
+                val resolvedFile = ideService.resolvePath(file)
+                if (resolvedFile != null && resolvedFile.exists()) {
+                    val content = ideService.getFileContent(resolvedFile.absolutePath, null, null)
+                    if (content != null) {
+                        val lines = content.split("\n")
+                        val issues = mutableListOf<com.google.gson.JsonObject>()
+                        for ((idx, lineText) in lines.withIndex()) {
+                            if (issues.size >= maxCount) break
+                            if (lineText.isBlank() || lineText.length > 200) {
+                                issues.add(com.google.gson.JsonObject().apply {
+                                    addProperty("text", "Line ${idx + 1}: ${if (lineText.isBlank()) "Empty line" else "Line too long (${lineText.length} chars)"}")
+                                    addProperty("confidence", 0.3)
+                                    addProperty("source", "getSuggestions-analysis")
+                                    addJsonObject("diagnostic") {
+                                        addProperty("file", resolvedFile.absolutePath)
+                                        addProperty("line", idx + 1)
+                                        addProperty("message", if (lineText.isBlank()) "Empty line" else "Line exceeds 200 characters")
+                                    }
+                                })
+                            }
+                        }
+                        if (issues.isNotEmpty()) {
+                            val arr = buildJsonArray { issues.forEach { add(it) } }
+                            return@Tool listOf(UIMessagePart.Text(arr.toString()))
+                        }
+                    }
+                }
+            }
+
             listOf(UIMessagePart.Text(buildJsonArray { }.toString()))
         }
     )

@@ -94,8 +94,8 @@ class LocalTools(private val context: Context, private val eventBus: AppEventBus
                             put(
                                 "enum",
                                 kotlinx.serialization.json.buildJsonArray {
-                                    add("read")
-                                    add("write")
+                                    add(kotlinx.serialization.json.JsonPrimitive("read"))
+                                    add(kotlinx.serialization.json.JsonPrimitive("write"))
                                 }
                             )
                             put("description", "Operation to perform: read or write")
@@ -208,9 +208,9 @@ class LocalTools(private val context: Context, private val eventBus: AppEventBus
                                         put(
                                             "enum",
                                             kotlinx.serialization.json.buildJsonArray {
-                                                add("text")
-                                                add("single")
-                                                add("multi")
+                                                add(kotlinx.serialization.json.JsonPrimitive("text"))
+                                                add(kotlinx.serialization.json.JsonPrimitive("single"))
+                                                add(kotlinx.serialization.json.JsonPrimitive("multi"))
                                             }
                                         )
                                         put(
@@ -220,8 +220,8 @@ class LocalTools(private val context: Context, private val eventBus: AppEventBus
                                     })
                                 })
                                 put("required", kotlinx.serialization.json.buildJsonArray {
-                                    add("id")
-                                    add("question")
+                                    add(kotlinx.serialization.json.JsonPrimitive("id"))
+                                    add(kotlinx.serialization.json.JsonPrimitive("question"))
                                 })
                             })
                         })
