@@ -26,7 +26,7 @@ export VISUAL=vim
 info() { log "[INFO] $*"; }
 warn() { log "[WARN] $*"; }
 
-AGY_TERMUX_URL="https://github.com/wallentx/antigravity-cli-termux/releases/latest/download/antigravity-termux-standalone.tar.gz"
+AGY_BIN="$LOCAL/bin/agy"
 
 info "Starting Antigravity CLI..."
 info "Workspace: $WKDIR"
@@ -34,37 +34,39 @@ info "Workspace: $WKDIR"
 # Configure the Xed Editor IDE bridge as an MCP server
 configure_xed_mcp antigravity "$IDE_PORT" "$IDE_TOKEN"
 
-# --- Install agy binary if not present ---
-# Note: agy.va39 is a standard Linux Go ELF (the actual Antigravity CLI).
-# agy is a small Android NDK helper (update checker) that only runs on
-# Termux/host. Inside Xed's proot sandbox we run agy.va39 directly.
+# --- Install agy binary if not present via official installer ---
 install_agy() {
-  info "Installing Antigravity CLI..."
+  info "Installing Antigravity CLI from official source..."
 
+  INSTALLER_URL="https://antigravity.google/cli/install.sh"
   STAGING_DIR="$HOME/.cache/antigravity/staging"
-  mkdir -p "$STAGING_DIR"
-  staging_payload="$STAGING_DIR/antigravity-termux.tar.gz"
+  mkdir -p "$STAGING_DIR" 2>/dev/null || { warn "Cannot create staging dir"; return 1; }
+  local installer_sh="$STAGING_DIR/install.sh"
 
-  cleanup() { rm -f "${staging_payload:-}" 2>/dev/null || true; }
+  cleanup() { rm -f "$installer_sh" 2>/dev/null || true; }
   trap cleanup EXIT
 
-  info "Downloading release package..."
-  curl -fL -o "$staging_payload" "$AGY_TERMUX_URL" || { warn "Download failed"; return 1; }
-
-  info "Extracting binaries..."
-  tar -xzf "$staging_payload" -C "$STAGING_DIR" bin/agy.va39 bin/agy 2>/dev/null || {
-    warn "Extraction failed"; return 1
+  info "Downloading official installer..."
+  curl -fsSL -o "$installer_sh" "$INSTALLER_URL" 2>&1 || {
+    warn "Failed to download installer from $INSTALLER_URL"
+    return 1
   }
 
-  mkdir -p "$LOCAL/bin"
-  cp "$STAGING_DIR/bin/agy.va39" "$LOCAL/bin/agy.va39" 2>/dev/null || { warn "Failed to copy agy.va39"; return 1; }
-  chmod +x "$LOCAL/bin/agy.va39" 2>/dev/null || true
-  rm -rf "$STAGING_DIR"
-  info "Installed agy.va39 to $LOCAL/bin"
+  info "Running official installer..."
+  bash "$installer_sh" --dir "$LOCAL/bin" 2>&1 || {
+    warn "Official installation failed"
+    return 1
+  }
+
+  if [ -x "$AGY_BIN" ]; then
+    info "Antigravity CLI installed successfully"
+  else
+    warn "Binary not found at $AGY_BIN after installation"
+    return 1
+  fi
 }
 
 # Install if missing
-AGY_BIN="$LOCAL/bin/agy.va39"
 if [ ! -x "$AGY_BIN" ]; then
   install_agy || warn "Installation failed — Antigravity CLI will be unavailable"
 fi
