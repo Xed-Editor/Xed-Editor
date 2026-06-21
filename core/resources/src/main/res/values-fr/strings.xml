@@ -684,4 +684,7 @@
     <string name="check_system_shell">Vérifier le shell du système</string>
     <string name="terminal_degraded_warning">Le terminal fonctionne actuellement dans un mode dégradé à cause d\'un problème de compatibilité connue, causé par un dysfonctionnement dans l\'environnement PRoot sur certains appareils. Certaines fonctionnalités peuvent être limitées ou se comporter différemment.</string>
     <string name="disabled_crashed">Désactivé (crashé)</string>
+    <string name="seccomp_unspecified">Non précisé</string>
+    <string name="seccomp_no_seccomp">Pas de seccomp</string>
+    <string name="seccomp_seccomp">Seccomp</string>
 </resources>
