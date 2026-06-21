@@ -285,10 +285,10 @@ fun VibeCodingPanel(
                                     .fillMaxWidth()
                                     .heightIn(max = 120.dp),
                             ) {
-                                items(state.securityAlerts.takeLast(3)) { alert ->
+                                items(state.securityAlerts.takeLast(3), key = { it.id ?: it.message.take(50) }) { alert ->
                                     SecurityAlertBanner(
                                         alert = alert,
-                                        onDismiss = { engine.clearSecurityAlerts() },
+                                        onDismiss = { engine.dismissSecurityAlert(alert.id) },
                                     )
                                 }
                             }

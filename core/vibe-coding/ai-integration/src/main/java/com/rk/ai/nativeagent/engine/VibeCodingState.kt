@@ -24,6 +24,7 @@ enum class AgentActivityStatus {
 }
 
 data class SecurityAlert(
+    val id: String? = null,
     val severity: String,
     val message: String,
     val toolName: String? = null,

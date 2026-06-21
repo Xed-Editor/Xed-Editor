@@ -259,7 +259,8 @@ private fun parseStructure(treeText: String): List<FileNode> {
     return try {
         val lines = treeText.lines().filter { it.isNotBlank() }
         val rootNodes = mutableListOf<FileNode>()
-        val stack = mutableListOf<Pair<Int, MutableList<FileNode>>>() // depth -> sibling list
+        val stack = mutableListOf<Pair<Int, MutableList<FileNode>>>()
+        val parentPathStack = mutableListOf<String>()
 
         for (line in lines) {
             val stripped = line.trimStart()
@@ -269,19 +270,16 @@ private fun parseStructure(treeText: String): List<FileNode> {
             val isFile = stripped.startsWith("[F]")
             if (!isDir && !isFile) continue
             val name = stripped.removePrefix("[D] ").removePrefix("[F] ").trimEnd('/')
-            val path = buildString {
-                // Build path by walking the stack
-                for (i in 1 until depth) {
-                    val parent = stack.getOrNull(i - 1)?.second?.lastOrNull()
-                    if (parent != null) append(parent.name).append('/')
-                }
-                append(name)
-            }
 
-            // Pop stack to correct depth
             while (stack.isNotEmpty() && stack.last().first >= depth) {
                 stack.removeAt(stack.lastIndex)
+                if (parentPathStack.size > depth - 1) {
+                    parentPathStack.removeAt(parentPathStack.lastIndex)
+                }
             }
+
+            val parentPrefix = if (parentPathStack.isNotEmpty()) parentPathStack.joinToString("/") + "/" else ""
+            val path = parentPrefix + name
 
             if (isDir) {
                 val children = mutableListOf<FileNode>()
@@ -292,6 +290,16 @@ private fun parseStructure(treeText: String): List<FileNode> {
                     rootNodes.add(node)
                 }
                 stack.add(depth to children)
+                if (parentPathStack.size <= depth - 1) {
+                    while (parentPathStack.size < depth) {
+                        parentPathStack.add("")
+                    }
+                }
+                if (parentPathStack.size > depth) {
+                    parentPathStack[depth] = name
+                } else {
+                    parentPathStack.add(name)
+                }
             } else {
                 val node = FileNode(name, path, false)
                 if (stack.isNotEmpty()) {
@@ -302,7 +310,6 @@ private fun parseStructure(treeText: String): List<FileNode> {
             }
         }
 
-        // Determine the proper root: strip the top-level project dir if present
         if (rootNodes.size == 1 && rootNodes[0].isDirectory) {
             rootNodes[0].children
         } else {

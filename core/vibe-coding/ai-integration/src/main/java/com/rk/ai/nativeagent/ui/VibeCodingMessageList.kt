@@ -35,8 +35,18 @@ fun VibeCodingMessageList(
 ) {
     val listState = rememberLazyListState()
 
+    // Smart auto-scroll: only scroll to bottom if user is already near the bottom
+    val isNearBottom by remember {
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = layoutInfo.totalItemsCount
+            lastVisible >= totalItems - 3
+        }
+    }
+
     LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
+        if (messages.isNotEmpty() && isNearBottom) {
             listState.animateScrollToItem(messages.size - 1)
         }
     }
