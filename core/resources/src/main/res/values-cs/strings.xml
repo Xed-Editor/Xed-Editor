@@ -658,4 +658,11 @@
     <string name="no_logs">Žádné protokoly dostupné</string>
     <string name="samsung_proot_warning">Vaše zařízení Samsung má známý problém, který způsobuje selhání instalace terminálu pomocí PRoot.</string>
     <string name="terminal_degraded_warning">Terminál teď běží v degredovaném režimu kvůli známé chyby kompatibility způsobena problémem v prostředí PRoot na některých zařízení. Některé funkce mohou být omezené nebo se budou rozdílně chovat.</string>
+    <string name="disabled_crashed">Vypnuto (Havarovalo)</string>
+    <string name="rename_symbol">Přejmenovat prvek</string>
+    <string name="rename_symbol_error">Selhalo přejmenování prvku.</string>
+    <string name="cannot_rename_symbol">Tento prvek nelze změnit.</string>
+    <string name="rename_symbol_multiple_files">Přejmenování přes několik souborů zatím není podporováno.</string>
+    <string name="document_highlight">Zvýraznit výskyty</string>
+    <string name="document_highlight_desc">Zvýraznit výskyty prvku u místa kurzoru</string>
 </resources>
