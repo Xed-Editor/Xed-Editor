@@ -19,6 +19,7 @@ import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
 import com.google.gson.JsonParser
 import com.rk.ai.service.IdeService
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.isActive
 
 private const val TAG = "ExecutionEngine"

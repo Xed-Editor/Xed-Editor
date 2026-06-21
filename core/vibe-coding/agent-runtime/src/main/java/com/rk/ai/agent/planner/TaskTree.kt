@@ -6,6 +6,8 @@ import kotlin.uuid.Uuid
 
 enum class TaskStatus { PENDING, IN_PROGRESS, COMPLETED, BLOCKED, FAILED, SKIPPED }
 
+enum class RiskLevel { LOW, MEDIUM, HIGH, CRITICAL }
+
 data class TaskNode(
     val id: String = Uuid.random().toString(),
     val title: String,
@@ -17,12 +19,17 @@ data class TaskNode(
     val result: String? = null,
     val error: String? = null,
     val metadata: Map<String, String> = emptyMap(),
+    val riskLevel: RiskLevel = RiskLevel.LOW,
+    val estimatedFiles: Int = 1,
+    val requiresBuild: Boolean = false,
+    val requiresTest: Boolean = false,
 )
 
 data class TaskTree(
     val id: String = Uuid.random().toString(),
     val goal: String,
     val rootTasks: List<TaskNode>,
+    val riskLevel: RiskLevel = RiskLevel.LOW,
 ) {
     fun flatten(): List<TaskNode> {
         fun flattenNode(node: TaskNode): List<TaskNode> = listOf(node) + node.subtasks.flatMap { flattenNode(it) }
@@ -54,6 +61,7 @@ data class TaskTree(
     fun toSummary(): String = buildString {
         appendLine("## Execution Plan: $goal")
         appendLine("Progress: $completedCount/$totalCount (${(progress * 100).toInt()}%)")
+        appendLine("Risk Level: $riskLevel")
         appendLine()
         fun printNode(node: TaskNode, indent: Int) {
             val prefix = when (node.status) {
@@ -65,7 +73,9 @@ data class TaskTree(
                 TaskStatus.PENDING -> "  [ ]"
             }
             val indentStr = "  ".repeat(indent)
-            appendLine("$indentStr$prefix ${node.title}")
+            val riskTag = if (node.riskLevel.ordinal >= RiskLevel.HIGH.ordinal) " [!${node.riskLevel}]" else ""
+            val filesTag = if (node.estimatedFiles > 1) " (~${node.estimatedFiles} files)" else ""
+            appendLine("$indentStr$prefix ${node.title}$riskTag$filesTag")
             if (node.error != null) appendLine("$indentStr      Error: ${node.error}")
             node.subtasks.forEach { printNode(it, indent + 1) }
         }

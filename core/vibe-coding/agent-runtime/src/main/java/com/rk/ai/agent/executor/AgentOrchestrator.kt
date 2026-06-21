@@ -10,6 +10,7 @@ import com.rk.ai.agent.tools.ToolCache
 import com.rk.ai.agent.tools.ToolRouter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.isActive
 import com.rk.ai.agent.context.ContextBundle
 import com.rk.ai.models.Tool

@@ -9,10 +9,13 @@ object CompactionHandler {
     private const val PRUNE_MINIMUM = 20_000
     private const val PRUNE_PROTECT = 40_000
     private const val TOOL_OUTPUT_MAX_CHARS = 2_000
-    private val PRUNE_PROTECTED_TOOLS = setOf("skill", "use_skill")
+    private val PRUNE_PROTECTED_TOOLS = setOf("skill", "use_skill", "memory_tool")
     private const val MIN_PRESERVE_RECENT_TOKENS = 2_000
     private const val MAX_PRESERVE_RECENT_TOKENS = 8_000
     private const val DEFAULT_TAIL_TURNS = 2
+    private const val DOOM_LOOP_THRESHOLD = 3
+    private const val PATTERN_WINDOW = 6
+    private const val PATTERN_REPEAT_THRESHOLD = 2
 
     data class CompactionResult(
         val compactedMessages: List<UIMessage>,
@@ -82,6 +85,7 @@ Rules:
 - Keep every section, even when empty.
 - Use terse bullets, not prose paragraphs.
 - Preserve exact file paths, commands, error strings, and identifiers when known.
+- Preserve build errors, compiler messages, and test failures verbatim.
 - Do not mention the summary process or that context was compacted.
 
 Conversation history to summarize:
@@ -128,12 +132,13 @@ ${conversation.joinToString("\n") { m ->
             if (tools.isEmpty()) return@map msg
 
             val hasLargeOutput = tools.any { tool ->
-                val outputTokens = TokenEstimator.estimate(tool.output.joinToString("\n") { p ->
+                val outputText = tool.output.joinToString("\n") { p ->
                     when (p) {
                         is UIMessagePart.Text -> p.text
                         else -> ""
                     }
-                })
+                }
+                val outputTokens = TokenEstimator.estimate(outputText)
                 outputTokens > TOOL_OUTPUT_MAX_CHARS / 4
             }
             if (!hasLargeOutput) return@map msg
@@ -143,7 +148,13 @@ ${conversation.joinToString("\n") { m ->
                 if (part is UIMessagePart.Tool && part.isExecuted) {
                     val truncatedOutput = part.output.map { p ->
                         when (p) {
-                            is UIMessagePart.Text -> UIMessagePart.Text(p.text.take(TOOL_OUTPUT_MAX_CHARS) + "\n... [truncated]")
+                            is UIMessagePart.Text -> {
+                                val text = p.text
+                                if (text.length > TOOL_OUTPUT_MAX_CHARS) {
+                                    val (summary, keyLines) = smartTruncate(text, TOOL_OUTPUT_MAX_CHARS)
+                                    UIMessagePart.Text(summary + "\n... [truncated]" + keyLines)
+                                } else p
+                            }
                             else -> p
                         }
                     }
@@ -160,17 +171,49 @@ ${conversation.joinToString("\n") { m ->
         )
     }
 
+    /**
+     * Smart truncation that preserves the first portion, key diagnostic lines,
+     * and error messages while cutting verbose middle content.
+     */
+    private fun smartTruncate(text: String, maxChars: Int): Pair<String, String> {
+        val lines = text.lines()
+        if (lines.size <= 3) return text.take(maxChars) to ""
+
+        val keyLines = mutableListOf<String>()
+        val midStart = (lines.size * 0.1).toInt().coerceAtLeast(1)
+        val midEnd = (lines.size * 0.9).toInt().coerceAtMost(lines.size - 1)
+
+        // Preserve error lines from the middle
+        for (i in midStart until midEnd) {
+            val line = lines[i]
+            if (line.contains("error", ignoreCase = true) ||
+                line.contains("exception", ignoreCase = true) ||
+                line.contains("FAILED", ignoreCase = true) ||
+                line.contains("warning:", ignoreCase = true) ||
+                line.matches(Regex("^\\s*(at |Caused by|... \\d+ more)"))
+            ) {
+                keyLines.add(line)
+            }
+        }
+
+        val head = lines.take(midStart).joinToString("\n").take(maxChars)
+        val tailSuffix = if (keyLines.isNotEmpty()) {
+            "\n\nKey diagnostics from truncated section:\n" + keyLines.distinct().take(10).joinToString("\n")
+        } else ""
+
+        return head to tailSuffix
+    }
+
     fun detectDoomLoop(
         messages: List<UIMessage>,
-        threshold: Int = 3,
+        threshold: Int = DOOM_LOOP_THRESHOLD,
     ): String? {
         if (messages.isEmpty()) return null
 
-        val allToolCalls = messages.flatMap { msg ->
+        val recentToolCalls = messages.flatMap { msg ->
             msg.getTools().filter { it.isExecuted }
-        }
+        }.takeLast(threshold)
 
-        val recentToolCalls = allToolCalls.takeLast(threshold)
         if (recentToolCalls.size < threshold) return null
 
         val toolEntry = mutableListOf<Pair<String, String>>()
@@ -186,5 +229,74 @@ ${conversation.joinToString("\n") { m ->
         }
 
         return null
+    }
+
+    fun detectPatternLoop(
+        recentToolNameSequences: List<List<String>>,
+    ): Boolean {
+        if (recentToolNameSequences.size < 4) return false
+        val half = recentToolNameSequences.size / 2
+        val firstHalf = recentToolNameSequences.take(half).flatten()
+        val secondHalf = recentToolNameSequences.drop(half).flatten()
+        return firstHalf == secondHalf && firstHalf.isNotEmpty()
+    }
+
+    fun detectExcessiveReads(
+        messages: List<UIMessage>,
+        readTools: Set<String> = setOf("readFile", "cat", "readFiles", "head", "getFileContent"),
+        maxReadsPerWindow: Int = 15,
+        windowSize: Int = 20,
+    ): Boolean {
+        val recentMessages = messages.takeLast(windowSize)
+        val readCount = recentMessages.count { msg ->
+            msg.getTools().any { it.toolName in readTools && it.isExecuted }
+        }
+        return readCount > maxReadsPerWindow
+    }
+
+    fun buildRecoveryMessage(
+        loopType: String,
+        toolName: String,
+        details: String = "",
+    ): UIMessage {
+        val message = when (loopType) {
+            "doom_loop" -> """
+[SYSTEM: The tool '$toolName' has been called repeatedly with the same arguments.
+This appears to be a loop. Try a fundamentally different approach:
+- Read the relevant file first to see what's actually there
+- Check if you already have the information you need
+- Use a different tool or strategy entirely
+- If you're stuck, call getGuidelines for help]
+
+[RECOMMENDATION: $details]
+""".trimIndent()
+
+            "pattern_loop" -> """
+[SYSTEM: The agent appears to be stuck in a loop calling the same tools repeatedly.
+Stop calling these tools and provide a summary of what you have found so far.
+If you need more information, try a completely different approach or ask the user for guidance.]
+
+[RECOMMENDATION: $details]
+""".trimIndent()
+
+            "excessive_reads" -> """
+[SYSTEM: You have performed many file read operations recently.
+Before reading more files, check if you already have the information you need.
+Focus on synthesizing what you know and making progress toward the goal.]
+
+[RECOMMENDATION: $details]
+""".trimIndent()
+
+            else -> """
+[SYSTEM: The agent appears stuck. Try a different approach.
+Call getGuidelines for a refresher on available tools and strategies.]
+
+[RECOMMENDATION: $details]
+""".trimIndent()
+        }
+        return UIMessage(
+            role = MessageRole.SYSTEM,
+            parts = listOf(UIMessagePart.Text(message)),
+        )
     }
 }

@@ -413,14 +413,10 @@ class GenerationHandler(
                 val doomTool = CompactionHandler.detectDoomLoop(messages)
                 if (doomTool != null) {
                     Log.w(TAG, "Breaking doom loop for tool: $doomTool, injecting recovery hint")
-                    val recoveryMsg = UIMessage(
-                        role = MessageRole.SYSTEM,
-                        parts = listOf(UIMessagePart.Text(
-                            "[SYSTEM: The tool '$doomTool' has been called repeatedly with the same arguments. " +
-                            "This appears to be a loop. Try a fundamentally different approach: " +
-                            "check the tool's output more carefully, read the relevant file first, " +
-                            "or try an alternative strategy. Do NOT call '$doomTool' again with the same input.]"
-                        ))
+                    val recoveryMsg = CompactionHandler.buildRecoveryMessage(
+                        loopType = "doom_loop",
+                        toolName = doomTool,
+                        details = "The tool '$doomTool' produced the same result repeatedly. Try a fundamentally different approach instead."
                     )
                     messages = messages + recoveryMsg
                     send(GenerationChunk.Messages(messages))
@@ -434,27 +430,31 @@ class GenerationHandler(
             if (recentToolNameSequences.size > PATTERN_WINDOW) {
                 recentToolNameSequences.removeAt(0)
             }
-            if (recentToolNameSequences.size >= 4) {
-                // Check if the last N steps repeat a pattern
-                val half = recentToolNameSequences.size / 2
-                val firstHalf = recentToolNameSequences.take(half).flatten()
-                val secondHalf = recentToolNameSequences.drop(half).flatten()
-                if (firstHalf == secondHalf && firstHalf.isNotEmpty()) {
-                    Log.w(TAG, "Pattern doom loop detected: tool sequence repeated ${recentToolNameSequences.size} times")
-                    val toolsCalled = firstHalf.distinct().joinToString(", ")
-                    val recoveryMsg = UIMessage(
-                        role = MessageRole.SYSTEM,
-                        parts = listOf(UIMessagePart.Text(
-                            "[SYSTEM: The agent appears to be stuck in a loop calling the same tools repeatedly " +
-                            "($toolsCalled). Stop calling these tools and provide a summary of what you have found so far. " +
-                            "If you need more information, try a completely different approach or ask the user for guidance.]"
-                        ))
-                    )
-                    messages = messages + recoveryMsg
-                    send(GenerationChunk.Messages(messages))
-                    recentToolNameSequences.clear()
-                    break
-                }
+            if (CompactionHandler.detectPatternLoop(recentToolNameSequences)) {
+                Log.w(TAG, "Pattern doom loop detected: tool sequence repeated ${recentToolNameSequences.size} times")
+                val toolsCalled = recentToolNameSequences.flatten().distinct().joinToString(", ")
+                val recoveryMsg = CompactionHandler.buildRecoveryMessage(
+                    loopType = "pattern_loop",
+                    toolName = toolsCalled,
+                    details = "Stop calling $toolsCalled and provide a summary. Try a completely different approach."
+                )
+                messages = messages + recoveryMsg
+                send(GenerationChunk.Messages(messages))
+                recentToolNameSequences.clear()
+                break
+            }
+
+            // Excessive reads detection
+            if (CompactionHandler.detectExcessiveReads(messages)) {
+                Log.w(TAG, "Excessive file reads detected, injecting hint")
+                val recoveryMsg = CompactionHandler.buildRecoveryMessage(
+                    loopType = "excessive_reads",
+                    toolName = "readFiles/readFile",
+                    details = "Focus on synthesizing what you already know and making progress."
+                )
+                messages = messages + recoveryMsg
+                send(GenerationChunk.Messages(messages))
+                break
             }
 
             // Auto-recovery: check for failed tools and attempt recovery
@@ -619,7 +619,7 @@ class GenerationHandler(
                 contextMemory?.recordEdit(tool.toolName, "executed")
             }
 
-            // Self-review: evaluate tool result quality
+            // Self-review: evaluate tool result quality with security/quality checks
             val review = selfReviewer.reviewToolResults(
                 toolName = tool.toolName,
                 toolInput = tool.input,
@@ -627,18 +627,37 @@ class GenerationHandler(
                 executionState = executionState,
                 context = null,
             )
-            val finalOutput = if (!review.passed) {
+
+            val finalOutput = if (!review.passed || review.securityChecks.isNotEmpty() || review.qualityFlags.isNotEmpty()) {
+                val reviewParts = buildList {
+                    if (review.feedback.isNotBlank()) add(review.feedback.take(200))
+                    if (review.suggestions.isNotEmpty()) add("Suggestion: ${review.suggestions.first().take(100)}")
+                    if (review.securityChecks.isNotEmpty()) add("SECURITY: ${review.securityChecks.first().take(100)}")
+                    if (review.qualityFlags.isNotEmpty()) add("Quality: ${review.qualityFlags.first().take(100)}")
+                }
                 val reviewNote = UIMessagePart.Text(
-                    "[Self-Review: ${review.feedback.take(200)}${if (review.suggestions.isNotEmpty()) " Suggestion: ${review.suggestions.first().take(100)}" else ""}]"
+                    "[Self-Review: ${reviewParts.joinToString(" | ")}]"
                 )
                 truncatedOutput + reviewNote
             } else truncatedOutput
 
-            if (!review.passed) {
+            // Log review findings to context memory for long-term awareness
+            if (!review.passed || review.securityChecks.isNotEmpty() || review.qualityFlags.isNotEmpty()) {
+                val logMsg = buildString {
+                    if (review.feedback.isNotBlank()) append(review.feedback.take(100))
+                    if (review.securityChecks.isNotEmpty()) append(" | Security: ${review.securityChecks.first().take(80)}")
+                    if (review.qualityFlags.isNotEmpty()) append(" | Quality: ${review.qualityFlags.first().take(80)}")
+                }
                 mutex?.withLock {
-                    contextMemory?.log("Self-review: ${tool.toolName} — ${review.feedback.take(100)}")
+                    contextMemory?.log("Self-review: ${tool.toolName} — $logMsg")
+                    if (review.securityChecks.isNotEmpty()) {
+                        contextMemory?.addFact("Security concern in ${tool.toolName}: ${review.securityChecks.first().take(100)}")
+                    }
                 } ?: run {
-                    contextMemory?.log("Self-review: ${tool.toolName} — ${review.feedback.take(100)}")
+                    contextMemory?.log("Self-review: ${tool.toolName} — $logMsg")
+                    if (review.securityChecks.isNotEmpty()) {
+                        contextMemory?.addFact("Security concern in ${tool.toolName}: ${review.securityChecks.first().take(100)}")
+                    }
                 }
             }
 
