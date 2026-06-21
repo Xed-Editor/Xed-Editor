@@ -103,6 +103,7 @@ data class VibeCodingState(
     val taskTree: TaskTree? = null,
     val modifiedFiles: List<String> = emptyList(),
     val projectIndexed: Boolean = false,
+    val workspacePath: String = "",
     val toolStatsSummary: String = "",
     val debugMode: Boolean = false,
     val debugInfo: DebugInfo? = null,

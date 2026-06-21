@@ -392,7 +392,7 @@ fun VibeCodingPanel(
                         // Main message list
                         Box(modifier = Modifier.weight(1f)) {
                             if (state.messages.isEmpty() && !state.isProcessing) {
-                                EmptyState(colorScheme)
+                                EmptyState(colorScheme, state.workspacePath)
                             } else {
                                 VibeCodingMessageList(
                                     messages = state.messages,
@@ -1081,6 +1081,7 @@ private fun InfoPanelSection(
                         modifiedFiles = state.modifiedFiles,
                         projectIndexed = state.projectIndexed,
                         toolCalls = state.toolExecutions.size,
+                        workspacePath = state.workspacePath,
                     )
                     ContextPanel(info = contextInfo, modifier = Modifier.weight(1f))
                 }
@@ -1097,6 +1098,7 @@ private fun InfoPanelSection(
 @Composable
 private fun EmptyState(
     colorScheme: ColorScheme,
+    workspacePath: String = "",
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -1104,7 +1106,7 @@ private fun EmptyState(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Icon(
                 Icons.Outlined.AutoFixHigh,
@@ -1123,6 +1125,33 @@ private fun EmptyState(
                 style = MaterialTheme.typography.bodySmall,
                 color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             )
+            if (workspacePath.isNotBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Icon(
+                            Icons.Outlined.Folder,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                        )
+                        Text(
+                            text = workspacePath,
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+            }
         }
     }
 }

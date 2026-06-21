@@ -21,6 +21,7 @@ data class ContextInfo(
     val projectIndexed: Boolean = false,
     val toolCalls: Int = 0,
     val cacheHits: Int = 0,
+    val workspacePath: String = "",
 )
 
 @Composable
@@ -68,6 +69,11 @@ fun ContextPanel(
                         fontFamily = FontFamily.Monospace,
                     )
                 }
+                Spacer(Modifier.height(4.dp))
+            }
+
+            if (info.workspacePath.isNotBlank()) {
+                ContextRow("Workspace", info.workspacePath)
                 Spacer(Modifier.height(4.dp))
             }
 

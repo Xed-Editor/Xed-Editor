@@ -75,6 +75,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -261,12 +262,29 @@ class VibeCodingEngine(
         orchestrator.setPhaseChangeListener { phase ->
             _state.value = _state.value.copy(currentPhase = phase)
         }
+
+        // Retry workspace path detection if empty
+        engineScope.launch {
+            while (_state.value.workspacePath.isBlank()) {
+                delay(3000)
+                try {
+                    val path = ideService.getPrimaryWorkspacePath()
+                    if (path.isNotBlank()) {
+                        _state.value = _state.value.copy(workspacePath = path)
+                        xedConfig = XedConfigLoader.loadConfig(path)
+                        applyConfigPermissions()
+                        break
+                    }
+                } catch (_: Exception) { }
+            }
+        }
     }
 
     fun loadProjectConfig() {
         val workspace = try {
             ideService.getPrimaryWorkspacePath()
         } catch (_: Exception) { return }
+        _state.value = _state.value.copy(workspacePath = workspace)
         xedConfig = XedConfigLoader.loadConfig(workspace)
         applyConfigPermissions()
         xedConfig.instructions?.let {

@@ -181,16 +181,29 @@ class ExecutionEngine(
 
     private fun extractToolCalls(response: String): List<ToolCallInfo> {
         val calls = mutableListOf<ToolCallInfo>()
-        val regex = Regex("""<(\w+_call)>\s*<tool_name>\s*(\w+)\s*</tool_name>\s*<parameters>\s*(\{.*?\})?\s*</parameters>\s*</\1>""", RegexOption.DOT_MATCHES_ALL)
-        for (match in regex.findAll(response)) {
-            calls.add(ToolCallInfo(match.groupValues[2], match.groupValues[3].ifBlank { "{}" }))
+
+        // 1: JSON tool call format: {"tool": "name", "arguments": {"key": "val"}} on its own line
+        val jsonRegex = Regex("""\{[^}]*?"tool"\s*:\s*"(\w+)"[^}]*?"arguments"\s*:\s*(\{.*?\})\s*\}""", RegexOption.DOT_MATCHES_ALL)
+        for (match in jsonRegex.findAll(response)) {
+            calls.add(ToolCallInfo(match.groupValues[1], match.groupValues[2]))
         }
+
+        // 2: XML-like format (legacy): <tool_call><tool_name>name</tool_name><parameters>{...}</parameters></tool_call>
+        if (calls.isEmpty()) {
+            val xmlRegex = Regex("""<(\w+_call)>\s*<tool_name>\s*(\w+)\s*</tool_name>\s*<parameters>\s*(\{.*?\})?\s*</parameters>\s*</\1>""", RegexOption.DOT_MATCHES_ALL)
+            for (match in xmlRegex.findAll(response)) {
+                calls.add(ToolCallInfo(match.groupValues[2], match.groupValues[3].ifBlank { "{}" }))
+            }
+        }
+
+        // 3: Simple prose format (last resort): "use toolName with args: {...}"
         if (calls.isEmpty()) {
             val simpleRegex = Regex("""(?:use|call|invoke)\s+(\w+)\s*(?:with\s+args?\s*:\s*(\{.*?\}))?""", RegexOption.IGNORE_CASE)
             for (match in simpleRegex.findAll(response)) {
                 calls.add(ToolCallInfo(match.groupValues[1], match.groupValues[2].ifBlank { "{}" }))
             }
         }
+
         return calls.distinctBy { it.name }
     }
 
