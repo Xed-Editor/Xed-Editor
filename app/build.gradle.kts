@@ -19,9 +19,13 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 28
 
-        // versioning
-        versionCode = 87
-        versionName = "3.2.9"
+        // versioning — read from root version.properties
+        val versionProps = rootProject.file("version.properties")
+            .takeIf { it.exists() }
+            ?.let { java.util.Properties().apply { load(it.inputStream()) } }
+
+        versionCode = versionProps?.getProperty("versionCode")?.toIntOrNull() ?: 87
+        versionName = versionProps?.getProperty("versionName") ?: "3.2.9"
         vectorDrawables { useSupportLibrary = true }
     }
 
@@ -61,7 +65,7 @@ android {
                 System.getenv("GITHUB_ACTIONS") == "true" -> "/tmp/signing.properties"
                 else -> {
                     val localProps = rootProject.file("signing.properties")
-                    if (localProps.exists()) localProps.absolutePath else "/home/rohit/Android/xed-signing/signing.properties"
+                    if (localProps.exists()) localProps.absolutePath else ""
                 }
             }
 

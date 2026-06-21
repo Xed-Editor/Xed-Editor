@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -68,14 +69,20 @@ fun VibeCodingPanel(
     var showSettings by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
+    var showStopConfirmDialog by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var showFiles by remember { mutableStateOf(false) }
+    var showSuggestions by remember { mutableStateOf(false) }
     var selectedInfoTab by remember { mutableStateOf<InfoTab?>(null) }
     var showAgentActivity by remember { mutableStateOf(false) }
     var activePanel by remember { mutableStateOf(ToolPanel.NONE) }
     var showOverflow by remember { mutableStateOf(false) }
+    var showUndoSnackbar by remember { mutableStateOf(false) }
+    var sessionToRename by remember { mutableStateOf<kotlin.uuid.Uuid?>(null) }
+    var renameText by remember { mutableStateOf("") }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val workspacePath by remember {
         derivedStateOf {
@@ -210,7 +217,35 @@ fun VibeCodingPanel(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Scaffold(
+        modifier = modifier
+            .fillMaxSize()
+            .onKeyEvent { event ->
+                if (event.key == Key.Escape && event.type == KeyEventType.KeyUp) {
+                    if (state.isProcessing) {
+                        showStopConfirmDialog = true
+                        true
+                    } else false
+                } else false
+            },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+    ) { paddingValues ->
+    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+        // Suggestions panel sidebar
+        AnimatedVisibility(
+            visible = showSuggestions,
+            enter = slideInHorizontally { -it },
+            exit = slideOutHorizontally { -it },
+        ) {
+            com.rk.ai.nativeagent.ui.components.SuggestionPanel(
+                engine = engine,
+                onDismiss = { showSuggestions = false },
+                modifier = Modifier
+                    .width(300.dp)
+                    .fillMaxHeight(),
+            )
+        }
+
         Row(modifier = Modifier.fillMaxSize()) {
             // File tree sidebar
             AnimatedVisibility(
@@ -237,11 +272,13 @@ fun VibeCodingPanel(
                     colorScheme = colorScheme,
                     showFiles = showFiles,
                     showHistory = showHistory,
+                    showSuggestions = showSuggestions,
                     showAgentActivity = showAgentActivity,
                     selectedInfoTab = selectedInfoTab,
                     showOverflow = showOverflow,
                     onToggleFiles = { showFiles = !showFiles },
                     onToggleHistory = { showHistory = !showHistory },
+                    onToggleSuggestions = { showSuggestions = !showSuggestions },
                     onToggleAgentActivity = { showAgentActivity = !showAgentActivity },
                     onSelectInfoTab = { selectedInfoTab = if (selectedInfoTab == it) null else it },
                     onOpenPanel = { activePanel = it },
@@ -272,6 +309,11 @@ fun VibeCodingPanel(
                             val parent = state.activeSessionId ?: return@SessionTabsRow
                             engine.createBranchSession(parent)
                         },
+                        onRenameSession = { id, currentTitle ->
+                            sessionToRename = id
+                            renameText = currentTitle
+                        },
+                        onCloseSession = { id -> engine.closeSession(id) },
                     )
                 }
 
@@ -414,7 +456,13 @@ fun VibeCodingPanel(
                 VibeCodingInput(
                     isProcessing = state.isProcessing,
                     onSend = { text, parts -> engine.sendMessage(text, parts) },
-                    onStop = { engine.stopGeneration() },
+                    onStop = {
+                        if (state.toolExecutions.isNotEmpty() || state.taskTree != null) {
+                            showStopConfirmDialog = true
+                        } else {
+                            engine.stopGeneration()
+                        }
+                    },
                 )
             }
         }
@@ -439,6 +487,66 @@ fun VibeCodingPanel(
                     .fillMaxHeight(),
             )
         }
+    }
+    } // Scaffold
+
+    // Undo snackbar
+    LaunchedEffect(state.recentlyDeletedMessage) {
+        if (state.recentlyDeletedMessage != null) {
+            showUndoSnackbar = true
+            val result = snackbarHostState.showSnackbar(
+                message = "Message deleted",
+                actionLabel = "Undo",
+                duration = SnackbarDuration.Short,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                engine.undoDeleteMessage()
+            }
+            showUndoSnackbar = false
+        }
+    }
+
+    // Rename session dialog
+    if (sessionToRename != null) {
+        AlertDialog(
+            onDismissRequest = { sessionToRename = null },
+            title = { Text("Rename Session") },
+            text = {
+                OutlinedTextField(
+                    value = renameText,
+                    onValueChange = { renameText = it },
+                    singleLine = true,
+                    placeholder = { Text("Session name") },
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    sessionToRename?.let { engine.renameSession(it, renameText) }
+                    sessionToRename = null
+                }) { Text("Rename") }
+            },
+            dismissButton = {
+                TextButton(onClick = { sessionToRename = null }) { Text("Cancel") }
+            },
+        )
+    }
+
+    // Stop confirmation dialog
+    if (showStopConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showStopConfirmDialog = false },
+            title = { Text("Stop Generation?") },
+            text = { Text("The agent is still processing. Stopping now may lose progress. Are you sure?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showStopConfirmDialog = false
+                    engine.stopGeneration()
+                }) { Text("Stop", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showStopConfirmDialog = false }) { Text("Continue") }
+            },
+        )
     }
 
     if (showExportDialog) {
@@ -475,12 +583,28 @@ fun VibeCodingPanel(
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
-                    val cm = panelContext.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                    cm.setPrimaryClip(android.content.ClipData.newPlainText("VibeCoding", exportContent))
-                    showExportDialog = false
-                }) {
-                    Text("Copy to Clipboard")
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(onClick = {
+                        val cm = panelContext.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        cm.setPrimaryClip(android.content.ClipData.newPlainText("VibeCoding", exportContent))
+                        showExportDialog = false
+                    }) {
+                        Text("Copy")
+                    }
+                    TextButton(onClick = {
+                        try {
+                            val dir = java.io.File(panelContext.filesDir, "vibecoding_exports")
+                            dir.mkdirs()
+                            val file = java.io.File(dir, "conversation_${java.lang.System.currentTimeMillis()}.md")
+                            file.writeText(exportContent)
+                            android.widget.Toast.makeText(panelContext, "Saved to ${file.absolutePath}", android.widget.Toast.LENGTH_LONG).show()
+                        } catch (e: Exception) {
+                            android.widget.Toast.makeText(panelContext, "Failed to save: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                        showExportDialog = false
+                    }) {
+                        Text("Save to File")
+                    }
                 }
             },
             dismissButton = {
@@ -520,7 +644,6 @@ fun VibeCodingPanel(
             onDismiss = { showSettings = false },
         )
     }
-}
 
 @Composable
 private fun ToolbarSection(
@@ -529,11 +652,13 @@ private fun ToolbarSection(
     colorScheme: ColorScheme,
     showFiles: Boolean,
     showHistory: Boolean,
+    showSuggestions: Boolean,
     showAgentActivity: Boolean,
     selectedInfoTab: InfoTab?,
     showOverflow: Boolean,
     onToggleFiles: () -> Unit,
     onToggleHistory: () -> Unit,
+    onToggleSuggestions: () -> Unit,
     onToggleAgentActivity: () -> Unit,
     onSelectInfoTab: (InfoTab) -> Unit,
     onOpenPanel: (ToolPanel) -> Unit,
@@ -652,6 +777,14 @@ private fun ToolbarSection(
                     label = "Debug",
                     isActive = state.debugMode,
                     onClick = { engine.toggleDebugMode() },
+                    colorScheme = colorScheme,
+                )
+
+                ToolbarChip(
+                    icon = Icons.Outlined.Lightbulb,
+                    label = "Suggestions",
+                    isActive = showSuggestions,
+                    onClick = onToggleSuggestions,
                     colorScheme = colorScheme,
                 )
 
@@ -999,6 +1132,8 @@ private fun SessionTabsRow(
     isProcessing: Boolean,
     onSwitchSession: (kotlin.uuid.Uuid) -> Unit,
     onNewBranch: () -> Unit,
+    onRenameSession: ((kotlin.uuid.Uuid, String) -> Unit)? = null,
+    onCloseSession: ((kotlin.uuid.Uuid) -> Unit)? = null,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -1017,6 +1152,8 @@ private fun SessionTabsRow(
                     isActive = isActive,
                     isBranch = node.parentId != null,
                     onClick = { onSwitchSession(node.id) },
+                    onRename = { onRenameSession?.invoke(node.id, node.title) },
+                    onClose = { onCloseSession?.invoke(node.id) },
                 )
             }
             item {
@@ -1042,6 +1179,8 @@ private fun SessionTab(
     isActive: Boolean,
     isBranch: Boolean,
     onClick: () -> Unit,
+    onRename: (() -> Unit)? = null,
+    onClose: (() -> Unit)? = null,
 ) {
     val bg = if (isActive) MaterialTheme.colorScheme.surfaceContainerHigh
     else MaterialTheme.colorScheme.surfaceContainerLow
@@ -1053,7 +1192,7 @@ private fun SessionTab(
         modifier = Modifier.widthIn(max = 160.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (isBranch) {
@@ -1070,7 +1209,34 @@ private fun SessionTab(
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
             )
+            if (isActive && onRename != null) {
+                IconButton(
+                    onClick = onRename,
+                    modifier = Modifier.size(16.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.Edit,
+                        contentDescription = "Rename",
+                        modifier = Modifier.size(10.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    )
+                }
+            }
+            if (onClose != null) {
+                IconButton(
+                    onClick = onClose,
+                    modifier = Modifier.size(16.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.Close,
+                        contentDescription = "Close session",
+                        modifier = Modifier.size(10.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    )
+                }
+            }
         }
     }
 }

@@ -933,6 +933,31 @@ class VibeCodingEngine(
         )
     }
 
+    fun renameSession(sessionId: Uuid, newTitle: String) {
+        val tree = _state.value.sessionTree.toMutableList()
+        val idx = tree.indexOfFirst { it.id == sessionId }
+        if (idx >= 0) {
+            tree[idx] = tree[idx].copy(title = newTitle.take(80))
+            _state.value = _state.value.copy(sessionTree = tree)
+        }
+    }
+
+    fun closeSession(sessionId: Uuid) {
+        var tree = _state.value.sessionTree.toMutableList()
+        tree.removeAll { it.id == sessionId }
+        val current = _state.value.activeSessionId
+        val newActive = if (current == sessionId) tree.lastOrNull()?.id else current
+        _state.value = _state.value.copy(
+            sessionTree = tree,
+            activeSessionId = newActive,
+            parentSessionId = newActive?.let { _state.value.sessionById[it]?.parentId },
+        )
+    }
+
+    fun toggleSuggestions() {
+        _state.value = _state.value.copy(showSuggestions = !_state.value.showSuggestions)
+    }
+
     fun toggleDebugMode() {
         val newMode = !_state.value.debugMode
         _state.value = _state.value.copy(debugMode = newMode)
@@ -941,33 +966,50 @@ class VibeCodingEngine(
         }
     }
 
+    fun undoDeleteMessage() {
+        val deleted = _state.value.recentlyDeletedMessage ?: return
+        val (index, msg) = deleted
+        val msgs = _state.value.messages.toMutableList()
+        val insertAt = index.coerceIn(0, msgs.size)
+        msgs.add(insertAt, msg)
+        _state.value = _state.value.copy(messages = msgs, recentlyDeletedMessage = null)
+        saveCurrentSessionMessages()
+    }
+
     fun updateDebugInfo() {
-        if (!_state.value.debugMode) return
         val s = _state.value
         val msgs = s.messages
-        val lastUser = msgs.lastOrNull { it.role == MessageRole.USER }
-        val lastAssistant = msgs.lastOrNull { it.role == MessageRole.ASSISTANT }
-        val toolCalls = msgs.flatMap { it.getTools() }.map { "${it.toolName}(${it.input.take(100)}) -> ${it.statusLabel}" }
-        val settings = settingsStore.settingsFlow.value
-        val model = settings.findModelById(settings.chatModelId)
-        _state.value = s.copy(
-            debugInfo = DebugInfo(
-                lastPrompt = lastUser?.toText() ?: "",
-                lastResponse = lastAssistant?.toText() ?: "",
-                lastToolCalls = toolCalls.takeLast(20),
-                inputMessages = msgs.filter { it.role == MessageRole.USER },
-                outputMessages = msgs.filter { it.role == MessageRole.ASSISTANT },
-                modelName = model?.displayName?.ifEmpty { model.modelId } ?: "No model",
-                totalTokens = s.toolExecutions.sumOf { it.tokens },
-            ),
-        )
+        val tokenEstimate = if (msgs.isNotEmpty()) com.rk.ai.agent.TokenEstimator.estimate(msgs) else null
+        var updated = if (s.contextTokens != tokenEstimate) s.copy(contextTokens = tokenEstimate) else s
+        if (s.debugMode) {
+            val lastUser = msgs.lastOrNull { it.role == MessageRole.USER }
+            val lastAssistant = msgs.lastOrNull { it.role == MessageRole.ASSISTANT }
+            val toolCalls = msgs.flatMap { it.getTools() }.map { "${it.toolName}(${it.input.take(100)}) -> ${it.statusLabel}" }
+            val settings = settingsStore.settingsFlow.value
+            val model = settings.findModelById(settings.chatModelId)
+            updated = updated.copy(
+                debugInfo = DebugInfo(
+                    lastPrompt = lastUser?.toText() ?: "",
+                    lastResponse = lastAssistant?.toText() ?: "",
+                    lastToolCalls = toolCalls.takeLast(20),
+                    inputMessages = msgs.filter { it.role == MessageRole.USER },
+                    outputMessages = msgs.filter { it.role == MessageRole.ASSISTANT },
+                    modelName = model?.displayName?.ifEmpty { model.modelId } ?: "No model",
+                    totalTokens = s.toolExecutions.sumOf { it.tokens },
+                ),
+            )
+        }
+        if (updated !== s) _state.value = updated
     }
 
     fun deleteMessage(index: Int) {
         val msgs = _state.value.messages.toMutableList()
         if (index in msgs.indices) {
-            msgs.removeAt(index)
-            _state.value = _state.value.copy(messages = msgs)
+            val deleted = msgs.removeAt(index)
+            _state.value = _state.value.copy(
+                messages = msgs,
+                recentlyDeletedMessage = index to deleted,
+            )
             saveCurrentSessionMessages()
         }
     }

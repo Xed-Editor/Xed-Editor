@@ -4,20 +4,25 @@ on:
   workflow_dispatch:
     inputs:
       version_name:
-        description: "Release version name (leave empty to auto-detect from build.gradle.kts)"
+        description: "Release version name (e.g. 3.3.0). Leave blank to auto-read from version.properties"
         required: false
         default: ""
       pre_release:
         description: "Mark as pre-release"
         type: boolean
         default: false
+      changelog_notes:
+        description: "Changelog notes for this release (leave blank to auto-generate from git log)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
 
 jobs:
   build-release:
     name: Build & Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - uses: actions/checkout@v6
@@ -56,56 +61,91 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Extract version from build.gradle.kts
+      # --- Extract version info ---
+      - name: Extract version from version.properties
         id: version
         run: |
           VERSION_NAME="${{ github.event.inputs.version_name }}"
           if [ -z "$VERSION_NAME" ]; then
-            VERSION_NAME=$(grep -E "^[[:space:]]*versionName" app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+            VERSION_NAME=$(grep "^versionName" version.properties | cut -d= -f2 | tr -d ' ')
           fi
-          VERSION_CODE=$(grep -E "^[[:space:]]*versionCode" app/build.gradle.kts | sed 's/.*=[[:space:]]*\([0-9]*\).*/\1/')
+          VERSION_CODE=$(grep "^versionCode" version.properties | cut -d= -f2 | tr -d ' ')
           COMMIT_HASH=$(git rev-parse --short HEAD)
+
+          # Sanitize version name for use in filenames/tags
+          SANITIZED=$(echo "$VERSION_NAME" | sed 's/[^a-zA-Z0-9._-]/_/g')
+
           echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
-          echo "version_name_sanitized=$SANITIZED_NAME" >> $GITHUB_OUTPUT
+          echo "version_name_sanitized=$SANITIZED" >> $GITHUB_OUTPUT
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
-          echo "tag=v$SANITIZED_NAME" >> $GITHUB_OUTPUT
+          echo "tag=v$SANITIZED" >> $GITHUB_OUTPUT
 
-      - name: Build with Gradle
+      # --- Build ---
+      - name: Build release APK with Gradle
         run: |
-          VERSION="${{ steps.version.outputs.version_name }}"
           ./gradlew assembleRelease --no-daemon
           mkdir -p app/dist
-          cp app/build/outputs/apk/release/*.apk "app/dist/Xed-Editor-v${SANITIZED_NAME}.apk"
 
+      - name: Collect APK
+        run: |
+          SANITIZED="${{ steps.version.outputs.version_name_sanitized }}"
+          # Copy the first release APK found
+          for apk in app/build/outputs/apk/release/*.apk; do
+            if [ -f "$apk" ]; then
+              cp "$apk" "app/dist/Xed-Editor-v${SANITIZED}.apk"
+              break
+            fi
+          done
+          ls -la app/dist/
+
+      # --- Release notes ---
       - name: Generate release notes
         id: notes
         run: |
-          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          echo "## Changelog" > /tmp/release-notes.md
+          VERSION_NAME="${{ steps.version.outputs.version_name }}"
+          USER_NOTES="${{ github.event.inputs.changelog_notes }}"
+
+          echo "## Xed-Editor v${VERSION_NAME}" > /tmp/release-notes.md
           echo "" >> /tmp/release-notes.md
-          if [ -f changelog.txt ]; then
-            cat changelog.txt >> /tmp/release-notes.md
-            echo "" >> /tmp/release-notes.md
-            echo "---" >> /tmp/release-notes.md
-            echo "" >> /tmp/release-notes.md
-          fi
-          if [ -n "$PREV_TAG" ]; then
-            git log "$PREV_TAG..HEAD" --oneline --no-decorate >> /tmp/release-notes.md || true
+
+          if [ -n "$USER_NOTES" ]; then
+            # Manual changelog provided — use it
+            echo "$USER_NOTES" >> /tmp/release-notes.md
           else
-            git log --oneline --no-decorate -20 >> /tmp/release-notes.md
+            # Try to extract section for THIS version from CHANGELOG.md
+            if grep -q "^## ${VERSION_NAME}" CHANGELOG.md 2>/dev/null; then
+              # Extract everything between this version header and the next one
+              awk "/^## ${VERSION_NAME}/,/^## [0-9]/" CHANGELOG.md \
+                | head -n -1 \
+                >> /tmp/release-notes.md
+            else
+              # Fallback: git log since last tag
+              PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+              if [ -n "$PREV_TAG" ]; then
+                echo "Changes since $PREV_TAG:" >> /tmp/release-notes.md
+                echo "" >> /tmp/release-notes.md
+                git log "$PREV_TAG..HEAD" --oneline --no-decorate >> /tmp/release-notes.md
+              else
+                echo "Initial release." >> /tmp/release-notes.md
+              fi
+            fi
           fi
+
           echo "" >> /tmp/release-notes.md
-          echo "**Commit:** ${{ steps.version.outputs.commit_hash }}" >> /tmp/release-notes.md
+          echo "---" >> /tmp/release-notes.md
+          echo "" >> /tmp/release-notes.md
+          echo "**Commit:** \`${{ steps.version.outputs.commit_hash }}\`" >> /tmp/release-notes.md
           echo "**Version Code:** ${{ steps.version.outputs.version_code }}" >> /tmp/release-notes.md
           echo "**Pre-release:** ${{ github.event.inputs.pre_release }}" >> /tmp/release-notes.md
 
       - name: Archive APK
         uses: actions/upload-artifact@v7
         with:
-          name: Xed-Editor-v${{ steps.version.outputs.version_name }}
+          name: Xed-Editor-v${{ steps.version.outputs.version_name_sanitized }}
           path: app/dist/*.apk
 
+      # --- Create GitHub Release ---
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -118,6 +158,30 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Delete secrets
+      # --- Bump version for next release ---
+      - name: Bump version code
+        run: |
+          # Increment versionCode after a successful release
+          CURRENT=${{ steps.version.outputs.version_code }}
+          NEXT=$((CURRENT + 1))
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/^versionCode=$CURRENT/versionCode=$NEXT/" version.properties
+          else
+            sed -i "s/^versionCode=$CURRENT/versionCode=$NEXT/" version.properties
+          fi
+          echo "Bumped versionCode: $CURRENT → $NEXT"
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.properties
+          git commit -m "chore: bump versionCode to $(grep versionCode version.properties | cut -d= -f2 | tr -d ' ')" || true
+
+      - name: Push version bump
+        run: |
+          git push origin HEAD:$(git rev-parse --abbrev-ref HEAD) || echo "Push failed (manual bump may be needed)"
+
+      - name: Cleanup secrets
         if: always()
         run: rm -f /tmp/xed.keystore /tmp/signing.properties

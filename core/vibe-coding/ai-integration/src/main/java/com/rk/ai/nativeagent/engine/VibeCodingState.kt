@@ -106,6 +106,8 @@ data class VibeCodingState(
     val toolStatsSummary: String = "",
     val debugMode: Boolean = false,
     val debugInfo: DebugInfo? = null,
+    val recentlyDeletedMessage: Pair<Int, UIMessage>? = null,
+    val showSuggestions: Boolean = false,
 ) {
     val sessionById: Map<Uuid, SessionNode> get() = sessionTree.associateBy { it.id }
     val hasSecurityAlerts: Boolean get() = securityAlerts.isNotEmpty()
