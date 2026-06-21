@@ -11,8 +11,6 @@ data class TaskAnalysis(
     val estimatedFiles: Int,
 )
 
-enum class RiskLevel { LOW, MEDIUM, HIGH, CRITICAL }
-
 class TaskPlanner {
 
     fun analyzeTask(goal: String, knowledgeBase: ProjectKnowledgeBase?): TaskAnalysis {
