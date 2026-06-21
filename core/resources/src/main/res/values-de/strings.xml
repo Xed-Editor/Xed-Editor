@@ -678,4 +678,7 @@
     <string name="samsung_proot_warning">Dein Samsung-Gerät ist von einem bekannten Problem betroffen, das dazu führt, dass die PRoot-basierte Terminal-Installation fehlschlägt.</string>
     <string name="document_highlight">Vorkommen hervorheben</string>
     <string name="document_highlight_desc">Vorkommen des Symbols an der Cursorposition hervorheben.</string>
+    <string name="seccomp_unspecified">Nicht angegeben</string>
+    <string name="seccomp_no_seccomp">Kein Seccomp</string>
+    <string name="seccomp_seccomp">Seccomp</string>
 </resources>
