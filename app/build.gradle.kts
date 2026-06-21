@@ -80,14 +80,12 @@ android {
                 }.toMap()
                 keyAlias = props["keyAlias"]
                 keyPassword = props["keyPassword"]
+                storePassword = props["storePassword"]
                 storeFile = when {
                     System.getenv("GITHUB_ACTIONS") == "true" -> File("/tmp/xed.keystore")
                     !System.getenv("KEYSTORE_FILE").isNullOrEmpty() -> File(System.getenv("KEYSTORE_FILE"))
                     else -> props["storeFile"]?.let { File(it) }
                 }
-            }
-
-                storePassword = properties["storePassword"] as String?
             } else {
                 println("Signing properties file not found at $propertiesFilePath")
             }
