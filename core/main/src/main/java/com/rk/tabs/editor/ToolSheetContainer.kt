@@ -1,6 +1,5 @@
 package com.rk.tabs.editor
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,8 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -45,36 +42,20 @@ class ToolSheetState(
     var maxHeightPx by mutableFloatStateOf(maxHeightDp.value * density.density)
         private set
 
-    private val animatableHeight = Animatable(initialHeightDp.value * density.density)
-
-    val heightPx: Float
-        get() = animatableHeight.value
+    var heightPx by mutableFloatStateOf(initialHeightDp.value * density.density)
+        private set
 
     val heightDp: Dp
-        get() = (animatableHeight.value / density.density).dp
+        get() = (heightPx / density.density).dp
 
-    suspend fun updateBounds(minPx: Float, maxPx: Float) {
+    fun updateBounds(minPx: Float, maxPx: Float) {
         minHeightPx = minPx
         maxHeightPx = maxPx
-        val target = animatableHeight.value.coerceIn(minPx, maxPx)
-        if (target != animatableHeight.value) {
-            animatableHeight.snapTo(target)
-        }
+        heightPx = heightPx.coerceIn(minPx, maxPx)
     }
 
-    suspend fun snapTo(px: Float) {
-        animatableHeight.snapTo(px.coerceIn(minHeightPx, maxHeightPx))
-    }
-
-    suspend fun animateTo(px: Float, initialVelocity: Float = 0f) {
-        animatableHeight.animateTo(
-            targetValue = px.coerceIn(minHeightPx, maxHeightPx),
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessMediumLow
-            ),
-            initialVelocity = initialVelocity
-        )
+    fun snapTo(px: Float) {
+        heightPx = px.coerceIn(minHeightPx, maxHeightPx)
     }
 }
 
@@ -129,7 +110,7 @@ fun ToolSheetContainer(
 
     val availableHeight = (screenHeightDp - imeHeightDp - statusBarHeightDp).coerceAtLeast(360.dp)
     val maxHeight = (availableHeight * if (isTablet) 0.88f else 0.94f).coerceAtLeast(360.dp)
-    val minHeight = 260.dp.coerceAtMost(maxHeight)
+    val minHeight = DesignTokens.BottomSheet.minSheetHeight.coerceAtMost(maxHeight)
     val initialHeight = (availableHeight * if (isTablet) 0.60f else 0.55f).coerceIn(minHeight, maxHeight)
 
     val state = rememberToolSheetState(
@@ -172,11 +153,10 @@ fun ToolSheetModalContainer(
     val statusBarHeightDp = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
 
     val isTablet = screenWidthDp >= 600.dp
-    val colorScheme = MaterialTheme.colorScheme
 
     val availableHeight = (screenHeightDp - imeHeightDp - statusBarHeightDp).coerceAtLeast(360.dp)
     val maxHeight = (availableHeight * if (isTablet) 0.88f else 0.94f).coerceAtLeast(360.dp)
-    val minHeight = 260.dp.coerceAtMost(maxHeight)
+    val minHeight = DesignTokens.BottomSheet.minSheetHeight.coerceAtMost(maxHeight)
     val initialHeight = (availableHeight * if (isTablet) 0.60f else 0.55f).coerceIn(minHeight, maxHeight)
 
     val state = rememberToolSheetState(
@@ -226,15 +206,10 @@ private fun ToolSheetContent(
     content: (@Composable () -> Unit)? = null,
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val coroutineScope = rememberCoroutineScope()
-    val density = LocalDensity.current
 
     val shape = if (isTablet) DesignTokens.BottomSheet.shapeTablet else DesignTokens.BottomSheet.shape
 
     var isDragging by remember { mutableStateOf(false) }
-
-    // Convert velocity threshold to density-aware value (roughly 600dp/s)
-    val velocityThresholdPx = with(density) { 600.dp.toPx() }
 
     Box(
         modifier = modifier
@@ -256,7 +231,7 @@ private fun ToolSheetContent(
                 brush = Brush.verticalGradient(
                     colors = listOf(
                         colorScheme.surfaceContainerHigh,
-                        colorScheme.surfaceContainerLow,
+                        colorScheme.surfaceContainer,
                     ),
                 ),
                 shape = shape,
@@ -280,34 +255,23 @@ private fun ToolSheetContent(
                     .draggable(
                         orientation = Orientation.Vertical,
                         state = rememberDraggableState { delta ->
-                            coroutineScope.launch {
-                                state.snapTo(state.heightPx - delta)
-                            }
+                            state.snapTo(state.heightPx - delta)
                         },
                         onDragStarted = { isDragging = true },
                         onDragStopped = { velocity ->
                             isDragging = false
-                            val minPx = state.minHeightPx
-                            val maxPx = state.maxHeightPx
-                            val midPx = (minPx + maxPx) / 2f
+                            val current = state.heightPx
+                            val velocityThreshold = state.density.density * 2f
 
-                            val heightVelocity = -velocity
-                            coroutineScope.launch {
-                                val targetPx = when {
-                                    heightVelocity > velocityThresholdPx -> maxPx
-                                    heightVelocity < -velocityThresholdPx -> minPx
-                                    else -> {
-                                        val current = state.heightPx
-                                        val distMin = (current - minPx).absoluteValue
-                                        val distMid = (current - midPx).absoluteValue
-                                        val distMax = (current - maxPx).absoluteValue
-
-                                        if (distMin < distMid && distMin < distMax) minPx
-                                        else if (distMax < distMin && distMax < distMid) maxPx
-                                        else midPx
-                                    }
-                                }
-                                state.animateTo(targetPx, heightVelocity)
+                            if (velocity.absoluteValue > velocityThreshold) {
+                                state.snapTo(
+                                    if (velocity < 0) state.maxHeightPx else state.minHeightPx
+                                )
+                            } else {
+                                val midPx = (state.minHeightPx + state.maxHeightPx) / 2f
+                                state.snapTo(
+                                    if (current < midPx) state.minHeightPx else state.maxHeightPx
+                                )
                             }
                         },
                     )
@@ -316,11 +280,10 @@ private fun ToolSheetContent(
                 XedDragHandle(
                     isDragging = isDragging,
                     modifier = Modifier.clickable {
-                        coroutineScope.launch {
-                            val midPx = (state.minHeightPx + state.maxHeightPx) / 2f
-                            val target = if (state.heightPx < midPx) state.maxHeightPx else midPx
-                            state.animateTo(target)
-                        }
+                        val midPx = (state.minHeightPx + state.maxHeightPx) / 2f
+                        state.snapTo(
+                            if (state.heightPx < midPx) state.maxHeightPx else state.minHeightPx
+                        )
                     },
                 )
 
@@ -348,7 +311,7 @@ private fun ToolSheetContent(
 
                         FilledIconButton(
                             onClick = onDismissRequest,
-                            modifier = Modifier.size(32.dp),
+                            modifier = Modifier.size(30.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
                                 containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
                                 contentColor = colorScheme.onSurfaceVariant,
@@ -357,7 +320,7 @@ private fun ToolSheetContent(
                             XedIcon(
                                 com.rk.icons.Icon.DrawableRes(drawables.close),
                                 contentDescription = "Close",
-                                modifier = Modifier.size(16.dp),
+                                modifier = Modifier.size(14.dp),
                                 tint = colorScheme.onSurfaceVariant,
                             )
                         }
@@ -374,7 +337,7 @@ private fun ToolSheetContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .background(colorScheme.surfaceContainerLowest),
+                    .background(colorScheme.surfaceContainerLow),
             ) {
                 if (showTerminal) {
                     SheetTerminal(
@@ -389,13 +352,13 @@ private fun ToolSheetContent(
 
             bottomBar?.let {
                 HorizontalDivider(
-                    color = colorScheme.outlineVariant.copy(alpha = 0.1f),
+                    color = colorScheme.outlineVariant.copy(alpha = 0.12f),
                     thickness = 0.5.dp,
                 )
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(colorScheme.surfaceContainerLow)
+                        .background(colorScheme.surfaceContainer)
                         .navigationBarsPadding(),
                 ) {
                     it()

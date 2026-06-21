@@ -1,7 +1,5 @@
 package com.rk.ai
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -68,7 +66,7 @@ fun UnifiedCommandBar(
         else terminalViewModel.terminalView?.mTermSession
     } else null
 
-    Column(modifier = Modifier.fillMaxWidth().background(colorScheme.surfaceContainerHighest)) {
+    Column(modifier = Modifier.fillMaxWidth().background(colorScheme.surfaceContainer)) {
         StatusBar(
             mode = mode,
             isRunning = isAiRunning,
@@ -105,7 +103,7 @@ fun UnifiedCommandBar(
                 factory = { ctx ->
                     VirtualKeysView(ctx, null).apply {
                         setButtonTextColor(colorScheme.onSurface.toArgb())
-                        setBackgroundColor(colorScheme.surfaceContainerHighest.toArgb())
+                        setBackgroundColor(colorScheme.surfaceContainer.toArgb())
                         runCatching {
                             val info = VirtualKeysInfo(
                                 Settings.terminal_extra_keys,
@@ -125,7 +123,7 @@ fun UnifiedCommandBar(
                     }
                     keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
                     keys.setButtonTextColor(colorScheme.onSurface.toArgb())
-                    keys.setBackgroundColor(colorScheme.surfaceContainerHighest.toArgb())
+                    keys.setBackgroundColor(colorScheme.surfaceContainer.toArgb())
                 },
             )
         }
@@ -268,7 +266,7 @@ private fun SessionChips(
 
 @Composable
 private fun DividerThin(colorScheme: ColorScheme) {
-    HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.2f), thickness = 0.5.dp)
+    HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.15f), thickness = 0.5.dp)
 }
 
 @Composable
@@ -391,17 +389,6 @@ private fun StatusBar(
     val bridgeTools = AiProvider.ideBridge?.availableTools() ?: 0
     val bridgeOnline = AiProvider.ideBridge?.isRunning() == true
 
-    val infiniteTransition = rememberInfiniteTransition(label = "PulseState")
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.9f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "PulseAlpha",
-    )
-
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth().height(36.dp),
@@ -423,17 +410,9 @@ private fun StatusBar(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(12.dp)) {
-                            if (isRunning) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(12.dp)
-                                        .clip(CircleShape)
-                                        .background(statusColor.copy(alpha = pulseAlpha * 0.4f)),
-                                )
-                            }
                             Box(
                                 modifier = Modifier
-                                    .size(6.dp)
+                                    .size(7.dp)
                                     .clip(CircleShape)
                                     .background(statusColor),
                             )
@@ -510,7 +489,7 @@ private fun StatusBar(
                     com.blankj.utilcode.util.ClipboardUtils.copyText("Path", cwd)
                     com.rk.utils.toast("Path copied to clipboard")
                 },
-                shape = RoundedCornerShape(6.dp),
+                shape = RoundedCornerShape(8.dp),
                 color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
                 modifier = Modifier.widthIn(max = 120.dp),
             ) {
@@ -519,7 +498,7 @@ private fun StatusBar(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        Icons.Outlined.Code,
+                        Icons.Outlined.Folder,
                         contentDescription = null,
                         modifier = Modifier.size(12.dp),
                         tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
@@ -539,7 +518,7 @@ private fun StatusBar(
                 Spacer(Modifier.width(4.dp))
                 Surface(
                     onClick = onBridgeDetails,
-                    shape = RoundedCornerShape(6.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = when {
                         !bridgeOnline -> colorScheme.errorContainer.copy(alpha = 0.75f)
                         bridgeClients > 0 -> colorScheme.tertiaryContainer.copy(alpha = 0.75f)
@@ -553,7 +532,7 @@ private fun StatusBar(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(7.dp)
+                                .size(6.dp)
                                 .clip(CircleShape)
                                 .background(
                                     when {
@@ -606,11 +585,7 @@ private fun StatusBar(
             }
         }
 
-        AnimatedVisibility(
-            visible = showTranscript && transcript.isNotBlank(),
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
+        if (showTranscript && transcript.isNotBlank()) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -621,9 +596,6 @@ private fun StatusBar(
                 border = BorderStroke(0.5.dp, colorScheme.outlineVariant.copy(alpha = 0.2f)),
             ) {
                 val scrollState = rememberScrollState()
-                LaunchedEffect(transcript) {
-                    if (showTranscript) scrollState.animateScrollTo(scrollState.maxValue)
-                }
                 Text(
                     text = transcript,
                     modifier = Modifier
@@ -671,7 +643,7 @@ private fun QuickActions(
                 onClick = { onAction("/restart") },
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
                 modifier = Modifier.height(32.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorScheme.primary,
                     contentColor = colorScheme.onPrimary,
@@ -693,7 +665,7 @@ private fun QuickActions(
                 onClick = { onAction("/stop") },
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
                 modifier = Modifier.height(32.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorScheme.errorContainer,
                     contentColor = colorScheme.error,
@@ -774,7 +746,7 @@ private fun ActionChip(
 ) {
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(6.dp),
+        shape = RoundedCornerShape(8.dp),
         color = color,
         tonalElevation = 0.dp,
         modifier = modifier.height(32.dp),

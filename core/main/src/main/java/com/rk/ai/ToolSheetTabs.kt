@@ -1,8 +1,5 @@
 package com.rk.ai
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -16,12 +13,10 @@ import androidx.compose.material.icons.outlined.Psychology
 import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.BottomPanelMode
@@ -31,7 +26,6 @@ data class ToolSheetTab(
     val mode: BottomPanelMode,
     val icon: ImageVector,
     val label: String,
-    val badge: (@Composable () -> Unit)? = null,
 )
 
 val toolSheetTabs = listOf(
@@ -78,32 +72,22 @@ fun ToolSheetTabBar(
     ) {
         toolSheetTabs.forEach { tab ->
             val isSelected = selectedMode == tab.mode
-            
-            val containerColor by animateColorAsState(
-                targetValue = if (isSelected) colorScheme.surfaceContainerHigh else Color.Transparent,
-                animationSpec = spring(stiffness = Spring.StiffnessMedium),
-                label = "TabContainerColor"
-            )
-            
-            val contentColor by animateColorAsState(
-                targetValue = if (isSelected) colorScheme.primary else colorScheme.onSurfaceVariant,
-                animationSpec = spring(stiffness = Spring.StiffnessMedium),
-                label = "TabContentColor"
-            )
 
-            val borderStroke = if (isSelected) {
-                BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.2f))
-            } else null
+            val containerColor = if (isSelected) colorScheme.surfaceContainerHigh else colorScheme.surfaceContainerLow
+            val contentColor = if (isSelected) colorScheme.primary else colorScheme.onSurfaceVariant
 
             Surface(
                 onClick = { onSelectTab(tab.mode) },
-                shape = RoundedCornerShape(6.dp),
+                shape = RoundedCornerShape(8.dp),
                 color = containerColor,
-                border = borderStroke,
-                modifier = Modifier.height(32.dp)
+                tonalElevation = if (isSelected) 2.dp else 0.dp,
+                border = if (isSelected) {
+                    BorderStroke(0.5.dp, colorScheme.outlineVariant.copy(alpha = 0.3f))
+                } else null,
+                modifier = Modifier.height(34.dp),
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = if (compact) 8.dp else 10.dp),
+                    modifier = Modifier.padding(horizontal = if (compact) 8.dp else 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -115,21 +99,21 @@ fun ToolSheetTabBar(
                                     Badge(
                                         containerColor = colorScheme.primary,
                                         contentColor = colorScheme.onPrimary,
-                                        modifier = Modifier.offset(x = 4.dp, y = (-4).dp)
+                                        modifier = Modifier.offset(x = 2.dp, y = (-2).dp)
                                     ) {
                                         Text(sessionCount.toString(), style = MaterialTheme.typography.labelSmall)
                                     }
                                 }
                             }
                         ) {
-                            Icon(tab.icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = contentColor)
+                            Icon(tab.icon, contentDescription = null, modifier = Modifier.size(15.dp), tint = contentColor)
                         }
                     } else {
-                        Icon(tab.icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = contentColor)
+                        Icon(tab.icon, contentDescription = null, modifier = Modifier.size(15.dp), tint = contentColor)
                     }
-                    
+
                     if (!compact || isSelected) {
-                        Spacer(Modifier.width(4.dp))
+                        Spacer(Modifier.width(5.dp))
                         Text(
                             text = tab.label,
                             style = MaterialTheme.typography.labelMedium.copy(

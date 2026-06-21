@@ -1,23 +1,18 @@
 package com.rk.ai
 
 import android.app.Activity
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoFixHigh
-import androidx.compose.material.icons.outlined.Psychology
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.activities.main.BottomPanelMode
@@ -261,35 +256,29 @@ internal fun AgentEmptyState(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        colorScheme.surface.copy(alpha = 0.3f),
-                        colorScheme.surfaceContainerLowest,
-                    )
-                )
-            ),
+            .background(colorScheme.surfaceContainerLow),
         contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Surface(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(56.dp),
                 shape = CircleShape,
-                color = colorScheme.primaryContainer.copy(alpha = 0.5f),
+                color = colorScheme.primaryContainer.copy(alpha = 0.4f),
+                tonalElevation = 2.dp,
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Icon(
                         Icons.Outlined.AutoFixHigh,
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(28.dp),
                         tint = colorScheme.onPrimaryContainer,
                     )
                 }
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     "$agentName Ready",
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
@@ -298,19 +287,19 @@ internal fun AgentEmptyState(
                 Text(
                     "Tap start to begin an AI-powered session",
                     style = MaterialTheme.typography.bodySmall,
-                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     textAlign = TextAlign.Center,
                 )
             }
             Button(
                 onClick = onStart,
-                shape = RoundedCornerShape(16.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+                shape = MaterialTheme.shapes.large,
+                contentPadding = PaddingValues(horizontal = 28.dp, vertical = 10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
             ) {
-                Icon(Icons.Outlined.Psychology, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Start Agent", style = MaterialTheme.typography.labelMedium)
+                Icon(Icons.Outlined.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Start Agent", style = MaterialTheme.typography.labelLarge)
             }
         }
     }

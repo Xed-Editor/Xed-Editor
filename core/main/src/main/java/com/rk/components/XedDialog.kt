@@ -34,7 +34,7 @@ fun XedDialog(
             modifier =
                 modifier
                     .padding(horizontal = 16.dp, vertical = 32.dp)
-                    .clip(shape = RoundedCornerShape(16.dp))
+                    .clip(shape = RoundedCornerShape(20.dp))
                     .width(dialogWidth)
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             contentAlignment = Alignment.Center,

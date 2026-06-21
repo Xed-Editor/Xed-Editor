@@ -27,7 +27,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -105,9 +104,10 @@ fun InlineAgentBar(
                             response = null
                             onDismiss()
                         },
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(26.dp),
                     ) {
-                        Icon(Icons.Outlined.Close, contentDescription = "Close", modifier = Modifier.size(16.dp))
+                        Icon(Icons.Outlined.Close, contentDescription = "Close", modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -123,27 +123,16 @@ fun InlineAgentBar(
                         placeholder = { Text("Ask about code...", style = MaterialTheme.typography.bodySmall) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        shape = RoundedCornerShape(DesignTokens.Spacing.small),
+                        shape = MaterialTheme.shapes.medium,
                         textStyle = MaterialTheme.typography.bodySmall,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                             unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                         ),
                     )
-                    if (response != null) {
-                        Spacer(Modifier.width(DesignTokens.Spacing.small))
-                        IconButton(
-                            onClick = { response = null },
-                            modifier = Modifier.size(28.dp),
-                        ) {
-                            XedIcon(
-                                com.rk.icons.Icon.DrawableRes(drawables.close),
-                                contentDescription = "Clear",
-                                modifier = Modifier.size(16.dp),
-                            )
-                        }
-                    }
+
                     Spacer(Modifier.width(DesignTokens.Spacing.small))
+
                     FilledTonalIconButton(
                         onClick = {
                             if (input.isBlank()) return@FilledTonalIconButton
@@ -162,12 +151,12 @@ fun InlineAgentBar(
                             }
                         },
                         enabled = input.isNotBlank() && !isLoading,
-                        modifier = Modifier.size(36.dp),
+                        modifier = Modifier.size(38.dp),
                     ) {
                         if (isLoading) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                         } else {
-                            Icon(Icons.Outlined.Send, contentDescription = "Send", modifier = Modifier.size(16.dp))
+                            Icon(Icons.Outlined.Send, contentDescription = "Send", modifier = Modifier.size(18.dp))
                         }
                     }
                 }
@@ -175,7 +164,7 @@ fun InlineAgentBar(
                 response?.let { text ->
                     Spacer(Modifier.height(DesignTokens.Spacing.small))
                     Surface(
-                        shape = RoundedCornerShape(DesignTokens.Spacing.small),
+                        shape = MaterialTheme.shapes.medium,
                         color = MaterialTheme.colorScheme.surfaceContainer,
                         modifier = Modifier.fillMaxWidth().heightIn(max = if (isExpanded) 400.dp else 150.dp),
                     ) {
@@ -202,6 +191,7 @@ fun InlineAgentBar(
                                 if (isExpanded) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = if (isExpanded) "Collapse" else "Expand",
                                 modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }

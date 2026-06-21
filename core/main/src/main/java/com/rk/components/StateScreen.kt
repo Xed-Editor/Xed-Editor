@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,12 +25,13 @@ fun StateScreen(painter: Painter, text: String, color: Color = LocalContentColor
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(painter = painter, contentDescription = null, modifier = Modifier.size(48.dp), tint = color)
+        Icon(painter = painter, contentDescription = null, modifier = Modifier.size(56.dp), tint = color.copy(alpha = 0.5f))
         Text(
             text = text,
-            color = color,
-            modifier = Modifier.fillMaxWidth(0.5f).padding(top = 8.dp),
+            color = color.copy(alpha = 0.7f),
+            modifier = Modifier.fillMaxWidth(0.6f).padding(top = 12.dp),
             textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }
