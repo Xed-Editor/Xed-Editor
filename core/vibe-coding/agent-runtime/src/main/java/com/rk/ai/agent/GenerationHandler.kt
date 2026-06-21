@@ -6,6 +6,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.datetime.TimeZone
@@ -129,7 +130,7 @@ class GenerationHandler(
         conversationSystemPrompt: String? = null,
         conversationModeInjectionIds: Set<Uuid> = emptySet(),
         conversationLorebookIds: Set<Uuid> = emptySet(),
-    ): Flow<GenerationChunk> = flow {
+    ): Flow<GenerationChunk> = channelFlow {
         // Per-call state — reset for each generateText() invocation to prevent bleed between sessions
         var compactionCount = 0
         var previousToolCalls: List<Pair<String, String>> = emptyList()
