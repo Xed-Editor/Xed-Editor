@@ -74,15 +74,18 @@ android {
 
             val propertiesFile = File(propertiesFilePath)
             if (propertiesFile.exists()) {
-                val properties = Properties()
-                properties.load(propertiesFile.inputStream())
-                keyAlias = properties["keyAlias"] as String?
-                keyPassword = properties["keyPassword"] as String?
+                val props = propertiesFile.readLines().mapNotNull { line ->
+                    val idx = line.indexOf('=')
+                    if (idx > 0) line.substring(0, idx).trim() to line.substring(idx + 1).trim() else null
+                }.toMap()
+                keyAlias = props["keyAlias"]
+                keyPassword = props["keyPassword"]
                 storeFile = when {
                     System.getenv("GITHUB_ACTIONS") == "true" -> File("/tmp/xed.keystore")
                     !System.getenv("KEYSTORE_FILE").isNullOrEmpty() -> File(System.getenv("KEYSTORE_FILE"))
-                    else -> (properties["storeFile"] as String?)?.let { File(it) }
+                    else -> props["storeFile"]?.let { File(it) }
                 }
+            }
 
                 storePassword = properties["storePassword"] as String?
             } else {
