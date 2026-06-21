@@ -1,6 +1,6 @@
 {
   "fileTypes": [
-    "zig"
+    "zig", "zon"
   ],
   "keyEquivalent": "^~Z",
   "name": "Zig",
