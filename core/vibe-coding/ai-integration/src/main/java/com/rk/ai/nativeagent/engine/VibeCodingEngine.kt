@@ -168,7 +168,10 @@ class VibeCodingEngine(
         permissionManager = permissionManager,
         vibeEventBus = vibeEventBus,
         engineScope = engineScope,
-        onStateUpdate = { transform -> _state.value = _state.value.transform() },
+        onStateUpdate = { transform ->
+            _state.value = _state.value.transform()
+            updateDebugInfo()
+        },
         onSaveSession = { saveCurrentSessionMessages() },
         onSaveConversation = suspend { saveConversation() },
         getState = { _state.value },
@@ -928,6 +931,45 @@ class VibeCodingEngine(
             inputTransformers = inputTransformers,
             outputTransformers = outputTransformers,
         )
+    }
+
+    fun toggleDebugMode() {
+        val newMode = !_state.value.debugMode
+        _state.value = _state.value.copy(debugMode = newMode)
+        if (!newMode) {
+            _state.value = _state.value.copy(debugInfo = null)
+        }
+    }
+
+    fun updateDebugInfo() {
+        if (!_state.value.debugMode) return
+        val s = _state.value
+        val msgs = s.messages
+        val lastUser = msgs.lastOrNull { it.role == MessageRole.USER }
+        val lastAssistant = msgs.lastOrNull { it.role == MessageRole.ASSISTANT }
+        val toolCalls = msgs.flatMap { it.getTools() }.map { "${it.toolName}(${it.input.take(100)}) -> ${it.statusLabel}" }
+        val settings = settingsStore.settingsFlow.value
+        val model = settings.findModelById(settings.chatModelId)
+        _state.value = s.copy(
+            debugInfo = DebugInfo(
+                lastPrompt = lastUser?.toText() ?: "",
+                lastResponse = lastAssistant?.toText() ?: "",
+                lastToolCalls = toolCalls.takeLast(20),
+                inputMessages = msgs.filter { it.role == MessageRole.USER },
+                outputMessages = msgs.filter { it.role == MessageRole.ASSISTANT },
+                modelName = model?.displayName?.ifEmpty { model.modelId } ?: "No model",
+                totalTokens = s.toolExecutions.sumOf { it.tokens },
+            ),
+        )
+    }
+
+    fun deleteMessage(index: Int) {
+        val msgs = _state.value.messages.toMutableList()
+        if (index in msgs.indices) {
+            msgs.removeAt(index)
+            _state.value = _state.value.copy(messages = msgs)
+            saveCurrentSessionMessages()
+        }
     }
 
     fun clearConversation() {

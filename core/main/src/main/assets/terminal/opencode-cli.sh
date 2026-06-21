@@ -35,9 +35,12 @@ ensure_node() {
 }
 
 ensure_opencode() {
-  if ! command_exists opencode; then
+  if [ ! -x "$LOCAL/bin/opencode" ]; then
     info "Installing OpenCode CLI..."
-    npm install -g opencode-ai@latest
+    npm install -g --prefix "$LOCAL" opencode-ai@latest 2>&1 || {
+      warn "OpenCode CLI installation failed"
+      return 1
+    }
     info "OpenCode CLI installed successfully."
   fi
 }
@@ -45,4 +48,9 @@ ensure_opencode() {
 ensure_node
 ensure_opencode
 
-exec opencode "$@"
+OPENCODE_BIN="$LOCAL/bin/opencode"
+if [ ! -x "$OPENCODE_BIN" ]; then
+  OPENCODE_BIN="opencode"
+fi
+
+exec "$OPENCODE_BIN" "$@"

@@ -51,6 +51,16 @@ data class PermissionAutoRespondRule(
 
 enum class PermissionAction { ALLOW, ASK, DENY }
 
+data class DebugInfo(
+    val lastPrompt: String = "",
+    val lastResponse: String = "",
+    val lastToolCalls: List<String> = emptyList(),
+    val inputMessages: List<UIMessage> = emptyList(),
+    val outputMessages: List<UIMessage> = emptyList(),
+    val modelName: String = "",
+    val totalTokens: Int = 0,
+)
+
 data class CommandCatalogEntry(
     val id: String,
     val title: String,
@@ -94,6 +104,8 @@ data class VibeCodingState(
     val modifiedFiles: List<String> = emptyList(),
     val projectIndexed: Boolean = false,
     val toolStatsSummary: String = "",
+    val debugMode: Boolean = false,
+    val debugInfo: DebugInfo? = null,
 ) {
     val sessionById: Map<Uuid, SessionNode> get() = sessionTree.associateBy { it.id }
     val hasSecurityAlerts: Boolean get() = securityAlerts.isNotEmpty()

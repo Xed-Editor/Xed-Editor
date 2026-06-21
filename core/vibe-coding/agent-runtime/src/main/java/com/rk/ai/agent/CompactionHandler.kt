@@ -244,14 +244,35 @@ ${conversation.joinToString("\n") { m ->
     fun detectExcessiveReads(
         messages: List<UIMessage>,
         readTools: Set<String> = setOf("readFile", "cat", "readFiles", "head", "getFileContent"),
-        maxReadsPerWindow: Int = 15,
-        windowSize: Int = 20,
+        maxReadsPerWindow: Int = 30,
+        windowSize: Int = 30,
     ): Boolean {
         val recentMessages = messages.takeLast(windowSize)
-        val readCount = recentMessages.count { msg ->
-            msg.getTools().any { it.toolName in readTools && it.isExecuted }
+        val readTargets = mutableSetOf<String>()
+        var readCount = 0
+        for (msg in recentMessages) {
+            for (tool in msg.getTools().filter { it.toolName in readTools && it.isExecuted }) {
+                readCount++
+                val path = extractFilePath(tool.input)
+                if (path != null) readTargets.add(path)
+            }
         }
-        return readCount > maxReadsPerWindow
+        if (readCount <= maxReadsPerWindow) return false
+        if (readTargets.size >= readCount / 2) return false
+        return true
+    }
+
+    private fun extractFilePath(input: String): String? {
+        val patterns = listOf(
+            """"filePath"\s*:\s*"([^"]+)"""",
+            """"path"\s*:\s*"([^"]+)"""",
+            """"file"\s*:\s*"([^"]+)"""",
+        )
+        for (pattern in patterns) {
+            val match = Regex(pattern).find(input)
+            if (match != null) return match.groupValues[1]
+        }
+        return null
     }
 
     fun buildRecoveryMessage(

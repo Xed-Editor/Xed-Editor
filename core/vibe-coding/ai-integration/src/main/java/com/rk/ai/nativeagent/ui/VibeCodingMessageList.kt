@@ -31,6 +31,8 @@ fun VibeCodingMessageList(
     onApproveTool: ((String) -> Unit)? = null,
     onDenyTool: ((String, String) -> Unit)? = null,
     onAnswerTool: ((String, String) -> Unit)? = null,
+    onCopyMessage: ((String) -> Unit)? = null,
+    onDeleteMessage: ((Int) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
@@ -119,11 +121,16 @@ private fun MessageListContent(
         contentPadding = PaddingValues(vertical = 8.dp),
     ) {
         items(messages, key = { it.id }) { message ->
+            val msgIndex = messages.indexOf(message)
             VibeCodingMessageBubble(
                 message = message,
                 onApproveTool = onApproveTool,
                 onDenyTool = onDenyTool,
                 onAnswerTool = onAnswerTool,
+                onCopy = onCopyMessage,
+                onDelete = if (msgIndex >= 0 && onDeleteMessage != null) {
+                    { onDeleteMessage(msgIndex) }
+                } else null,
             )
         }
 

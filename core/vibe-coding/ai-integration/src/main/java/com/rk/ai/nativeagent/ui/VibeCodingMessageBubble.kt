@@ -30,6 +30,8 @@ fun VibeCodingMessageBubble(
     onApproveTool: ((String) -> Unit)? = null,
     onDenyTool: ((String, String) -> Unit)? = null,
     onAnswerTool: ((String, String) -> Unit)? = null,
+    onCopy: ((String) -> Unit)? = null,
+    onDelete: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val isUser = message.role == MessageRole.USER
@@ -47,6 +49,40 @@ fun VibeCodingMessageBubble(
             .padding(horizontal = 12.dp, vertical = 4.dp),
         horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
     ) {
+        // Action buttons row (shown above message)
+        Row(
+            modifier = Modifier.padding(bottom = 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            if (!isUser && onCopy != null) {
+                val textToCopy = message.toText()
+                IconButton(
+                    onClick = { onCopy(textToCopy) },
+                    modifier = Modifier.size(20.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.ContentCopy,
+                        contentDescription = "Copy",
+                        modifier = Modifier.size(12.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    )
+                }
+            }
+            if (onDelete != null) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(20.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.Delete,
+                        contentDescription = "Delete",
+                        modifier = Modifier.size(12.dp),
+                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
+                    )
+                }
+            }
+        }
+
         Surface(
             shape = RoundedCornerShape(
                 topStart = 16.dp,

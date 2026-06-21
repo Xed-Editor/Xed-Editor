@@ -40,7 +40,6 @@ import com.rk.ai.nativeagent.engine.AgentActivity
 import com.rk.ai.nativeagent.engine.SessionNode
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import com.rk.ai.nativeagent.engine.VibeCodingState
-import com.rk.ai.nativeagent.ui.components.*
 import com.rk.ai.nativeagent.ui.panels.*
 import com.rk.ai.persistence.settings.getCurrentAssistant
 
@@ -65,6 +64,7 @@ fun VibeCodingPanel(
 ) {
     val state by engine.state.collectAsState()
     val colorScheme = MaterialTheme.colorScheme
+    val context = LocalContext.current
     var showSettings by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
@@ -325,18 +325,26 @@ fun VibeCodingPanel(
                             )
                         }
 
-                        // Info panels (Plan, Tools, Context, Changes)
-                        if (selectedInfoTab != null) {
-                            InfoPanelSection(
-                                selectedInfoTab = selectedInfoTab!!,
-                                visibleTabs = visibleInfoTabs,
-                                currentTabIndex = currentInfoTabIndex,
-                                state = state,
-                                engine = engine,
-                                colorScheme = colorScheme,
-                                onSelectTab = { selectedInfoTab = if (selectedInfoTab == it) null else it },
-                            )
-                        }
+                // Info panels (Plan, Tools, Context, Changes)
+                if (selectedInfoTab != null) {
+                    InfoPanelSection(
+                        selectedInfoTab = selectedInfoTab!!,
+                        visibleTabs = visibleInfoTabs,
+                        currentTabIndex = currentInfoTabIndex,
+                        state = state,
+                        engine = engine,
+                        colorScheme = colorScheme,
+                        onSelectTab = { selectedInfoTab = if (selectedInfoTab == it) null else it },
+                    )
+                }
+
+                // Debug panel
+                if (state.debugMode) {
+                    DebugPanel(
+                        debugInfo = state.debugInfo,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
 
                         // Main message list
                         Box(modifier = Modifier.weight(1f)) {
@@ -350,6 +358,11 @@ fun VibeCodingPanel(
                                     onApproveTool = { toolCallId -> engine.approveTool(toolCallId) },
                                     onDenyTool = { toolCallId, reason -> engine.denyTool(toolCallId, reason) },
                                     onAnswerTool = { toolCallId, answer -> engine.answerTool(toolCallId, answer) },
+                                    onCopyMessage = { text ->
+                                        val cm = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                        cm.setPrimaryClip(android.content.ClipData.newPlainText("VibeCoding", text))
+                                    },
+                                    onDeleteMessage = { index -> engine.deleteMessage(index) },
                                     modifier = Modifier.fillMaxSize(),
                                 )
                             }
@@ -631,6 +644,14 @@ private fun ToolbarSection(
                     label = "Agent",
                     isActive = showAgentActivity,
                     onClick = onToggleAgentActivity,
+                    colorScheme = colorScheme,
+                )
+
+                ToolbarToggleButton(
+                    icon = Icons.Outlined.BugReport,
+                    label = "Debug",
+                    isActive = state.debugMode,
+                    onClick = { engine.toggleDebugMode() },
                     colorScheme = colorScheme,
                 )
 

@@ -28,9 +28,16 @@ if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
   install_nodejs >/dev/null 2>&1
 fi
 
-if ! command -v opencode >/dev/null 2>&1; then
+if [ ! -x "$LOCAL/bin/opencode" ]; then
   log "Installing OpenCode CLI..."
-  npm install -g opencode-ai@latest >/dev/null 2>&1
+  npm install -g --prefix "$LOCAL" opencode-ai@latest 2>/dev/null || {
+    log "OpenCode CLI installation failed"
+  }
 fi
 
-exec opencode "$@"
+OPENCODE_BIN="$LOCAL/bin/opencode"
+if [ ! -x "$OPENCODE_BIN" ]; then
+  OPENCODE_BIN="opencode"
+fi
+
+exec "$OPENCODE_BIN" "$@"
