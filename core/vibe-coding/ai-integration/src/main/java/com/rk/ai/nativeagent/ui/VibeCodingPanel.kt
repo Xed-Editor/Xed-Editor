@@ -41,6 +41,7 @@ import com.rk.ai.nativeagent.engine.AgentActivity
 import com.rk.ai.nativeagent.engine.SessionNode
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import com.rk.ai.nativeagent.engine.VibeCodingState
+import com.rk.ai.nativeagent.ui.components.*
 import com.rk.ai.nativeagent.ui.panels.*
 import com.rk.ai.persistence.settings.getCurrentAssistant
 
@@ -644,6 +645,7 @@ fun VibeCodingPanel(
             onDismiss = { showSettings = false },
         )
     }
+}
 
 @Composable
 private fun ToolbarSection(

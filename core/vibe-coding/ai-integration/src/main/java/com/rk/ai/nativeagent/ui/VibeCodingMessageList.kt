@@ -65,6 +65,8 @@ fun VibeCodingMessageList(
                 onApproveTool = onApproveTool,
                 onDenyTool = onDenyTool,
                 onAnswerTool = onAnswerTool,
+                onCopyMessage = onCopyMessage,
+                onDeleteMessage = onDeleteMessage,
                 modifier = modifier,
             )
     }
@@ -113,6 +115,8 @@ private fun MessageListContent(
     onApproveTool: ((String) -> Unit)? = null,
     onDenyTool: ((String, String) -> Unit)? = null,
     onAnswerTool: ((String, String) -> Unit)? = null,
+    onCopyMessage: ((String) -> Unit)? = null,
+    onDeleteMessage: ((Int) -> Unit)? = null,
     modifier: Modifier,
 ) {
     LazyColumn(
