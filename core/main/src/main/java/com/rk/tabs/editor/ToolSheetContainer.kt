@@ -8,12 +8,12 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -27,7 +27,6 @@ import com.termux.terminal.TerminalSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
 
 @Stable
 class ToolSheetState(
@@ -122,7 +121,6 @@ fun ToolSheetContainer(
     ToolSheetContent(
         state = state,
         onDismissRequest = onDismissRequest,
-        cwd = cwd,
         session = session,
         modifier = modifier,
         showTerminal = showTerminal,
@@ -178,7 +176,6 @@ fun ToolSheetModalContainer(
         ToolSheetContent(
             state = state,
             onDismissRequest = onDismissRequest,
-            cwd = cwd,
             session = session,
             modifier = modifier,
             showTerminal = showTerminal,
@@ -195,7 +192,6 @@ fun ToolSheetModalContainer(
 private fun ToolSheetContent(
     state: ToolSheetState,
     onDismissRequest: () -> Unit,
-    cwd: String,
     session: TerminalSession?,
     modifier: Modifier = Modifier,
     showTerminal: Boolean = true,
@@ -227,18 +223,10 @@ private fun ToolSheetContent(
                 shape = shape,
                 clip = true,
             )
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        colorScheme.surfaceContainerHigh,
-                        colorScheme.surfaceContainer,
-                    ),
-                ),
-                shape = shape,
-            )
+            .background(colorScheme.surfaceContainer, shape = shape)
             .border(
                 width = 0.5.dp,
-                color = colorScheme.outlineVariant.copy(alpha = 0.15f),
+                color = colorScheme.outlineVariant.copy(alpha = 0.2f),
                 shape = shape,
             ),
     ) {
@@ -261,43 +249,32 @@ private fun ToolSheetContent(
                         onDragStopped = { velocity ->
                             isDragging = false
                             val current = state.heightPx
-                            val velocityThreshold = state.density.density * 2f
-
-                            if (velocity.absoluteValue > velocityThreshold) {
-                                state.snapTo(
-                                    if (velocity < 0) state.maxHeightPx else state.minHeightPx
-                                )
+                            val midPx = (state.minHeightPx + state.maxHeightPx) / 2f
+                            if (velocity.absoluteValue > state.density.density * 2f) {
+                                state.snapTo(if (velocity < 0) state.maxHeightPx else state.minHeightPx)
                             } else {
-                                val midPx = (state.minHeightPx + state.maxHeightPx) / 2f
-                                state.snapTo(
-                                    if (current < midPx) state.minHeightPx else state.maxHeightPx
-                                )
+                                state.snapTo(if (current < midPx) state.minHeightPx else state.maxHeightPx)
                             }
                         },
                     )
-                    .background(colorScheme.surfaceContainerHigh.copy(alpha = 0.5f))
+                    .background(colorScheme.surfaceContainer)
             ) {
                 XedDragHandle(
                     isDragging = isDragging,
                     modifier = Modifier.clickable {
                         val midPx = (state.minHeightPx + state.maxHeightPx) / 2f
-                        state.snapTo(
-                            if (state.heightPx < midPx) state.maxHeightPx else state.minHeightPx
-                        )
+                        state.snapTo(if (state.heightPx < midPx) state.maxHeightPx else state.minHeightPx)
                     },
                 )
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(44.dp)
-                        .padding(horizontal = 8.dp),
+                        .height(40.dp)
+                        .padding(start = 12.dp, end = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.CenterStart,
-                    ) {
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                         headerContent?.invoke()
                     }
 
@@ -311,16 +288,16 @@ private fun ToolSheetContent(
 
                         FilledIconButton(
                             onClick = onDismissRequest,
-                            modifier = Modifier.size(30.dp),
+                            modifier = Modifier.size(28.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                containerColor = colorScheme.surfaceVariant.copy(alpha = 0.4f),
                                 contentColor = colorScheme.onSurfaceVariant,
                             ),
                         ) {
                             XedIcon(
                                 com.rk.icons.Icon.DrawableRes(drawables.close),
                                 contentDescription = "Close",
-                                modifier = Modifier.size(14.dp),
+                                modifier = Modifier.size(13.dp),
                                 tint = colorScheme.onSurfaceVariant,
                             )
                         }
@@ -328,7 +305,7 @@ private fun ToolSheetContent(
                 }
 
                 HorizontalDivider(
-                    color = colorScheme.outlineVariant.copy(alpha = 0.12f),
+                    color = colorScheme.outlineVariant.copy(alpha = 0.15f),
                     thickness = 0.5.dp,
                 )
             }

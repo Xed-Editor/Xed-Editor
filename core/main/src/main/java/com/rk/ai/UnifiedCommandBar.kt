@@ -99,7 +99,7 @@ fun UnifiedCommandBar(
         if (mode == BottomPanelMode.TERMINAL || mode == BottomPanelMode.AI) {
             DividerThin(colorScheme)
             AndroidView<VirtualKeysView>(
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                modifier = Modifier.fillMaxWidth().height(44.dp),
                 factory = { ctx ->
                     VirtualKeysView(ctx, null).apply {
                         setButtonTextColor(colorScheme.onSurface.toArgb())
@@ -389,46 +389,39 @@ private fun StatusBar(
     val bridgeTools = AiProvider.ideBridge?.availableTools() ?: 0
     val bridgeOnline = AiProvider.ideBridge?.isRunning() == true
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(36.dp),
+            modifier = Modifier.fillMaxWidth().height(34.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box {
                 Surface(
                     onClick = { if (mode == BottomPanelMode.AI) onToggleAgentMenu() },
                     enabled = mode == BottomPanelMode.AI,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = if (mode == BottomPanelMode.AI)
-                        colorScheme.primaryContainer.copy(alpha = 0.6f)
+                        colorScheme.primaryContainer.copy(alpha = 0.5f)
                     else
-                        colorScheme.secondaryContainer.copy(alpha = 0.6f),
-                    modifier = Modifier.height(30.dp),
+                        colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                    modifier = Modifier.height(26.dp),
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 10.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(12.dp)) {
-                            Box(
-                                modifier = Modifier
-                                    .size(7.dp)
-                                    .clip(CircleShape)
-                                    .background(statusColor),
-                            )
-                        }
+                        Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
                         Spacer(Modifier.width(5.dp))
                         Text(
                             text = if (mode == BottomPanelMode.AI) (agent?.displayName ?: "AI") else "Terminal",
                             color = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                         )
                         if (mode == BottomPanelMode.AI) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Switch",
-                                modifier = Modifier.size(14.dp),
-                                tint = colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                                modifier = Modifier.size(12.dp),
+                                tint = colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
                             )
                         }
                     }
@@ -452,26 +445,21 @@ private fun StatusBar(
                                                 else -> Icons.Outlined.AutoFixHigh
                                             },
                                             contentDescription = null,
-                                            modifier = Modifier.size(18.dp),
+                                            modifier = Modifier.size(16.dp),
                                             tint = if (a == agent) colorScheme.primary else colorScheme.onSurfaceVariant,
                                         )
-                                        Spacer(Modifier.width(10.dp))
+                                        Spacer(Modifier.width(8.dp))
                                         Column {
-                                            Text(a.displayName, style = MaterialTheme.typography.bodyMedium)
+                                            Text(a.displayName, style = MaterialTheme.typography.bodySmall)
                                             Text(
                                                 "Switch to ${a.displayName.split("/").last()}",
                                                 style = MaterialTheme.typography.labelSmall,
-                                                color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                                color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                             )
                                         }
                                         if (a == agent) {
                                             Spacer(Modifier.width(8.dp))
-                                            Icon(
-                                                Icons.Default.Check,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(18.dp),
-                                                tint = colorScheme.primary,
-                                            )
+                                            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp), tint = colorScheme.primary)
                                         }
                                     }
                                 },
@@ -482,31 +470,26 @@ private fun StatusBar(
                 }
             }
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(6.dp))
 
             Surface(
                 onClick = {
                     com.blankj.utilcode.util.ClipboardUtils.copyText("Path", cwd)
                     com.rk.utils.toast("Path copied to clipboard")
                 },
-                shape = RoundedCornerShape(8.dp),
-                color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                modifier = Modifier.widthIn(max = 120.dp),
+                shape = RoundedCornerShape(6.dp),
+                color = colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                modifier = Modifier.widthIn(max = 100.dp),
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        Icons.Outlined.Folder,
-                        contentDescription = null,
-                        modifier = Modifier.size(12.dp),
-                        tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                    )
+                    Icon(Icons.Outlined.Folder, contentDescription = null, modifier = Modifier.size(10.dp), tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
                     Spacer(Modifier.width(3.dp))
                     Text(
                         text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
-                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -518,42 +501,25 @@ private fun StatusBar(
                 Spacer(Modifier.width(4.dp))
                 Surface(
                     onClick = onBridgeDetails,
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(6.dp),
                     color = when {
-                        !bridgeOnline -> colorScheme.errorContainer.copy(alpha = 0.75f)
-                        bridgeClients > 0 -> colorScheme.tertiaryContainer.copy(alpha = 0.75f)
-                        else -> colorScheme.surfaceVariant.copy(alpha = 0.75f)
+                        !bridgeOnline -> colorScheme.errorContainer.copy(alpha = 0.65f)
+                        bridgeClients > 0 -> colorScheme.tertiaryContainer.copy(alpha = 0.65f)
+                        else -> colorScheme.surfaceVariant.copy(alpha = 0.65f)
                     },
-                    modifier = Modifier.height(24.dp).widthIn(max = 116.dp),
+                    modifier = Modifier.height(22.dp).widthIn(max = 100.dp),
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 6.dp),
+                        modifier = Modifier.padding(horizontal = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    when {
-                                        !bridgeOnline -> colorScheme.error
-                                        bridgeClients > 0 -> Color(0xFF4CAF50)
-                                        else -> Color(0xFFFFC107)
-                                    }
-                                ),
-                        )
-                        Spacer(Modifier.width(4.dp))
+                        Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(
+                            when { !bridgeOnline -> colorScheme.error; bridgeClients > 0 -> Color(0xFF4CAF50); else -> Color(0xFFFFC107) }
+                        ))
+                        Spacer(Modifier.width(3.dp))
                         Text(
-                            text = when {
-                                !bridgeOnline -> "MCP off"
-                                bridgeClients > 0 -> "MCP $bridgeClients/$bridgeTools"
-                                else -> "MCP ready"
-                            },
-                            color = when {
-                                !bridgeOnline -> colorScheme.onErrorContainer
-                                bridgeClients > 0 -> colorScheme.onTertiaryContainer
-                                else -> colorScheme.onSurfaceVariant
-                            },
+                            text = when { !bridgeOnline -> "MCP off"; bridgeClients > 0 -> "MCP $bridgeClients/$bridgeTools"; else -> "MCP ready" },
+                            color = when { !bridgeOnline -> colorScheme.onErrorContainer; bridgeClients > 0 -> colorScheme.onTertiaryContainer; else -> colorScheme.onSurfaceVariant },
                             style = MaterialTheme.typography.labelSmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -565,43 +531,32 @@ private fun StatusBar(
             Spacer(Modifier.weight(1f))
 
             if (mode == BottomPanelMode.AI && transcript.isNotBlank()) {
-                FilledTonalIconButton(onClick = onToggleTranscript, modifier = Modifier.size(28.dp)) {
+                FilledTonalIconButton(onClick = onToggleTranscript, modifier = Modifier.size(26.dp)) {
                     Icon(
                         if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = if (showTranscript) "Hide transcript" else "Show transcript",
-                        modifier = Modifier.size(16.dp),
+                        contentDescription = "Transcript",
+                        modifier = Modifier.size(14.dp),
                         tint = colorScheme.onSurfaceVariant,
                     )
                 }
-                Spacer(Modifier.width(4.dp))
-                FilledTonalIconButton(onClick = onClearTranscript, modifier = Modifier.size(28.dp)) {
-                    Icon(
-                        Icons.Outlined.Delete,
-                        contentDescription = "Clear transcript",
-                        modifier = Modifier.size(14.dp),
-                        tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                    )
+                Spacer(Modifier.width(2.dp))
+                FilledTonalIconButton(onClick = onClearTranscript, modifier = Modifier.size(26.dp)) {
+                    Icon(Icons.Outlined.Delete, contentDescription = "Clear", modifier = Modifier.size(12.dp), tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
                 }
             }
         }
 
         if (showTranscript && transcript.isNotBlank()) {
             Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 100.dp)
-                    .padding(vertical = 2.dp),
-                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(max = 100.dp).padding(vertical = 2.dp),
+                shape = RoundedCornerShape(8.dp),
                 color = colorScheme.surfaceContainerHigh,
                 border = BorderStroke(0.5.dp, colorScheme.outlineVariant.copy(alpha = 0.2f)),
             ) {
                 val scrollState = rememberScrollState()
                 Text(
                     text = transcript,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .verticalScroll(scrollState),
+                    modifier = Modifier.fillMaxWidth().padding(8.dp).verticalScroll(scrollState),
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                     color = colorScheme.onSurface,
                 )

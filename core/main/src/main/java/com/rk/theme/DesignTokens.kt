@@ -67,14 +67,14 @@ object DesignTokens {
     }
 
     object BottomSheet {
-        val shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-        val shapeTablet = RoundedCornerShape(16.dp)
-        val scrimColor = Color.Black.copy(alpha = 0.4f)
-        val elevation = 8.dp
-        val elevationTablet = 12.dp
+        val shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+        val shapeTablet = RoundedCornerShape(12.dp)
+        val scrimColor = Color.Black.copy(alpha = 0.45f)
+        val elevation = 4.dp
+        val elevationTablet = 8.dp
         val contentPadding = Spacing.large
-        val dragHandleWidth = 36.dp
-        val dragHandleHeight = 4.dp
+        val dragHandleWidth = 32.dp
+        val dragHandleHeight = 3.dp
         val minSheetHeight = 260.dp
     }
 

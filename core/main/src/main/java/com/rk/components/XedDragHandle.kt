@@ -24,33 +24,24 @@ fun XedDragHandle(
     onClick: (() -> Unit)? = null,
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val handleColor = if (isDragging) colorScheme.primary else colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-    val handleWidth = if (isDragging) DesignTokens.BottomSheet.dragHandleWidth + 8.dp else DesignTokens.BottomSheet.dragHandleWidth
+    val handleColor = if (isDragging) colorScheme.primary.copy(alpha = 0.5f) else colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(18.dp)
+            .height(16.dp)
             .then(
                 if (onClick != null) {
-                    Modifier.clickable(
-                        role = Role.Button,
-                        onClick = onClick,
-                    )
+                    Modifier.clickable(role = Role.Button, onClick = onClick)
                 } else Modifier
             )
-            .semantics {
-                contentDescription = "Drag handle"
-            },
+            .semantics { contentDescription = "Drag handle" },
         contentAlignment = Alignment.Center,
     ) {
         Box(
             modifier = Modifier
-                .size(width = handleWidth, height = DesignTokens.BottomSheet.dragHandleHeight)
-                .background(
-                    color = handleColor,
-                    shape = RoundedCornerShape(2.dp),
-                ),
+                .size(width = DesignTokens.BottomSheet.dragHandleWidth, height = DesignTokens.BottomSheet.dragHandleHeight)
+                .background(color = handleColor, shape = RoundedCornerShape(2.dp)),
         )
     }
 }
