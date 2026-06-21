@@ -90,24 +90,23 @@ class SuggestionTools(private val ideService: IdeService) {
                     val content = ideService.getFileContent(resolvedFile.absolutePath, null, null)
                     if (content != null) {
                         val lines = content.split("\n")
-                        val issues = mutableListOf<com.google.gson.JsonObject>()
+                        val arr = com.google.gson.JsonArray()
                         for ((idx, lineText) in lines.withIndex()) {
-                            if (issues.size >= maxCount) break
+                            if (arr.size() >= maxCount) break
                             if (lineText.isBlank() || lineText.length > 200) {
-                                issues.add(com.google.gson.JsonObject().apply {
+                                arr.add(com.google.gson.JsonObject().apply {
                                     addProperty("text", "Line ${idx + 1}: ${if (lineText.isBlank()) "Empty line" else "Line too long (${lineText.length} chars)"}")
                                     addProperty("confidence", 0.3)
                                     addProperty("source", "getSuggestions-analysis")
-                                    addJsonObject("diagnostic") {
+                                    add("diagnostic", com.google.gson.JsonObject().apply {
                                         addProperty("file", resolvedFile.absolutePath)
                                         addProperty("line", idx + 1)
                                         addProperty("message", if (lineText.isBlank()) "Empty line" else "Line exceeds 200 characters")
-                                    }
+                                    })
                                 })
                             }
                         }
-                        if (issues.isNotEmpty()) {
-                            val arr = buildJsonArray { issues.forEach { add(it) } }
+                        if (arr.size() > 0) {
                             return@Tool listOf(UIMessagePart.Text(arr.toString()))
                         }
                     }
