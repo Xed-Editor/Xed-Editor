@@ -123,6 +123,13 @@ val ColorScheme.greenStatus: Color
 val ColorScheme.yellowStatus: Color
     @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFE082)) else Color(harmonize(0xFFE6AC00))
 
+// Surface elevation colors
+val ColorScheme.surfaceElevated: Color
+    get() = this.surfaceContainerHigh
+
+val ColorScheme.surfaceSubdued: Color
+    @Composable get() = if (isSystemInDarkTheme()) surfaceContainerLow else surfaceContainerHigh
+
 // Git change colors
 val ColorScheme.gitAdded: Color
     @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF81C784)) else Color(harmonize(0xFF2E7D32))

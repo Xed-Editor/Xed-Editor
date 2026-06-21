@@ -45,13 +45,15 @@ fun StyledTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = TextFieldDefaults.shape,
+    shape: Shape = MaterialTheme.shapes.medium,
     colors: TextFieldColors =
         TextFieldDefaults.colors(
-            cursorColor = MaterialTheme.colorScheme.onSurface,
+            cursorColor = MaterialTheme.colorScheme.primary,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             selectionColors =
                 TextSelectionColors(
                     handleColor = MaterialTheme.colorScheme.primary,
@@ -85,7 +87,7 @@ fun StyledTextField(
             enabled = enabled,
             isError = isError,
             interactionSource = finalInteractionSource,
-            contentPadding = PaddingValues(top = 8.dp, start = 8.dp, end = 8.dp),
+            contentPadding = PaddingValues(top = 10.dp, start = 12.dp, end = 12.dp, bottom = 10.dp),
             placeholder = placeholder,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,

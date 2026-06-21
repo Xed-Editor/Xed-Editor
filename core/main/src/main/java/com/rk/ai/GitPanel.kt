@@ -1,6 +1,7 @@
 package com.rk.ai
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -106,7 +107,7 @@ fun GitPanel(
                 onRefresh = onRefresh,
             )
 
-            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.12f), thickness = 0.5.dp)
+            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.1f), thickness = 0.5.dp)
 
             if (gitViewModel.isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth().height(2.dp))
@@ -116,7 +117,6 @@ fun GitPanel(
                 LazyColumn(
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     state = rememberLazyListState(),
-                    contentPadding = PaddingValues(vertical = 4.dp),
                 ) {
                     if (conflicts.isNotEmpty()) {
                         item {
@@ -148,19 +148,19 @@ fun GitPanel(
                         Icon(
                             painter = painterResource(drawables.file),
                             contentDescription = null,
-                            tint = colorScheme.onSurface.copy(alpha = 0.3f),
+                            tint = colorScheme.onSurface.copy(alpha = 0.2f),
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
                             stringResource(strings.no_changes),
-                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
             }
 
-            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.12f), thickness = 0.5.dp)
+            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.1f), thickness = 0.5.dp)
 
             GitCommitArea(
                 amend = amend,

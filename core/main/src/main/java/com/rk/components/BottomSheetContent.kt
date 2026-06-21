@@ -42,11 +42,11 @@ fun BottomSheetContent(
         ) {
             title?.let {
                 ProvideTextStyle(MaterialTheme.typography.titleLarge, it)
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(12.dp))
             }
             text?.let {
                 ProvideTextStyle(MaterialTheme.typography.bodyMedium, it)
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(16.dp))
             }
             content?.let {
                 it()
@@ -55,7 +55,7 @@ fun BottomSheetContent(
 
         HorizontalDivider(
             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
-            thickness = 0.5.dp,
+            thickness = DesignTokens.Divider.thin,
         )
         Row(
             horizontalArrangement = Arrangement.End,
