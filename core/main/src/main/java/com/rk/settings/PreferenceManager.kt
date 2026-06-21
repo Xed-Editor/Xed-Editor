@@ -9,8 +9,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 object Preference {
     private val sharedPreferences: SharedPreferences by lazy {
@@ -77,14 +75,13 @@ object Preference {
         }
     }
 
-    suspend fun preloadAllSettings() =
-        withContext(Dispatchers.IO) {
-            Settings::class.members.forEach { member ->
-                if (member is KProperty<*>) {
-                    runCatching { member.getter.call(Settings) }
-                }
+    suspend fun preloadAllSettings() {
+        Settings::class.members.forEach { member ->
+            if (member is KProperty<*>) {
+                runCatching { member.getter.call(Settings) }
             }
         }
+    }
 
     fun clearData() {
         sharedPreferences.edit(commit = true) { clear() }

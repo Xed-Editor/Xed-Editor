@@ -75,11 +75,11 @@ class App : Application() {
 
             launch(AppDispatchers.IO) { iconPackManager.indexIconPacks() }
 
-            launch { LanguageManager.initGrammarRegistry() }
+            launch(AppDispatchers.Startup) { LanguageManager.initGrammarRegistry() }
 
-            launch { KeywordManager.initKeywordRegistry(this@App) }
+            launch(AppDispatchers.Startup) { KeywordManager.initKeywordRegistry(this@App) }
 
-            launch { CodeHighlighter.registerMarkdownCodeHighlighter(this@App) }
+            launch(AppDispatchers.Startup) { CodeHighlighter.registerMarkdownCodeHighlighter(this@App) }
 
             launch(AppDispatchers.IO) { SessionManager.preloadSession() }
 
@@ -98,7 +98,7 @@ class App : Application() {
                 FontCache.loadFont(this@App, terminalFontPath, isTerminalAsset)
             }
 
-            launch(AppDispatchers.IO) { Preference.preloadAllSettings() }
+            launch(AppDispatchers.Startup) { Preference.preloadAllSettings() }
 
             launch { DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir) }
 

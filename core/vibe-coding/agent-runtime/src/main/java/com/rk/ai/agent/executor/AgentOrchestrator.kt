@@ -10,6 +10,7 @@ import com.rk.ai.agent.tools.ToolCache
 import com.rk.ai.agent.tools.ToolRouter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import com.rk.ai.agent.context.ContextBundle
 import com.rk.ai.models.Tool
 import com.rk.ai.service.IdeService
@@ -91,7 +92,7 @@ class AgentOrchestrator(
             setPhase(AgentPhase.EXECUTING)
             var taskResult: ExecutionResult
             do {
-                if (!kotlin.coroutines.coroutineContext.isActive) {
+                if (!coroutineContext.isActive) {
                     contextMemory.log("Orchestration cancelled")
                     break
                 }

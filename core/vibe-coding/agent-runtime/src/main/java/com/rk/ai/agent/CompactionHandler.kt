@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
 package com.rk.ai.agent
 
 import com.rk.ai.models.UIMessage

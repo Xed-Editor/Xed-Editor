@@ -19,6 +19,7 @@ import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
 import com.google.gson.JsonParser
 import com.rk.ai.service.IdeService
+import kotlinx.coroutines.isActive
 
 private const val TAG = "ExecutionEngine"
 
@@ -68,7 +69,7 @@ class ExecutionEngine(
 
         val toolCalls = extractToolCalls(response)
         for (toolCall in toolCalls) {
-            if (!kotlin.coroutines.coroutineContext.isActive) {
+            if (!coroutineContext.isActive) {
                 contextMemory.log("Execution cancelled during tool calls")
                 break
             }
