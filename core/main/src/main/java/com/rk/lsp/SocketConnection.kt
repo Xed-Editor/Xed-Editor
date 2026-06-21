@@ -46,6 +46,8 @@ class SocketConnection(private val port: Int, private val host: String? = null, 
     }
 
     override fun close() {
+        runCatching { loggingInput?.close() }
+        runCatching { loggingOutput?.close() }
         runCatching { socket?.close() }
         socket = null
         loggingInput = null

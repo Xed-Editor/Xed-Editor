@@ -48,12 +48,13 @@ fun getDefaultBindings(): List<Binding> {
 
     val list = mutableListOf<Binding>()
 
+    val app = application ?: return list
     with(list) {
         bind(sandboxHomeDir().absolutePath, "/home")
         bind("/sdcard")
         bind("/storage")
         bind("/data")
-        bind(application!!.filesDir.parentFile!!.absolutePath)
+        bind(app.filesDir.parentFile?.absolutePath ?: return list)
         bind("/dev")
         bind("/proc")
         bind("/system")
@@ -123,15 +124,16 @@ suspend fun ubuntuProcess(
         val processBuilder = ProcessBuilder(linker, *args.toTypedArray())
 
         processBuilder.environment().let { env ->
+            val app = application
             env.putAll(extraEnv)
             env["WKDIR"] = workingDir.orEmpty()
             env["COLORTERM"] = "truecolor"
             env["TERM"] = "xterm-256color"
             env["LANG"] = "C.UTF-8"
-            env["PUBLIC_HOME"] = application!!.getExternalFilesDir(null)?.absolutePath.orEmpty()
+            env["PUBLIC_HOME"] = app?.getExternalFilesDir(null)?.absolutePath.orEmpty()
             env["DEBUG"] = BuildConfig.DEBUG.toString()
             env["LOCAL"] = localDir().absolutePath
-            env["PRIVATE_DIR"] = application!!.filesDir.parentFile!!.absolutePath
+            env["PRIVATE_DIR"] = app?.filesDir?.parentFile?.absolutePath.orEmpty()
             env["EXT_HOME"] = sandboxHomeDir().absolutePath
             env["HOME"] =
                 if (Settings.sandbox) {
@@ -146,15 +148,15 @@ suspend fun ubuntuProcess(
                 } else {
                     "/system/bin/linker"
                 }
-            env["NATIVE_LIB_DIR"] = application!!.applicationInfo.nativeLibraryDir
+            env["NATIVE_LIB_DIR"] = app?.applicationInfo?.nativeLibraryDir.orEmpty()
             env["FDROID"] = isFDroid.toString()
             env["SANDBOX"] = Settings.sandbox.toString()
             env["TMP_DIR"] = getTempDir().absolutePath
             env["TMPDIR"] = getTempDir().absolutePath
             env["TZ"] = "UTC"
             env["DOTNET_GCHeapHardLimit"] = "1C0000000"
-            env["SOURCE_DIR"] = application!!.applicationInfo.sourceDir
-            env["TERMUX_X11_SOURCE_DIR"] = getSourceDirOfPackage(application!!, "com.termux.x11").orEmpty()
+            env["SOURCE_DIR"] = app?.applicationInfo?.sourceDir.orEmpty()
+            env["TERMUX_X11_SOURCE_DIR"] = if (app != null) getSourceDirOfPackage(app, "com.termux.x11").orEmpty() else ""
             env["DISPLAY"] = ":0"
             env["LD_LIBRARY_PATH"] = localLibDir().absolutePath
             env["PROOT_TMP_DIR"] = tmpDir.absolutePath
@@ -172,13 +174,14 @@ suspend fun ubuntuProcess(
             env["PATH"] =
                 "/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir()}:${System.getenv("PATH")}"
 
-            if (!isFDroid) {
-                env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader.so"
+            if (!isFDroid && app != null) {
+                val nativeLibDir = app.applicationInfo.nativeLibraryDir
+                env["PROOT_LOADER"] = "$nativeLibDir/libproot-loader.so"
                 if (
                     Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() &&
-                        File(application!!.applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()
+                        File(nativeLibDir).child("libproot-loader32.so").exists()
                 ) {
-                    env["PROOT_LOADER32"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader32.so"
+                    env["PROOT_LOADER32"] = "$nativeLibDir/libproot-loader32.so"
                 }
             }
 
@@ -205,7 +208,6 @@ suspend fun Process.readStdout(): String =
     withContext(Dispatchers.IO) {
         try {
             inputStream.bufferedReader().use { reader ->
-                if (inputStream.available() <= 0) return@use ""
                 reader.readText()
             }
         } catch (e: IOException) {
@@ -218,7 +220,6 @@ suspend fun Process.readStderr(): String =
     withContext(Dispatchers.IO) {
         try {
             errorStream.bufferedReader().use { reader ->
-                if (errorStream.available() <= 0) return@use ""
                 reader.readText()
             }
         } catch (e: IOException) {

@@ -35,7 +35,13 @@ class MDViewer : WebActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mdViewerRef = WeakReference(this)
-        file = toPreviewFile!!
+        val previewFile = toPreviewFile
+        if (previewFile == null) {
+            toast("No file to preview")
+            finish()
+            return
+        }
+        file = previewFile
 
         val isDarkMode: Boolean = isDarkTheme(this)
         val port = Settings.http_server_port
@@ -149,7 +155,6 @@ class MDViewer : WebActivity() {
         }
         HtmlRunner.httpServer = null
 
-        mdViewerRef.get()?.finish()
         mdViewerRef = WeakReference(null)
 
         webViewRef?.clear()

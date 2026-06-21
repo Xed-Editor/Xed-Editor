@@ -34,20 +34,22 @@ class ProcessConnection(private val cmd: Array<String>, instance: LspServerInsta
         scope = CoroutineScope(Dispatchers.IO)
         runBlocking { process = ubuntuProcess(command = cmd) }
 
+        val proc = process ?: return
+
         loggingInput =
-            LoggingInputStream(process!!.inputStream) { json ->
+            LoggingInputStream(proc.inputStream) { json ->
                 Log.d("ProcessConnection", "[stdout] $json")
                 instance.addLog(LspLogEntry(MessageType.Log, "→ $json"))
             }
         loggingOutput =
-            LoggingOutputStream(process!!.outputStream) { json ->
+            LoggingOutputStream(proc.outputStream) { json ->
                 Log.d("ProcessConnection", "[stdin] $json")
                 instance.addLog(LspLogEntry(MessageType.Log, "← $json"))
             }
 
-        scope!!.launch {
+        scope?.launch {
             runCatching {
-                process!!.errorStream.bufferedReader().use { reader ->
+                proc.errorStream.bufferedReader().use { reader ->
                     reader.forEachLine { line ->
                         Log.e("ProcessConnection", "[stderr] $line")
                         instance.addLog(LspLogEntry(MessageType.Error, line))
@@ -60,6 +62,8 @@ class ProcessConnection(private val cmd: Array<String>, instance: LspServerInsta
     override fun close() {
         scope?.cancel()
         scope = null
+        runCatching { loggingInput?.close() }
+        runCatching { loggingOutput?.close() }
         process?.destroy()
         process = null
         loggingInput = null

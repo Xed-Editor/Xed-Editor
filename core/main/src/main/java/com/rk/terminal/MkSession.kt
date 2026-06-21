@@ -69,7 +69,7 @@ object MkSession {
                 "LANG=C.UTF-8",
                 "DEBUG=${BuildConfig.DEBUG}",
                 "LOCAL=${localDir().absolutePath}",
-                "PRIVATE_DIR=${activity.filesDir.parentFile!!.absolutePath}",
+                "PRIVATE_DIR=${activity.filesDir?.parentFile?.absolutePath.orEmpty()}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
                 "EXT_HOME=${sandboxHomeDir()}",
                 "HOME=${if (Settings.sandbox){ "/home"} else{ sandboxHomeDir()}}",
@@ -169,19 +169,6 @@ object MkSession {
 
         val currentTab = MainActivity.instance?.viewModel?.tabManager?.currentTab
         if (Settings.project_as_pwd) {
-            currentTab?.let {
-                if (it is EditorTab && it.file is FileWrapper) {
-                    val parent = it.file.getParentFile()
-                    if (parent != null && parent is FileWrapper) {
-                        return if (Settings.sandbox) {
-                            parent.getAbsolutePath().removePrefix(localDir().absolutePath)
-                        } else {
-                            parent.getAbsolutePath()
-                        }
-                    }
-                }
-            }
-        } else {
             currentTab?.let {
                 if (it is EditorTab && it.file is FileWrapper) {
                     val parent = it.file.getParentFile()

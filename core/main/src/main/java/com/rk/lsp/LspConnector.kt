@@ -366,9 +366,13 @@ class LspConnector(
         return lspEditor?.eventManager
     }
 
-    fun getCapabilities(): ServerCapabilities? = runBlocking {
-        if (!isConnected()) return@runBlocking null
-        withTimeoutOrNull(100) { runCatching { lspEditor?.requestManager?.capabilities }.getOrNull() }
+    fun getCapabilities(): ServerCapabilities? {
+        if (!isConnected()) return null
+        return runCatching {
+            runBlocking {
+                withTimeoutOrNull(100) { lspEditor?.requestManager?.capabilities }
+            }
+        }.getOrNull()
     }
 
     fun isGoToDefinitionSupported(): Boolean {

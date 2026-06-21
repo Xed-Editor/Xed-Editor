@@ -24,8 +24,9 @@ class HttpServer(
     }
 
     override fun serve(session: IHTTPSession?): Response {
+        val safeSession = session ?: return notFoundError()
         return runBlocking {
-            val uri = session!!.uri
+            val uri = safeSession.uri
 
             if (root.isFile()) {
                 if (!root.exists()) return@runBlocking notFoundError()
@@ -38,7 +39,7 @@ class HttpServer(
             }
 
             // Hook override
-            serveHook?.invoke(file, session)?.let {
+            serveHook?.invoke(file, safeSession)?.let {
                 return@runBlocking it
             }
 

@@ -14,6 +14,7 @@ import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -34,7 +35,7 @@ fun getSelectionColor(): Color? {
 }
 
 object ThemeManager {
-    private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
+    private val colorSchemeCache = ConcurrentHashMap<String, TextMateColorScheme>()
 
     suspend fun createColorScheme(context: Context, patchArgs: Editor.PatchArgs?) =
         withContext(Dispatchers.IO) {
@@ -128,7 +129,7 @@ object ThemeManager {
 
                 if (!tokenArray.isEmpty) {
                     if (arrayName != null) {
-                        if (selectedTheme!!.inheritBase) {
+                        if (selectedTheme?.inheritBase == true) {
                             val existingTokenColors = jsonObject[arrayName].asJsonArray
                             existingTokenColors.addAll(tokenArray)
                         } else {

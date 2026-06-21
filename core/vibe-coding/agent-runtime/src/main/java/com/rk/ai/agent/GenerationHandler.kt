@@ -150,7 +150,7 @@ class GenerationHandler(
         for (stepIndex in 0 until maxSteps) {
             lastFinishReason = null
             Log.i(TAG, "streamText: start step #$stepIndex (${model.id})")
-            emit(GenerationChunk.StepStarted(stepIndex))
+            send(GenerationChunk.StepStarted(stepIndex))
 
             // Check for overflow before generating next step
             if (CompactionHandler.needsCompaction(messages, model.contextWindow, model.maxOutputTokens)) {
@@ -161,8 +161,8 @@ class GenerationHandler(
                     val compacted = compactMessages(messages, model)
                     messages = compacted
                     compactionCount++
-                    emit(GenerationChunk.CompactionNeeded("context_overflow_after_step_$stepIndex"))
-                    emit(GenerationChunk.Messages(compacted))
+                    send(GenerationChunk.CompactionNeeded("context_overflow_after_step_$stepIndex"))
+                    send(GenerationChunk.Messages(compacted))
                     Log.i(TAG, "Compaction done, continuing with ${compacted.size} messages")
                 }
             }
@@ -212,7 +212,7 @@ class GenerationHandler(
                             assistant = assistant,
                             settings = settings
                         )
-                        emit(
+                        send(
                             GenerationChunk.Messages(
                                 messages.visualTransforms(
                                     transformers = outputTransformers,
@@ -254,7 +254,7 @@ class GenerationHandler(
                     finishedAt = Clock.System.now()
                         .toLocalDateTime(TimeZone.currentSystemDefault())
                 )
-                emit(GenerationChunk.Messages(messages))
+                send(GenerationChunk.Messages(messages))
 
                 val tools = messages.last().getTools().filter { !it.isExecuted }
                 if (tools.isEmpty()) {
@@ -271,8 +271,8 @@ class GenerationHandler(
                             val compacted = compactMessages(messages, model)
                             messages = compacted
                             compactionCount++
-                            emit(GenerationChunk.CompactionNeeded("length_finish"))
-                            emit(GenerationChunk.Messages(compacted))
+                            send(GenerationChunk.CompactionNeeded("length_finish"))
+                            send(GenerationChunk.Messages(compacted))
                             continue
                         }
                     }
@@ -318,7 +318,7 @@ class GenerationHandler(
                         }
                     }
                     messages = messages.dropLast(1) + lastMessage.copy(parts = updatedParts)
-                    emit(GenerationChunk.Messages(messages))
+                    send(GenerationChunk.Messages(messages))
                 }
 
                 // If there are pending approvals, break and wait for user
@@ -348,7 +348,7 @@ class GenerationHandler(
                                     executionState = ExecutionState.Error("Denied by user: ${reason.ifBlank { "No reason provided" }}"),
                                     output = listOf(UIMessagePart.Text("Tool '${tool.toolName}' execution denied by user. Reason: ${reason.ifBlank { "No reason provided" }}"))
                                 )
-                                emitMutex.withLock { emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, deniedTool.executionState)) }
+                                emitMutex.withLock { send(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, deniedTool.executionState)) }
                                 deniedTool
                             }
                             is ToolApprovalState.Answered -> {
@@ -357,14 +357,14 @@ class GenerationHandler(
                                     executionState = ExecutionState.Completed(title = "answered"),
                                     output = listOf(UIMessagePart.Text(answer))
                                 )
-                                emitMutex.withLock { emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, answeredTool.executionState)) }
+                                emitMutex.withLock { send(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, answeredTool.executionState)) }
                                 answeredTool
                             }
                             is ToolApprovalState.Pending -> tool
                             else -> {
-                                emitMutex.withLock { emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, ExecutionState.Running())) }
+                                emitMutex.withLock { send(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, ExecutionState.Running())) }
                                 val resultTool = executeSingleTool(tool, toolsInternal, emitMutex)
-                                emitMutex.withLock { emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, resultTool.executionState)) }
+                                emitMutex.withLock { send(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, resultTool.executionState)) }
                                 resultTool
                             }
                         }
@@ -423,7 +423,7 @@ class GenerationHandler(
                         ))
                     )
                     messages = messages + recoveryMsg
-                    emit(GenerationChunk.Messages(messages))
+                    send(GenerationChunk.Messages(messages))
                     break
                 }
             }
@@ -451,7 +451,7 @@ class GenerationHandler(
                         ))
                     )
                     messages = messages + recoveryMsg
-                    emit(GenerationChunk.Messages(messages))
+                    send(GenerationChunk.Messages(messages))
                     recentToolNameSequences.clear()
                     break
                 }
@@ -482,7 +482,7 @@ class GenerationHandler(
                                         ))
                                     )
                                     messages = messages + recoveryMsg
-                                    emit(GenerationChunk.Messages(messages))
+                                    send(GenerationChunk.Messages(messages))
                                     recoveryInjected = true
                                 } catch (e: Exception) {
                                     Log.w(TAG, "Recovery failed for directory creation: $dirPath", e)
@@ -499,13 +499,13 @@ class GenerationHandler(
                                 ))
                             )
                             messages = messages + recoveryMsg
-                            emit(GenerationChunk.Messages(messages))
+                            send(GenerationChunk.Messages(messages))
                             recoveryInjected = true
                         }
                         else -> {
                             val recoveryMsg = recoveryEngine.buildRecoveryMessage(failed.toolName, errorMsg, action)
                             messages = messages + recoveryMsg
-                            emit(GenerationChunk.Messages(messages))
+                            send(GenerationChunk.Messages(messages))
                             recoveryInjected = true
                         }
                     }
@@ -524,7 +524,7 @@ class GenerationHandler(
                 } else part
             }
             messages = messages.dropLast(1) + lastMessage.copy(parts = updatedParts)
-            emit(
+            send(
                 GenerationChunk.Messages(
                     messages.transforms(
                         transformers = outputTransformers,
@@ -537,7 +537,7 @@ class GenerationHandler(
             )
 
             val tokenEstimate = TokenEstimator.estimate(messages)
-            emit(GenerationChunk.StepFinished(
+            send(GenerationChunk.StepFinished(
                 stepIndex = stepIndex,
                 cost = 0f,
                 inputTokens = tokenEstimate,

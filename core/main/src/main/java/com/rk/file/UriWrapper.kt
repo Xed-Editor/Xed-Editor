@@ -282,11 +282,9 @@ class UriWrapper : FileObject {
 
     override suspend fun writeText(content: String, charset: Charset): Boolean =
         withContext(Dispatchers.IO) {
-            withContext(Dispatchers.IO) {
-                getOutputStream(false).use {
-                    it.write(content.toByteArray(charset))
-                    it.flush()
-                }
+            getOutputStream(false).use {
+                it.write(content.toByteArray(charset))
+                it.flush()
             }
             return@withContext true
         }

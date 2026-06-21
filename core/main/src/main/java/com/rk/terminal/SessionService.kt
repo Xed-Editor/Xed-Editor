@@ -17,13 +17,9 @@ import com.rk.activities.main.MainActivity
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.AppScope
 import com.rk.settings.Settings
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 import java.util.concurrent.ConcurrentHashMap
@@ -134,7 +130,6 @@ class SessionService : Service() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
         instance = WeakReference(this)
@@ -143,7 +138,7 @@ class SessionService : Service() {
         startForeground(1, notification)
 
         if (deamonRunning.not()) {
-            AppScope.launch(Dispatchers.IO) { deamonRunning = true }
+            deamonRunning = true
         }
 
         if (wakeLock == null) {
