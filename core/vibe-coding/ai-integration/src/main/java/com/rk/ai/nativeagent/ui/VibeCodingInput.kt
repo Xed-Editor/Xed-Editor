@@ -331,6 +331,19 @@ fun VibeCodingInput(
                     value = textFieldValue,
                     onValueChange = { newValue ->
                         val prevText = textFieldValue.text
+                        if (newValue.text.length > prevText.length && newValue.text.contains("\n")) {
+                            val textToSend = newValue.text.trimEnd('\n').trim()
+                            if (textToSend.isNotBlank() || attachedParts.isNotEmpty()) {
+                                onSend(textToSend, attachedParts)
+                                textFieldValue = TextFieldValue("")
+                                attachedParts = emptyList()
+                                showQuickActions = true
+                            } else {
+                                textFieldValue = newValue.copy(text = newValue.text.replace("\n", ""))
+                            }
+                            showSlashMenu = false
+                            return@OutlinedTextField
+                        }
                         textFieldValue = newValue
                         if (newValue.text.startsWith("/") && !prevText.startsWith("/")) {
                             showSlashMenu = true

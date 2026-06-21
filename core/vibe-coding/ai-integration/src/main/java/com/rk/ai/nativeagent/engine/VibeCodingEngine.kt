@@ -228,7 +228,7 @@ class VibeCodingEngine(
             SuggestionStore.suggestions.collect { suggestionsFlow.value = it }
         }
         val securityHook = SecurityHook { severity, message, toolName, filePath ->
-            val alert = SecurityAlert(severity, message, toolName, filePath)
+            val alert = SecurityAlert(id = Uuid.random().toString(), severity = severity, message = message, toolName = toolName, filePath = filePath)
             addSecurityAlert(alert)
             engineScope.launch {
                 vibeEventBus.emit(VibeCodingEvent.SecurityAlert(
@@ -619,6 +619,13 @@ class VibeCodingEngine(
     fun addSecurityAlert(alert: SecurityAlert) {
         _state.value = _state.value.copy(
             securityAlerts = _state.value.securityAlerts + alert,
+        )
+    }
+
+    fun dismissSecurityAlert(id: String?) {
+        if (id == null) return
+        _state.value = _state.value.copy(
+            securityAlerts = _state.value.securityAlerts.filter { it.id != id },
         )
     }
 
