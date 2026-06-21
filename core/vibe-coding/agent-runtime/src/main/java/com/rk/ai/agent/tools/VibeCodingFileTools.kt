@@ -284,10 +284,18 @@ class VibeCodingFileTools(private val ideService: IdeService) {
                 val matchCount = content.split(oldString).size - 1
                 if (matchCount == 0) {
                     errorCount++
-                    errors.add("Edit ${i+1}: Could not find exact text to replace:\n```\n$oldString\n```")
+                    errors.add("Edit ${i+1}: Could not find exact text to replace:\n```\n${oldString.take(200)}\n```")
                 } else if (matchCount > 1) {
                     errorCount++
-                    errors.add("Edit ${i+1}: Found $matchCount matches. Please provide more context to uniquely identify the text.")
+                    val lines = oldString.lines()
+                    val hint = if (lines.size <= 2) {
+                        "\nThe text appears $matchCount times. Add more surrounding lines to make it unique."
+                    } else {
+                        val firstLine = lines.first().trim()
+                        val lastLine = lines.last().trim()
+                        "\nFound $matchCount matches. Try including unique lines like:\n  First: \"$firstLine\"\n  Last: \"$lastLine\""
+                    }
+                    errors.add("Edit ${i+1}: Found $matchCount matches for oldString.$hint")
                 } else {
                     content = content.replaceFirst(oldString, newString)
                     successCount++
@@ -318,12 +326,28 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         },
         execute = { args ->
             val obj = args.asJsonObject
-            val editsObj = obj.getAsJsonObject("edits") ?: return@Tool listOf(UIMessagePart.Text("Missing edits argument (must be a JSON object)"))
+            val editsElement = obj["edits"] ?: return@Tool listOf(UIMessagePart.Text("Missing edits argument (must be a JSON object)"))
+            val editsObj = when {
+                editsElement.isJsonObject -> editsElement.asJsonObject
+                editsElement.isJsonPrimitive && editsElement.asJsonPrimitive.isString -> {
+                    try {
+                        com.google.gson.JsonParser.parseString(editsElement.asString).asJsonObject
+                    } catch (e: Exception) {
+                        return@Tool listOf(UIMessagePart.Text("Invalid JSON string in 'edits': ${e.message}"))
+                    }
+                }
+                else -> return@Tool listOf(UIMessagePart.Text("'edits' must be a JSON object or a JSON string"))
+            }
             val edits = mutableMapOf<String, String>()
             editsObj.entrySet().forEach { entry ->
                 val path = entry.key
+                val content = when {
+                    entry.value.isJsonPrimitive -> entry.value.asString
+                    entry.value.isJsonObject -> entry.value.toString()
+                    else -> entry.value.toString()
+                }
                 val file = ideService.resolvePath(path)
-                edits[file?.absolutePath ?: path] = entry.value.asString
+                edits[file?.absolutePath ?: path] = content
             }
             ideService.applyBatchEdits(edits)
             listOf(UIMessagePart.Text("Batch edits for ${edits.size} files applied."))
@@ -473,7 +497,17 @@ class VibeCodingFileTools(private val ideService: IdeService) {
             val resolvedDir = if (rawPath != null) ideService.resolvePath(rawPath)?.absolutePath else null
             val results = ideService.findFiles(query, limit, resolvedDir ?: rawPath)
             if (results.size() > 0) {
-                val text = results.joinToString("\n") { it.asString }
+                val text = results.joinToString("\n") { element ->
+                    when {
+                        element.isJsonObject -> {
+                            val path = element.asJsonObject["path"]?.asString ?: element.toString()
+                            val name = element.asJsonObject["name"]?.asString
+                            if (name != null) "$path ($name)" else path
+                        }
+                        element.isJsonPrimitive -> element.asString
+                        else -> element.toString()
+                    }
+                }
                 listOf(UIMessagePart.Text(text))
             } else {
                 listOf(UIMessagePart.Text("No files found matching: $query"))
@@ -505,7 +539,17 @@ class VibeCodingFileTools(private val ideService: IdeService) {
             val resolvedDir = if (rawPath != null) ideService.resolvePath(rawPath)?.absolutePath else null
             val results = ideService.findFiles(query, limit, resolvedDir ?: rawPath)
             if (results.size() > 0) {
-                val text = results.joinToString("\n") { it.asString }
+                val text = results.joinToString("\n") { element ->
+                    when {
+                        element.isJsonObject -> {
+                            val path = element.asJsonObject["path"]?.asString ?: element.toString()
+                            val name = element.asJsonObject["name"]?.asString
+                            if (name != null) "$path ($name)" else path
+                        }
+                        element.isJsonPrimitive -> element.asString
+                        else -> element.toString()
+                    }
+                }
                 listOf(UIMessagePart.Text(text))
             } else {
                 listOf(UIMessagePart.Text("No files found matching: $query"))

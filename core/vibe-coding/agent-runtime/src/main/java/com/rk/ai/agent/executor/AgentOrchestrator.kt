@@ -8,6 +8,7 @@ import com.rk.ai.agent.planner.TaskStatus
 import com.rk.ai.agent.planner.TaskTree
 import com.rk.ai.agent.tools.ToolCache
 import com.rk.ai.agent.tools.ToolRouter
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import com.rk.ai.agent.context.ContextBundle
 import com.rk.ai.models.Tool
@@ -41,6 +42,11 @@ class AgentOrchestrator(
 ) {
     private var currentPhase: AgentPhase = AgentPhase.IDLE
     private var onPhaseChange: ((AgentPhase) -> Unit)? = null
+    private var runningJob: Job? = null
+
+    fun setRunningJob(job: Job) {
+        runningJob = job
+    }
 
     fun setPhaseChangeListener(listener: (AgentPhase) -> Unit) {
         onPhaseChange = listener
@@ -85,6 +91,10 @@ class AgentOrchestrator(
             setPhase(AgentPhase.EXECUTING)
             var taskResult: ExecutionResult
             do {
+                if (!kotlin.coroutines.coroutineContext.isActive) {
+                    contextMemory.log("Orchestration cancelled")
+                    break
+                }
                 val nextTask = taskTree.nextExecutable() ?: break
                 contextMemory.log("Executing: ${nextTask.title}")
                 contextMemory.working.setCurrentTask(nextTask)
@@ -161,6 +171,8 @@ class AgentOrchestrator(
     }
 
     fun stop() {
+        runningJob?.cancel()
+        runningJob = null
         setPhase(AgentPhase.IDLE)
         contextMemory.log("Orchestration stopped by user")
     }

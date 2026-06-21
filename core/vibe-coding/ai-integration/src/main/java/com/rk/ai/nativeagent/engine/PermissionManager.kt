@@ -32,6 +32,7 @@ class PermissionManager {
     val rules: List<PermissionAutoRespondRule> get() = storedAutoRespondRules.toList()
 
     fun addRule(rule: PermissionAutoRespondRule) {
+        storedAutoRespondRules.removeAll { it.toolPattern == rule.toolPattern && it.argPattern == rule.argPattern }
         storedAutoRespondRules.add(rule)
     }
 

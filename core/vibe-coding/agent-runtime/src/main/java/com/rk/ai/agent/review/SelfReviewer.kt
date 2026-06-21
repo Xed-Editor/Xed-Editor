@@ -94,7 +94,7 @@ class SelfReviewer {
     fun shouldRetry(report: ReviewReport, attempt: Int, maxAttempts: Int): Boolean {
         if (attempt >= maxAttempts) return false
         if (report.score >= 90) return false
-        if (report.warnings.size <= 2 && report.missingInfo.isEmpty()) return false
+        if (report.warnings.size <= 1 && report.missingInfo.isEmpty()) return false
         return true
     }
 

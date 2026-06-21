@@ -29,8 +29,8 @@ class ToolRouter(
         var errorCount: Int = 0,
     )
 
-    private val stats = mutableMapOf<String, ToolStats>()
-    private val executionHistory = mutableListOf<ToolCallRecord>()
+    private val stats = java.util.concurrent.ConcurrentHashMap<String, ToolStats>()
+    private val executionHistory = java.util.concurrent.ConcurrentLinkedDeque<ToolCallRecord>()
 
     fun recordExecution(
         toolName: String,
@@ -40,14 +40,18 @@ class ToolRouter(
         fromCache: Boolean,
     ) {
         val record = ToolCallRecord(toolName, args.take(100), System.currentTimeMillis(), durationMs, success, fromCache)
-        executionHistory.add(record)
-        if (executionHistory.size > 200) executionHistory.removeAt(0)
+        executionHistory.addLast(record)
+        while (executionHistory.size > 200) {
+            executionHistory.pollFirst()
+        }
 
         val s = stats.getOrPut(toolName) { ToolStats() }
-        s.callCount++
-        if (fromCache) s.cacheHitCount++
-        s.totalDurationMs += durationMs
-        if (!success) s.errorCount++
+        synchronized(s) {
+            s.callCount++
+            if (fromCache) s.cacheHitCount++
+            s.totalDurationMs += durationMs
+            if (!success) s.errorCount++
+        }
     }
 
     fun getStats(): Map<String, ToolStats> = stats.toMap()

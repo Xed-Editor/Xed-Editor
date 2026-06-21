@@ -579,6 +579,8 @@ class VibeCodingEngine(
 
     fun dispose() {
         generationPipeline.cancel()
+        orchestrator.stop()
+        engineScope.coroutineContext[Job]?.cancel()
         appScope.coroutineContext[Job]?.cancel()
         database.close()
     }
@@ -627,6 +629,7 @@ class VibeCodingEngine(
     private val systemPromptBuilder = SystemPromptBuilder(ideService)
 
     private inner class SystemPromptTransformer : InputMessageTransformer {
+        @Volatile
         private var initialPromptInjected = false
 
         override suspend fun transform(
@@ -730,7 +733,7 @@ class VibeCodingEngine(
 
     fun sendOrchestrated(goal: String) {
         ensureSessionExists(goal.trim())
-        engineScope.launch {
+        val job = engineScope.launch {
             val currentMessages = _state.value.messages
             val userMsg = UIMessage(
                 role = MessageRole.USER,
@@ -777,6 +780,7 @@ class VibeCodingEngine(
             engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationFinished) }
             saveConversation()
         }
+        orchestrator.setRunningJob(job)
     }
 
     private suspend fun generateWithLLM(
@@ -834,22 +838,29 @@ class VibeCodingEngine(
     }
 
     private fun isComplexTask(text: String): Boolean {
-        val signals = listOf(
-            "refactor", "implement", "create", "build", "fix",
-            "add feature", "change", "update", "migrate",
-            "write tests", "restructure", "complete", "full",
-            "entire", "module", "feature", "rewrite", "convert",
-            "optimize", "clean up", "add error handling",
-            "add logging", "extract", "inline", "rename",
-        )
         val lower = text.lowercase()
-        val hasSignal = signals.any { lower.contains(it) }
-        val isLong = text.length > 60
-        val hasStepIndicators = listOf(
-            "first", "then", "after", "finally", "step", "phase",
-            "1.", "2.", "3.",
-        ).any { lower.contains(it) }
-        return hasSignal || isLong || hasStepIndicators
+        
+        // Only route truly complex multi-step tasks through orchestrator
+        // Single-action requests should go through streaming pipeline
+        val multiStepIndicators = listOf(
+            "first.*then.*finally",
+            "step 1.*step 2",
+            "phase 1.*phase 2",
+            "refactor.*entire",
+            "rewrite.*module",
+            "implement.*feature.*test",
+            "create.*update.*delete",
+            "migrate.*from.*to",
+        )
+        val hasMultiStepPattern = multiStepIndicators.any { pattern ->
+            lower.contains(Regex(pattern))
+        }
+        
+        // Very long requests with multiple action verbs
+        val actionVerbs = listOf("refactor", "implement", "create", "build", "migrate", "rewrite", "convert")
+        val verbCount = actionVerbs.count { lower.contains(it) }
+        
+        return hasMultiStepPattern || verbCount >= 3
     }
 
     private fun ensureSessionExists(titleHint: String) {
@@ -993,18 +1004,21 @@ class VibeCodingEngine(
 
     private fun updateToolApproval(toolCallId: String, newState: ToolApprovalState) {
         val messages = _state.value.messages.toMutableList()
-        val lastIdx = messages.lastIndex
-        if (lastIdx < 0) return
-        val last = messages[lastIdx]
-        val updatedParts = last.parts.map { part ->
-            if (part is UIMessagePart.Tool && part.toolCallId == toolCallId) {
-                part.copy(approvalState = newState)
-            } else part
+        for (i in messages.indices) {
+            val msg = messages[i]
+            val updatedParts = msg.parts.map { part ->
+                if (part is UIMessagePart.Tool && part.toolCallId == toolCallId) {
+                    part.copy(approvalState = newState)
+                } else part
+            }
+            if (updatedParts !== msg.parts) {
+                messages[i] = msg.copy(parts = updatedParts)
+                _state.value = _state.value.copy(messages = messages)
+                saveCurrentSessionMessages()
+                generationPipeline.resume(::buildGenerationConfig)
+                return
+            }
         }
-        messages[lastIdx] = last.copy(parts = updatedParts)
-        _state.value = _state.value.copy(messages = messages)
-        saveCurrentSessionMessages()
-        generationPipeline.resume(::buildGenerationConfig)
     }
 
 

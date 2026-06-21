@@ -98,45 +98,12 @@ ${conversation.joinToString("\n") { m ->
     fun pruneMessages(messages: List<UIMessage>): CompactionResult {
         if (messages.isEmpty()) return CompactionResult(messages, null, 0)
 
-        val msgsWithTokens = messages.map { msg ->
-            msg to TokenEstimator.estimate(msg.toText())
-        }
-        val totalTokens = msgsWithTokens.sumOf { it.second }
+        val totalTokens = TokenEstimator.estimate(messages)
         if (totalTokens <= PRUNE_PROTECT) return CompactionResult(messages, null, 0)
-
-        var prunedTokens = 0
-        var prunedCount = 0
-        val pruned = messages.toMutableList()
-
-        var userTurns = 0
-        for (i in pruned.lastIndex downTo 0) {
-            if (pruned[i].role == MessageRole.USER) userTurns++
-            if (userTurns < 2) continue
-
-            val tools = pruned[i].getTools()
-            val executableTools = tools.filter { it.isExecuted }
-            for (tool in executableTools) {
-                val shortOutput = tool.output.joinToString("\n") { p ->
-                    when (p) {
-                        is UIMessagePart.Text -> p.text.take(TOOL_OUTPUT_MAX_CHARS)
-                        else -> ""
-                    }
-                }
-                val estimate = TokenEstimator.estimate(shortOutput)
-                if (totalTokens - prunedTokens <= PRUNE_PROTECT) break
-                prunedTokens += estimate
-                prunedCount++
-            }
-            if (totalTokens - prunedTokens <= PRUNE_PROTECT) break
-        }
-
-        if (prunedTokens < PRUNE_MINIMUM) {
-            return CompactionResult(messages, null, 0)
-        }
 
         val budget = minOf(
             MAX_PRESERVE_RECENT_TOKENS,
-            maxOf(MIN_PRESERVE_RECENT_TOKENS, TokenEstimator.estimate(messages) / 4)
+            maxOf(MIN_PRESERVE_RECENT_TOKENS, totalTokens / 4)
         )
 
         val tailTurns = mutableListOf<UIMessage>()
@@ -149,15 +116,44 @@ ${conversation.joinToString("\n") { m ->
         }
         tailTurns.reverse()
 
-        val headMessages = if (tailTurns.isNotEmpty()) {
-            val tailStart = messages.indexOf(tailTurns.first())
-            messages.subList(0, tailStart)
-        } else {
-            messages
+        if (tailTurns.isEmpty()) return CompactionResult(messages, null, 0)
+
+        val tailStart = messages.indexOf(tailTurns.first())
+        val headMessages = messages.subList(0, tailStart)
+
+        var prunedCount = 0
+        val compactedHead = headMessages.map { msg ->
+            val tools = msg.getTools()
+            if (tools.isEmpty()) return@map msg
+
+            val hasLargeOutput = tools.any { tool ->
+                val outputTokens = TokenEstimator.estimate(tool.output.joinToString("\n") { p ->
+                    when (p) {
+                        is UIMessagePart.Text -> p.text
+                        else -> ""
+                    }
+                })
+                outputTokens > TOOL_OUTPUT_MAX_CHARS / 4
+            }
+            if (!hasLargeOutput) return@map msg
+
+            prunedCount++
+            val updatedParts = msg.parts.map { part ->
+                if (part is UIMessagePart.Tool && part.isExecuted) {
+                    val truncatedOutput = part.output.map { p ->
+                        when (p) {
+                            is UIMessagePart.Text -> UIMessagePart.Text(p.text.take(TOOL_OUTPUT_MAX_CHARS) + "\n... [truncated]")
+                            else -> p
+                        }
+                    }
+                    part.copy(output = truncatedOutput)
+                } else part
+            }
+            msg.copy(parts = updatedParts)
         }
 
         return CompactionResult(
-            compactedMessages = headMessages,
+            compactedMessages = compactedHead + tailTurns,
             summary = null,
             prunedCount = prunedCount,
         )

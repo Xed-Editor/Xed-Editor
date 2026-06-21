@@ -208,16 +208,19 @@ class GenerationPipeline(
 
     private fun updateToolApproval(toolCallId: String, stateFn: () -> ToolApprovalState) {
         val messages = getState().messages.toMutableList()
-        val lastIdx = messages.lastIndex
-        if (lastIdx < 0) return
-        val last = messages[lastIdx]
-        val updatedParts = last.parts.map { part ->
-            if (part is UIMessagePart.Tool && part.toolCallId == toolCallId) {
-                part.copy(approvalState = stateFn())
-            } else part
+        for (i in messages.indices) {
+            val msg = messages[i]
+            val updatedParts = msg.parts.map { part ->
+                if (part is UIMessagePart.Tool && part.toolCallId == toolCallId) {
+                    part.copy(approvalState = stateFn())
+                } else part
+            }
+            if (updatedParts !== msg.parts) {
+                messages[i] = msg.copy(parts = updatedParts)
+                onStateUpdate { copy(messages = messages) }
+                onSaveSession()
+                return
+            }
         }
-        messages[lastIdx] = last.copy(parts = updatedParts)
-        onStateUpdate { copy(messages = messages) }
-        onSaveSession()
     }
 }

@@ -113,32 +113,36 @@ class VibeCodingPackageTools(private val ideService: IdeService) {
             val query = obj["query"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing query"))
             val limit = (obj["limit"]?.asJsonPrimitive?.asInt ?: 10).coerceIn(1, 50)
 
-            val url = "https://search.maven.org/solrsearch/select?q=${URLEncoder.encode(query, "UTF-8")}&rows=$limit&wt=json"
-            val json = httpGet(url)
-            val data = JsonParser.parseString(json).asJsonObject
-            val docs = data.getAsJsonObject("response")?.getAsJsonArray("docs") ?: JsonArray()
+            try {
+                val url = "https://search.maven.org/solrsearch/select?q=${URLEncoder.encode(query, "UTF-8")}&rows=$limit&wt=json"
+                val json = httpGet(url)
+                val data = JsonParser.parseString(json).asJsonObject
+                val docs = data.getAsJsonObject("response")?.getAsJsonArray("docs") ?: JsonArray()
 
-            val text = buildString {
-                appendLine("Maven Central results for: $query")
-                appendLine()
-                docs.forEach { doc ->
-                    val docObj = doc.asJsonObject
-                    val g = docObj.get("g")?.asString ?: "?"
-                    val a = docObj.get("a")?.asString ?: "?"
-                    val latestVersion = docObj.get("latestVersion")?.asString ?: "?"
-                    val timestamp = docObj.get("timestamp")?.asLong ?: 0L
-                    appendLine("$g:$a")
-                    appendLine("  Latest: $latestVersion")
-                    if (timestamp > 0L) {
-                        val date = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).apply {
-                            timeZone = java.util.TimeZone.getTimeZone("UTC")
-                        }.format(java.util.Date(timestamp))
-                        appendLine("  Updated: $date")
-                    }
+                val text = buildString {
+                    appendLine("Maven Central results for: $query")
                     appendLine()
+                    docs.forEach { doc ->
+                        val docObj = doc.asJsonObject
+                        val g = docObj.get("g")?.asString ?: "?"
+                        val a = docObj.get("a")?.asString ?: "?"
+                        val latestVersion = docObj.get("latestVersion")?.asString ?: "?"
+                        val timestamp = docObj.get("timestamp")?.asLong ?: 0L
+                        appendLine("$g:$a")
+                        appendLine("  Latest: $latestVersion")
+                        if (timestamp > 0L) {
+                            val date = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).apply {
+                                timeZone = java.util.TimeZone.getTimeZone("UTC")
+                            }.format(java.util.Date(timestamp))
+                            appendLine("  Updated: $date")
+                        }
+                        appendLine()
+                    }
                 }
+                listOf(UIMessagePart.Text(text.ifEmpty { "No artifacts found for: $query" }))
+            } catch (e: Exception) {
+                listOf(UIMessagePart.Text("Maven search failed: ${e.message}\nTry searching with groupId:artifactId format (e.g. com.google.guava:guava)"))
             }
-            listOf(UIMessagePart.Text(text.ifEmpty { "No artifacts found for: $query" }))
         },
     )
 

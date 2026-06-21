@@ -68,6 +68,10 @@ class ExecutionEngine(
 
         val toolCalls = extractToolCalls(response)
         for (toolCall in toolCalls) {
+            if (!kotlin.coroutines.coroutineContext.isActive) {
+                contextMemory.log("Execution cancelled during tool calls")
+                break
+            }
             val argsHash = toolCall.input.take(100)
             val cached = toolCache.get(toolCall.name, argsHash)
             if (cached != null) {
@@ -110,8 +114,19 @@ class ExecutionEngine(
                 val review = selfReviewer.reviewToolResults(toolCall.name, toolCall.input, result, ExecutionState.Completed(toolCall.name), context)
                 if (!review.passed || review.score < 50) {
                     contextMemory.log("Review: ${toolCall.name} score=${review.score} issues=${review.feedback.take(100)}")
-                    if (selfReviewer.shouldRetry(review, 0, 2)) {
-                        contextMemory.log("Retrying ${toolCall.name}")
+                    for (attempt in 0..1) {
+                        if (!selfReviewer.shouldRetry(review, attempt, 2)) break
+                        contextMemory.log("Retrying ${toolCall.name} (attempt ${attempt + 1})")
+                        try {
+                            val retryResult = toolDef.execute(args)
+                            val retryReview = selfReviewer.reviewToolResults(toolCall.name, toolCall.input, retryResult, ExecutionState.Completed(toolCall.name), context)
+                            if (retryReview.passed || retryReview.score >= 50) {
+                                toolCache.put(toolCall.name, argsHash, retryResult)
+                                break
+                            }
+                        } catch (e: Exception) {
+                            contextMemory.log("Retry ${toolCall.name} failed: ${e.message}")
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -127,8 +142,18 @@ class ExecutionEngine(
             inputHash = task.description.hashCode(),
         ))
         val loopInfo = loopDetector.detect()
-        if (loopInfo != null && loopInfo.severity == LoopSeverity.CRITICAL) {
-            contextMemory.log("LOOP DETECTED: ${loopInfo.description}")
+        if (loopInfo != null) {
+            contextMemory.log("LOOP DETECTED [${loopInfo.severity}]: ${loopInfo.description}")
+            if (loopInfo.severity == LoopSeverity.CRITICAL) {
+                errors.add("Loop detected: ${loopInfo.suggestion}")
+                return ExecutionResult(
+                    taskId = task.id,
+                    success = false,
+                    message = "Aborted due to infinite loop: ${loopInfo.description}",
+                    modifiedFiles = modifiedFiles.distinct(),
+                    errors = errors,
+                )
+            }
         }
 
         return ExecutionResult(
