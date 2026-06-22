@@ -69,7 +69,9 @@ class IdeBridgeServer(
     private fun initStitcher() {
         stitcher.setOnToolsChanged { externalTools ->
             synchronized(this) {
-                val externalNames: Set<String> = externalTools.map { it.name }.toSet()
+                val activeNames: Set<String> = externalTools.map { it.name }.toSet()
+                toolRegistry.listNames().filter { it.startsWith("stitch_") && it !in activeNames }
+                    .forEach { toolRegistry.remove(it) }
                 externalTools.forEach { toolRegistry.register(it) }
             }
             if (BuildConfig.DEBUG) {
@@ -84,10 +86,6 @@ class IdeBridgeServer(
     }
 
     fun refreshStitcher() {
-        synchronized(this) {
-            val stitchNames = toolRegistry.listNames().filter { it.startsWith("stitch_") }
-            stitchNames.forEach { toolRegistry.get(it) }
-        }
         stitcher.refresh()
     }
 

@@ -57,6 +57,8 @@ class McpToolRegistry {
 
     fun get(name: String): McpTool? = tools[name]
 
+    fun remove(name: String) { tools.remove(name) }
+
     fun listNames(): Set<String> = tools.keys
 
     fun listSchemas(): JsonArray = JsonArray().apply {
