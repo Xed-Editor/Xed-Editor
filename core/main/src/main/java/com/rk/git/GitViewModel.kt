@@ -144,11 +144,35 @@ class GitViewModel : ViewModel() {
     }
 
     fun removeChange(change: GitChange) {
-        val gitRoot = currentRoot.value?.absolutePath ?: return
-        changes[gitRoot] =
-            changes[gitRoot]?.map {
-                if (it.path == change.path) it.copy(isChecked = false) else it
-            } ?: emptyList()
+        val root = currentRoot.value?.absolutePath ?: return
+        val currentList = changes[root] ?: emptyList()
+        changes[root] = currentList.map {
+            if (it.path == change.path) it.copy(isChecked = false) else it
+        }
+    }
+
+    fun discardChange(change: GitChange) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                if (change.type == ChangeType.UNTRACKED) {
+                    val file = File(change.path)
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                } else {
+                    Git.open(currentRoot.value).use { git ->
+                        git.checkout().addPath(change.path).call()
+                    }
+                }
+                toast("Discarded changes in ${change.path.substringAfterLast("/")}")
+                currentRoot.value?.let { syncChanges(it) }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
     }
 
     fun changeCommitMessage(message: String) {
@@ -537,6 +561,7 @@ class GitViewModel : ViewModel() {
                     stashCommand.call()
                     toast("Changes stashed")
                     currentRoot.value?.let { syncChanges(it) }
+                    loadStashList()
                 }
             } catch (e: Exception) {
                 toast(e.message)
@@ -556,6 +581,7 @@ class GitViewModel : ViewModel() {
                     git.stashDrop().setStashRef(stashIndex).call()
                     toast("Stash popped")
                     currentRoot.value?.let { syncChanges(it) }
+                    loadStashList()
                 }
             } catch (e: Exception) {
                 toast(e.message)
@@ -572,6 +598,8 @@ class GitViewModel : ViewModel() {
                 Git.open(currentRoot.value).use { git ->
                     git.stashApply().setStashRef("stash@{$stashIndex}").call()
                     toast("Stash applied")
+                    currentRoot.value?.let { syncChanges(it) }
+                    loadStashList()
                 }
             } catch (e: Exception) {
                 toast(e.message)
