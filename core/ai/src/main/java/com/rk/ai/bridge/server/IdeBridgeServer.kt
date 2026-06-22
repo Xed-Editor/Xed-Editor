@@ -70,7 +70,6 @@ class IdeBridgeServer(
         stitcher.setOnToolsChanged { externalTools ->
             synchronized(this) {
                 val externalNames: Set<String> = externalTools.map { it.name }.toSet()
-                val toRemove: Set<String> = toolRegistry.listNames().filter { it.startsWith("stitch_") && it !in externalNames }
                 externalTools.forEach { toolRegistry.register(it) }
             }
             if (BuildConfig.DEBUG) {
