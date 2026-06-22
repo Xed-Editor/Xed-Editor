@@ -137,6 +137,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
 
+    implementation(libs.kotlinx.coroutines)
+
     // Modules
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
