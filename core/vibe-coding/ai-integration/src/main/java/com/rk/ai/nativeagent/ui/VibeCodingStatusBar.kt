@@ -184,7 +184,7 @@ fun VibeCodingStatusBar(
                         )
                         Spacer(Modifier.width(2.dp))
                         Text(
-                            text = "${state.contextTokens}",
+                            text = formatTokenCount(state.contextTokens),
                             style = MaterialTheme.typography.labelSmall,
                             fontSize = 9.sp,
                             color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
@@ -212,5 +212,13 @@ fun VibeCodingStatusBar(
                 }
             }
         }
+    }
+}
+
+private fun formatTokenCount(tokens: Int): String {
+    return when {
+        tokens >= 1_000_000 -> "${(tokens / 100_000f).toInt() / 10f}M"
+        tokens >= 1_000 -> "${(tokens / 100f).toInt() / 10f}k"
+        else -> tokens.toString()
     }
 }

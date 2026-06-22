@@ -108,8 +108,12 @@ fun MainContent(
         )
     }
 
-    Box(Modifier.fillMaxSize().padding(innerPadding)) {
-        Column(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             if (mainViewModel.tabs.isEmpty()) {
                 EmptyEditorState(
                     onNewFile = {

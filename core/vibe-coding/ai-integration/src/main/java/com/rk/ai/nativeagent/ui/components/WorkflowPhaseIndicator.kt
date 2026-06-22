@@ -48,54 +48,60 @@ fun WorkflowPhaseIndicator(
             )
             Spacer(Modifier.height(12.dp))
             phases.forEachIndexed { index, phase ->
+                val circleColor = when {
+                    phase.isComplete -> colorScheme.tertiary
+                    phase.isActive -> colorScheme.primary
+                    else -> colorScheme.outlineVariant
+                }
+                val lineColor = when {
+                    phase.isComplete -> colorScheme.tertiary.copy(alpha = 0.3f)
+                    else -> colorScheme.outlineVariant.copy(alpha = 0.3f)
+                }
+
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.Top,
                 ) {
-                    val circleColor = when {
-                        phase.isComplete -> colorScheme.tertiary
-                        phase.isActive -> colorScheme.primary
-                        else -> colorScheme.outlineVariant
-                    }
-                    val lineColor = when {
-                        phase.isComplete -> colorScheme.tertiary.copy(alpha = 0.3f)
-                        else -> colorScheme.outlineVariant.copy(alpha = 0.3f)
-                    }
-                    Box(
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clip(CircleShape)
-                            .background(circleColor),
-                        contentAlignment = Alignment.Center,
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.width(20.dp)
                     ) {
-                        if (phase.isComplete) {
-                            Text(
-                                text = "✓",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colorScheme.onTertiary,
-                            )
-                        } else if (phase.isActive) {
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(CircleShape)
+                                .background(circleColor),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (phase.isComplete) {
+                                Text(
+                                    text = "✓",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = colorScheme.onTertiary,
+                                )
+                            } else if (phase.isActive) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(colorScheme.onPrimary),
+                                )
+                            }
+                        }
+                        if (index < phases.lastIndex) {
                             Box(
                                 modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(colorScheme.onPrimary),
+                                    .width(2.dp)
+                                    .height(24.dp)
+                                    .background(lineColor),
                             )
                         }
                     }
-                    if (index < phases.lastIndex) {
-                        Box(
-                            modifier = Modifier
-                                .width(2.dp)
-                                .height(16.dp)
-                                .background(lineColor),
-                        )
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Column {
+                    Spacer(Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = phase.name,
                             style = MaterialTheme.typography.bodySmall,

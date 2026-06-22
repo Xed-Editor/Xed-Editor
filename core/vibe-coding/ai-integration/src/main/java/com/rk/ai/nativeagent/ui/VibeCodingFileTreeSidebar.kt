@@ -217,6 +217,8 @@ private fun FileTreeItem(
                 tint = colorScheme.onSurfaceVariant,
             )
 
+            Spacer(Modifier.width(8.dp))
+
             Text(
                 text = node.name,
                 style = MaterialTheme.typography.bodySmall.copy(
