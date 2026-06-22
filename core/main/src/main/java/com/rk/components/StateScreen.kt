@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.rk.theme.DesignTokens
 
 @Composable
 fun StateScreen(painter: Painter, text: String, color: Color = LocalContentColor.current) {
@@ -29,7 +30,7 @@ fun StateScreen(painter: Painter, text: String, color: Color = LocalContentColor
         Text(
             text = text,
             color = color.copy(alpha = 0.7f),
-            modifier = Modifier.fillMaxWidth(0.6f).padding(top = 12.dp),
+            modifier = Modifier.fillMaxWidth(0.6f).padding(top = DesignTokens.Spacing.medium),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyMedium,
         )

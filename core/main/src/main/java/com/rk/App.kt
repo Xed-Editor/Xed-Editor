@@ -51,13 +51,9 @@ class App : Application() {
         XedManager.init(this)
 
         updateThemes()
-        LspPersistence.restoreServers()
 
         MarkdownImageProvider.register()
         FileIconProvider.register()
-
-        CommandProvider.buildCommands()
-        KeybindingsManager.loadKeybindings()
 
         val currentLocale = Locale.forLanguageTag(Settings.current_lang)
         val appLocale = LocaleListCompat.create(currentLocale)
@@ -67,6 +63,15 @@ class App : Application() {
         val iconPackManager = XedManager.iconPackManager
 
         AppScope.safeLaunch(context = AppDispatchers.IO) {
+            launch(AppDispatchers.IO) {
+                LspPersistence.restoreServers()
+            }
+
+            launch(AppDispatchers.IO) {
+                CommandProvider.buildCommands()
+                KeybindingsManager.loadKeybindings()
+            }
+
             launch(AppDispatchers.IO) {
                 extensionManager.indexLocalExtensions()
                 extensionManager.loadAllExtensions()

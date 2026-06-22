@@ -25,6 +25,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.rk.theme.DesignTokens
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
 import com.rk.resources.strings
@@ -64,7 +65,7 @@ fun DoubleInputDialog(
         },
         title = { Text(text = title) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.small)) {
                 OutlinedTextField(
                     value = firstTextFieldValue,
                     singleLine = singleLineMode,

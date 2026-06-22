@@ -79,9 +79,6 @@ import com.rk.utils.dialog
 import com.rk.utils.getGitColor
 import kotlinx.coroutines.launch
 
-private val TAB_HEIGHT = 36.dp
-private val TAB_MIN_WIDTH = 80.dp
-private val TAB_MAX_WIDTH = 200.dp
 
 @Composable
 fun MainContent(
@@ -198,7 +195,7 @@ private fun EditorTabBar(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(TAB_HEIGHT),
+                .height(DesignTokens.TabSize.compactHeight),
         ) {
             itemsIndexed(mainViewModel.tabs, key = { index, _ -> index }) { index, tabState ->
                 CompactTabItem(
@@ -235,7 +232,7 @@ private fun CompactTabItem(
 
     Box(
         modifier = Modifier
-            .width(TAB_MIN_WIDTH.coerceAtMost(TAB_MAX_WIDTH))
+            .width(DesignTokens.TabSize.minTabWidth.coerceAtMost(DesignTokens.TabSize.maxTabWidth))
             .fillMaxHeight()
             .background(bgColor)
             .clickable {
@@ -312,6 +309,22 @@ private fun CompactTabItem(
                 onClick = {
                     showTabMenu = false
                     closeAll(mainViewModel)
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(strings.move_left)) },
+                enabled = index > 0,
+                onClick = {
+                    showTabMenu = false
+                    mainViewModel.tabManager.moveTab(index, index - 1)
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(strings.move_right)) },
+                enabled = index < mainViewModel.tabs.size - 1,
+                onClick = {
+                    showTabMenu = false
+                    mainViewModel.tabManager.moveTab(index, index + 1)
                 },
             )
             tabState.file?.let {

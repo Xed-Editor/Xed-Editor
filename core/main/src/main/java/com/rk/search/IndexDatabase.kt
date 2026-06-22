@@ -68,7 +68,15 @@ abstract class IndexDatabase : RoomDatabase() {
     lateinit var projectRoot: FileObject
 
     companion object {
-        @Volatile private var INSTANCES = mutableMapOf<FileObject, IndexDatabase>()
+        private val INSTANCES = object : java.util.LinkedHashMap<FileObject, IndexDatabase>(4, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<FileObject, IndexDatabase>?): Boolean {
+                if (size > 3) {
+                    runCatching { eldest?.value?.close() }
+                    return true
+                }
+                return false
+            }
+        }
         private val instancesLock = Any()
 
         fun getDatabase(context: Context, projectRoot: FileObject): IndexDatabase {
@@ -90,7 +98,7 @@ abstract class IndexDatabase : RoomDatabase() {
 
         fun removeDatabase(context: Context, projectRoot: FileObject) {
             synchronized(instancesLock) {
-                INSTANCES[projectRoot]?.close()
+                runCatching { INSTANCES[projectRoot]?.close() }
                 INSTANCES.remove(projectRoot)
             }
             context.deleteDatabase("index_database_${projectRoot.hashCode()}")

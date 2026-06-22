@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
+import com.rk.theme.DesignTokens
 
 @Composable
 fun BasicToggle(
@@ -94,7 +95,7 @@ fun SettingsToggle(
                     onLongClick = onLongClick,
                     onClick = { onClick?.invoke() ?: sideEffect?.invoke(false) },
                 ),
-            contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
+            contentModifier = Modifier.fillMaxHeight().padding(vertical = DesignTokens.Spacing.large).padding(start = DesignTokens.Spacing.large),
             title = { Text(fontWeight = FontWeight.Bold, text = label) },
             description = {
                 description?.let {

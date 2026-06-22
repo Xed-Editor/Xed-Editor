@@ -82,6 +82,12 @@ object DesignTokens {
         val primaryAlpha = 0.08f
         val secondaryAlpha = 0.04f
     }
+
+    object Dialog {
+        val shape = RoundedCornerShape(20.dp)
+        val paddingHorizontal = Spacing.large
+        val paddingVertical = Spacing.xxlarge
+    }
 }
 
 val XedShapes = Shapes(

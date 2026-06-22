@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.settingsNavController
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.theme.DesignTokens
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -72,7 +73,7 @@ fun NextScreenCard(
                 interactionSource = remember { MutableInteractionSource() },
                 onClick = onClick,
             ),
-        contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
+        contentModifier = Modifier.fillMaxHeight().padding(vertical = DesignTokens.Spacing.large).padding(start = DesignTokens.Spacing.large),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
         description = {
             description?.let {
@@ -87,7 +88,7 @@ fun NextScreenCard(
         applyPaddings = false,
         endWidget = {
             Icon(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(DesignTokens.Spacing.large),
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = label,
             )

@@ -42,11 +42,11 @@ fun BottomSheetContent(
         ) {
             title?.let {
                 ProvideTextStyle(MaterialTheme.typography.titleLarge, it)
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(DesignTokens.Spacing.medium))
             }
             text?.let {
                 ProvideTextStyle(MaterialTheme.typography.bodyMedium, it)
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(DesignTokens.Spacing.large))
             }
             content?.let {
                 it()
@@ -63,7 +63,7 @@ fun BottomSheetContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = padding, vertical = 12.dp),
+                .padding(horizontal = padding, vertical = DesignTokens.Spacing.medium),
         ) {
             buttons()
         }

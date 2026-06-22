@@ -629,17 +629,30 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     )
 
                     val ghostText = editorState.ghostText
-                    if (ghostText != null) {
-                        Text(
-                            text = ghostText,
-                            modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .offset(x = 4.dp, y = 4.dp)
-                                .alpha(0.4f),
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+                    val editor = editorState.editor.get()
+                    if (ghostText != null && editor != null) {
+                        val line = editorState.ghostCursorLine
+                        val column = editorState.ghostCursorColumn
+                        val text = editor.text
+                        if (line >= 0 && line < text.lineCount && column >= 0 && column <= text.getColumnCount(line)) {
+                            val pxX = editor.getCharOffsetX(line, column)
+                            val pxY = editor.getCharOffsetY(line, column)
+                            Text(
+                                text = ghostText,
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .offset {
+                                        androidx.compose.ui.unit.IntOffset(
+                                            pxX.toInt(),
+                                            pxY.toInt()
+                                        )
+                                    }
+                                    .alpha(0.4f),
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
                 }
 

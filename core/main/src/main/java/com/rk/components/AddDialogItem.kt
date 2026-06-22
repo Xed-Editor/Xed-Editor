@@ -1,5 +1,6 @@
 package com.rk.components
 
+import com.rk.theme.DesignTokens
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -139,15 +140,15 @@ fun AddDialogItem(
     Row(
         modifier =
             Modifier.fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
+                .clip(DesignTokens.CornerRadius.large)
                 .clickable(enabled = enabled, onClick = onClick)
-                .padding(12.dp)
+                .padding(DesignTokens.Spacing.medium)
                 .addIf(!enabled) { alpha(0.5f) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         icon()
 
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(DesignTokens.Spacing.large))
 
         Column {
             Text(title, style = MaterialTheme.typography.bodyLarge)

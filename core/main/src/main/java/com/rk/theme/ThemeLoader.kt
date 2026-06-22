@@ -107,27 +107,36 @@ private fun ThemeConfig.finishThemeInstall(name: String) {
 fun updateThemes() {
     themes.clear()
     themes.addAll(builtInThemes)
-    loadThemes()
-}
+    
+    com.rk.AppScope.launch(Dispatchers.IO) {
+        val themeDir = themeDir()
+        if (!themeDir.exists()) {
+            return@launch
+        }
 
-fun loadThemes() {
-    val themeDir = themeDir()
-    if (!themeDir.exists()) {
-        return
-    }
-
-    val gson = GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.STATIC).create()
-    themeDir.listFiles()?.forEach { file ->
-        runCatching {
+        val gson = GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.STATIC).create()
+        val loadedThemes = mutableListOf<ThemeHolder>()
+        themeDir.listFiles()?.forEach { file ->
+            runCatching {
                 val config = gson.fromJson(file.readText(), ThemeConfig::class.java)
                 if (config != null) {
-                    themes.add(config.build())
+                    loadedThemes.add(config.build())
                 }
-            }
-            .onFailure {
+            }.onFailure {
                 it.printStackTrace()
                 file.delete()
             }
+        }
+        
+        withContext(Dispatchers.Main) {
+            themes.addAll(loadedThemes)
+            val selectedThemeId = Settings.theme
+            if (currentTheme.value?.id != selectedThemeId) {
+                themes.find { it.id == selectedThemeId }?.let {
+                    currentTheme.value = it
+                }
+            }
+        }
     }
 }
 

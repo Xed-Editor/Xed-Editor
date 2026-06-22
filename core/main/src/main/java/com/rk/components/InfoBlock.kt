@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.theme.DesignTokens
 import com.rk.theme.onWarningSurface
 import com.rk.theme.warningSurface
 
@@ -27,7 +28,7 @@ fun InfoBlock(
     modifier: Modifier = Modifier,
     text: String,
     icon: @Composable (() -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(12.dp),
+    shape: Shape = DesignTokens.CornerRadius.large,
     warning: Boolean = false,
 ) {
     PreferenceGroup(modifier = modifier) {
@@ -38,7 +39,10 @@ fun InfoBlock(
                 if (warning) CardDefaults.cardColors(MaterialTheme.colorScheme.warningSurface)
                 else CardDefaults.cardColors(),
         ) {
-            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.large),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 if (icon != null) {
                     Box(modifier = Modifier.size(15.dp), contentAlignment = Alignment.Center) { icon() }
                 }
@@ -46,7 +50,7 @@ fun InfoBlock(
                     text = text,
                     style = MaterialTheme.typography.bodySmall,
                     color = if (warning) MaterialTheme.colorScheme.onWarningSurface else Color.Unspecified,
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(start = DesignTokens.Spacing.small),
                 )
             }
         }

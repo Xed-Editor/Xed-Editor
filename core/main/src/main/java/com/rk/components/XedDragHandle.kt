@@ -41,7 +41,7 @@ fun XedDragHandle(
         Box(
             modifier = Modifier
                 .size(width = DesignTokens.BottomSheet.dragHandleWidth, height = DesignTokens.BottomSheet.dragHandleHeight)
-                .background(color = handleColor, shape = RoundedCornerShape(2.dp)),
+                .background(color = handleColor, shape = DesignTokens.CornerRadius.xsmall),
         )
     }
 }

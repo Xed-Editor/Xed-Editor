@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.rk.theme.DesignTokens
 
 @Composable
 fun XedDialog(
@@ -33,8 +34,11 @@ fun XedDialog(
         Box(
             modifier =
                 modifier
-                    .padding(horizontal = 16.dp, vertical = 32.dp)
-                    .clip(shape = RoundedCornerShape(20.dp))
+                    .padding(
+                        horizontal = DesignTokens.Dialog.paddingHorizontal,
+                        vertical = DesignTokens.Dialog.paddingVertical
+                    )
+                    .clip(shape = DesignTokens.Dialog.shape)
                     .width(dialogWidth)
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             contentAlignment = Alignment.Center,

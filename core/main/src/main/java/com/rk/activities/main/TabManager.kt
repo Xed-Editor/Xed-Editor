@@ -31,6 +31,20 @@ class TabManager {
         if (switchToTab) {
             setCurrentTab(_tabs.lastIndex)
         }
+        
+        enforceTabLimit()
+    }
+
+    private fun enforceTabLimit() {
+        val maxTabs = 20
+        if (_tabs.size > maxTabs) {
+            val indexToClose = _tabs.indices.find { index ->
+                index != currentTabIndex && (_tabs[index] as? com.rk.tabs.editor.EditorTab)?.editorState?.isDirty != true
+            }
+            if (indexToClose != null) {
+                removeTab(indexToClose)
+            }
+        }
     }
 
     fun removeTab(index: Int) {

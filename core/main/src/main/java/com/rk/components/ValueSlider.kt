@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.theme.DesignTokens
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -49,9 +50,17 @@ fun ValueSlider(
                 }
             },
             applyPaddings = false,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp),
+            modifier = Modifier.padding(
+                start = DesignTokens.Spacing.large,
+                top = DesignTokens.Spacing.large,
+                end = DesignTokens.Spacing.large
+            ),
         ) {
-            Text(sliderPosition.toString(), modifier = Modifier.padding(start = 16.dp), fontWeight = FontWeight.Bold)
+            Text(
+                sliderPosition.toString(),
+                modifier = Modifier.padding(start = DesignTokens.Spacing.large),
+                fontWeight = FontWeight.Bold
+            )
         }
 
         PreferenceTemplate(title = {}) {

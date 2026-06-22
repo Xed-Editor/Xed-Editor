@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.theme.DesignTokens
 
 @Composable
 fun ResetButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -25,7 +26,7 @@ fun ResetButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
         colors = ButtonDefaults.textButtonColors().copy(contentColor = MaterialTheme.colorScheme.error),
         onClick = onClick,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.small)) {
             Icon(painter = painterResource(drawables.refresh), contentDescription = null)
             Text(text = stringResource(id = strings.reset_all))
         }

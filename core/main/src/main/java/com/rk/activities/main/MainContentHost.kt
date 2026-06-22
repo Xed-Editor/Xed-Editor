@@ -156,14 +156,6 @@ fun MainActivity.MainContentHost(
                                     Modifier.padding(bottom = snackbarBottomPadding)
                                 } else Modifier,
                             )
-                            Snackbar(
-                                snackbarData = data,
-                                containerColor = MaterialTheme.colorScheme.inverseSurface,
-                                contentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                                actionColor = MaterialTheme.colorScheme.primary,
-                                shape = RoundedCornerShape(10.dp),
-                                dismissActionContentColor = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.7f),
-                            )
                         }
                     },
                     modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
