@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import com.rk.ai.nativeagent.ui.VibeCodingPanel
+import com.rk.git.GitPanel
 import com.rk.git.GitViewModel
 import com.rk.tabs.editor.SheetTerminal
 import com.rk.terminal.TerminalViewModel

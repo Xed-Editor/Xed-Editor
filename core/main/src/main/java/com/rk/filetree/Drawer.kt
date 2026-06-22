@@ -78,7 +78,6 @@ import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
-import com.rk.git.GitTab
 import com.rk.git.ProgressCoordinator
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
@@ -199,8 +198,6 @@ object DrawerPersistence {
 
 fun createServices() {
     serviceTabs.clear()
-    val vm = gitViewModel.get() ?: return
-    serviceTabs.add(GitTab(vm))
 }
 
 var drawerTabs = mutableStateListOf<DrawerTab>()

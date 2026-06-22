@@ -1,4 +1,4 @@
-package com.rk.ai.git
+package com.rk.git
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -22,9 +22,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.rk.git.ChangeType
-import com.rk.git.GitChange
-import com.rk.git.GitViewModel
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.utils.getGitColor

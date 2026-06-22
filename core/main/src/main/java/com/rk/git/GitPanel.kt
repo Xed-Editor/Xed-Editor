@@ -1,4 +1,4 @@
-package com.rk.ai
+package com.rk.git
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,12 +12,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
-import com.rk.ai.git.*
 import com.rk.filetree.FileTreeTab
 import com.rk.filetree.currentDrawerTab
-import com.rk.git.ChangeType
-import com.rk.git.GitChange
-import com.rk.git.GitViewModel
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab

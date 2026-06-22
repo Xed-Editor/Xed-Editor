@@ -1,4 +1,4 @@
-package com.rk.ai.git
+package com.rk.git
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
