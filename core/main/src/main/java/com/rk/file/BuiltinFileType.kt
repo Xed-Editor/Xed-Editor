@@ -303,7 +303,7 @@ enum class BuiltinFileType(
         title = "Pascal",
         markdownNames = listOf("pascal"),
     ),
-    ZIG(extensions = listOf("zig"), textmateScope = "source.zig", icon = Icon.ResourceIcon(zig), title = "Zig"),
+    ZIG(extensions = listOf("zig","zon"), textmateScope = "source.zig", icon = Icon.ResourceIcon(zig), title = "Zig"),
     NIM(extensions = listOf("nim"), textmateScope = "source.nim", icon = Icon.ResourceIcon(nim), title = "Nim"),
     SWIFT(
         extensions = listOf("swift"),
