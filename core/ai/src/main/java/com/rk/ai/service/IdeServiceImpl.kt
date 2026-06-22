@@ -6,6 +6,7 @@ import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.service.IdeNotificationSender
 import com.rk.file.FileWrapper
+import com.rk.git.GitService
 import java.io.File
 import kotlinx.coroutines.launch
 
