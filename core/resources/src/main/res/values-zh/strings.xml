@@ -675,4 +675,8 @@
     <string name="check_abnormalities">检查异常</string>
     <string name="samsung_proot_warning">你的三星®设备存在一个会导致基于 PRoot 的终端发生故障的已知问题。</string>
     <string name="terminal_degraded_warning">由于一个已知的兼容性问题，PRoot 环境的终端正以降级模式运行。部分特性暂时受限或行为异常。</string>
+    <string name="seccomp_unspecified">未指定</string>
+    <string name="seccomp_no_seccomp">无 seccomp</string>
+    <string name="seccomp_seccomp">启用 seccomp</string>
+    <string name="disabled_crashed">已禁用（已崩溃）</string>
 </resources>
