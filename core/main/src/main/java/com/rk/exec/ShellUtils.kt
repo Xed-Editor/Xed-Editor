@@ -126,11 +126,15 @@ object ShellUtils {
 
     private fun readStream(stream: java.io.InputStream, sb: StringBuilder) {
         val buf = CharArray(BUFFER_SIZE)
-        BufferedReader(InputStreamReader(stream), BUFFER_SIZE).use { reader ->
-            var read: Int
-            while (reader.read(buf).also { read = it } != -1) {
-                sb.append(buf, 0, read)
+        try {
+            BufferedReader(InputStreamReader(stream), BUFFER_SIZE).use { reader ->
+                var read: Int
+                while (reader.read(buf).also { read = it } != -1) {
+                    sb.append(buf, 0, read)
+                }
             }
+        } catch (e: java.io.IOException) {
+            // Stream was closed or read was interrupted, ignore and exit cleanly
         }
     }
 }
