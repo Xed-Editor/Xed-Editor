@@ -284,6 +284,12 @@ object DiscoveryFileWriter {
                         appendLine("export XED_IDE_PORT=${info.port}"); appendLine("export XED_IDE_AUTH_TOKEN=${info.token}")
                         appendLine("export IDE_SERVER_PORT=${info.port}"); appendLine("export IDE_AUTH_TOKEN=${info.token}")
                     })
+                    dir.listFiles { f -> f.name == AiConfig.Discovery.mcpStitcherConfigFile }?.forEach { stitchFile ->
+                        runCatching {
+                            val stitchConfig = stitchFile.readText()
+                            com.rk.ai.bridge.stitch.ExternalMcpConfigLoader.load(stitchConfig)
+                        }
+                    }
                 }
                 if (dir.name == AiConfig.Discovery.openCodeDir) {
                     val existingElement = runCatching { jsonFormat.parseToJsonElement(File(dir, AiConfig.Discovery.openCodeMcpFile).readText()) }.getOrNull()

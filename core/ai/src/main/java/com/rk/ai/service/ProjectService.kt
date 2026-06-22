@@ -17,7 +17,13 @@ import com.rk.file.toFileWrapper
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.application
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.FileVisitResult
+import java.nio.file.attribute.BasicFileAttributes
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 
@@ -37,7 +43,7 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
         val app = application ?: return JsonArray()
         val vm = searchViewModel()
         val mv = viewModel ?: return JsonArray()
-        
+
         val root = if (path != null) {
             resolvePath(path) ?: File(IdeBridge.primaryWorkspacePath())
         } else {
@@ -50,10 +56,10 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
                 projectRoot = root.toFileWrapper(),
                 query = query, useIndex = Settings.always_index_projects && path == null && !isRegex,
                 isRegex = isRegex
-            ).toList()
+            ).take(limit.coerceAtLeast(1)).toList()
         }
         return JsonArray().apply {
-            results.take(limit).forEach { item ->
+            results.forEach { item ->
                 add(JsonObject().apply {
                     addProperty("path", item.file.getAbsolutePath())
                     addProperty("line", item.line + 1)
@@ -65,22 +71,42 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
     }
 
     suspend fun searchSymbols(query: String, limit: Int, path: String? = null): JsonArray {
-        val escapedQuery = Regex.escape(query)
-        val declarationPattern = Regex("\\b(class|interface|object|fun|def|function|var|val|let|const|enum|struct|type)\\s+$escapedQuery\\b", RegexOption.IGNORE_CASE)
-        val allResults = searchCode(query, limit * 5, path = path, isRegex = false)
+        val app = application ?: return JsonArray()
+        val vm = searchViewModel()
+        val mv = viewModel ?: return JsonArray()
+
+        val root = if (path != null) {
+            resolvePath(path) ?: File(IdeBridge.primaryWorkspacePath())
+        } else {
+            File(IdeBridge.primaryWorkspacePath())
+        }
+
+        val declarationPattern = Regex(
+            "\\b(class|interface|object|fun|def|function|var|val|let|const|enum|struct|type)\\s+${Regex.escape(query)}\\b",
+            RegexOption.IGNORE_CASE
+        )
+
+        val results = withContext(Dispatchers.IO) {
+            vm.searchCode(
+                context = app, mainViewModel = mv,
+                projectRoot = root.toFileWrapper(),
+                query = query, useIndex = false, isRegex = false
+            ).take((limit * 3).coerceAtLeast(1)).toList()
+        }
+
+        val filtered = results.filter { item ->
+            declarationPattern.containsMatchIn(item.snippet.text.toString())
+        }
+
         return JsonArray().apply {
-            var count = 0
-            allResults.forEach { element ->
-                if (count >= limit) return@forEach
-                val obj = element.asJsonObject
-                val snippet = obj.get("snippet").asString
-                if (declarationPattern.containsMatchIn(snippet)) {
-                    add(obj)
-                    count++
-                }
-            }
-            if (count == 0) {
-                allResults.take(limit).forEach { add(it) }
+            val finalResults = if (filtered.size >= limit) filtered else results
+            finalResults.take(limit).forEach { item ->
+                add(JsonObject().apply {
+                    addProperty("path", item.file.getAbsolutePath())
+                    addProperty("line", item.line + 1)
+                    addProperty("column", item.column + 1)
+                    addProperty("snippet", item.snippet.text.toString())
+                })
             }
         }
     }
@@ -96,28 +122,7 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
         val isGlob = query.any { it == '*' || it == '?' || it == '[' }
 
         if (isGlob) {
-            val results = JsonArray()
-            val ignored = AiConfig.ignoredDirectories
-            withContext(Dispatchers.IO) {
-                val regex = globToRegex(query)
-                val pattern = Regex(regex, RegexOption.IGNORE_CASE)
-                root.walkTopDown()
-                    .onEnter { it.name !in ignored }
-                    .filter { it.isFile }
-                    .take(limit * 2)
-                    .filter { file ->
-                        val relative = file.toRelativeString(root).let { if (it.startsWith("/")) it else "/$it" }
-                        pattern.matches(relative) || pattern.matches(file.name)
-                    }
-                    .take(limit)
-                    .forEach { file ->
-                        results.add(JsonObject().apply {
-                            addProperty("path", file.absolutePath)
-                            addProperty("name", file.name)
-                        })
-                    }
-            }
-            return results
+            return findFilesGlob(root, query, limit)
         }
 
         val app = application ?: return JsonArray()
@@ -127,7 +132,7 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
                 context = app,
                 projectRoot = root.toFileWrapper(),
                 query = query, useIndex = Settings.always_index_projects
-            ).toList()
+            )
         }
         return JsonArray().apply {
             results.take(limit).forEach { meta ->
@@ -139,6 +144,52 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
         }
     }
 
+    private suspend fun findFilesGlob(root: File, query: String, limit: Int): JsonArray {
+        val results = JsonArray()
+        val ignored = AiConfig.ignoredDirectories
+        val regexStr = globToRegex(query)
+        val pattern = Regex(regexStr, RegexOption.IGNORE_CASE)
+
+        withContext(Dispatchers.IO) {
+            val countingLimit = limit
+            var count = 0
+
+            try {
+                val rootPath = root.toPath()
+                Files.walkFileTree(rootPath, setOf(java.nio.file.FileVisitOption.FOLLOW_LINKS), Int.MAX_VALUE,
+                    object : SimpleFileVisitor<java.nio.file.Path>() {
+                        override fun preVisitDirectory(dir: java.nio.file.Path, attrs: BasicFileAttributes): FileVisitResult {
+                            if (count >= countingLimit) return FileVisitResult.TERMINATE
+                            val name = dir.fileName?.toString() ?: ""
+                            if (name in ignored) return FileVisitResult.SKIP_SUBTREE
+                            return FileVisitResult.CONTINUE
+                        }
+
+                        override fun visitFile(file: java.nio.file.Path, attrs: BasicFileAttributes): FileVisitResult {
+                            if (count >= countingLimit) return FileVisitResult.TERMINATE
+                            val fileObj = file.toFile()
+                            val relative = fileObj.toRelativeString(root).let { if (it.startsWith("/")) it else "/$it" }
+                            if (pattern.matches(relative) || pattern.matches(fileObj.name)) {
+                                synchronized(results) {
+                                    if (count < countingLimit) {
+                                        results.add(JsonObject().apply {
+                                            addProperty("path", fileObj.absolutePath)
+                                            addProperty("name", fileObj.name)
+                                        })
+                                        count++
+                                    }
+                                }
+                            }
+                            return if (count >= countingLimit) FileVisitResult.TERMINATE else FileVisitResult.CONTINUE
+                        }
+                    }
+                )
+            } catch (_: Exception) {
+            }
+        }
+        return results
+    }
+
     private fun globToRegex(glob: String): String {
         val sb = StringBuilder()
         var i = 0
@@ -147,13 +198,8 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
             when (c) {
                 '*' -> {
                     if (i + 1 < glob.length && glob[i + 1] == '*') {
-                        if (i + 2 < glob.length && glob[i + 2] == '/') {
-                            sb.append("(?:.+/)?")
-                            i += 2
-                        } else {
-                            sb.append(".*")
-                            i++
-                        }
+                        sb.append(".*")
+                        i++
                     } else {
                         sb.append("[^/]*")
                     }

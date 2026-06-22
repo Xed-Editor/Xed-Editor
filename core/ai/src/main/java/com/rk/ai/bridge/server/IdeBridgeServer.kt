@@ -7,6 +7,8 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.rk.ai.bridge.McpToolRegistry
+import com.rk.ai.bridge.stitch.ExternalMcpTool
+import com.rk.ai.bridge.stitch.McpStitcher
 import com.rk.ai.bridge.tools.*
 import com.rk.ai.service.IdeNotificationSender
 import com.rk.ai.service.IdeService
@@ -48,6 +50,7 @@ class IdeBridgeServer(
     val toolsCount: Int get() = toolRegistry.listSchemas().size()
 
     var ideService: IdeService = initialIdeService
+    val stitcher = McpStitcher()
 
     companion object {
         private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
@@ -60,6 +63,34 @@ class IdeBridgeServer(
         mcpDispatcher.sendNotification = { sessionId, method, params -> sseManager.pushToSession(sessionId, mcpDispatcher.notificationJson(method, params)) }
         registerTools(toolRegistry)
         httpSessionTracker.startBackgroundCleanup(serverScope)
+        initStitcher()
+    }
+
+    private fun initStitcher() {
+        stitcher.setOnToolsChanged { externalTools ->
+            synchronized(this) {
+                val externalNames = externalTools.map { it.name }.toSet()
+                val toRemove = toolRegistry.listNames().filter { it.startsWith("stitch_") && it !in externalNames }
+                toRemove.forEach { toolRegistry.get(it) }
+                externalTools.forEach { toolRegistry.register(it) }
+            }
+            if (BuildConfig.DEBUG) {
+                Log.d("IdeBridgeServer", "Stitcher: ${externalTools.size} external tools registered")
+            }
+        }
+        val ws = runCatching { ideService.getPrimaryWorkspacePath() }.getOrNull()
+        if (ws != null) {
+            stitcher.connectFromConfigFile(ws)
+        }
+        stitcher.connectAllFromSettings()
+    }
+
+    fun refreshStitcher() {
+        synchronized(this) {
+            val stitchNames = toolRegistry.listNames().filter { it.startsWith("stitch_") }
+            stitchNames.forEach { toolRegistry.get(it) }
+        }
+        stitcher.refresh()
     }
 
     override fun stop() {
@@ -128,6 +159,8 @@ class IdeBridgeServer(
             "/mcp-info" -> json(Response.Status.OK, bridgeInfoJson())
             "/debug" -> json(Response.Status.OK, debugJson())
             "/refresh" -> { ideService.refreshEditors(); json(Response.Status.OK, "{\"ok\":true}") }
+            "/stitch" -> json(Response.Status.OK, stitchInfoJson())
+            "/stitch/refresh" -> { refreshStitcher(); json(Response.Status.OK, stitchInfoJson()) }
             "/sse" -> sseManager.createSseStream(session)
             "/mcp" -> runBlockingSafely { handleMcp(session, rawPostBody) }
             "/messages" -> runBlockingSafely { handleMessages(session, rawPostBody) }
@@ -248,9 +281,11 @@ class IdeBridgeServer(
     }
 
     private fun bridgeInfoJson(): String = gson.toJson(JsonObject().apply {
-        addProperty("name", "xed-ide-bridge"); addProperty("version", "2.1.0"); addProperty("protocol", "mcp")
+        addProperty("name", "xed-ide-bridge"); addProperty("version", "2.2.0"); addProperty("protocol", "mcp")
         addProperty("tools", toolRegistry.listSchemas().size()); addProperty("clients", connectedClients)
         addProperty("sseClients", httpSessionTracker.sseSessionCount)
+        addProperty("stitchServers", stitcher.connectedServers.size)
+        addProperty("stitchTools", stitcher.toolSchemas.size)
     })
 
     private fun currentIdeContext(): JsonObject = JsonObject().apply {
@@ -264,11 +299,28 @@ class IdeBridgeServer(
 
     private fun ideContextJsonSync(): String = gson.toJson(currentIdeContext())
 
+    private fun stitchInfoJson(): String = gson.toJson(JsonObject().apply {
+        addProperty("servers", stitcher.connectedServers.size)
+        addProperty("tools", stitcher.toolSchemas.size)
+        add("status", com.google.gson.JsonArray().apply {
+            stitcher.getClientStatus().forEach { status ->
+                add(JsonObject().apply {
+                    addProperty("name", status["name"]?.toString() ?: "")
+                    addProperty("url", status["url"]?.toString() ?: "")
+                    addProperty("reachable", status["reachable"] as? Boolean ?: false)
+                    addProperty("toolCount", status["toolCount"] as? Int ?: 0)
+                })
+            }
+        })
+    })
+
     private fun debugJson(): String = gson.toJson(JsonObject().apply {
         addProperty("port", listeningPort); addProperty("clients", connectedClients)
         addProperty("sseClients", httpSessionTracker.sseSessionCount)
         addProperty("httpClients", httpSessionTracker.httpSessionCount)
         addProperty("tools", toolRegistry.listSchemas().size()); addProperty("tokenPrefix", token.take(8))
+        addProperty("stitchServers", stitcher.connectedServers.size)
+        addProperty("stitchTools", stitcher.toolSchemas.size)
     })
 
     private fun isAuthorized(session: IHTTPSession): Boolean {

@@ -33,7 +33,7 @@ object ProjectConfigLoader {
     }
 
     fun applyConfig(config: ProjectAiConfig) {
-                    config.agent?.let { agentType ->
+        config.agent?.let { agentType ->
             val agent = when (agentType.lowercase()) {
                 "gemini" -> GeminiAgent
                 "opencode" -> OpenCodeAgent

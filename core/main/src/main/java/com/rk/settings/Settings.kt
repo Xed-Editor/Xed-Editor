@@ -102,6 +102,7 @@ object Settings {
     var ai_profiles_json by CachedPreference("ai_profiles_json", "")
     var ai_agent_extra_args by CachedPreference("ai_agent_extra_args", "")
     var ai_project_config_enabled by CachedPreference("ai_project_config_enabled", true)
+    var ai_mcp_servers_config by CachedPreference("ai_mcp_servers_config", "")
 
     // ─── File Tree ───────────────────────────────────────────────────
     var sort_mode by CachedPreference("sort_mode", SortMode.SORT_BY_NAME.ordinal)

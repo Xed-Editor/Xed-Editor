@@ -87,10 +87,12 @@ class AiSessionLogic(
             }
             "/export" -> exportSession()
             "/bridge", "/doctor" -> reportBridgeStatus()
+            "/stitch" -> reportStitcherStatus()
             "/help" -> appendLog(
                 buildString {
                     appendLine("AI sheet commands:")
                     appendLine("  /doctor  Check MCP bridge, clients, tools, and config paths")
+                    appendLine("  /stitch  Check external MCP server stitcher status")
                     appendLine("  /sync    Save dirty editor tabs before agent work")
                     appendLine("  /refresh Refresh clean editor tabs from disk")
                     appendLine("  /restart Restart the selected AI agent")
@@ -102,6 +104,69 @@ class AiSessionLogic(
         }
     }
 
+    private fun reportStitcherStatus() {
+        scope.launch(Dispatchers.IO) {
+            val bridge = AiProvider.ideBridge
+            if (bridge == null || !bridge.isRunning()) {
+                withContext(Dispatchers.Main) {
+                    appendLog("MCP bridge not running. Use /doctor to start it.")
+                }
+                return@launch
+            }
+            val info = bridge.getBridgeInfo()
+            if (info == null) {
+                withContext(Dispatchers.Main) {
+                    appendLog("MCP bridge not available.")
+                }
+                return@launch
+            }
+            val result = runCatching {
+                val url = java.net.URL("http://${info.host}:${info.port}/stitch?token=${info.token}")
+                val conn = url.openConnection() as java.net.HttpURLConnection
+                conn.connectTimeout = 5000
+                conn.readTimeout = 5000
+                val text = conn.inputStream.bufferedReader().readText()
+                com.google.gson.JsonParser.parseString(text).asJsonObject
+            }.getOrNull()
+            if (result == null) {
+                withContext(Dispatchers.Main) { appendLog("Failed to query stitch status.") }
+                return@launch
+            }
+            withContext(Dispatchers.Main) {
+                appendLog(
+                    buildString {
+                        appendLine("External MCP stitcher status:")
+                        appendLine("  Servers: ${result.get("servers")?.asInt ?: 0}")
+                        appendLine("  Stitched tools: ${result.get("tools")?.asInt ?: 0}")
+                        val arr = result.getAsJsonArray("status")
+                        if (arr != null && arr.size() > 0) {
+                            appendLine()
+                            arr.forEach { el ->
+                                val s = el.asJsonObject
+                                appendLine("  ${s.get("name")?.asString ?: "?"}")
+                                appendLine("    URL: ${s.get("url")?.asString ?: "?"}")
+                                appendLine("    Reachable: ${s.get("reachable")?.asBoolean ?: false}")
+                                appendLine("    Tools: ${s.get("toolCount")?.asInt ?: 0}")
+                            }
+                        } else {
+                            appendLine("  No external MCP servers configured.")
+                            appendLine()
+                            appendLine("To add external MCP servers:")
+                            appendLine("  1. Create .xed/mcp-servers.json in your project:")
+                            appendLine("  { \"mcpServers\": { \"my-server\": {")
+                            appendLine("      \"name\": \"my-server\",")
+                            appendLine("      \"url\": \"http://host:port\",")
+                            appendLine("      \"apiKey\": \"token\",")
+                            appendLine("      \"enabled\": true")
+                            appendLine("    }}}")
+                            appendLine("  2. Or set them via Settings > AI > MCP Servers")
+                            appendLine("  3. Run /stitch again after configuring")
+                        }
+                    }
+                )
+            }
+        }
+    }
 
     private fun reportBridgeStatus() {
         scope.launch(Dispatchers.Main) {
@@ -145,6 +210,12 @@ class AiSessionLogic(
                         appendLine("  cat $workspacePath/.xed/ide.json")
                     }
                     appendLine("  curl http://127.0.0.1:${info?.port ?: "?"}/health")
+                    appendLine("  curl http://127.0.0.1:${info?.port ?: "?"}/stitch")
+                    appendLine()
+                    appendLine("External MCP stitcher:")
+                    appendLine("  Config: ~/.xed/mcp-servers.json or Settings")
+                    appendLine("  Servers: ${bridgeProvider?.connectedClients() ?: 0}")
+                    appendLine("  Stitched tools: ${bridgeProvider?.availableTools() ?: 0}")
                 }
             )
         }

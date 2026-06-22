@@ -91,14 +91,26 @@ class WcTool : BaseMcpTool() {
         var lines = 0L
         var words = 0L
         var chars = 0L
+        var inWord = false
 
         if (file.isFile) {
-            val text = file.readText()
-            if (text.isNotEmpty()) {
-                lines = text.count { it == '\n' }.toLong()
-                if (text.last() != '\n') lines++
-                words = text.split(Regex("\\s+")).count { it.isNotBlank() }.toLong()
-                chars = text.length.toLong()
+            val buf = CharArray(8192)
+            file.bufferedReader(Charsets.UTF_8).use { reader ->
+                var read = reader.read(buf)
+                while (read != -1) {
+                    for (i in 0 until read) {
+                        val c = buf[i]
+                        chars++
+                        if (c == '\n') lines++
+                        if (c.isWhitespace()) {
+                            inWord = false
+                        } else if (!inWord) {
+                            words++
+                            inWord = true
+                        }
+                    }
+                    read = reader.read(buf)
+                }
             }
         }
 
