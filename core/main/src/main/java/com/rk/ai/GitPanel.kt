@@ -3,6 +3,7 @@ package com.rk.ai
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -153,7 +154,9 @@ fun GitPanel(
                     }
                 }
             } else {
-                RepositoryOverview(gitViewModel = gitViewModel, colorScheme = colorScheme)
+                Box(Modifier.weight(1f)) {
+                    RepositoryOverview(gitViewModel = gitViewModel, colorScheme = colorScheme)
+                }
             }
 
             HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.1f), thickness = 0.5.dp)
@@ -246,7 +249,7 @@ private fun RepositoryOverview(
     val commitCount = remember { derivedStateOf { gitViewModel.getCommitCount() } }
 
     LazyColumn(
-        modifier = Modifier.weight(1f).fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         state = rememberLazyListState(),
     ) {
         item {
