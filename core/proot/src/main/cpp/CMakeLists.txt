@@ -119,17 +119,33 @@ endif()
 get_arch_define(LOADER_ADDRESS LOADER_ADDRESS_64 "")
 get_arch_define(LOADER_ARCH_CFLAGS LOADER_ARCH_CFLAGS_64 "")
 
+if(ANDROID)
+    if(ANDROID_ABI STREQUAL "arm64-v8a")
+        set(M32_FLAG "--target=armv7a-linux-androideabi${ANDROID_PLATFORM_LEVEL}")
+    elseif(ANDROID_ABI STREQUAL "x86_64")
+        set(M32_FLAG "--target=i686-linux-android${ANDROID_PLATFORM_LEVEL}")
+    else()
+        set(M32_FLAG "-m32")
+    endif()
+else()
+    set(M32_FLAG "-m32")
+endif()
+
 if(HAS_LOADER_32BIT)
-    get_arch_define(LOADER_ADDRESS LOADER_ADDRESS_32 "-m32")
-    get_arch_define(LOADER_ARCH_CFLAGS LOADER_ARCH_CFLAGS_32 "-m32")
+    get_arch_define(LOADER_ADDRESS LOADER_ADDRESS_32 "${M32_FLAG}")
+    get_arch_define(LOADER_ARCH_CFLAGS LOADER_ARCH_CFLAGS_32 "${M32_FLAG}")
 endif()
 
 # Check if 32-bit loader can actually be built
 if(HAS_LOADER_32BIT)
-    include(CheckCCompilerFlag)
-    check_c_compiler_flag("-m32" COMPILER_SUPPORTS_M32)
+    if(ANDROID)
+        set(COMPILER_SUPPORTS_M32 true)
+    else()
+        include(CheckCCompilerFlag)
+        check_c_compiler_flag("${M32_FLAG}" COMPILER_SUPPORTS_M32)
+    endif()
     if(NOT COMPILER_SUPPORTS_M32 OR LOADER_ADDRESS_32 STREQUAL "")
-        message(STATUS "Disabling 32-bit loader: -m32 not supported or address unknown")
+        message(STATUS "Disabling 32-bit loader: ${M32_FLAG} not supported or address unknown")
         set(HAS_LOADER_32BIT false)
     endif()
 endif()
@@ -233,11 +249,6 @@ function(build_loader SUFFIX EXTRA_CFLAGS LOADER_ADDR)
         SUFFIX ".so"
     )
 
-    add_custom_command(
-        TARGET ${LOADER_TARGET} POST_BUILD
-        COMMAND ${STRIP_TOOL} $<TARGET_FILE:${LOADER_TARGET}>
-        COMMENT "Stripping ${LOADER_NAME}"
-    )
 endfunction()
 
 build_loader("64" "${LOADER_ARCH_CFLAGS_64}" "${LOADER_ADDRESS_64}")
@@ -277,7 +288,16 @@ set_target_properties(proot PROPERTIES
 add_custom_command(
     TARGET proot POST_BUILD
     COMMAND ${STRIP_TOOL} --strip-unneeded $<TARGET_FILE:proot>
-    COMMENT "Stripping libproot.so"
+    COMMAND ${STRIP_TOOL} $<TARGET_FILE:loader_64>
+    COMMENT "Stripping libproot.so and loader"
 )
+
+if(HAS_LOADER_32BIT)
+    add_custom_command(
+        TARGET proot POST_BUILD
+        COMMAND ${STRIP_TOOL} $<TARGET_FILE:loader_-m32>
+        COMMENT "Stripping loader32"
+    )
+endif()
 
 install(TARGETS proot DESTINATION bin)
