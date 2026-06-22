@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoFixHigh
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -227,6 +228,8 @@ fun UnifiedToolSheet(
                 isAiRunning = isAiRunning,
                 agentName = currentAgent?.displayName ?: "AI",
                 onStart = { logic.startAgent(cwd.value, forceRestart = true) },
+                cwd = cwd.value,
+                transcript = transcript,
             )
             BottomPanelMode.VIBE_CODING -> VibeCodingPanelContent(engine = vibecodingEngine)
             BottomPanelMode.TERMINAL -> TerminalPanelContent(
@@ -252,20 +255,22 @@ internal fun AgentEmptyState(
     isRunning: Boolean,
     agentName: String,
     onStart: () -> Unit,
+    cwd: String = "",
+    transcript: String = "",
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(colorScheme.surfaceContainerLow),
-        contentAlignment = Alignment.Center,
     ) {
         Column(
+            modifier = Modifier.fillMaxSize().padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
             Surface(
-                modifier = Modifier.size(56.dp),
+                modifier = Modifier.size(48.dp),
                 shape = CircleShape,
                 color = colorScheme.primaryContainer.copy(alpha = 0.4f),
                 tonalElevation = 2.dp,
@@ -274,24 +279,67 @@ internal fun AgentEmptyState(
                     Icon(
                         Icons.Outlined.AutoFixHigh,
                         contentDescription = null,
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(24.dp),
                         tint = colorScheme.onPrimaryContainer,
                     )
                 }
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                "$agentName",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = colorScheme.onSurface,
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(if (isRunning) Color(0xFF4CAF50) else Color(0xFF9E9E9E)))
+                Spacer(Modifier.width(6.dp))
                 Text(
-                    "$agentName Ready",
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = colorScheme.onSurface,
-                )
-                Text(
-                    "Tap start to begin an AI-powered session",
+                    if (isRunning) "Active" else "Idle",
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                    textAlign = TextAlign.Center,
                 )
             }
+
+            if (cwd.isNotBlank()) {
+                Spacer(Modifier.height(12.dp))
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                    modifier = Modifier.widthIn(max = 200.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Outlined.Folder, contentDescription = null, modifier = Modifier.size(12.dp), tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+            }
+
+            if (transcript.isNotBlank()) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Previous session available",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colorScheme.primary.copy(alpha = 0.7f),
+                )
+            }
+
+            Spacer(Modifier.height(20.dp))
+
             Button(
                 onClick = onStart,
                 shape = MaterialTheme.shapes.large,

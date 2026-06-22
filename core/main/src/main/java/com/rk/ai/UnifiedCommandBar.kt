@@ -96,7 +96,7 @@ fun UnifiedCommandBar(
             SessionChips(terminalViewModel = terminalViewModel)
         }
 
-        if (mode == BottomPanelMode.TERMINAL || mode == BottomPanelMode.AI) {
+        if (mode == BottomPanelMode.AI) {
             DividerThin(colorScheme)
             AndroidView<VirtualKeysView>(
                 modifier = Modifier.fillMaxWidth().height(44.dp),

@@ -19,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
@@ -35,6 +36,9 @@ import com.rk.utils.getGitColor
 import java.io.File
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun GitPanel(
@@ -61,6 +65,12 @@ fun GitPanel(
     var changesExpanded by remember { mutableStateOf(true) }
     var untrackedExpanded by remember { mutableStateOf(true) }
     var conflictsExpanded by remember { mutableStateOf(true) }
+
+    LaunchedEffect(gitViewModel.currentRoot) {
+        if (gitViewModel.currentRoot.value != null) {
+            gitViewModel.loadCommitLog(maxCount = 10)
+        }
+    }
 
     LaunchedEffect(gitChanges) {
         val trackedChanges = mutableListOf<GitChange>()
@@ -143,21 +153,7 @@ fun GitPanel(
                     }
                 }
             } else {
-                Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            painter = painterResource(drawables.file),
-                            contentDescription = null,
-                            tint = colorScheme.onSurface.copy(alpha = 0.2f),
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            stringResource(strings.no_changes),
-                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-                }
+                RepositoryOverview(gitViewModel = gitViewModel, colorScheme = colorScheme)
             }
 
             HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.1f), thickness = 0.5.dp)
@@ -211,7 +207,7 @@ private fun NoGitRepository(gitViewModel: GitViewModel) {
     }
     val hasGitDir = root != null && FileRepositoryBuilder().findGitDir(root).gitDir != null
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Icon(
                 painter = painterResource(drawables.git),
@@ -237,6 +233,173 @@ private fun NoGitRepository(gitViewModel: GitViewModel) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RepositoryOverview(
+    gitViewModel: GitViewModel,
+    colorScheme: ColorScheme,
+) {
+    val commitLog = gitViewModel.commitLog
+    val branchCount = remember { derivedStateOf { gitViewModel.getBranchList().size } }
+    val commitCount = remember { derivedStateOf { gitViewModel.getCommitCount() } }
+
+    LazyColumn(
+        modifier = Modifier.weight(1f).fillMaxWidth(),
+        state = rememberLazyListState(),
+    ) {
+        item {
+            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painterResource(drawables.branch),
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = colorScheme.primary,
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        gitViewModel.currentBranch.ifBlank { "unknown" },
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = colorScheme.onSurface,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = colorScheme.primaryContainer.copy(alpha = 0.5f),
+                    ) {
+                        Text(
+                            "up to date",
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colorScheme.onPrimaryContainer,
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = colorScheme.surfaceContainerHigh,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        StatItem(value = "${commitCount.value.coerceAtLeast(0)}", label = "commits", colorScheme = colorScheme)
+                        StatItem(value = "${branchCount.value}", label = "branches", colorScheme = colorScheme)
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                if (commitLog.value.isNotEmpty()) {
+                    Text(
+                        "Recent Activity",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    commitLog.value.take(5).forEach { commit ->
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = colorScheme.surfaceContainerLow,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.Top,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        commit.message,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = colorScheme.onSurface,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Spacer(Modifier.height(2.dp))
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            commit.hash,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = colorScheme.primary.copy(alpha = 0.7f),
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(
+                                            commit.author,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(
+                                            formatTimeAgo(commit.date),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if (gitViewModel.isLogLoading) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    }
+                } else {
+                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                painter = painterResource(drawables.file),
+                                contentDescription = null,
+                                tint = colorScheme.onSurface.copy(alpha = 0.2f),
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                stringResource(strings.no_changes),
+                                color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatItem(value: String, label: String, colorScheme: ColorScheme) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            value,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = colorScheme.onSurface,
+        )
+        Text(
+            label,
+            style = MaterialTheme.typography.labelSmall,
+            color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+        )
+    }
+}
+
+private fun formatTimeAgo(date: Date): String {
+    val now = System.currentTimeMillis()
+    val diff = now - date.time
+    val minutes = diff / 60000
+    val hours = minutes / 60
+    val days = hours / 24
+    return when {
+        minutes < 1 -> "just now"
+        minutes < 60 -> "${minutes}m ago"
+        hours < 24 -> "${hours}h ago"
+        days < 7 -> "${days}d ago"
+        else -> SimpleDateFormat("MMM d", Locale.getDefault()).format(date)
     }
 }
 
@@ -453,41 +616,72 @@ private fun ChangeGroup(
 private fun ChangesItemList(items: List<GitChange>, gitViewModel: GitViewModel, colorScheme: ColorScheme) {
     Column(modifier = Modifier.padding(start = 36.dp, end = 8.dp)) {
         items.forEach { change ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 1.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Checkbox(
-                    enabled = !gitViewModel.isLoading,
-                    checked = change.isChecked,
-                    onCheckedChange = { gitViewModel.toggleChange(change) },
-                    modifier = Modifier.size(20.dp),
-                )
+            var expanded by remember { mutableStateOf(false) }
 
-                val fileName = change.path.substringAfterLast("/")
-                val gitColor = getGitColor(change.type)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 1.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Checkbox(
+                        enabled = !gitViewModel.isLoading,
+                        checked = change.isChecked,
+                        onCheckedChange = { gitViewModel.toggleChange(change) },
+                        modifier = Modifier.size(20.dp),
+                    )
 
-                Text(
-                    text = fileName,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = gitColor ?: colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    text = change.path,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.widthIn(max = 120.dp),
-                )
+                    val fileName = change.path.substringAfterLast("/")
+                    val gitColor = getGitColor(change.type)
+
+                    Text(
+                        text = fileName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = gitColor ?: colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+
+                    ChangeTypeBadge(changeType = change.type, colorScheme = colorScheme)
+
+                    Spacer(Modifier.width(4.dp))
+
+                    Text(
+                        text = change.path,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.widthIn(max = 120.dp),
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun ChangeTypeBadge(changeType: ChangeType, colorScheme: ColorScheme) {
+    val (label, bgColor, textColor) = when (changeType) {
+        ChangeType.ADDED -> Triple("A", colorScheme.primaryContainer.copy(alpha = 0.6f), colorScheme.onPrimaryContainer)
+        ChangeType.MODIFIED -> Triple("M", colorScheme.tertiaryContainer.copy(alpha = 0.6f), colorScheme.onTertiaryContainer)
+        ChangeType.DELETED -> Triple("D", colorScheme.errorContainer.copy(alpha = 0.4f), colorScheme.onErrorContainer)
+        ChangeType.CONFLICTING -> Triple("!", colorScheme.errorContainer, colorScheme.onErrorContainer)
+        ChangeType.UNTRACKED -> Triple("U", colorScheme.surfaceVariant.copy(alpha = 0.6f), colorScheme.onSurfaceVariant)
+    }
+    Surface(
+        shape = RoundedCornerShape(3.dp),
+        color = bgColor,
+    ) {
+        Text(
+            label,
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = textColor,
+        )
     }
 }
 

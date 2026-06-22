@@ -1,7 +1,6 @@
 package com.rk.ai.nativeagent.ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.*
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -14,8 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -25,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.UIMessagePart
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 private const val MAX_PREVIEW_CHARS = 500
@@ -52,18 +52,6 @@ fun VibeCodingToolCard(
     val isRunning = part.isRunning
     val hasError = part.executionState is ExecutionState.Error
     val isDenied = part.approvalState is ToolApprovalState.Denied
-
-    // Running animation
-    val infiniteTransition = rememberInfiniteTransition(label = "toolRunning")
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 1.0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(600, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "pulseAlpha",
-    )
 
     val statusColor = when {
         isRunning -> colorScheme.tertiary
@@ -93,6 +81,34 @@ fun VibeCodingToolCard(
         isAnswered -> Icons.Outlined.QuestionAnswer
         part.executionState is ExecutionState.Completed -> Icons.Outlined.CheckCircle
         else -> Icons.Outlined.CheckCircle
+    }
+
+    val durationText = remember(part.executionState) {
+        val completed = part.executionState as? ExecutionState.Completed
+        if (completed?.startedAt != null && completed.completedAt != null) {
+            try {
+                val start = java.time.Instant.parse(completed.startedAt)
+                val end = java.time.Instant.parse(completed.completedAt)
+                val millis = java.time.Duration.between(start, end).toMillis()
+                when {
+                    millis < 1000 -> "${millis}ms"
+                    millis < 60000 -> "${millis / 1000}.${(millis % 1000) / 100}s"
+                    else -> "${millis / 60000}m ${(millis % 60000) / 1000}s"
+                }
+            } catch (_: Exception) { null }
+        } else null
+    }
+
+    val fileName = remember(part.input) {
+        try {
+            val json = kotlinx.serialization.json.Json.parseToJsonElement(part.input.ifBlank { "{}" })
+            val obj = json as? JsonObject ?: return@remember null
+            val path = obj["file_path"]?.jsonPrimitive?.content
+                ?: obj["filePath"]?.jsonPrimitive?.content
+                ?: obj["path"]?.jsonPrimitive?.content
+                ?: obj["file"]?.jsonPrimitive?.content
+            path?.substringAfterLast("/")?.takeIf { it.isNotBlank() }
+        } catch (_: Exception) { null }
     }
 
     Surface(
@@ -135,9 +151,7 @@ fun VibeCodingToolCard(
                         Icon(
                             imageVector = statusIcon,
                             contentDescription = null,
-                            modifier = Modifier
-                                .size(14.dp)
-                                .alpha(if (isRunning) pulseAlpha else 1f),
+                            modifier = Modifier.size(14.dp),
                             tint = statusColor,
                         )
                         Spacer(Modifier.width(4.dp))
@@ -149,13 +163,46 @@ fun VibeCodingToolCard(
                             fontWeight = FontWeight.SemiBold,
                             color = colorScheme.onSurfaceVariant,
                         )
+
+                        // File badge for file-touching tools
+                        if (fileName != null) {
+                            Spacer(Modifier.width(4.dp))
+                            Surface(
+                                shape = RoundedCornerShape(3.dp),
+                                color = colorScheme.primary.copy(alpha = 0.1f),
+                            ) {
+                                Text(
+                                    text = fileName,
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                                    color = colorScheme.primary.copy(alpha = 0.7f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                                )
+                            }
+                        }
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        // Duration badge
+                        if (durationText != null) {
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            ) {
+                                Text(
+                                    text = durationText,
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                                )
+                            }
+                        }
+
                         // Status badge
                         Surface(
                             shape = RoundedCornerShape(4.dp),
-                            color = statusColor.copy(alpha = if (isRunning) pulseAlpha else 0.15f),
+                            color = statusColor.copy(alpha = 0.15f),
                         ) {
                             Text(
                                 text = statusLabel,

@@ -2,17 +2,12 @@
 package com.rk.ai.nativeagent.ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,9 +21,9 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -84,6 +79,9 @@ fun VibeCodingPanel(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val configuration = LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 600
 
     val workspacePath by remember {
         derivedStateOf {
@@ -320,93 +318,71 @@ fun VibeCodingPanel(
 
                 // Main content area
                 Box(modifier = Modifier.weight(1f)) {
-                    Column {
-                        // Security alerts
-                        if (state.hasSecurityAlerts) {
-                            LazyColumn(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(max = 120.dp),
-                            ) {
-                                items(state.securityAlerts.takeLast(3), key = { it.id ?: it.message.take(50) }) { alert ->
-                                    SecurityAlertBanner(
-                                        alert = alert,
-                                        onDismiss = { engine.dismissSecurityAlert(alert.id) },
+                    if (isTablet && selectedInfoTab != null) {
+                        Row(modifier = Modifier.fillMaxSize()) {
+                            // Left column: messages + overlays
+                            Column(modifier = Modifier.weight(0.65f)) {
+                                ContentStack(
+                                    state = state,
+                                    engine = engine,
+                                    colorScheme = colorScheme,
+                                    context = context,
+                                    hasTodos = hasTodos,
+                                    showAgentActivity = showAgentActivity,
+                                )
+                            }
+                            // Right column: info panel
+                            VerticalDivider(
+                                modifier = Modifier.fillMaxHeight(),
+                                color = colorScheme.outlineVariant.copy(alpha = 0.3f),
+                            )
+                            Column(modifier = Modifier.weight(0.35f)) {
+                                InfoPanelSection(
+                                    selectedInfoTab = selectedInfoTab!!,
+                                    visibleTabs = visibleInfoTabs,
+                                    currentTabIndex = currentInfoTabIndex,
+                                    state = state,
+                                    engine = engine,
+                                    colorScheme = colorScheme,
+                                    onSelectTab = { selectedInfoTab = if (selectedInfoTab == it) null else it },
+                                )
+                                if (state.debugMode) {
+                                    DebugPanel(
+                                        debugInfo = state.debugInfo,
+                                        modifier = Modifier.fillMaxWidth(),
                                     )
                                 }
                             }
                         }
-
-                        // Todo panel
-                        AnimatedVisibility(
-                            visible = hasTodos,
-                            enter = slideInVertically { -it } + fadeIn(),
-                            exit = slideOutVertically { -it } + fadeOut(),
-                        ) {
-                            TodoPanel(
-                                todos = state.todos,
-                                completedCount = state.completedTodos,
-                                onClear = {
-                                    val sessionId = state.activeSessionId
-                                    if (sessionId != null) {
-                                        engine.setSessionTodos(sessionId, emptyList())
-                                    }
-                                },
+                    } else {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            ContentStack(
+                                state = state,
+                                engine = engine,
                                 colorScheme = colorScheme,
+                                context = context,
+                                hasTodos = hasTodos,
+                                showAgentActivity = showAgentActivity,
                             )
-                        }
 
-                        // Agent activity
-                        AnimatedVisibility(
-                            visible = showAgentActivity && state.agentActivities.isNotEmpty(),
-                            enter = slideInVertically { -it } + fadeIn(),
-                            exit = slideOutVertically { -it } + fadeOut(),
-                        ) {
-                            AgentActivitySection(
-                                activities = state.agentActivities,
-                                colorScheme = colorScheme,
-                            )
-                        }
+                            // Info panels (Plan, Tools, Context, Changes)
+                            if (selectedInfoTab != null) {
+                                InfoPanelSection(
+                                    selectedInfoTab = selectedInfoTab!!,
+                                    visibleTabs = visibleInfoTabs,
+                                    currentTabIndex = currentInfoTabIndex,
+                                    state = state,
+                                    engine = engine,
+                                    colorScheme = colorScheme,
+                                    onSelectTab = { selectedInfoTab = if (selectedInfoTab == it) null else it },
+                                )
+                            }
 
-                // Info panels (Plan, Tools, Context, Changes)
-                if (selectedInfoTab != null) {
-                    InfoPanelSection(
-                        selectedInfoTab = selectedInfoTab!!,
-                        visibleTabs = visibleInfoTabs,
-                        currentTabIndex = currentInfoTabIndex,
-                        state = state,
-                        engine = engine,
-                        colorScheme = colorScheme,
-                        onSelectTab = { selectedInfoTab = if (selectedInfoTab == it) null else it },
-                    )
-                }
-
-                // Debug panel
-                if (state.debugMode) {
-                    DebugPanel(
-                        debugInfo = state.debugInfo,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-
-                        // Main message list
-                        Box(modifier = Modifier.weight(1f)) {
-                            if (state.messages.isEmpty() && !state.isProcessing) {
-                                EmptyState(colorScheme, state.workspacePath)
-                            } else {
-                                VibeCodingMessageList(
-                                    messages = state.messages,
-                                    isProcessing = state.isProcessing,
-                                    currentPhase = state.currentPhase,
-                                    onApproveTool = { toolCallId -> engine.approveTool(toolCallId) },
-                                    onDenyTool = { toolCallId, reason -> engine.denyTool(toolCallId, reason) },
-                                    onAnswerTool = { toolCallId, answer -> engine.answerTool(toolCallId, answer) },
-                                    onCopyMessage = { text ->
-                                        val cm = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                                        cm.setPrimaryClip(android.content.ClipData.newPlainText("VibeCoding", text))
-                                    },
-                                    onDeleteMessage = { index -> engine.deleteMessage(index) },
-                                    modifier = Modifier.fillMaxSize(),
+                            // Debug panel
+                            if (state.debugMode) {
+                                DebugPanel(
+                                    debugInfo = state.debugInfo,
+                                    modifier = Modifier.fillMaxWidth(),
                                 )
                             }
                         }
@@ -1151,6 +1127,87 @@ private fun EmptyState(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContentStack(
+    state: VibeCodingState,
+    engine: VibeCodingEngine,
+    colorScheme: ColorScheme,
+    context: android.content.Context,
+    hasTodos: Boolean,
+    showAgentActivity: Boolean,
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Security alerts
+        if (state.hasSecurityAlerts) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 120.dp),
+            ) {
+                items(state.securityAlerts.takeLast(3), key = { it.id ?: it.message.take(50) }) { alert ->
+                    SecurityAlertBanner(
+                        alert = alert,
+                        onDismiss = { engine.dismissSecurityAlert(alert.id) },
+                    )
+                }
+            }
+        }
+
+        // Todo panel
+        AnimatedVisibility(
+            visible = hasTodos,
+            enter = slideInVertically { -it } + fadeIn(),
+            exit = slideOutVertically { -it } + fadeOut(),
+        ) {
+            TodoPanel(
+                todos = state.todos,
+                completedCount = state.completedTodos,
+                onClear = {
+                    val sessionId = state.activeSessionId
+                    if (sessionId != null) {
+                        engine.setSessionTodos(sessionId, emptyList())
+                    }
+                },
+                colorScheme = colorScheme,
+            )
+        }
+
+        // Agent activity
+        AnimatedVisibility(
+            visible = showAgentActivity && state.agentActivities.isNotEmpty(),
+            enter = slideInVertically { -it } + fadeIn(),
+            exit = slideOutVertically { -it } + fadeOut(),
+        ) {
+            AgentActivitySection(
+                activities = state.agentActivities,
+                colorScheme = colorScheme,
+            )
+        }
+
+        // Main message list
+        Box(modifier = Modifier.weight(1f)) {
+            if (state.messages.isEmpty() && !state.isProcessing) {
+                EmptyState(colorScheme, state.workspacePath)
+            } else {
+                VibeCodingMessageList(
+                    messages = state.messages,
+                    isProcessing = state.isProcessing,
+                    currentPhase = state.currentPhase,
+                    onApproveTool = { toolCallId -> engine.approveTool(toolCallId) },
+                    onDenyTool = { toolCallId, reason -> engine.denyTool(toolCallId, reason) },
+                    onAnswerTool = { toolCallId, answer -> engine.answerTool(toolCallId, answer) },
+                    onCopyMessage = { text ->
+                        val cm = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        cm.setPrimaryClip(android.content.ClipData.newPlainText("VibeCoding", text))
+                    },
+                    onDeleteMessage = { index -> engine.deleteMessage(index) },
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }

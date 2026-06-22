@@ -122,7 +122,7 @@ private fun MessageListContent(
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 8.dp),
+        contentPadding = PaddingValues(vertical = 4.dp),
     ) {
         items(messages, key = { it.id }) { message ->
             val msgIndex = messages.indexOf(message)
