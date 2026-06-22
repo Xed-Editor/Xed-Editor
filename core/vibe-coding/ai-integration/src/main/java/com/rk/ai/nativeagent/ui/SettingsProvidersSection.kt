@@ -319,27 +319,28 @@ internal fun ProviderEditor(
                             fetchModelsError = null
                             try {
                                 val currentProvider = engine.settingsStore.settingsFlow.value.providers
-                                    .firstOrNull { it.id == providerId } ?: return@launch
-                                val apiProvider = engine.providerManager.getProviderByType(currentProvider)
-                                val apiModels = apiProvider.listModels(currentProvider)
-                                val enrichedModels = apiModels.sortedBy { it.modelId }.map { model ->
-                                    model.copy(
-                                        displayName = model.modelId,
-                                        inputModalities = ModelRegistry.MODEL_INPUT_MODALITIES.getData(model.modelId),
-                                        outputModalities = ModelRegistry.MODEL_OUTPUT_MODALITIES.getData(model.modelId),
-                                        abilities = ModelRegistry.MODEL_ABILITIES.getData(model.modelId),
-                                    )
-                                }
-                                engine.settingsStore.update { s ->
-                                    s.copy(providers = s.providers.map { p ->
-                                        if (p.id == providerId) p.copyProvider(models = enrichedModels) else p
-                                    })
+                                    .firstOrNull { it.id == providerId }
+                                if (currentProvider != null) {
+                                    val apiProvider = engine.providerManager.getProviderByType(currentProvider)
+                                    val apiModels = apiProvider.listModels(currentProvider)
+                                    val enrichedModels = apiModels.sortedBy { it.modelId }.map { model ->
+                                        model.copy(
+                                            displayName = model.modelId,
+                                            inputModalities = ModelRegistry.MODEL_INPUT_MODALITIES.getData(model.modelId),
+                                            outputModalities = ModelRegistry.MODEL_OUTPUT_MODALITIES.getData(model.modelId),
+                                            abilities = ModelRegistry.MODEL_ABILITIES.getData(model.modelId),
+                                        )
+                                    }
+                                    engine.settingsStore.update { s ->
+                                        s.copy(providers = s.providers.map { p ->
+                                            if (p.id == providerId) p.copyProvider(models = enrichedModels) else p
+                                        })
+                                    }
                                 }
                             } catch (e: Exception) {
                                 fetchModelsError = e.message ?: "Failed to fetch models"
-                            } else {
-                                isFetchingModels = false
                             }
+                            isFetchingModels = false
                         }
                     },
                     enabled = !isFetchingModels,

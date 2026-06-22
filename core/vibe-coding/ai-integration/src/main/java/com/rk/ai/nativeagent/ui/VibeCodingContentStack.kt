@@ -28,8 +28,9 @@ internal fun VibeCodingContentStack(
     hasTodos: Boolean,
     showAgentActivity: Boolean,
     onClearTodos: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier) {
         // Security alerts
         if (state.hasSecurityAlerts) {
             LazyColumn(

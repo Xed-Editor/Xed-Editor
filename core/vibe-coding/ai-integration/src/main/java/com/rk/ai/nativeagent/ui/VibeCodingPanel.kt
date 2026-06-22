@@ -274,6 +274,7 @@ fun VibeCodingPanel(
                                     onClearTodos = {
                                         state.activeSessionId?.let { engine.setSessionTodos(it, emptyList()) }
                                     },
+                                    modifier = Modifier.fillMaxSize(),
                                 )
                             }
                             VerticalDivider(
@@ -308,6 +309,7 @@ fun VibeCodingPanel(
                                 onClearTodos = {
                                     state.activeSessionId?.let { engine.setSessionTodos(it, emptyList()) }
                                 },
+                                modifier = Modifier.weight(1f),
                             )
                             if (selectedInfoTab != null) {
                                 VibeCodingInfoPanel(

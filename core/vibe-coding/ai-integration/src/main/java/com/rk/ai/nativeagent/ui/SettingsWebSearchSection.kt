@@ -1,4 +1,6 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.nativeagent.ui
+
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import kotlinx.coroutines.launch
+import kotlin.uuid.ExperimentalUuidApi
+
 
 @Composable
 internal fun WebSearchSection(
