@@ -203,23 +203,16 @@ private fun ToolSheetContent(
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    val shape = if (isTablet) DesignTokens.BottomSheet.shapeTablet else DesignTokens.BottomSheet.shape
+    val shape = DesignTokens.BottomSheet.shape
 
     var isDragging by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .then(
-                if (isTablet) {
-                    Modifier.padding(bottom = 8.dp, start = 8.dp, end = 8.dp)
-                } else {
-                    Modifier
-                }
-            )
             .height(state.heightDp)
             .shadow(
-                elevation = if (isTablet) DesignTokens.BottomSheet.elevationTablet else DesignTokens.BottomSheet.elevation,
+                elevation = DesignTokens.BottomSheet.elevation,
                 shape = shape,
                 clip = true,
             )
@@ -233,9 +226,7 @@ private fun ToolSheetContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .windowInsetsPadding(
-                    if (isTablet) WindowInsets(0.dp) else WindowInsets.navigationBars
-                )
+                .windowInsetsPadding(WindowInsets.navigationBars)
         ) {
             Column(
                 modifier = Modifier

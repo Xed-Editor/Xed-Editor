@@ -41,6 +41,8 @@ fun AiPanel(
     onStart: () -> Unit,
     cwd: String = "",
     transcript: String = "",
+    onClearTranscript: () -> Unit = {},
+    onToggleTranscript: () -> Unit = {},
 ) {
     if (aiSession != null && isAiRunning) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -55,12 +57,14 @@ fun AiPanel(
             SheetTerminal(session = aiSession, modifier = Modifier.weight(1f).fillMaxWidth(), showKeys = false)
         }
     } else {
-        AgentEmptyState(
+        AiSessionOverview(
             isRunning = isAiRunning,
             agentName = agentName,
             onStart = onStart,
             cwd = cwd,
             transcript = transcript,
+            onClearTranscript = onClearTranscript,
+            onToggleTranscript = onToggleTranscript,
         )
     }
 }

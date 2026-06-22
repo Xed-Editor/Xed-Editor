@@ -11,6 +11,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoFixHigh
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -233,6 +236,8 @@ fun UnifiedToolSheet(
                 onStart = { logic.startAgent(cwd.value, forceRestart = true) },
                 cwd = cwd.value,
                 transcript = transcript,
+                onClearTranscript = { viewModel.agentTranscript = "" },
+                onToggleTranscript = { showTranscript = !showTranscript },
             )
             BottomPanelMode.VIBE_CODING -> VibeCodingPanelContent(engine = vibecodingEngine)
             BottomPanelMode.TERMINAL -> TerminalPanelContent(
@@ -254,104 +259,174 @@ fun UnifiedToolSheet(
 }
 
 @Composable
-internal fun AgentEmptyState(
+internal fun AiSessionOverview(
     isRunning: Boolean,
     agentName: String,
     onStart: () -> Unit,
     cwd: String = "",
     transcript: String = "",
+    onClearTranscript: () -> Unit = {},
+    onToggleTranscript: () -> Unit = {},
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val bridgeClients = AiProvider.ideBridge?.connectedClients() ?: 0
+    val bridgeTools = AiProvider.ideBridge?.availableTools() ?: 0
+    val bridgeOnline = AiProvider.ideBridge?.isRunning() == true
+
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(colorScheme.surfaceContainerLow),
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(colorScheme.surface),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Surface(
-                modifier = Modifier.size(48.dp),
-                shape = CircleShape,
-                color = colorScheme.primaryContainer.copy(alpha = 0.4f),
-                tonalElevation = 2.dp,
-            ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Icon(
-                        Icons.Outlined.AutoFixHigh,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = colorScheme.onPrimaryContainer,
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
             Text(
-                "$agentName",
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                color = colorScheme.onSurface,
+                text = "Session Overview",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = colorScheme.onSurface
             )
 
-            Spacer(Modifier.height(4.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(if (isRunning) Color(0xFF4CAF50) else Color(0xFF9E9E9E)))
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    if (isRunning) "Active" else "Idle",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                )
-            }
-
-            if (cwd.isNotBlank()) {
-                Spacer(Modifier.height(12.dp))
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                    modifier = Modifier.widthIn(max = 200.dp),
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                color = colorScheme.surfaceContainerHigh,
+            ) {
+                Column(
+                    modifier = Modifier.padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Outlined.Folder, contentDescription = null, modifier = Modifier.size(12.dp), tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
-                        Spacer(Modifier.width(4.dp))
                         Text(
-                            cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
+                            text = "Agent:",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = agentName,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colorScheme.onSurface
+                        )
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(if (isRunning) Color(0xFF4CAF50) else Color(0xFF9E9E9E))
+                        )
+                        Text(
+                            text = if (isRunning) "Active" else "Idle",
                             style = MaterialTheme.typography.labelSmall,
-                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Workspace:",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = cwd,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colorScheme.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
                         )
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Bridge status:",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = if (bridgeOnline) "Online ($bridgeTools tools, $bridgeClients clients)" else "Offline",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (bridgeOnline) colorScheme.primary else colorScheme.error
+                        )
+                    }
+
+                    if (transcript.isNotBlank()) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Transcript:",
+                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "${transcript.trim().split("\n").size} lines",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colorScheme.onSurface
+                            )
+                        }
                     }
                 }
             }
 
-            if (transcript.isNotBlank()) {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    "Previous session available",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = colorScheme.primary.copy(alpha = 0.7f),
-                )
-            }
+            HorizontalDivider(
+                color = colorScheme.outlineVariant.copy(alpha = 0.12f),
+                thickness = 0.5.dp
+            )
 
-            Spacer(Modifier.height(20.dp))
-
-            Button(
-                onClick = onStart,
-                shape = MaterialTheme.shapes.large,
-                contentPadding = PaddingValues(horizontal = 28.dp, vertical = 10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Outlined.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Start Agent", style = MaterialTheme.typography.labelLarge)
+                Button(
+                    onClick = onStart,
+                    modifier = Modifier.weight(1f),
+                    shape = MaterialTheme.shapes.medium,
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    Icon(Icons.Outlined.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(if (transcript.isNotBlank()) "Resume" else "Start Agent", style = MaterialTheme.typography.labelSmall)
+                }
+
+                if (transcript.isNotBlank()) {
+                    OutlinedButton(
+                        onClick = onToggleTranscript,
+                        modifier = Modifier.weight(1f),
+                        shape = MaterialTheme.shapes.medium,
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        Icon(Icons.Outlined.Description, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Show Log", style = MaterialTheme.typography.labelSmall)
+                    }
+
+                    OutlinedButton(
+                        onClick = onClearTranscript,
+                        modifier = Modifier.weight(1f),
+                        shape = MaterialTheme.shapes.medium,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = colorScheme.error),
+                        border = BorderStroke(1.dp, colorScheme.error.copy(alpha = 0.4f)),
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Clear Log", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
             }
         }
     }

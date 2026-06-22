@@ -36,6 +36,12 @@ import com.rk.utils.findGitRoot
 import com.rk.utils.getGitColor
 import java.io.File
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.text.font.FontFamily
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -60,9 +66,12 @@ fun GitPanel(
         derivedStateOf { gitChanges.count { it.isChecked } > 0 }
     }
 
-    var changes by remember { mutableStateOf(listOf<GitChange>()) }
-    var conflicts by remember { mutableStateOf(listOf<GitChange>()) }
-    var untracked by remember { mutableStateOf(listOf<GitChange>()) }
+    val staged = remember(gitChanges) { gitChanges.filter { it.isChecked } }
+    val unstaged = remember(gitChanges) { gitChanges.filter { !it.isChecked && it.type != ChangeType.UNTRACKED && it.type != ChangeType.CONFLICTING } }
+    val untrackedChanges = remember(gitChanges) { gitChanges.filter { !it.isChecked && it.type == ChangeType.UNTRACKED } }
+    val conflicts = remember(gitChanges) { gitChanges.filter { it.type == ChangeType.CONFLICTING } }
+
+    var stagedExpanded by remember { mutableStateOf(true) }
     var changesExpanded by remember { mutableStateOf(true) }
     var untrackedExpanded by remember { mutableStateOf(true) }
     var conflictsExpanded by remember { mutableStateOf(true) }
@@ -71,22 +80,6 @@ fun GitPanel(
         if (gitViewModel.currentRoot.value != null) {
             gitViewModel.loadCommitLog(maxCount = 10)
         }
-    }
-
-    LaunchedEffect(gitChanges) {
-        val trackedChanges = mutableListOf<GitChange>()
-        val conflictingChanges = mutableListOf<GitChange>()
-        val untrackedChanges = mutableListOf<GitChange>()
-        for (change in gitChanges) {
-            when (change.type) {
-                ChangeType.ADDED, ChangeType.MODIFIED, ChangeType.DELETED -> trackedChanges.add(change)
-                ChangeType.CONFLICTING -> conflictingChanges.add(change)
-                ChangeType.UNTRACKED -> untrackedChanges.add(change)
-            }
-        }
-        changes = trackedChanges
-        conflicts = conflictingChanges
-        untracked = untrackedChanges
     }
 
     val commitMessage = gitViewModel.currentRoot.value?.absolutePath?.let { gitViewModel.commitMessages[it] } ?: ""
@@ -134,23 +127,39 @@ fun GitPanel(
                             ConflictGroup(conflicts, conflictsExpanded, gitViewModel) { conflictsExpanded = !conflictsExpanded }
                         }
                     }
-                    item {
-                        ChangeGroup(
-                            label = stringResource(strings.changes),
-                            items = changes,
-                            expanded = changesExpanded,
-                            gitViewModel = gitViewModel,
-                            onToggle = { changesExpanded = !changesExpanded },
-                        )
+                    if (staged.isNotEmpty()) {
+                        item {
+                            ChangeGroup(
+                                label = "Staged Changes",
+                                items = staged,
+                                expanded = stagedExpanded,
+                                gitViewModel = gitViewModel,
+                                isStaged = true,
+                                onToggle = { stagedExpanded = !stagedExpanded },
+                            )
+                        }
                     }
-                    item {
-                        ChangeGroup(
-                            label = stringResource(strings.untracked),
-                            items = untracked,
-                            expanded = untrackedExpanded,
-                            gitViewModel = gitViewModel,
-                            onToggle = { untrackedExpanded = !untrackedExpanded },
-                        )
+                    if (unstaged.isNotEmpty()) {
+                        item {
+                            ChangeGroup(
+                                label = stringResource(strings.changes),
+                                items = unstaged,
+                                expanded = changesExpanded,
+                                gitViewModel = gitViewModel,
+                                onToggle = { changesExpanded = !changesExpanded },
+                            )
+                        }
+                    }
+                    if (untrackedChanges.isNotEmpty()) {
+                        item {
+                            ChangeGroup(
+                                label = stringResource(strings.untracked),
+                                items = untrackedChanges,
+                                expanded = untrackedExpanded,
+                                gitViewModel = gitViewModel,
+                                onToggle = { untrackedExpanded = !untrackedExpanded },
+                            )
+                        }
                     }
                 }
             } else {
@@ -563,6 +572,7 @@ private fun ChangeGroup(
     items: List<GitChange>,
     expanded: Boolean,
     gitViewModel: GitViewModel,
+    isStaged: Boolean = false,
     onToggle: () -> Unit,
 ) {
     if (items.isEmpty()) return
@@ -604,29 +614,61 @@ private fun ChangeGroup(
             Spacer(Modifier.width(6.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = if (isStaged) colorScheme.primary else colorScheme.onSurface,
             )
         }
         AnimatedVisibility(visible = expanded) {
-            ChangesItemList(items, gitViewModel, colorScheme)
+            ChangesItemList(items, gitViewModel, colorScheme, isStaged = isStaged)
         }
         Spacer(Modifier.height(4.dp))
     }
 }
 
 @Composable
-private fun ChangesItemList(items: List<GitChange>, gitViewModel: GitViewModel, colorScheme: ColorScheme) {
+private fun ChangesItemList(
+    items: List<GitChange>,
+    gitViewModel: GitViewModel,
+    colorScheme: ColorScheme,
+    isStaged: Boolean = false
+) {
     Column(modifier = Modifier.padding(start = 36.dp, end = 8.dp)) {
         items.forEach { change ->
             var expanded by remember { mutableStateOf(false) }
+            var diffText by remember { mutableStateOf<String?>(null) }
+            var isDiffLoading by remember { mutableStateOf(false) }
 
-            Column(modifier = Modifier.fillMaxWidth()) {
+            LaunchedEffect(expanded) {
+                if (expanded && diffText == null) {
+                    isDiffLoading = true
+                    diffText = withContext(Dispatchers.IO) {
+                        gitViewModel.getDiffForFile(change.path)
+                    }
+                    isDiffLoading = false
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (isStaged) {
+                            Modifier.background(
+                                color = colorScheme.primaryContainer.copy(alpha = 0.08f),
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
+            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 1.dp),
+                        .clickable { expanded = !expanded }
+                        .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Checkbox(
@@ -641,7 +683,7 @@ private fun ChangesItemList(items: List<GitChange>, gitViewModel: GitViewModel, 
 
                     Text(
                         text = fileName,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                         color = gitColor ?: colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -660,6 +702,65 @@ private fun ChangesItemList(items: List<GitChange>, gitViewModel: GitViewModel, 
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.widthIn(max = 120.dp),
                     )
+
+                    Icon(
+                        painter = painterResource(drawables.chevron_right),
+                        contentDescription = "Expand diff",
+                        tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        modifier = Modifier
+                            .size(16.dp)
+                            .rotate(if (expanded) 90f else 0f)
+                    )
+                }
+
+                AnimatedVisibility(visible = expanded) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .heightIn(max = 200.dp),
+                        shape = MaterialTheme.shapes.small,
+                        color = colorScheme.surfaceContainerLow,
+                        border = BorderStroke(0.5.dp, colorScheme.outlineVariant.copy(alpha = 0.3f))
+                    ) {
+                        if (isDiffLoading) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                            }
+                        } else if (diffText.isNullOrBlank()) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("No diff details available.", style = MaterialTheme.typography.labelSmall)
+                            }
+                        } else {
+                            val scrollState = rememberScrollState()
+                            Column(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .verticalScroll(scrollState)
+                            ) {
+                                diffText!!.split("\n").forEach { line ->
+                                    val color = when {
+                                        line.startsWith("+") && !line.startsWith("+++") -> Color(0xFF2E7D32)
+                                        line.startsWith("-") && !line.startsWith("---") -> Color(0xFFC62828)
+                                        line.startsWith("@@") -> colorScheme.primary
+                                        line.startsWith("diff") || line.startsWith("index") -> colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                        else -> colorScheme.onSurface
+                                    }
+                                    Text(
+                                        text = line,
+                                        style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                                        color = color
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

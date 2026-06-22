@@ -684,12 +684,37 @@ class GitViewModel : ViewModel() {
         return try {
             Git.open(currentRoot.value).use { git ->
                 val repository = git.repository
-                val head = repository.resolve("HEAD")
-                val treeWalk = org.eclipse.jgit.treewalk.TreeWalk(repository)
-                treeWalk.addTree(head)
-                treeWalk.filter = org.eclipse.jgit.treewalk.filter.PathFilter.create(filePath)
-                treeWalk.isRecursive = true
-                "Diff available for $filePath"
+                val out = java.io.ByteArrayOutputStream()
+                org.eclipse.jgit.diff.DiffFormatter(out).use { df ->
+                    df.setRepository(repository)
+                    df.setPathFilter(org.eclipse.jgit.treewalk.filter.PathFilter.create(filePath))
+                    val head = repository.resolve("HEAD")
+                    if (head != null) {
+                        val headCommit = repository.parseCommit(head)
+                        val headTree = headCommit.tree
+                        val workTreeIterator = org.eclipse.jgit.treewalk.FileTreeIterator(repository)
+                        val entries = df.scan(headTree, workTreeIterator)
+                        df.format(entries)
+                        val diff = out.toString("UTF-8")
+                        if (diff.isBlank()) {
+                            val file = File(currentRoot.value, filePath)
+                            if (file.exists() && file.isFile) {
+                                file.readLines().joinToString("\n") { "+ $it" }
+                            } else {
+                                null
+                            }
+                        } else {
+                            diff
+                        }
+                    } else {
+                        val file = File(currentRoot.value, filePath)
+                        if (file.exists() && file.isFile) {
+                            file.readLines().joinToString("\n") { "+ $it" }
+                        } else {
+                            null
+                        }
+                    }
+                }
             }
         } catch (e: Exception) {
             null
