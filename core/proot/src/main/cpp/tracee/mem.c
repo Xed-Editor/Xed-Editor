@@ -40,6 +40,7 @@
 #include "arch.h"            /* word_t, NO_MISALIGNED_ACCESS */
 #include "build.h"           /* HAVE_PROCESS_VM,  */
 #include "cli/note.h"
+#include "compat.h"
 
 #ifdef HAS_POKEDATA_WORKAROUND
 
@@ -217,6 +218,7 @@ void mem_prepare_before_first_execve(Tracee *tracee)
  */
 int write_data(Tracee *tracee, word_t dest_tracee, const void *src_tracer, word_t size)
 {
+	dest_tracee = untag_pointer(dest_tracee);
 	word_t *src  = (word_t *)src_tracer;
 	word_t *dest = (word_t *)dest_tracee;
 
@@ -298,6 +300,7 @@ int write_data(Tracee *tracee, word_t dest_tracee, const void *src_tracer, word_
  */
 int writev_data(Tracee *tracee, word_t dest_tracee, const struct iovec *src_tracer, int src_tracer_count)
 {
+	dest_tracee = untag_pointer(dest_tracee);
 	size_t size;
 	int status;
 	int i;
@@ -337,6 +340,7 @@ int writev_data(Tracee *tracee, word_t dest_tracee, const struct iovec *src_trac
  */
 int read_data(const Tracee *tracee, void *dest_tracer, word_t src_tracee, word_t size)
 {
+	src_tracee = untag_pointer(src_tracee);
 	word_t *src  = (word_t *)src_tracee;
 	word_t *dest = (word_t *)dest_tracer;
 
@@ -411,6 +415,7 @@ int read_data(const Tracee *tracee, void *dest_tracer, word_t src_tracee, word_t
  */
 int read_string(const Tracee *tracee, char *dest_tracer, word_t src_tracee, word_t max_size)
 {
+	src_tracee = untag_pointer(src_tracee);
 	word_t *src  = (word_t *)src_tracee;
 	word_t *dest = (word_t *)dest_tracer;
 
@@ -542,6 +547,7 @@ fallback:
  */
 word_t peek_word(const Tracee *tracee, word_t address)
 {
+	address = untag_pointer(address);
 	word_t result = 0;
 
 #if defined(HAVE_PROCESS_VM)
@@ -585,6 +591,7 @@ word_t peek_word(const Tracee *tracee, word_t address)
  */
 void poke_word(const Tracee *tracee, word_t address, word_t value)
 {
+	address = untag_pointer(address);
 	word_t tmp;
 
 #if defined(HAVE_PROCESS_VM)
@@ -679,6 +686,7 @@ word_t alloc_mem(Tracee *tracee, ssize_t size)
  */
 int clear_mem(Tracee *tracee, word_t address, size_t size)
 {
+	address = untag_pointer(address);
 	int status;
 	void *zeros;
 

@@ -146,6 +146,7 @@ dependencies {
     implementation(project(":editor-lsp"))
     implementation(project(":language-textmate"))
     implementation(project(":core:proot"))
+    implementation(project(":core:link2symlink"))
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

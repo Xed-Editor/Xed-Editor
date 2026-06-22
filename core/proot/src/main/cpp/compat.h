@@ -275,4 +275,13 @@ struct proot_open_how {
 	unsigned long long resolve;
 };
 
+static inline unsigned long untag_pointer(unsigned long addr)
+{
+#if defined(__aarch64__)
+	return addr & 0x00FFFFFFFFFFFFFFULL;
+#else
+	return addr;
+#endif
+}
+
 #endif /* COMPAT_H */
