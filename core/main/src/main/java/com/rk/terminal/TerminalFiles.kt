@@ -31,7 +31,7 @@ fun setupTerminalFiles() {
         }
     }
 
-    val internalFiles = listOf("init", "sandbox", "setup", "utils", "gemini-cli", "gemini-cli-headless", "opencode-cli", "opencode-cli-headless", "antigravity-cli", "antigravity-cli-headless", "codex-cli", "codex-cli-headless", "xdg-open", "vim", "code")
+    val internalFiles = listOf("init", "sandbox", "setup", "utils", "gemini-cli", "gemini-cli-headless", "opencode-cli", "opencode-cli-headless", "antigravity-cli", "antigravity-cli-headless", "codex-cli", "codex-cli-headless", "claude-cli", "claude-cli-headless", "xdg-open", "vim", "code")
     internalFiles.forEach { setupAssetFile(it) }
 
     application!!.assets.list("terminal/lsp")?.forEach { setupLspFile(it.removeSuffix(".sh")) }

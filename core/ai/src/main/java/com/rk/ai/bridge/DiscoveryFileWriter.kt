@@ -44,6 +44,7 @@ object DiscoveryFileWriter {
             writeGeminiConfig(info)
             writeCodexConfig(info)
             writeAntigravityConfig(info)
+            writeClaudeConfig(info)
             writeDiscoveryFiles(info, pid, url, jsonText)
         }
     }
@@ -170,6 +171,38 @@ object DiscoveryFileWriter {
         }
     }
 
+    private fun writeClaudeConfig(info: BridgeInfo) {
+        runCatching {
+            val configDir = sandboxHomeDir().let { File(it, ".claude") }
+            configDir.mkdirs()
+            val configFile = File(configDir, "settings.json")
+
+            val existingElement = runCatching { jsonFormat.parseToJsonElement(configFile.readText()) }.getOrNull()
+            val existingObj = existingElement?.jsonObject ?: buildJsonObject {}
+
+            val newObj = buildJsonObject {
+                existingObj.forEach { key, value ->
+                    if (key != "mcpServers") put(key, value)
+                }
+
+                val existingMcpServers = existingObj["mcpServers"]?.jsonObject ?: buildJsonObject {}
+                putJsonObject("mcpServers") {
+                    existingMcpServers.forEach { key, value ->
+                        if (key != "xed-ide") put(key, value)
+                    }
+                    putJsonObject("xed-ide") {
+                        put("url", "http://${info.host}:${info.port}/mcp")
+                        put("type", "remote")
+                        putJsonObject("headers") {
+                            put("Authorization", "Bearer ${info.token}")
+                        }
+                    }
+                }
+            }
+            configFile.writeText(jsonFormat.encodeToString(newObj))
+        }
+    }
+
     private fun writeAntigravityConfig(info: BridgeInfo) {
         val configDirs = listOf(
             sandboxHomeDir().let { File(it, ".gemini/antigravity-cli") },
@@ -213,7 +246,7 @@ object DiscoveryFileWriter {
 
     private fun writeDiscoveryFiles(info: BridgeInfo, pid: Int, url: String, jsonText: String) {
         val tmpDir = getTempDir()
-        val agentSheetDirs = listOf("gemini", "opencode", "antigravity", "codex")
+        val agentSheetDirs = listOf("gemini", "opencode", "antigravity", "codex", "claude")
         val dirs = mutableListOf<File>().apply {
             AiConfig.Discovery.discoveryDirs.forEach { add(File(tmpDir, it)) }
             add(File(AiConfig.Discovery.tmpDiscoveryDir))

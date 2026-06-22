@@ -319,6 +319,49 @@ CODEX_MCP
         fi
       fi
       ;;
+    claude)
+      export CLAUDE_IDE_SERVER_PORT="$port"
+      export CLAUDE_IDE_AUTH_TOKEN="$token"
+      export CLAUDE_CODE_IDE_SERVER_PORT="$port"
+      export CLAUDE_CODE_IDE_AUTH_TOKEN="$token"
+      mkdir -p "$HOME/.claude"
+      if ! XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" XED_MCP_FILE="$HOME/.claude/settings.json" python3 - <<'PY_MCP' 2>/dev/null
+import json, os
+path = os.environ['XED_MCP_FILE']
+port = os.environ['XED_MCP_PORT']
+token = os.environ['XED_MCP_TOKEN']
+try:
+    with open(path) as f:
+        cfg = json.load(f)
+except Exception:
+    cfg = {}
+existing_mcp = cfg.setdefault('mcpServers', {})
+existing_mcp['xed-ide'] = {
+    'url': f'http://127.0.0.1:{port}/mcp',
+    'type': 'remote',
+    'headers': {'Authorization': f'Bearer {token}'},
+}
+with open(path, 'w') as f:
+    json.dump(cfg, f, indent=2)
+PY_MCP
+      then
+        if [ ! -s "$HOME/.claude/settings.json" ]; then
+          cat > "$HOME/.claude/settings.json" <<CLAUDE_MCP
+{
+  "mcpServers": {
+    "xed-ide": {
+      "url": "http://127.0.0.1:${port}/mcp",
+      "type": "remote",
+      "headers": {
+        "Authorization": "Bearer ${token}"
+      }
+    }
+  }
+}
+CLAUDE_MCP
+        fi
+      fi
+      ;;
     *)
       return 0
       ;;

@@ -55,5 +55,6 @@ object AgentProfileManager {
         AgentProfile(name = "OpenCode", agentType = "opencode"),
         AgentProfile(name = "Antigravity", agentType = "antigravity"),
         AgentProfile(name = "Codex", agentType = "codex"),
+        AgentProfile(name = "Claude Code", agentType = "claude"),
     )
 }

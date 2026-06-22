@@ -10,6 +10,7 @@ object AgentTypeRegistry {
         agents["opencode"] = OpenCodeAgent
         agents["antigravity"] = AntigravityAgent
         agents["codex"] = CodexAgent
+        agents["claude"] = ClaudeCodeAgent
     }
 
     fun register(agent: AiAgent) {

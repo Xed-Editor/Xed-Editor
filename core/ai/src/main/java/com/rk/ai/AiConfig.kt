@@ -32,6 +32,7 @@ object AiConfig {
             "terminal/opencode-sheet/opencode/ide",
             "terminal/antigravity-sheet/antigravity/ide",
             "terminal/codex-sheet/codex/ide",
+            "terminal/claude-sheet/claude/ide",
             "ide-bridge",
         )
 
@@ -58,6 +59,7 @@ object AiConfig {
         const val opencodeName = "opencode"
         const val antigravityName = "antigravity"
         const val codexName = "codex"
+        const val claudeName = "claude"
     }
 
     object ProjectDetection {

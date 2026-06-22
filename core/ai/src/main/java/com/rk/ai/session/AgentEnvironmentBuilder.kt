@@ -89,6 +89,14 @@ object AgentEnvironmentBuilder {
             "ANTIGRAVITY_IDE_AUTH_TOKEN=${bridge.token}",
             "ANTIGRAVITY_IDE_PID=${Process.myPid()}",
             "ANTIGRAVITY_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
+            "CLAUDE_IDE_SERVER_PORT=${bridge.port}",
+            "CLAUDE_IDE_AUTH_TOKEN=${bridge.token}",
+            "CLAUDE_IDE_PID=${Process.myPid()}",
+            "CLAUDE_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
+            "CLAUDE_CODE_IDE_SERVER_PORT=${bridge.port}",
+            "CLAUDE_CODE_IDE_AUTH_TOKEN=${bridge.token}",
+            "CLAUDE_CODE_IDE_PID=${Process.myPid()}",
+            "CLAUDE_CODE_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
             "IDE_SERVER_PORT=${bridge.port}",
             "IDE_AUTH_TOKEN=${bridge.token}",
             "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
@@ -133,6 +141,12 @@ object AgentEnvironmentBuilder {
         appendLine("export ANTIGRAVITY_IDE_SERVER_PORT=${bridge.port}")
         appendLine("export ANTIGRAVITY_IDE_AUTH_TOKEN=${bridge.token}")
         appendLine("export ANTIGRAVITY_IDE_PID=${Process.myPid()}")
+        appendLine("export CLAUDE_IDE_SERVER_PORT=${bridge.port}")
+        appendLine("export CLAUDE_IDE_AUTH_TOKEN=${bridge.token}")
+        appendLine("export CLAUDE_IDE_PID=${Process.myPid()}")
+        appendLine("export CLAUDE_CODE_IDE_SERVER_PORT=${bridge.port}")
+        appendLine("export CLAUDE_CODE_IDE_AUTH_TOKEN=${bridge.token}")
+        appendLine("export CLAUDE_CODE_IDE_PID=${Process.myPid()}")
         appendLine("export MCP_PORT=${bridge.port}")
         appendLine("export MCP_AUTH_TOKEN=${bridge.token}")
     }
@@ -158,6 +172,14 @@ object AgentEnvironmentBuilder {
         "ANTIGRAVITY_IDE_AUTH_TOKEN=${bridge.token}",
         "ANTIGRAVITY_IDE_PID=${Process.myPid()}",
         "ANTIGRAVITY_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
+        "CLAUDE_IDE_SERVER_PORT=${bridge.port}",
+        "CLAUDE_IDE_AUTH_TOKEN=${bridge.token}",
+        "CLAUDE_IDE_PID=${Process.myPid()}",
+        "CLAUDE_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
+        "CLAUDE_CODE_IDE_SERVER_PORT=${bridge.port}",
+        "CLAUDE_CODE_IDE_AUTH_TOKEN=${bridge.token}",
+        "CLAUDE_CODE_IDE_PID=${Process.myPid()}",
+        "CLAUDE_CODE_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
         "IDE_SERVER_PORT=${bridge.port}",
         "IDE_AUTH_TOKEN=${bridge.token}",
         "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",

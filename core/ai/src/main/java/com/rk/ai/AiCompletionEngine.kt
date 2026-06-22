@@ -89,6 +89,16 @@ object AiCompletionEngine {
                     model = "gpt-4.1-mini",
                 )
             }
+            "claude" -> {
+                val key = Settings.ai_api_key.ifBlank {
+                    System.getenv("ANTHROPIC_API_KEY") ?: return null
+                }
+                ApiConfig(
+                    url = Settings.ai_completion_url.ifBlank { "https://api.anthropic.com/v1/messages" },
+                    apiKey = key,
+                    model = "claude-sonnet-4-20250514",
+                )
+            }
             else -> {
                 val key = Settings.ai_api_key.ifBlank { return null }
                 ApiConfig(
