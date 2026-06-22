@@ -682,4 +682,5 @@
     <string name="samsung_proot_warning">Il tuo dispositivo Samsung è interessato da un problema noto che causa il fallimento dell\'installazione del terminale basato su PRoot.</string>
     <string name="terminal_degraded_warning">Il terminale è attualmente in esecuzione in una modalità degradata, a causa di un problema di compatibilità noto dovuto da un malfunzionamento nell\'ambiente PRoot su alcuni dispositivi. Alcune funzionalità potrebbero essere limitate o funzionare in maniera diversa.</string>
     <string name="disabled_crashed">Disabilitato (In crash)</string>
+    <string name="seccomp_unspecified">Non specificato</string>
 </resources>
