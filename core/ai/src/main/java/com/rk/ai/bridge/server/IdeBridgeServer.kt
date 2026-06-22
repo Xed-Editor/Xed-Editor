@@ -69,9 +69,8 @@ class IdeBridgeServer(
     private fun initStitcher() {
         stitcher.setOnToolsChanged { externalTools ->
             synchronized(this) {
-                val externalNames = externalTools.map { it.name }.toSet()
-                val toRemove = toolRegistry.listNames().filter { it.startsWith("stitch_") && it !in externalNames }
-                toRemove.forEach { toolRegistry.get(it) }
+                val externalNames: Set<String> = externalTools.map { it.name }.toSet()
+                val toRemove: Set<String> = toolRegistry.listNames().filter { it.startsWith("stitch_") && it !in externalNames }
                 externalTools.forEach { toolRegistry.register(it) }
             }
             if (BuildConfig.DEBUG) {
@@ -139,6 +138,7 @@ class IdeBridgeServer(
             register(SemanticSearchTool())
             register(CustomInstructionsTool()); register(AgentWorkflowTool())
             register(PlanModeTool()); register(DependencyAnalyzerTool())
+            register(McpStitcherConfigTool())
         }
     }
 

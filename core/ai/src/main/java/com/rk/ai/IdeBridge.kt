@@ -99,7 +99,9 @@ object IdeBridge {
                 val t = synchronized(stateLock) { token }
                 if (s != null && t != null) {
                     writeDiscoveryFile(host, s.port, t, workspacePathForResolution())
-                    server?.stitcher?.connectFromConfigFile(path)
+                }
+                if (s != null) {
+                    s.stitcher.connectFromConfigFile(path)
                 }
             }
         }
@@ -125,9 +127,8 @@ object IdeBridge {
 
     fun workspacePaths(): List<String> = synchronized(workspacePathsLock) { workspacePaths.toList() }
 
-    fun refreshStitcherForWorkspace(path: String) {
-        val s = synchronized(stateLock) { server }
-        s?.stitcher?.connectFromConfigFile(path)
+    fun refreshStitcher() {
+        synchronized(stateLock) { server?.refreshStitcher() }
     }
 
     private fun newToken(): String {

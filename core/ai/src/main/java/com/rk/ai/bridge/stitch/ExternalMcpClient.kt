@@ -30,14 +30,14 @@ class ExternalMcpClient(
     val serverName: String,
     val baseUrl: String,
     private val apiKey: String?,
-    private val timeoutMs: Long = 60_000L,
+    val timeoutMs: Long = 60_000L,
 ) {
     private val gson = GsonBuilder().create()
     private val requestIdCounter = ConcurrentHashMap<String, Int>()
 
     private fun nextId(): String {
         val prefix = "xed-stitch-"
-        val counter = requestIdCounter.merge(prefix, 1) { old -> old + 1 }
+        val counter = requestIdCounter.merge(prefix, 1) { _, old -> old + 1 }
         return "$prefix$counter-${UUID.randomUUID().toString().take(8)}"
     }
 

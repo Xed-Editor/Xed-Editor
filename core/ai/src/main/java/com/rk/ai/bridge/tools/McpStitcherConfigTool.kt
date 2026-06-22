@@ -1,7 +1,7 @@
 package com.rk.ai.bridge.tools
 
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.rk.ai.IdeBridge
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 import com.rk.ai.bridge.stitch.ExternalMcpConfig
@@ -12,7 +12,7 @@ import com.rk.settings.Settings
 class McpStitcherConfigTool : BaseMcpTool() {
     override fun getCategory(): String = "MCP Stitcher"
     override fun getName(): String = "mcpStitcher"
-    override fun getDescription(): String = "Manage external MCP server connections. Actions: list, add, remove, refresh. External MCP servers expose their tools through the Xed IDE bridge so AI agents can use them."
+    override fun getDescription(): String = "Manage external MCP server connections. Actions: list, add, remove, refresh."
 
     override fun getRequiredParams(): Map<String, String> = mapOf("action" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -49,20 +49,18 @@ class McpStitcherConfigTool : BaseMcpTool() {
         if (config.mcpServers.isEmpty()) {
             return McpToolResult.success("No external MCP servers configured.")
         }
-        return McpToolResult.success(
-            buildString {
-                appendLine("Configured external MCP servers (${config.mcpServers.size}):")
-                config.mcpServers.forEach { (name, cfg) ->
-                    appendLine("  $name")
-                    appendLine("    URL: ${cfg.url}")
-                    appendLine("    Auth: ${if (cfg.apiKey != null) "configured" else "none"}")
-                    appendLine("    Enabled: ${cfg.enabled}")
-                    appendLine("    Timeout: ${cfg.timeoutMs}ms")
-                }
-                appendLine()
-                appendLine("To connect, run again with action='refresh' or restart the AI session.")
+        val lines = buildString {
+            appendLine("Configured external MCP servers (${config.mcpServers.size}):")
+            config.mcpServers.forEach { (name, cfg) ->
+                appendLine("  $name")
+                appendLine("    URL: ${cfg.url}")
+                appendLine("    Auth: ${if (cfg.apiKey != null) "configured" else "none"}")
+                appendLine("    Enabled: ${cfg.enabled}")
+                appendLine("    Timeout: ${cfg.timeoutMs}ms")
             }
-        )
+            appendLine()
+        }
+        return McpToolResult.success(lines)
     }
 
     private fun addServer(args: JsonObject): McpToolResult {
@@ -84,9 +82,9 @@ class McpStitcherConfigTool : BaseMcpTool() {
             name = name, url = url, apiKey = apiKey, enabled = enabled
         ))
         saveConfig(config)
-        triggerRefresh()
+        IdeBridge.refreshStitcher()
 
-        return McpToolResult.success("Added MCP server '$name' at $url. Use action='refresh' to connect immediately.")
+        return McpToolResult.success("Added MCP server '$name' at $url and refreshed stitcher.")
     }
 
     private fun removeServer(args: JsonObject): McpToolResult {
@@ -96,12 +94,12 @@ class McpStitcherConfigTool : BaseMcpTool() {
         if (name !in config.mcpServers) return McpToolResult.error("Server '$name' not found")
         config = ExternalMcpConfigLoader.removeServer(config, name)
         saveConfig(config)
-        triggerRefresh()
+        IdeBridge.refreshStitcher()
         return McpToolResult.success("Removed MCP server '$name'.")
     }
 
     private fun refreshServers(): McpToolResult {
-        triggerRefresh()
+        IdeBridge.refreshStitcher()
         val config = loadConfig()
         return McpToolResult.success("Refreshed MCP server connections. ${config.mcpServers.size} servers configured.")
     }
@@ -112,11 +110,5 @@ class McpStitcherConfigTool : BaseMcpTool() {
 
     private fun saveConfig(config: ExternalMcpConfig) {
         Settings.ai_mcp_servers_config = ExternalMcpConfigLoader.save(config)
-    }
-
-    private fun triggerRefresh() {
-        runCatching {
-            com.rk.ai.IdeBridge.refreshStitcherForWorkspace(com.rk.ai.IdeBridge.primaryWorkspacePath())
-        }
     }
 }
