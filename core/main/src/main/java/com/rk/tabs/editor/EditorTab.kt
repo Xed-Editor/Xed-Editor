@@ -144,8 +144,14 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         autoSaveJob = null
         scope.cancel()
         editorState.content = null
-        editorState.editor.get()?.setText("")
-        editorState.editor.get()?.release()
+        editorState.editor.get()?.let { editor ->
+            // Stop the TextMateAnalyzer's LooperThread before release to prevent
+            // memory leaks via ContentReference -> Content -> contentListeners -> View
+            runCatching { editor.setEditorLanguage(null) }
+            editor.setText("")
+            editor.release()
+        }
+        editorState.editor.clear()
         AppScope.launch(Dispatchers.IO) { lspConnector?.disconnect() }
     }
 

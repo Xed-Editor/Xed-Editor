@@ -93,23 +93,43 @@ object ShellUtils {
             val stdout = StringBuilder(1024)
             val stderr = StringBuilder(512)
 
-            val outputThread = Thread {
-                readStream(process.inputStream, stdout)
-            }
-            val errorThread = Thread {
-                readStream(process.errorStream, stderr)
-            }
+            val outputThread = Thread(null, {
+                runCatching {
+                    BufferedReader(InputStreamReader(process.inputStream), BUFFER_SIZE).use { reader ->
+                        val buf = CharArray(BUFFER_SIZE)
+                        var read: Int
+                        while (reader.read(buf).also { read = it } != -1) {
+                            stdout.append(buf, 0, read)
+                        }
+                    }
+                }
+            }, "shell-stdout").apply { isDaemon = true }
+
+            val errorThread = Thread(null, {
+                runCatching {
+                    BufferedReader(InputStreamReader(process.errorStream), BUFFER_SIZE).use { reader ->
+                        val buf = CharArray(BUFFER_SIZE)
+                        var read: Int
+                        while (reader.read(buf).also { read = it } != -1) {
+                            stderr.append(buf, 0, read)
+                        }
+                    }
+                }
+            }, "shell-stderr").apply { isDaemon = true }
 
             outputThread.start()
             errorThread.start()
 
-            val timedOut =
+            val timedOut = try {
                 if (timeoutSeconds != null) {
                     !process.waitFor(timeoutSeconds, TimeUnit.SECONDS)
                 } else {
                     process.waitFor()
                     false
                 }
+            } catch (_: InterruptedException) {
+                true
+            }
 
             if (timedOut) process.destroyForcibly()
 
@@ -117,24 +137,24 @@ object ShellUtils {
             errorThread.join(2000)
 
             Result(
-                exitCode = if (timedOut) -1 else process.exitValue(),
+                exitCode = if (timedOut) -1 else runCatching { process.exitValue() }.getOrDefault(-1),
                 output = stdout.trimEnd().toString(),
                 error = stderr.trimEnd().toString(),
                 timedOut = timedOut,
             )
         }
 
+    // Note: readStream is kept for backward compatibility but executeAndRead now inlines the logic
+    // with runCatching for cleaner thread-safe exception handling.
     private fun readStream(stream: java.io.InputStream, sb: StringBuilder) {
-        val buf = CharArray(BUFFER_SIZE)
-        try {
+        runCatching {
+            val buf = CharArray(BUFFER_SIZE)
             BufferedReader(InputStreamReader(stream), BUFFER_SIZE).use { reader ->
                 var read: Int
                 while (reader.read(buf).also { read = it } != -1) {
                     sb.append(buf, 0, read)
                 }
             }
-        } catch (e: java.io.IOException) {
-            // Stream was closed or read was interrupted, ignore and exit cleanly
         }
     }
 }
