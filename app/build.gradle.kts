@@ -15,7 +15,7 @@ android {
         applicationId = "com.rk.xededitor"
         minSdk = 26
 
-        targetSdk = 34
+        targetSdk = 37
 
         // versioning
         versionCode = 95
