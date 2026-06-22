@@ -49,36 +49,75 @@ fun VibeCodingMessageBubble(
             .padding(horizontal = 12.dp, vertical = 4.dp),
         horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
     ) {
-        // Action buttons row (shown above message)
+        // Action buttons & header row (shown above message)
         Row(
-            modifier = Modifier.padding(bottom = 2.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 2.dp, start = 4.dp, end = 4.dp),
+            horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (!isUser && onCopy != null) {
-                val textToCopy = message.toText()
-                IconButton(
-                    onClick = { onCopy(textToCopy) },
-                    modifier = Modifier.size(20.dp),
-                ) {
-                    Icon(
-                        Icons.Outlined.ContentCopy,
-                        contentDescription = "Copy",
-                        modifier = Modifier.size(12.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                    )
-                }
+            val roleText = if (isUser) "User" else "Assistant"
+            val timeText = with(message.createdAt) {
+                val h = hour.toString().padStart(2, '0')
+                val m = minute.toString().padStart(2, '0')
+                val s = second.toString().padStart(2, '0')
+                "[$h:$m:$s]"
             }
-            if (onDelete != null) {
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(20.dp),
-                ) {
-                    Icon(
-                        Icons.Outlined.Delete,
-                        contentDescription = "Delete",
-                        modifier = Modifier.size(12.dp),
-                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
-                    )
+
+            if (isUser) {
+                if (onDelete != null) {
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(20.dp),
+                    ) {
+                        Icon(
+                            Icons.Outlined.Delete,
+                            contentDescription = "Delete",
+                            modifier = Modifier.size(12.dp),
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
+                        )
+                    }
+                    Spacer(Modifier.width(6.dp))
+                }
+                Text(
+                    text = "$roleText $timeText",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
+            } else {
+                Text(
+                    text = "$roleText $timeText",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
+                Spacer(Modifier.width(6.dp))
+                if (onCopy != null) {
+                    val textToCopy = message.toText()
+                    IconButton(
+                        onClick = { onCopy(textToCopy) },
+                        modifier = Modifier.size(20.dp),
+                    ) {
+                        Icon(
+                            Icons.Outlined.ContentCopy,
+                            contentDescription = "Copy",
+                            modifier = Modifier.size(12.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        )
+                    }
+                }
+                if (onDelete != null) {
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(20.dp),
+                    ) {
+                        Icon(
+                            Icons.Outlined.Delete,
+                            contentDescription = "Delete",
+                            modifier = Modifier.size(12.dp),
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
+                        )
+                    }
                 }
             }
         }

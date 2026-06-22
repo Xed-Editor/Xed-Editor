@@ -692,8 +692,16 @@ class GitViewModel : ViewModel() {
                     if (head != null) {
                         val headCommit = repository.parseCommit(head)
                         val headTree = headCommit.tree
+                        val headTreeIterator = org.eclipse.jgit.treewalk.CanonicalTreeParser().apply {
+                            val reader = repository.newObjectReader()
+                            try {
+                                reset(reader, headTree.id)
+                            } finally {
+                                reader.close()
+                            }
+                        }
                         val workTreeIterator = org.eclipse.jgit.treewalk.FileTreeIterator(repository)
-                        val entries = df.scan(headTree, workTreeIterator)
+                        val entries = df.scan(headTreeIterator, workTreeIterator)
                         df.format(entries)
                         val diff = out.toString("UTF-8")
                         if (diff.isBlank()) {

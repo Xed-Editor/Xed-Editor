@@ -23,6 +23,7 @@ fun XedBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
         sheetState = sheetState,
+        sheetMaxWidth = androidx.compose.ui.unit.Dp.Unspecified,
         shape = DesignTokens.BottomSheet.shape,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         contentColor = MaterialTheme.colorScheme.onSurface,

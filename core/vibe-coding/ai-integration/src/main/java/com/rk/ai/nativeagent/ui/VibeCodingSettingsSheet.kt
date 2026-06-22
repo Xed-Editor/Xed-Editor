@@ -73,6 +73,7 @@ fun VibeCodingSettingsSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        sheetMaxWidth = androidx.compose.ui.unit.Dp.Unspecified,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         contentColor = MaterialTheme.colorScheme.onSurface,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),

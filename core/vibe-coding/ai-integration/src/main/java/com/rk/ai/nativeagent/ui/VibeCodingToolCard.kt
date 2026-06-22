@@ -32,6 +32,22 @@ private const val MAX_PREVIEW_CHARS = 500
 private fun String.truncatePreview(): String =
     if (length > MAX_PREVIEW_CHARS) take(MAX_PREVIEW_CHARS) + "…" else this
 
+private fun calculateDiffImpact(diffText: String): Pair<Int, Int>? {
+    var additions = 0
+    var deletions = 0
+    var hasDiffLines = false
+    diffText.split("\n").forEach { line ->
+        if (line.startsWith("+") && !line.startsWith("+++")) {
+            additions++
+            hasDiffLines = true
+        } else if (line.startsWith("-") && !line.startsWith("---")) {
+            deletions++
+            hasDiffLines = true
+        }
+    }
+    return if (hasDiffLines) Pair(additions, deletions) else null
+}
+
 @Composable
 fun VibeCodingToolCard(
     part: UIMessagePart.Tool,
@@ -111,6 +127,24 @@ fun VibeCodingToolCard(
         } catch (_: Exception) { null }
     }
 
+    val impactBadge = remember(part.metadata, part.output) {
+        val previewDiff = part.metadata?.get("previewDiff")?.let {
+            try { it.jsonPrimitive.content } catch (e: Exception) { null }
+        }
+        if (previewDiff != null) {
+            calculateDiffImpact(previewDiff)
+        } else {
+            val diffTexts = part.output.filterIsInstance<UIMessagePart.Text>()
+                .map { it.text }
+            if (diffTexts.isNotEmpty()) {
+                val fullText = diffTexts.joinToString("\n")
+                if (fullText.contains("---") || fullText.contains("+++") || fullText.contains("@@")) {
+                    calculateDiffImpact(fullText)
+                } else null
+            } else null
+        }
+    }
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -177,6 +211,24 @@ fun VibeCodingToolCard(
                                     color = colorScheme.primary.copy(alpha = 0.7f),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                                )
+                            }
+                        }
+
+                        if (impactBadge != null) {
+                            Spacer(Modifier.width(4.dp))
+                            Surface(
+                                shape = RoundedCornerShape(3.dp),
+                                color = Color(0xFF2E7D32).copy(alpha = 0.1f),
+                            ) {
+                                Text(
+                                    text = "+${impactBadge.first}/-${impactBadge.second}",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = Color(0xFF2E7D32),
                                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
                                 )
                             }
