@@ -35,9 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.ai.AiProvider
-import com.rk.ai.bridge.external.ExternalMcpConfig
-import com.rk.ai.bridge.external.ExternalMcpConfigLoader
-import com.rk.ai.bridge.external.ExternalMcpServerConfig
+import com.rk.settings.mcp.ExternalMcpConfig
+import com.rk.settings.mcp.ExternalMcpConfigLoader
+import com.rk.settings.mcp.ExternalMcpServerConfig
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.utils.toast

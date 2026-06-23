@@ -4,9 +4,9 @@ import com.google.gson.JsonObject
 import com.rk.ai.IdeBridge
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
-import com.rk.ai.bridge.external.ExternalMcpConfig
-import com.rk.ai.bridge.external.ExternalMcpConfigLoader
-import com.rk.ai.bridge.external.ExternalMcpServerConfig
+import com.rk.settings.mcp.ExternalMcpConfig
+import com.rk.settings.mcp.ExternalMcpConfigLoader
+import com.rk.settings.mcp.ExternalMcpServerConfig
 import com.rk.settings.Settings
 
 class ExternalMcpConfigTool : BaseMcpTool() {

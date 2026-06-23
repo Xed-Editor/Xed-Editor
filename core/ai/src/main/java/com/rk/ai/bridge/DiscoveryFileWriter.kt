@@ -287,7 +287,7 @@ object DiscoveryFileWriter {
                     dir.listFiles { f -> f.name == AiConfig.Discovery.mcpExternalServersFile }?.forEach { configFile ->
                         runCatching {
                             val configText = configFile.readText()
-                            com.rk.ai.bridge.external.ExternalMcpConfigLoader.load(configText)
+                            com.rk.settings.mcp.ExternalMcpConfigLoader.load(configText)
                         }
                     }
                 }

@@ -1,11 +1,8 @@
-package com.rk.ai.bridge.external
+package com.rk.settings.mcp
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
 data class ExternalMcpServerConfig(

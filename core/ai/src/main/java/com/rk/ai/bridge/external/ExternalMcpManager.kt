@@ -3,6 +3,8 @@ package com.rk.ai.bridge.external
 import android.util.Log
 import com.rk.ai.AiConfig
 import com.rk.settings.Settings
+import com.rk.settings.mcp.ExternalMcpConfigLoader
+import com.rk.settings.mcp.ExternalMcpServerConfig
 import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
