@@ -55,7 +55,7 @@ class McpDispatcher(
             addProperty("name", "xed-ide-bridge")
             addProperty("version", "2.1.0")
         })
-        addProperty("instructions", "Call the 'getGuidelines' tool to learn about high-performance workflow patterns for this IDE.")
+        addProperty("instructions", "Call 'getGuidelines' for the full guide. This bridge has ~60+ built-in tools plus any connected external MCP tools (prefixed 'stitch_'). Use 'mcpStitcher' with 'action=list' to see connected external servers.")
     })
 
     private fun toolsListResult(id: JsonElement): String =

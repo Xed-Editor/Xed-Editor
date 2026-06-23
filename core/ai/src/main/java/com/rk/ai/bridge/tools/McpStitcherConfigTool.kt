@@ -12,7 +12,7 @@ import com.rk.settings.Settings
 class McpStitcherConfigTool : BaseMcpTool() {
     override fun getCategory(): String = "MCP Stitcher"
     override fun getName(): String = "mcpStitcher"
-    override fun getDescription(): String = "Manage external MCP server connections. Actions: list, add, remove, refresh."
+    override fun getDescription(): String = "Manage external MCP server connections. Connects to remote MCP servers (like Google Stitch) and makes their tools available with 'stitch_' prefix. Actions: list (view servers), add (connect new server with name, url, optional apiKey/headers), remove (disconnect), refresh (reconnect all). After adding a server, call refresh to make its tools available in tools/list."
 
     override fun getRequiredParams(): Map<String, String> = mapOf("action" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf(
