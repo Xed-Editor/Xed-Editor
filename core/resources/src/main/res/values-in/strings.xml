@@ -678,4 +678,5 @@
     <string name="seccomp_no_seccomp">Tanpa seccomp</string>
     <string name="seccomp_seccomp">Seccomp</string>
     <string name="disabled_crashed">Tidak berfungsi (Rusak)</string>
+    <string name="download_count">Jumlah Unduhan</string>
 </resources>
