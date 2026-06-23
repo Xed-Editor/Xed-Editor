@@ -9,7 +9,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationCallPipeline
-import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.EmbeddedServer
@@ -24,6 +23,7 @@ import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.server.mcpStreamableHttp
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
+import kotlinx.coroutines.runBlocking
 
 class McpSdkServer(
     private val host: String = "127.0.0.1",
@@ -46,7 +46,7 @@ class McpSdkServer(
     fun start(requestedPort: Int = 0, registry: McpToolRegistry): Int {
         toolRegistry = registry
         val me = this
-        val authPlugin = createApplicationPlugin(name = "mcpAuth") {
+        val embedded = embeddedServer(CIO, host = host, port = requestedPort) {
             intercept(ApplicationCallPipeline.Call) {
                 if (call.request.uri.startsWith("/mcp") && !me.isAuthorized(call)) {
                     call.respondText(
@@ -57,9 +57,6 @@ class McpSdkServer(
                     finish()
                 }
             }
-        }
-        val embedded = embeddedServer(CIO, host = host, port = requestedPort) {
-            install(authPlugin)
             install(CORS) {
                 anyHost()
                 allowMethod(HttpMethod.Options)
@@ -92,7 +89,7 @@ class McpSdkServer(
         }
         embedded.start(wait = false)
         ktorServer = embedded
-        actualPort = embedded.port
+        actualPort = runBlocking { embedded.resolvedConnectors().first().port }
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "MCP SDK server started on $host:$actualPort")
         }
