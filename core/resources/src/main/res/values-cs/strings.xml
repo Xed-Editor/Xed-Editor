@@ -665,4 +665,15 @@
     <string name="rename_symbol_multiple_files">Přejmenování přes několik souborů zatím není podporováno.</string>
     <string name="document_highlight">Zvýraznit výskyty</string>
     <string name="document_highlight_desc">Zvýraznit výskyty prvku u místa kurzoru</string>
+    <string name="detect_bin_files">Čtecí režim pro binární soubory</string>
+    <string name="detect_bin_files_desc">Výchoze otevřít binární soubory v čtecím režimu</string>
+    <string name="seccomp_unspecified">Nevybráno</string>
+    <string name="seccomp_no_seccomp">Žádný seccomp</string>
+    <string name="seccomp_seccomp">Seccomp</string>
+    <string name="check_proot">Zkontrolovat PRoot</string>
+    <string name="check_system_shell">Zkontrolovat shell systému</string>
+    <string name="check_storage_permissions">Zkontrolovat úložiště a oprávění</string>
+    <string name="check_ubuntu">Zkontrolovat Ubuntu</string>
+    <string name="check_network_access">Zkontrolovat přístup k síti</string>
+    <string name="check_abnormalities">Zkontrolovat abnormality</string>
 </resources>
