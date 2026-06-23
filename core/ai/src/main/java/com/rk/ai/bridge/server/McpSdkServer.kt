@@ -23,8 +23,6 @@ import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.server.mcpStreamableHttp
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
-import kotlinx.coroutines.runBlocking
-
 class McpSdkServer(
     private val host: String = "127.0.0.1",
     private val token: String,
@@ -46,10 +44,11 @@ class McpSdkServer(
     fun start(requestedPort: Int = 0, registry: McpToolRegistry): Int {
         toolRegistry = registry
         val me = this
-        val embedded = embeddedServer(CIO, host = host, port = requestedPort) {
+        val portToUse = if (requestedPort > 0) requestedPort else findFreePort()
+        val embedded = embeddedServer(CIO, host = host, port = portToUse) {
             intercept(ApplicationCallPipeline.Call) {
-                if (call.request.uri.startsWith("/mcp") && !me.isAuthorized(call)) {
-                    call.respondText(
+                if (context.request.uri.startsWith("/mcp") && !me.isAuthorized(context)) {
+                    context.respondText(
                         "{\"error\":\"unauthorized\"}",
                         ContentType.Application.Json,
                         HttpStatusCode.Unauthorized,
@@ -89,7 +88,7 @@ class McpSdkServer(
         }
         embedded.start(wait = false)
         ktorServer = embedded
-        actualPort = runBlocking { embedded.resolvedConnectors().first().port }
+        actualPort = portToUse
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "MCP SDK server started on $host:$actualPort")
         }
@@ -148,6 +147,17 @@ class McpSdkServer(
         append(",\"tokenPrefix\":\"")
         append(token.take(8))
         append("\"}")
+    }
+
+    private fun findFreePort(): Int {
+        return try {
+            val socket = java.net.ServerSocket(0)
+            val p = socket.localPort
+            socket.close()
+            p
+        } catch (_: Exception) {
+            0
+        }
     }
 
     private fun isAuthorized(call: ApplicationCall): Boolean {
