@@ -75,7 +75,10 @@ class ExternalMcpClient(
     }
 
     private val endpointUrl: String
-        get() = if (baseUrl.endsWith("/mcp")) baseUrl else "$baseUrl/mcp"
+        get() {
+            val base = if (baseUrl.endsWith("/")) baseUrl.dropLast(1) else baseUrl
+            return if (base.endsWith("/mcp")) base else "$base/mcp"
+        }
 
     suspend fun ensureConnected() {
         if (mcpClient?.transport == null) {
@@ -89,14 +92,12 @@ class ExternalMcpClient(
                 url = endpointUrl,
                 client = httpClient,
                 requestBuilder = {
-                    headers.appendAll(StringValues.build {
-                        if (apiKey != null) {
-                            append("Authorization", "Bearer $apiKey")
-                        }
-                        this@ExternalMcpClient.headers.forEach { (k, v) ->
-                            append(k, v)
-                        }
-                    })
+                    if (apiKey != null) {
+                        headers.append("Authorization", "Bearer $apiKey")
+                    }
+                    this@ExternalMcpClient.headers.forEach { (k, v) ->
+                        headers.append(k, v)
+                    }
                 },
             )
             val client = Client(
