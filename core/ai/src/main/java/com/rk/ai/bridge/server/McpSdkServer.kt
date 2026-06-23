@@ -38,6 +38,7 @@ class McpSdkServer(
 
     private var ktorServer: EmbeddedServer<*, *>? = null
     private var actualPort: Int = -1
+    private var notificationManager: McpNotificationManager? = null
 
     val port: Int get() = actualPort
     val isRunning: Boolean get() = ktorServer != null
@@ -109,6 +110,8 @@ class McpSdkServer(
     }
 
     fun stop() {
+        notificationManager?.stopWatching()
+        notificationManager = null
         ktorServer?.stop(1000, 5000)
         ktorServer = null
         actualPort = -1
@@ -126,6 +129,11 @@ class McpSdkServer(
             options = ServerOptions(
                 capabilities = ServerCapabilities(
                     tools = ServerCapabilities.Tools(listChanged = true),
+                    resources = ServerCapabilities.Resources(
+                        listChanged = true,
+                        subscribe = true,
+                    ),
+                    prompts = ServerCapabilities.Prompts(listChanged = true),
                 ),
             ),
         )
@@ -137,14 +145,36 @@ class McpSdkServer(
                 Log.d(TAG, "Tool progress: $name - $msg")
             },
         )
+        val workspacePaths = com.rk.ai.IdeBridge.workspacePaths()
+        McpResourceProvider.registerResources(sdkServer, workspacePaths, ideServiceProvider)
+        McpPromptProvider.registerPrompts(sdkServer)
+
+        val mgr = McpNotificationManager(ideServiceProvider)
+        mgr.startWatching(sdkServer, workspacePaths)
+        notificationManager = mgr
+
+        sdkServer.onConnect {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "New MCP client connected")
+            }
+        }
+        sdkServer.onClose {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "MCP client disconnected")
+            }
+        }
         return sdkServer
     }
+
+    fun getNotificationManager(): McpNotificationManager? = notificationManager
 
     private fun buildMcpInfoJson(): String = buildString {
         append("{\"port\":")
         append(port)
         append(",\"tools\":")
         append(toolRegistry.listNames().size)
+        append(",\"resources\":3")
+        append(",\"prompts\":5")
         append(",\"tokenPrefix\":\"")
         append(token.take(8))
         append("\"}")

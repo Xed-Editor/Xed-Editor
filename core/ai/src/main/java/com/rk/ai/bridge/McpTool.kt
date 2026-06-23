@@ -3,6 +3,14 @@ package com.rk.ai.bridge
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 
+data class ToolAnnotations(
+    val title: String? = null,
+    val readOnlyHint: Boolean? = null,
+    val destructiveHint: Boolean? = null,
+    val idempotentHint: Boolean? = null,
+    val openWorldHint: Boolean? = null,
+)
+
 interface McpTool {
     fun getName(): String
     fun getDescription(): String
@@ -12,6 +20,7 @@ interface McpTool {
     fun getRequiredParamDescriptions(): Map<String, String> = emptyMap()
     fun getOptionalParamDescriptions(): Map<String, String> = emptyMap()
     fun getTimeoutMs(): Long = 60_000L
+    fun getAnnotations(): ToolAnnotations? = null
 
     suspend fun execute(args: JsonObject, context: McpToolContext): McpToolResult
 

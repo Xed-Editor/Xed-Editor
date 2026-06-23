@@ -5,6 +5,7 @@ import com.rk.activities.main.MainViewModel
 import com.rk.ai.bridge.DiscoveryFileWriter
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.server.McpSdkServer
+import com.rk.ai.bridge.server.McpStdioServer
 import com.rk.ai.bridge.server.registerBuiltInTools
 import com.rk.ai.bridge.external.ExternalMcpManager
 import com.rk.ai.bridge.external.ExternalMcpTool
@@ -22,6 +23,7 @@ object IdeBridge {
     data class Info(val port: Int, val token: String, val host: String = "127.0.0.1")
 
     private var sdkServer: McpSdkServer? = null
+    private var stdioServer: McpStdioServer? = null
     private val externalManager = ExternalMcpManager()
 
     fun connectedClients(): Int = externalManager.connectedServers.size
@@ -150,12 +152,62 @@ object IdeBridge {
         }
     }
 
+    fun startStdioServer(): Boolean {
+        val registry = buildToolRegistry()
+        val server = McpStdioServer(
+            ideServiceProvider = {
+                val vm = com.rk.activities.main.MainViewModel::class.java
+                    .getDeclaredConstructor().newInstance()
+                IdeServiceImpl(vm)
+            },
+        )
+        server.start(
+            registry = registry,
+            workspacePaths = workspacePaths(),
+        )
+        stdioServer = server
+        if (BuildConfig.DEBUG) {
+            Log.d("IdeBridge", "Stdio MCP server started")
+        }
+        return true
+    }
+
+    fun startStdioWithProcess(command: List<String>): Process? {
+        val registry = buildToolRegistry()
+        val server = McpStdioServer(
+            ideServiceProvider = {
+                val vm = com.rk.activities.main.MainViewModel::class.java
+                    .getDeclaredConstructor().newInstance()
+                IdeServiceImpl(vm)
+            },
+        )
+        val process = server.startWithProcess(
+            registry = registry,
+            workspacePaths = workspacePaths(),
+            command = command,
+        )
+        if (process != null) {
+            stdioServer = server
+            if (BuildConfig.DEBUG) {
+                Log.d("IdeBridge", "Stdio MCP server started with process")
+            }
+        }
+        return process
+    }
+
+    fun stopStdioServer() {
+        stdioServer?.stop()
+        stdioServer = null
+    }
+
     fun stop() {
         synchronized(stateLock) {
             if (BuildConfig.DEBUG) Log.d("IdeBridge", "Stopping server")
             sdkServer?.stop()
+            stdioServer?.stop()
             runBlocking { externalManager.disconnectAll() }
             sdkServer = null
+            stdioServer = null
             token = null
             port = 0
         }

@@ -12,6 +12,7 @@ import com.rk.ai.bridge.McpToolResult
 import com.rk.ai.service.IdeService
 import io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
 import io.modelcontextprotocol.kotlin.sdk.types.TextContent
+import io.modelcontextprotocol.kotlin.sdk.types.ToolAnnotations as SdkToolAnnotations
 import io.modelcontextprotocol.kotlin.sdk.types.ToolSchema
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
@@ -123,6 +124,17 @@ internal suspend fun executeTool(
     }
 }
 
+internal fun McpTool.toSdkToolAnnotations(): SdkToolAnnotations? {
+    val a = getAnnotations() ?: return null
+    return SdkToolAnnotations(
+        title = a.title,
+        readOnlyHint = a.readOnlyHint,
+        destructiveHint = a.destructiveHint,
+        idempotentHint = a.idempotentHint,
+        openWorldHint = a.openWorldHint,
+    )
+}
+
 internal fun registerToolsToSdkServer(
     sdkServer: io.modelcontextprotocol.kotlin.sdk.server.Server,
     registry: McpToolRegistry,
@@ -135,6 +147,7 @@ internal fun registerToolsToSdkServer(
             name = tool.getName(),
             description = tool.getDescription(),
             inputSchema = tool.toSdkToolSchema(),
+            toolAnnotations = tool.toSdkToolAnnotations(),
         ) { request ->
             val gsonArgs = (request.arguments?.toGson() as? GsonObject) ?: GsonObject()
             val result = coroutineScope {

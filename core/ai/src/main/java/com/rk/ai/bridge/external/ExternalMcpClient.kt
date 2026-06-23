@@ -1,5 +1,6 @@
 package com.rk.ai.bridge.external
 
+import android.util.Log
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -7,7 +8,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.StringValues
 import io.modelcontextprotocol.kotlin.sdk.client.Client
 import io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport
 import io.modelcontextprotocol.kotlin.sdk.shared.RequestOptions
@@ -16,11 +16,13 @@ import io.modelcontextprotocol.kotlin.sdk.types.CallToolRequestParams
 import io.modelcontextprotocol.kotlin.sdk.types.ImageContent
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import io.modelcontextprotocol.kotlin.sdk.types.TextContent
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
 import kotlin.time.Duration.Companion.seconds
 
 data class ExternalMcpToolSchema(
@@ -44,6 +46,13 @@ class ExternalMcpClient(
     private val headers: Map<String, String> = emptyMap(),
     val timeoutMs: Long = 60_000L,
 ) {
+    companion object {
+        private const val TAG = "ExternalMcpClient"
+        private const val MAX_RETRIES = 3
+        private const val INITIAL_BACKOFF_MS = 1000L
+        private const val MAX_BACKOFF_MS = 30_000L
+    }
+
     private val gson = GsonBuilder().create()
 
     private val okHttpClient = OkHttpClient.Builder()
@@ -68,6 +77,9 @@ class ExternalMcpClient(
     @Volatile
     private var mcpClient: Client? = null
 
+    @Volatile
+    private var consecutiveFailures: Int = 0
+
     private val mcpJson = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
@@ -82,8 +94,36 @@ class ExternalMcpClient(
 
     suspend fun ensureConnected() {
         if (mcpClient?.transport == null) {
-            connect()
+            connectWithRetry()
         }
+    }
+
+    private suspend fun connectWithRetry() {
+        var lastException: Exception? = null
+        for (attempt in 1..MAX_RETRIES) {
+            try {
+                connect()
+                consecutiveFailures = 0
+                return
+            } catch (e: Exception) {
+                lastException = e
+                consecutiveFailures++
+                val backoff = calculateBackoff(attempt)
+                if (com.rk.xededitor.BuildConfig.DEBUG) {
+                    Log.w(TAG, "Connection attempt $attempt/$MAX_RETRIES failed for '$serverName': ${e.message}, retrying in ${backoff}ms")
+                }
+                kotlinx.coroutines.delay(backoff)
+            }
+        }
+        if (com.rk.xededitor.BuildConfig.DEBUG) {
+            Log.e(TAG, "All $MAX_RETRIES connection attempts failed for '$serverName'", lastException)
+        }
+        throw lastException ?: IllegalStateException("Connection failed")
+    }
+
+    private fun calculateBackoff(attempt: Int): Long {
+        val backoff = INITIAL_BACKOFF_MS * (1L shl (attempt - 1))
+        return min(backoff, MAX_BACKOFF_MS)
     }
 
     private suspend fun connect() {
@@ -108,9 +148,13 @@ class ExternalMcpClient(
             )
             client.connect(transport)
             mcpClient = client
+            if (com.rk.xededitor.BuildConfig.DEBUG) {
+                Log.d(TAG, "Connected to external MCP server '$serverName' at $endpointUrl")
+            }
         } catch (e: Exception) {
-            mcpClient?.let { runCatching { kotlinx.coroutines.runBlocking { it.close() } } }
+            mcpClient?.let { runCatching { runBlocking { it.close() } } }
             mcpClient = null
+            throw e
         }
     }
 
@@ -127,7 +171,13 @@ class ExternalMcpClient(
                     serverName = serverName,
                 )
             }
-        }.getOrDefault(emptyList())
+        }.getOrElse { e ->
+            if (com.rk.xededitor.BuildConfig.DEBUG) {
+                Log.w(TAG, "Failed to list tools from '$serverName': ${e.message}")
+            }
+            handleConnectionError(e)
+            emptyList()
+        }
     }
 
     suspend fun callTool(toolName: String, arguments: JsonObject): ExternalMcpCallResult {
@@ -162,35 +212,69 @@ class ExternalMcpClient(
                 }
             }.joinToString("\n")
             val duration = System.currentTimeMillis() - start
+            consecutiveFailures = 0
             ExternalMcpCallResult(
                 success = result.isError != true,
                 output = text,
                 error = if (result.isError == true) text else "",
                 durationMs = duration,
             )
-        }.getOrDefault(
+        }.getOrElse { e ->
+            val duration = System.currentTimeMillis() - start
+            if (com.rk.xededitor.BuildConfig.DEBUG) {
+                Log.w(TAG, "Tool call '$toolName' failed on '$serverName': ${e.message}")
+            }
+            handleConnectionError(e)
             ExternalMcpCallResult(
                 success = false, output = "",
-                error = "Failed to call tool '$toolName' on server '$serverName'",
-                durationMs = System.currentTimeMillis() - start,
+                error = "Failed to call tool '$toolName' on server '$serverName': ${e.message}",
+                durationMs = duration,
             )
-        )
+        }
+    }
+
+    private suspend fun handleConnectionError(e: Exception) {
+        if (isConnectionError(e)) {
+            if (com.rk.xededitor.BuildConfig.DEBUG) {
+                Log.w(TAG, "Connection error detected for '$serverName', resetting connection")
+            }
+            mcpClient?.let { runCatching { it.close() } }
+            mcpClient = null
+        }
+    }
+
+    private fun isConnectionError(e: Throwable): Boolean {
+        val msg = e.message?.lowercase() ?: return false
+        return msg.contains("connection") || msg.contains("closed") ||
+            msg.contains("broken pipe") || msg.contains("reset") ||
+            msg.contains("eof") || msg.contains("timeout")
     }
 
     fun isReachable(): Boolean {
         return runCatching {
-            val url = java.net.URI(baseUrl).toURL()
+            val url = java.net.URI(endpointUrl).toURL()
             val conn = url.openConnection() as java.net.HttpURLConnection
-            conn.connectTimeout = 3000
-            conn.readTimeout = 3000
-            conn.requestMethod = "GET"
-            conn.responseCode in 200..399
+            conn.connectTimeout = 5000
+            conn.readTimeout = 5000
+            conn.requestMethod = "POST"
+            conn.doOutput = true
+            conn.setRequestProperty("Content-Type", "application/json")
+            if (apiKey != null) {
+                conn.setRequestProperty("Authorization", "Bearer $apiKey")
+            }
+            this@ExternalMcpClient.headers.forEach { (k, v) ->
+                conn.setRequestProperty(k, v)
+            }
+            conn.outputStream.write("{}".toByteArray())
+            val code = conn.responseCode
+            code in 200..399 || code == 405
         }.getOrDefault(false)
     }
 
     suspend fun disconnect() {
         runCatching { mcpClient?.close() }
         mcpClient = null
+        consecutiveFailures = 0
     }
 
     private fun parseInputSchema(schema: io.modelcontextprotocol.kotlin.sdk.types.ToolSchema): JsonObject {
