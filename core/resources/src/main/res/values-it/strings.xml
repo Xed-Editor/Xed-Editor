@@ -684,4 +684,5 @@
     <string name="disabled_crashed">Disabilitato (In crash)</string>
     <string name="seccomp_unspecified">Non specificato</string>
     <string name="seccomp_seccomp">Seccomp</string>
+    <string name="seccomp_no_seccomp">No seccomp</string>
 </resources>
