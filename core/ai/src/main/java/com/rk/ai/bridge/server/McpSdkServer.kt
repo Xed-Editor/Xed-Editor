@@ -11,7 +11,6 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
-import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.plugins.cors.routing.CORS
@@ -46,7 +45,7 @@ class McpSdkServer(
 
     fun start(requestedPort: Int = 0, registry: McpToolRegistry): Int {
         toolRegistry = registry
-        val server = embeddedServer(CIO, host = host, port = requestedPort) {
+        val embedded = embeddedServer(CIO, host = host, port = requestedPort) {
             install(CORS) {
                 anyHost()
                 allowMethod(HttpMethod.Options)
@@ -63,19 +62,19 @@ class McpSdkServer(
                 exposeHeader("Mcp-Protocol-Version")
             }
             routing {
-                route("/mcp") {
-                    intercept(ApplicationCallPipeline.Call) {
-                        if (!isAuthorized(call)) {
-                            call.respondText(
-                                "{\"error\":\"unauthorized\"}",
-                                ContentType.Application.Json,
-                                HttpStatusCode.Unauthorized,
-                            )
-                            finish()
-                        }
-                    }
+                val mcpRoute = route("/mcp") {
                     mcpStreamableHttp {
                         buildSdkServer()
+                    }
+                }
+                mcpRoute.intercept(ApplicationCallPipeline.Call) { call ->
+                    if (!isAuthorized(call)) {
+                        call.respondText(
+                            "{\"error\":\"unauthorized\"}",
+                            ContentType.Application.Json,
+                            HttpStatusCode.Unauthorized,
+                        )
+                        finish()
                     }
                 }
                 get("/health") {
@@ -86,9 +85,10 @@ class McpSdkServer(
                     call.respondText(info, ContentType.Application.Json)
                 }
             }
-        }.start(wait = false)
-        ktorServer = server
-        actualPort = server.environment.connectors.first().port
+        }
+        embedded.start(wait = false)
+        ktorServer = embedded
+        actualPort = embedded.environment.connectors.first().port
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "MCP SDK server started on $host:$actualPort")
         }
