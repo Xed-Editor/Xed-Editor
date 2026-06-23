@@ -106,6 +106,9 @@ object AiRegistrar {
         override fun availableTools(): Int = IdeBridge.availableTools()
         override fun setWorkspacePath(path: String) = IdeBridge.setWorkspacePath(path)
         override fun refreshStitcher() = IdeBridge.refreshStitcher()
+        override fun setOnMcpServersConfigChanged(callback: ((String) -> Unit)?) {
+            IdeBridge.onMcpServersConfigChanged = callback
+        }
     }
 
     private class IdeServiceFactoryProviderImpl : AiProvider.IdeServiceFactoryProvider {

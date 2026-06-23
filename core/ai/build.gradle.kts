@@ -41,12 +41,23 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.nanohttpd)
     implementation(libs.utilcode)
     implementation(libs.jgit)
     implementation(libs.commons.net)
     implementation(libs.androidx.documentfile)
     implementation(libs.lsp4j)
+
+    // MCP SDK (umbrella: client + server)
+    implementation(libs.modelcontextprotocol.kotlin.sdk)
+    // Ktor server for MCP transport
+    implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.auth)
+    // Ktor client for MCP stitcher connections
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(project(":editor"))
     implementation(project(":editor-lsp"))

@@ -20,6 +20,7 @@ class McpStitcher {
     private val clients = CopyOnWriteArrayList<ExternalMcpClient>()
     private val schemas = CopyOnWriteArrayList<ExternalMcpToolSchema>()
     private var onToolsChanged: ((List<ExternalMcpTool>) -> Unit)? = null
+    var onConfigChanged: ((configJson: String) -> Unit)? = null
 
     fun setOnToolsChanged(callback: (List<ExternalMcpTool>) -> Unit) {
         onToolsChanged = callback
@@ -32,6 +33,7 @@ class McpStitcher {
         disconnectAll()
         val config = ExternalMcpConfigLoader.load(configJson)
         val enabled = config.mcpServers.filter { it.value.enabled }
+        onConfigChanged?.invoke(configJson)
         if (enabled.isEmpty()) return
 
         stitcherScope.launch {
@@ -94,6 +96,7 @@ class McpStitcher {
     }
 
     fun disconnectAll() {
+        clients.forEach { it.disconnect() }
         clients.clear()
         schemas.clear()
         onToolsChanged?.invoke(emptyList())
@@ -102,6 +105,7 @@ class McpStitcher {
     fun disconnectServer(name: String) {
         val idx = clients.indexOfFirst { it.serverName == name }
         if (idx >= 0) {
+            clients[idx].disconnect()
             clients.removeAt(idx)
             schemas.removeAll { it.serverName == name }
             notifyToolsChanged()
@@ -113,6 +117,8 @@ class McpStitcher {
         disconnectAll()
         connectAll(currentConfig)
     }
+
+    fun getCurrentConfigJson(): String = Settings.ai_mcp_servers_config
 
     fun getClientStatus(): List<Map<String, Any>> {
         return clients.map { client ->

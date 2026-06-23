@@ -32,6 +32,7 @@ object AiProvider {
         fun availableTools(): Int
         fun setWorkspacePath(path: String)
         fun refreshStitcher()
+        fun setOnMcpServersConfigChanged(callback: ((String) -> Unit)?)
     }
 
     interface SessionManagerProvider {

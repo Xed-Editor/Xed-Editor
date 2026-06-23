@@ -13,7 +13,7 @@ import com.rk.exec.ShellUtils
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.ai.agents.GeminiAgent
-import com.rk.ai.bridge.server.IdeBridgeServer
+
 import com.rk.ai.service.IdeService
 import com.rk.ai.service.IdeServiceImpl
 import com.rk.file.child
@@ -30,7 +30,6 @@ import kotlinx.coroutines.withContext
 object AiSessionManager {
     var session by mutableStateOf<TerminalSession?>(null)
     var cwd by mutableStateOf<String?>(null)
-    var bridgeServer: IdeBridgeServer? = null
     var ideService: IdeService? = null
     var currentAgent by mutableStateOf<AiAgent>(GeminiAgent)
 

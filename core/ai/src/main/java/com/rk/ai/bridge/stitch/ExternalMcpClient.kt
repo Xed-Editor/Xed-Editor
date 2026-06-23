@@ -2,15 +2,25 @@ package com.rk.ai.bridge.stitch
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonNull
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import java.io.ByteArrayOutputStream
-import java.net.HttpURLConnection
-import java.net.URI
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.StringValues
+import io.modelcontextprotocol.kotlin.sdk.client.Client
+import io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport
+import io.modelcontextprotocol.kotlin.sdk.shared.RequestOptions
+import io.modelcontextprotocol.kotlin.sdk.types.CallToolRequest
+import io.modelcontextprotocol.kotlin.sdk.types.CallToolRequestParams
+import io.modelcontextprotocol.kotlin.sdk.types.ImageContent
+import io.modelcontextprotocol.kotlin.sdk.types.Implementation
+import io.modelcontextprotocol.kotlin.sdk.types.TextContent
+import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 data class ExternalMcpToolSchema(
     val name: String,
@@ -34,119 +44,202 @@ class ExternalMcpClient(
     val timeoutMs: Long = 60_000L,
 ) {
     private val gson = GsonBuilder().create()
-    private val requestIdCounter = ConcurrentHashMap<String, Int>()
 
-    private fun nextId(): String {
-        val prefix = "xed-stitch-"
-        val counter = requestIdCounter.merge(prefix, 1) { _, old -> old + 1 }
-        return "$prefix$counter-${UUID.randomUUID().toString().take(8)}"
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(timeoutMs.coerceAtMost(30_000), TimeUnit.MILLISECONDS)
+        .readTimeout(timeoutMs, TimeUnit.MILLISECONDS)
+        .writeTimeout(timeoutMs, TimeUnit.MILLISECONDS)
+        .followSslRedirects(true)
+        .followRedirects(true)
+        .build()
+
+    private val httpClient = HttpClient(OkHttp) {
+        engine { preconfigured = okHttpClient }
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+                ignoreUnknownKeys = true
+            })
+        }
+    }
+
+    @Volatile
+    private var mcpClient: Client? = null
+
+    private val mcpJson = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+        isLenient = true
+    }
+
+    private val endpointUrl: String
+        get() = if (baseUrl.endsWith("/mcp")) baseUrl else "$baseUrl/mcp"
+
+    suspend fun ensureConnected() {
+        if (mcpClient?.transport == null) {
+            connect()
+        }
+    }
+
+    private suspend fun connect() {
+        runCatching {
+            val transport = StreamableHttpClientTransport(
+                url = endpointUrl,
+                client = httpClient,
+                requestBuilder = {
+                    headers.appendAll(StringValues.build {
+                        if (apiKey != null) {
+                            append("Authorization", "Bearer $apiKey")
+                        }
+                        this@ExternalMcpClient.headers.forEach { (k, v) ->
+                            append(k, v)
+                        }
+                    })
+                },
+            )
+            val client = Client(
+                clientInfo = Implementation(
+                    name = "xed-stitch",
+                    version = "1.0.0",
+                ),
+            )
+            client.connect(transport)
+            mcpClient = client
+        }.onFailure {
+            mcpClient?.let { runCatching { it.close() } }
+            mcpClient = null
+        }
     }
 
     suspend fun listTools(): List<ExternalMcpToolSchema> {
-        val requestId = nextId()
-        val request = JsonObject().apply {
-            addProperty("jsonrpc", "2.0")
-            addProperty("id", requestId)
-            addProperty("method", "tools/list")
-            add("params", JsonObject())
-        }
-        val response = sendRequest(request) ?: return emptyList()
-        val result = response.getAsJsonObject("result")
-            ?: return emptyList()
-        val tools = result.getAsJsonArray("tools") ?: JsonArray()
-        return tools.mapNotNull { el ->
-            val obj = el.asJsonObject
-            val name = obj.get("name")?.asString ?: return@mapNotNull null
-            val description = obj.get("description")?.asString ?: ""
-            val inputSchema = obj.getAsJsonObject("inputSchema") ?: JsonObject()
-            ExternalMcpToolSchema(name, description, inputSchema, serverName)
-        }
+        ensureConnected()
+        val client = mcpClient ?: return emptyList()
+        return runCatching {
+            val result = client.listTools()
+            result.tools.map { tool ->
+                ExternalMcpToolSchema(
+                    name = tool.name,
+                    description = tool.description ?: "",
+                    inputSchema = parseInputSchema(tool.inputSchema),
+                    serverName = serverName,
+                )
+            }
+        }.getOrDefault(emptyList())
     }
 
     suspend fun callTool(toolName: String, arguments: JsonObject): ExternalMcpCallResult {
         val start = System.currentTimeMillis()
-        val requestId = nextId()
-        val request = JsonObject().apply {
-            addProperty("jsonrpc", "2.0")
-            addProperty("id", requestId)
-            addProperty("method", "tools/call")
-            add("params", JsonObject().apply {
-                addProperty("name", toolName)
-                add("arguments", arguments)
-            })
-        }
-        val response = sendRequest(request)
-        val duration = System.currentTimeMillis() - start
-        if (response == null) {
+        ensureConnected()
+        val client = mcpClient
+        if (client == null) {
             return ExternalMcpCallResult(
-                success = false,
-                output = "",
-                error = "No response from MCP server '$serverName' at $baseUrl",
-                durationMs = duration,
+                success = false, output = "",
+                error = "No MCP session for server '$serverName' at $baseUrl",
+                durationMs = System.currentTimeMillis() - start,
             )
         }
-        val error = response.getAsJsonObject("error")
-        if (error != null) {
-            val msg = error.get("message")?.asString ?: "unknown error"
-            return ExternalMcpCallResult(success = false, output = "", error = msg, durationMs = duration)
-        }
-        val result = response.getAsJsonObject("result") ?: JsonObject()
-        val content = result.getAsJsonArray("content") ?: JsonArray()
-        val text = content.mapNotNull { el ->
-            val obj = el.asJsonObject
-            if (obj.get("type")?.asString == "text") obj.get("text")?.asString else null
-        }.joinToString("\n")
-        val isError = result.get("isError")?.asBoolean ?: false
-        return ExternalMcpCallResult(
-            success = !isError,
-            output = text,
-            error = if (isError) text else "",
-            durationMs = duration,
-        )
-    }
-
-    private fun sendRequest(request: JsonObject): JsonObject? {
         return runCatching {
-            val endpoint = if (baseUrl.endsWith("/mcp")) baseUrl else "$baseUrl/mcp"
-            val url = URI(endpoint).toURL()
-            val conn = url.openConnection() as HttpURLConnection
-            conn.requestMethod = "POST"
-            conn.doOutput = true
-            conn.connectTimeout = (timeoutMs / 2).coerceAtMost(30_000).toInt()
-            conn.readTimeout = timeoutMs.toInt()
-            conn.setRequestProperty("Content-Type", "application/json")
-            conn.setRequestProperty("Accept", "application/json")
-            if (apiKey != null) {
-                conn.setRequestProperty("Authorization", "Bearer $apiKey")
+            val kotlinxArgs = gsonToKotlinx(arguments)
+            val result = withTimeout(timeoutMs) {
+                client.callTool(
+                    request = CallToolRequest(
+                        params = CallToolRequestParams(
+                            name = toolName,
+                            arguments = kotlinxArgs,
+                        ),
+                    ),
+                    options = RequestOptions(timeout = timeoutMs.seconds),
+                )
             }
-            headers.forEach { (key, value) ->
-                conn.setRequestProperty(key, value)
-            }
-            val body = gson.toJson(request)
-            conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
-
-            val responseCode = conn.responseCode
-            val responseStream = if (responseCode in 200..299) conn.inputStream else conn.errorStream
-            val responseBytes = responseStream?.let { stream ->
-                ByteArrayOutputStream().use { buf ->
-                    stream.copyTo(buf)
-                    buf.toByteArray()
+            val text = result.content.mapNotNull { content ->
+                when (content) {
+                    is TextContent -> content.text
+                    is ImageContent -> "[Image: ${content.mimeType}]"
+                    else -> null
                 }
-            } ?: return@runCatching null
-
-            val responseStr = String(responseBytes, Charsets.UTF_8)
-            JsonParser.parseString(responseStr).asJsonObject
-        }.getOrNull()
+            }.joinToString("\n")
+            val duration = System.currentTimeMillis() - start
+            ExternalMcpCallResult(
+                success = !result.isError,
+                output = text,
+                error = if (result.isError) text else "",
+                durationMs = duration,
+            )
+        }.getOrDefault(
+            ExternalMcpCallResult(
+                success = false, output = "",
+                error = "Failed to call tool '$toolName' on server '$serverName'",
+                durationMs = System.currentTimeMillis() - start,
+            )
+        )
     }
 
     fun isReachable(): Boolean {
         return runCatching {
-            val url = URI(baseUrl).toURL()
-            val conn = url.openConnection() as HttpURLConnection
+            val url = java.net.URI(baseUrl).toURL()
+            val conn = url.openConnection() as java.net.HttpURLConnection
             conn.connectTimeout = 3000
             conn.readTimeout = 3000
             conn.requestMethod = "GET"
             conn.responseCode in 200..399
         }.getOrDefault(false)
+    }
+
+    fun disconnect() {
+        runCatching { mcpClient?.close() }
+        mcpClient = null
+    }
+
+    private fun parseInputSchema(schema: io.modelcontextprotocol.kotlin.sdk.types.ToolSchema): JsonObject {
+        val obj = JsonObject()
+        obj.addProperty("type", schema.type)
+        val properties = schema.properties
+        if (properties != null) {
+            obj.add("properties", kotlinxToGson(properties) as? JsonObject ?: JsonObject())
+        }
+        val required = schema.required
+        if (required != null && required.isNotEmpty()) {
+            val arr = JsonArray()
+            required.forEach { arr.add(it) }
+            obj.add("required", arr)
+        }
+        return obj
+    }
+
+    private fun gsonToKotlinx(gson: JsonObject): kotlinx.serialization.json.JsonObject {
+        return mcpJson.parseToJsonElement(gson.toString()).jsonObject
+    }
+
+    private fun kotlinxToGson(element: kotlinx.serialization.json.JsonElement): com.google.gson.JsonElement {
+        return when (element) {
+            is kotlinx.serialization.json.JsonPrimitive -> {
+                when {
+                    element.isString -> com.google.gson.JsonPrimitive(element.content)
+                    element.content == "true" || element.content == "false" ->
+                        com.google.gson.JsonPrimitive(element.content.toBoolean())
+                    else -> {
+                        element.content.toLongOrNull()?.let { com.google.gson.JsonPrimitive(it) }
+                            ?: element.content.toDoubleOrNull()?.let { com.google.gson.JsonPrimitive(it) }
+                            ?: com.google.gson.JsonPrimitive(element.content)
+                    }
+                }
+            }
+            is kotlinx.serialization.json.JsonNull -> com.google.gson.JsonNull.INSTANCE
+            is kotlinx.serialization.json.JsonObject -> {
+                val obj = JsonObject()
+                for ((key, value) in element) {
+                    obj.add(key, kotlinxToGson(value))
+                }
+                obj
+            }
+            is kotlinx.serialization.json.JsonArray -> {
+                val arr = JsonArray()
+                for (item in element) {
+                    arr.add(kotlinxToGson(item))
+                }
+                arr
+            }
+        }
     }
 }
