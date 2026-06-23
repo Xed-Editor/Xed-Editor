@@ -93,7 +93,7 @@ internal fun McpToolResult.toCallToolResult(): CallToolResult {
     }
 }
 
-internal fun executeTool(
+internal suspend fun executeTool(
     tool: McpTool,
     args: GsonObject,
     ideService: IdeService,
@@ -136,7 +136,7 @@ internal fun registerToolsToSdkServer(
             description = tool.getDescription(),
             inputSchema = tool.toSdkToolSchema(),
         ) { request ->
-            val gsonArgs = request.arguments?.toGson() ?: GsonObject()
+            val gsonArgs = (request.arguments?.toGson() as? GsonObject) ?: GsonObject()
             val result = coroutineScope {
                 executeTool(
                     tool = tool,

@@ -107,7 +107,7 @@ class ExternalMcpClient(
             client.connect(transport)
             mcpClient = client
         }.onFailure {
-            mcpClient?.let { runCatching { it.close() } }
+            runCatching { kotlinx.coroutines.runBlocking { mcpClient?.close() } }
             mcpClient = null
         }
     }
@@ -161,9 +161,9 @@ class ExternalMcpClient(
             }.joinToString("\n")
             val duration = System.currentTimeMillis() - start
             ExternalMcpCallResult(
-                success = !result.isError,
+                success = result.isError != true,
                 output = text,
-                error = if (result.isError) text else "",
+                error = if (result.isError == true) text else "",
                 durationMs = duration,
             )
         }.getOrDefault(
@@ -187,7 +187,7 @@ class ExternalMcpClient(
     }
 
     fun disconnect() {
-        runCatching { mcpClient?.close() }
+        runCatching { kotlinx.coroutines.runBlocking { mcpClient?.close() } }
         mcpClient = null
     }
 

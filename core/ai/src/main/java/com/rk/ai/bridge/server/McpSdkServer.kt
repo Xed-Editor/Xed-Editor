@@ -14,7 +14,7 @@ import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.plugins.CORS
+import io.ktor.server.plugins.cors.CORS
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
@@ -40,7 +40,7 @@ class McpSdkServer(
 
     private var ktorServer: ApplicationEngine? = null
 
-    val port: Int get() = ktorServer?.port() ?: -1
+    val port: Int get() = ktorServer?.environment?.connectors?.firstOrNull()?.port ?: -1
     val isRunning: Boolean get() = ktorServer != null
 
     fun start(requestedPort: Int = 0, registry: McpToolRegistry): Int {
@@ -86,7 +86,7 @@ class McpSdkServer(
                 }
             }
         }.start(wait = false)
-        val actualPort = ktorServer!!.port()
+        val actualPort = port
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "MCP SDK server started on $host:$actualPort")
         }
