@@ -108,6 +108,13 @@ private fun Categories(navController: NavController) {
         )
     }
 
+    PreferenceCategory(
+        label = "MCP Stitcher",
+        description = "Manage external MCP server connections",
+        iconResource = drawables.widgets,
+        onNavigate = { navController.navigate(SettingsRoutes.McpStitcher.route) },
+    )
+
     if (InbuiltFeatures.debugMode.state.value) {
         PreferenceCategory(
             label = stringResource(strings.debug_options),
