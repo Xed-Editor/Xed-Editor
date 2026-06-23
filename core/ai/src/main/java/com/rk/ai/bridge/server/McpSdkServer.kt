@@ -9,6 +9,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.EmbeddedServer
@@ -31,7 +32,6 @@ class McpSdkServer(
 ) {
     companion object {
         private const val TAG = "McpSdkServer"
-        private const val MCP_PROTOCOL_VERSION = "2025-03-26"
     }
 
     @Volatile
@@ -45,7 +45,21 @@ class McpSdkServer(
 
     fun start(requestedPort: Int = 0, registry: McpToolRegistry): Int {
         toolRegistry = registry
+        val me = this
+        val authPlugin = createApplicationPlugin(name = "mcpAuth") {
+            intercept(ApplicationCallPipeline.Call) {
+                if (call.request.uri.startsWith("/mcp") && !me.isAuthorized(call)) {
+                    call.respondText(
+                        "{\"error\":\"unauthorized\"}",
+                        ContentType.Application.Json,
+                        HttpStatusCode.Unauthorized,
+                    )
+                    finish()
+                }
+            }
+        }
         val embedded = embeddedServer(CIO, host = host, port = requestedPort) {
+            install(authPlugin)
             install(CORS) {
                 anyHost()
                 allowMethod(HttpMethod.Options)
@@ -62,19 +76,9 @@ class McpSdkServer(
                 exposeHeader("Mcp-Protocol-Version")
             }
             routing {
-                val mcpRoute = route("/mcp") {
+                route("/mcp") {
                     mcpStreamableHttp {
                         buildSdkServer()
-                    }
-                }
-                mcpRoute.intercept(ApplicationCallPipeline.Call) { call ->
-                    if (!isAuthorized(call)) {
-                        call.respondText(
-                            "{\"error\":\"unauthorized\"}",
-                            ContentType.Application.Json,
-                            HttpStatusCode.Unauthorized,
-                        )
-                        finish()
                     }
                 }
                 get("/health") {
@@ -88,7 +92,7 @@ class McpSdkServer(
         }
         embedded.start(wait = false)
         ktorServer = embedded
-        actualPort = embedded.environment.connectors.first().port
+        actualPort = embedded.port
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "MCP SDK server started on $host:$actualPort")
         }
