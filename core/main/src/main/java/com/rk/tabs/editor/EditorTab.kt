@@ -45,7 +45,7 @@ import com.rk.color.ColorPicker
 import com.rk.components.AddDialogItem
 import com.rk.components.SingleInputDialog
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
 import com.rk.file.child

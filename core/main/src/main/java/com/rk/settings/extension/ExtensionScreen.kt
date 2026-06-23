@@ -28,9 +28,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -65,11 +61,16 @@ import com.rk.theme.Typography
 import com.rk.utils.openDocs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.compose.runtime.mutableStateMapOf
+import com.rk.extension.ExtensionId
+import com.rk.extension.ExtensionStats
 
 private enum class ExtensionSortOptions(val stringRes: Int) {
     NAME(strings.name),
     RATING(strings.rating),
-    DATE_ADDED(strings.date_added),
+   // DATE_ADDED(strings.date_added),
+    DOWNLOAD_COUNT(strings.download_count)
 }
 
 private enum class ExtensionFilterOptions(val stringRes: Int) {
@@ -87,12 +88,14 @@ fun ExtensionScreen(navController: NavController) {
     var isRefreshing by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
 
-    var currentSortOption by remember { mutableStateOf(ExtensionSortOptions.NAME) }
+    var currentSortOption by remember { mutableStateOf(ExtensionSortOptions.DOWNLOAD_COUNT) }
     var currentFilterOption by remember { mutableStateOf(ExtensionFilterOptions.ALL) }
     val searchQuery = rememberTextFieldState("")
 
     var isIndexing by remember { mutableStateOf(false) }
     var isFetching by remember { mutableStateOf(false) }
+
+    val statsMap = remember { mutableStateMapOf<ExtensionId, ExtensionStats>() }
 
     LaunchedEffect(refreshKey) {
         val shouldLoad = refreshKey > 0 ||
@@ -118,6 +121,22 @@ fun ExtensionScreen(navController: NavController) {
         }
     }
 
+    LaunchedEffect(refreshKey, isFetching) {
+        if (!isFetching) {
+            val rawList = extensionManager.getSyncedExtensions()
+            rawList.forEach { ext ->
+                launch(Dispatchers.IO) {
+                    runCatching {
+                        val stats = ext.getStats()
+                        withContext(Dispatchers.Main) {
+                            statsMap[ext.id] = stats
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
             installExtensionFromUri(scope, uri, activity)
@@ -129,8 +148,8 @@ fun ExtensionScreen(navController: NavController) {
             val filtered = applyFilter(searchQuery, rawList, currentFilterOption)
             when (currentSortOption) {
                 ExtensionSortOptions.NAME -> filtered.sortedBy { it.name }
-                ExtensionSortOptions.RATING -> filtered.sortedBy { it.id } // TODO: RATING
-                ExtensionSortOptions.DATE_ADDED -> filtered.sortedBy { it.id } // TODO: DATE_ADDED
+                ExtensionSortOptions.RATING -> filtered.sortedByDescending { statsMap[it.id]?.rating ?: 0f }
+                ExtensionSortOptions.DOWNLOAD_COUNT -> filtered.sortedByDescending { statsMap[it.id]?.downloadCount ?: 0 }
             }
         }
     }

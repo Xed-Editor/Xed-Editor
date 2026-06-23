@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.activities.main.MainActivity
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings

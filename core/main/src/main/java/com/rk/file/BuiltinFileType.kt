@@ -1,6 +1,6 @@
 package com.rk.file
 
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.icons.Icon
 import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables

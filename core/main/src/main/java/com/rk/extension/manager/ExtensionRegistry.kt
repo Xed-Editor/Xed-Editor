@@ -1,6 +1,9 @@
-package com.rk.extension
+package com.rk.extension.manager
 
 import android.util.Log
+import com.rk.XedConstants
+import com.rk.extension.ExtensionManifest
+import com.rk.extension.ExtensionStats
 import com.rk.utils.errorDialog
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +25,7 @@ private data class DownloadUrls(val icon: String? = null, val readme: String? = 
 
 object ExtensionRegistry {
     private const val TAG = "ExtensionRegistry"
-    private const val BASE_URL = "https://xed-editor.app/api/extensions"
+    private const val BASE_URL = XedConstants.EXTENSION_API_BASE
 
     private val client: OkHttpClient = okHttpClient
     private val json = Json { ignoreUnknownKeys = true }

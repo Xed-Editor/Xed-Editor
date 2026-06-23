@@ -1,7 +1,7 @@
 package com.rk.tabs.base
 
 import com.rk.activities.main.MainViewModel
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager

@@ -37,7 +37,7 @@ import com.rk.commands.lsp.FormatSelectionCommand
 import com.rk.commands.lsp.GoToDefinitionCommand
 import com.rk.commands.lsp.GoToReferencesCommand
 import com.rk.commands.lsp.RenameSymbolCommand
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 
 object CommandProvider {
     private val _commandList = mutableStateListOf<Command>()

@@ -16,9 +16,9 @@ import com.rk.editor.FontCache
 import com.rk.editor.KeywordManager
 import com.rk.editor.LanguageManager
 import com.rk.extension.ActivityProvider
-import com.rk.extension.ExtensionAPIManager
-import com.rk.extension.ExtensionManager
-import com.rk.extension.loadAllExtensions
+import com.rk.extension.manager.ExtensionAPIManager
+import com.rk.extension.loader.loadAllExtensions
+import com.rk.extension.manager.ExtensionManager
 import com.rk.icons.pack.IconPackManager
 import com.rk.lsp.FileIconProvider
 import com.rk.lsp.LspPersistence

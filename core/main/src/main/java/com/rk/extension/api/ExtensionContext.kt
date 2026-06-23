@@ -1,11 +1,19 @@
+
+
+
+
+//DO NOT UPDATE PACKAGE NAME OTHERWISE EXTENSIONS WILL BREAK
 package com.rk.extension
 
 import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
-import android.util.Log
 import androidx.annotation.Keep
-import com.rk.settings.debugOptions.LogCollector
+import com.rk.extension.api.XedExtensionPoint
+import com.rk.extension.api.logDebug
+import com.rk.extension.api.logError
+import com.rk.extension.api.logInfo
+import com.rk.extension.api.logWarn
 import kotlinx.coroutines.CoroutineScope
 
 @XedExtensionPoint
@@ -28,23 +36,9 @@ class ExtensionContext(val extension: LocalExtension, val appContext: Context, v
 
     val resources by lazy { Resources(assets, appContext.resources.displayMetrics, appContext.resources.configuration) }
 
-    fun logDebug(msg: String) {
-        Log.d(extension.id, msg)
-        LogCollector.reportDebug("[${extension.id}]$msg")
-    }
-
-    fun logInfo(msg: String) {
-        Log.i(extension.id, msg)
-        LogCollector.reportInfo("[${extension.id}]$msg")
-    }
-
-    fun logWarn(msg: String) {
-        Log.w(extension.id, msg)
-        LogCollector.reportWarn("[${extension.id}]$msg")
-    }
-
-    fun logError(msg: String) {
-        Log.e(extension.id, msg)
-        LogCollector.reportError("[${extension.id}]$msg")
-    }
+    //Kept for backward compatibility
+    fun logDebug(msg: String) = extension.id.logDebug(msg)
+    fun logInfo(msg: String) = extension.id.logInfo(msg)
+    fun logWarn(msg: String) = extension.id.logWarn(msg)
+    fun logError(msg: String) = extension.id.logError(msg)
 }

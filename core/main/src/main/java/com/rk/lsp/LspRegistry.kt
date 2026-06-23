@@ -2,7 +2,7 @@ package com.rk.lsp
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.lsp.servers.Bash
 import com.rk.lsp.servers.CSS
 import com.rk.lsp.servers.Emmet

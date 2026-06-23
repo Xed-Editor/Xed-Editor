@@ -9,9 +9,5 @@ if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GN
     add_compile_options("-ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.")
 endif()
 
-
-if(ANDROID)
-    target_link_libraries(${CMAKE_PROJECT_NAME}
-            android
-            log)
-endif()
+target_link_libraries(${CMAKE_PROJECT_NAME}
+        android log)

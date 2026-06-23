@@ -1,8 +1,6 @@
 package com.rk.extension
-
-import android.content.Context
-import android.content.pm.PackageManager
-import dalvik.system.PathClassLoader
+import com.rk.extension.manager.ExtensionRegistry
+import com.rk.xededitor.BuildConfig
 import io.github.z4kn4fein.semver.toVersionOrNull
 import java.io.File
 import java.util.Date
@@ -243,9 +241,8 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
     }
 }
 
-fun LocalExtension.classLoader(parent: ClassLoader?) = PathClassLoader(apkFile.absolutePath, parent)
 
-val LocalExtension.apkFile
+val LocalExtension.apkFile: File
     get() = run {
         val dir = File(installPath)
 
@@ -257,7 +254,7 @@ val LocalExtension.apkFile
         val apk = if (apks.size == 1) {
             apks.first()
         } else {
-            val isDebug = com.rk.xededitor.BuildConfig.DEBUG
+            val isDebug = BuildConfig.DEBUG
             if (isDebug) {
                 apks.find { it.name.contains("debug", ignoreCase = true) }
                     ?: apks.find { !it.name.contains("release", ignoreCase = true) }
@@ -270,12 +267,3 @@ val LocalExtension.apkFile
         }
         apk.also { it.setReadOnly() }
     }
-
-fun LocalExtension.getApkPackageInfo(context: Context) = run {
-    val pm = context.packageManager
-    pm.getPackageArchiveInfo(apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
-        .apply {
-            applicationInfo!!.sourceDir = apkFile.absolutePath
-            applicationInfo!!.publicSourceDir = apkFile.absolutePath
-        }
-}

@@ -2,7 +2,7 @@ package com.rk.commands
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.settings.Settings
 
 object ToolbarConfiguration {

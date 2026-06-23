@@ -1,6 +1,6 @@
 package com.rk.filetree
 
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 
 object FileActionProvider {

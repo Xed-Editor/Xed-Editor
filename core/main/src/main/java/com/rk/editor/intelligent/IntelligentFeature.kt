@@ -2,7 +2,7 @@ package com.rk.editor.intelligent
 
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.editor.Editor
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 

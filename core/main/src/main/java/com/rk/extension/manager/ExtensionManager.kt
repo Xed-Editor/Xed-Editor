@@ -1,4 +1,4 @@
-package com.rk.extension
+package com.rk.extension.manager
 
 import android.app.Application
 import android.content.Context
@@ -19,6 +19,16 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.zip.ZipFile
+import androidx.core.content.edit
+import com.rk.extension.Extension
+import com.rk.extension.ExtensionAPI
+import com.rk.extension.ExtensionError
+import com.rk.extension.ExtensionId
+import com.rk.extension.ExtensionManifest
+import com.rk.extension.InstallResult
+import com.rk.extension.LocalExtension
+import com.rk.extension.StoreExtension
+import com.rk.extension.UpdatableExtension
 
 private val Context.localDir: File
     get() = filesDir.parentFile!!.resolve("local").apply { if (!exists()) mkdirs() }
@@ -56,7 +66,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     fun setExtensionDisabled(id: ExtensionId, disabled: Boolean) {
-        disabledPrefs.edit().putBoolean(id, disabled).apply()
+        disabledPrefs.edit { putBoolean(id, disabled) }
     }
 
     fun isInstalled(extensionId: ExtensionId) = localExtensions.containsKey(extensionId)
@@ -95,7 +105,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 if (extensionJson.exists()) {
                     runCatching {
                         val extensionManifest = json.decodeFromString<ExtensionManifest>(extensionJson.readText())
-                        val extension = LocalExtension(manifest = extensionManifest, installPath = dir.absolutePath)
+                        val extension = LocalExtension(
+                            manifest = extensionManifest,
+                            installPath = dir.absolutePath
+                        )
                         map[extensionManifest.id] = extension
                     }
                 }
@@ -201,7 +214,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             dir.copyRecursively(targetDir, overwrite = true)
 
-            val extension = LocalExtension(manifest = extensionInfo, installPath = targetDir.absolutePath)
+            val extension =
+                LocalExtension(manifest = extensionInfo, installPath = targetDir.absolutePath)
             localExtensions[extensionInfo.id] = extension
 
             InstallResult.Success(extension, performedUpdate)
@@ -232,7 +246,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 extensionDir.deleteRecursively()
                 localExtensions.remove(extensionId)
                 context.compiledDexDir().deleteWithPackageName(extension.manifest.id)
-                disabledPrefs.edit().remove(extensionId).apply()
+                disabledPrefs.edit { remove(extensionId) }
 
                 Result.success(Unit)
             } catch (err: Exception) {

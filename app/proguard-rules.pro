@@ -208,13 +208,13 @@
 -dontwarn com.rk.plugin.server.**
 
 # Skip shrinking class if it contains the xed extension point or related to extension related code
--keep @com.rk.extension.XedExtensionPoint class * { *; }
+-keep @com.rk.extension.api.XedExtensionPoint class * { *; }
 -keepclassmembers class * {
-    @com.rk.extension.XedExtensionPoint *;
+    @com.rk.extension.api.XedExtensionPoint *;
 }
 -keep class * {
-    @com.rk.extension.XedExtensionPoint <methods>;
-    @com.rk.extension.XedExtensionPoint <fields>;
+    @com.rk.extension.api.XedExtensionPoint <methods>;
+    @com.rk.extension.api.XedExtensionPoint <fields>;
 }
 
 

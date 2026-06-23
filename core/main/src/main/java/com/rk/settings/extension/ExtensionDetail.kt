@@ -45,7 +45,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage

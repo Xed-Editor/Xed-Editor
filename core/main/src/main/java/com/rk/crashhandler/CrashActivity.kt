@@ -34,6 +34,7 @@ import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import com.rk.crashhandler.CrashHandler.logErrorOrExit
 import com.rk.editor.Editor
+import com.rk.extension.Extension
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
@@ -83,7 +84,7 @@ class CrashActivity : ComponentActivity() {
             return true
         }
 
-        fun start(context: Context, extension: com.rk.extension.Extension, error: Throwable) {
+        fun start(context: Context, extension: Extension, error: Throwable) {
             val intent = Intent(context, CrashActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra("is_extension_crash", true)

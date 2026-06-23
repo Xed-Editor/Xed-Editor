@@ -1,6 +1,6 @@
 package com.rk.editor
 
-import com.rk.extension.XedExtensionPoint
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.settings.Preference

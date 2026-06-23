@@ -6,14 +6,15 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import com.rk.App.Companion.extensionManager
 import com.rk.activities.settings.SettingsActivity
+import com.rk.crashhandler.CrashActivity
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionError
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.StoreExtension
 import com.rk.extension.UpdatableExtension
-import com.rk.extension.installExtensionFromZip
-import com.rk.extension.load
+import com.rk.extension.loader.installExtensionFromZip
+import com.rk.extension.loader.load
 import com.rk.file.toFileObject
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
@@ -88,7 +89,7 @@ suspend fun runExtensionInstallAction(
             extensionManager.setExtensionDisabled(result.extension.id, true)
             withContext(Dispatchers.Main) {
                 activity?.let {
-                    com.rk.crashhandler.CrashActivity.start(it, result.extension, error)
+                    CrashActivity.start(it, result.extension, error)
                 } ?: run {
                     errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
                 }
@@ -134,7 +135,7 @@ suspend fun runExtensionUpdateAction(
             extensionManager.setExtensionDisabled(result.extension.id, true)
             withContext(Dispatchers.Main) {
                 activity?.let {
-                    com.rk.crashhandler.CrashActivity.start(it, result.extension, error)
+                    CrashActivity.start(it, result.extension, error)
                 } ?: run {
                     errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
                 }
@@ -177,7 +178,7 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                         extensionManager.setExtensionDisabled(result.extension.id, true)
                         withContext(Dispatchers.Main) {
                             activity?.let {
-                                com.rk.crashhandler.CrashActivity.start(it, result.extension, error)
+                                CrashActivity.start(it, result.extension, error)
                             } ?: run {
                                 errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
                             }
