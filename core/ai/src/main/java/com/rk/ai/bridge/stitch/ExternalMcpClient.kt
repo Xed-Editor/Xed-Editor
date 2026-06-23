@@ -30,6 +30,7 @@ class ExternalMcpClient(
     val serverName: String,
     val baseUrl: String,
     private val apiKey: String?,
+    private val headers: Map<String, String> = emptyMap(),
     val timeoutMs: Long = 60_000L,
 ) {
     private val gson = GsonBuilder().create()
@@ -117,6 +118,9 @@ class ExternalMcpClient(
             conn.setRequestProperty("Accept", "application/json")
             if (apiKey != null) {
                 conn.setRequestProperty("Authorization", "Bearer $apiKey")
+            }
+            headers.forEach { (key, value) ->
+                conn.setRequestProperty(key, value)
             }
             val body = gson.toJson(request)
             conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }

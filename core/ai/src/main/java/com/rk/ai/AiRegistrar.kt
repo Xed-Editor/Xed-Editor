@@ -105,6 +105,7 @@ object AiRegistrar {
         override fun connectedClients(): Int = IdeBridge.connectedClients()
         override fun availableTools(): Int = IdeBridge.availableTools()
         override fun setWorkspacePath(path: String) = IdeBridge.setWorkspacePath(path)
+        override fun refreshStitcher() = IdeBridge.refreshStitcher()
     }
 
     private class IdeServiceFactoryProviderImpl : AiProvider.IdeServiceFactoryProvider {

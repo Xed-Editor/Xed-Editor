@@ -9,6 +9,7 @@ data class ExternalMcpServerConfig(
     val name: String,
     val url: String,
     val apiKey: String? = null,
+    val headers: Map<String, String> = emptyMap(),
     val enabled: Boolean = true,
     val timeoutMs: Long = 60_000L,
 )

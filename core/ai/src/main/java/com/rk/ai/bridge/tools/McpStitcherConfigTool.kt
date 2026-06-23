@@ -19,6 +19,7 @@ class McpStitcherConfigTool : BaseMcpTool() {
         "name" to "string",
         "url" to "string",
         "apiKey" to "string",
+        "headers" to "object",
         "enabled" to "boolean",
     )
 
@@ -30,6 +31,7 @@ class McpStitcherConfigTool : BaseMcpTool() {
         "name" to "Server name (required for add/remove)",
         "url" to "MCP server URL (required for add, e.g. http://host:port)",
         "apiKey" to "Optional API key/token for authentication",
+        "headers" to "Optional custom headers as JSON object (e.g. {\"X-Goog-Api-Key\": \"key\"})",
         "enabled" to "Whether this server is enabled (default: true)",
     )
 
@@ -55,6 +57,7 @@ class McpStitcherConfigTool : BaseMcpTool() {
                 appendLine("  $name")
                 appendLine("    URL: ${cfg.url}")
                 appendLine("    Auth: ${if (cfg.apiKey != null) "configured" else "none"}")
+                appendLine("    Headers: ${cfg.headers.keys.joinToString(", ").ifEmpty { "none" }}")
                 appendLine("    Enabled: ${cfg.enabled}")
                 appendLine("    Timeout: ${cfg.timeoutMs}ms")
             }
@@ -73,13 +76,23 @@ class McpStitcherConfigTool : BaseMcpTool() {
             args.get("enabled").asBoolean
         } else true
 
+        val headers = mutableMapOf<String, String>()
+        if (args.has("headers") && !args.get("headers").isJsonNull) {
+            val headersObj = args.getAsJsonObject("headers")
+            headersObj?.keySet()?.forEach { key ->
+                headersObj.get(key)?.asString?.let { value ->
+                    headers[key] = value
+                }
+            }
+        }
+
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             return McpToolResult.error("URL must start with http:// or https://")
         }
 
         var config = loadConfig()
         config = ExternalMcpConfigLoader.addServer(config, ExternalMcpServerConfig(
-            name = name, url = url, apiKey = apiKey, enabled = enabled
+            name = name, url = url, apiKey = apiKey, headers = headers, enabled = enabled
         ))
         saveConfig(config)
         IdeBridge.refreshStitcher()

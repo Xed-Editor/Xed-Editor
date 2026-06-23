@@ -62,6 +62,7 @@ class McpStitcher {
             serverName = name,
             baseUrl = cfg.url,
             apiKey = cfg.apiKey,
+            headers = cfg.headers,
             timeoutMs = cfg.timeoutMs,
         )
 

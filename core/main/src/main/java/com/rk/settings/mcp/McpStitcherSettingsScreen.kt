@@ -34,30 +34,68 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rk.ai.IdeBridge
-import com.rk.ai.bridge.stitch.ExternalMcpConfig
-import com.rk.ai.bridge.stitch.ExternalMcpConfigLoader
-import com.rk.ai.bridge.stitch.ExternalMcpServerConfig
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.rk.ai.AiProvider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.resources.getString
-import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
+data class McpServerConfig(
+    val name: String = "",
+    val url: String = "",
+    val apiKey: String? = null,
+    val headers: Map<String, String> = emptyMap(),
+    val enabled: Boolean = true,
+    val timeoutMs: Long = 60_000L,
+)
+
+data class McpServersConfig(
+    val mcpServers: Map<String, McpServerConfig> = emptyMap()
+)
+
+object McpConfigManager {
+    private val gson = Gson()
+
+    fun loadConfig(): McpServersConfig {
+        val json = Settings.ai_mcp_servers_config
+        if (json.isBlank()) return McpServersConfig()
+        return try {
+            gson.fromJson(json, object : TypeToken<McpServersConfig>() {}.type)
+        } catch (_: Exception) {
+            McpServersConfig()
+        }
+    }
+
+    fun saveConfig(config: McpServersConfig) {
+        Settings.ai_mcp_servers_config = gson.toJson(config)
+    }
+
+    fun addServer(config: McpServersConfig, server: McpServerConfig): McpServersConfig {
+        val servers = config.mcpServers.toMutableMap()
+        servers[server.name] = server
+        return config.copy(mcpServers = servers)
+    }
+
+    fun removeServer(config: McpServersConfig, name: String): McpServersConfig {
+        val servers = config.mcpServers.toMutableMap()
+        servers.remove(name)
+        return config.copy(mcpServers = servers)
+    }
+}
 
 @Composable
 fun McpStitcherSettingsScreen() {
     PreferenceLayout(label = "MCP Stitcher") {
-        var config by remember { mutableStateOf(loadConfig()) }
+        var config by remember { mutableStateOf(McpConfigManager.loadConfig()) }
         var showAddDialog by remember { mutableStateOf(false) }
         var isLoading by remember { mutableStateOf(false) }
-        var serverToEdit by remember { mutableStateOf<Pair<String, ExternalMcpServerConfig>?>(null) }
+        var serverToEdit by remember { mutableStateOf<Pair<String, McpServerConfig>?>(null) }
 
         val scope = rememberCoroutineScope()
 
@@ -66,6 +104,7 @@ fun McpStitcherSettingsScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 if (config.mcpServers.isEmpty()) {
                     Text(
@@ -82,16 +121,16 @@ fun McpStitcherSettingsScreen() {
                             onToggle = { enabled ->
                                 scope.launch {
                                     val updated = serverConfig.copy(enabled = enabled)
-                                    config = ExternalMcpConfigLoader.addServer(config, updated)
-                                    saveConfig(config)
+                                    config = McpConfigManager.addServer(config, updated)
+                                    McpConfigManager.saveConfig(config)
                                     refreshStitcher()
                                 }
                             },
                             onEdit = { serverToEdit = name to serverConfig },
                             onDelete = {
                                 scope.launch {
-                                    config = ExternalMcpConfigLoader.removeServer(config, name)
-                                    saveConfig(config)
+                                    config = McpConfigManager.removeServer(config, name)
+                                    McpConfigManager.saveConfig(config)
                                     refreshStitcher()
                                     toast("Removed server '$name'")
                                 }
@@ -118,7 +157,7 @@ fun McpStitcherSettingsScreen() {
                         scope.launch {
                             isLoading = true
                             refreshStitcher()
-                            config = loadConfig()
+                            config = McpConfigManager.loadConfig()
                             isLoading = false
                         }
                     },
@@ -146,17 +185,19 @@ fun McpStitcherSettingsScreen() {
                 initialName = "",
                 initialUrl = "",
                 initialApiKey = "",
+                initialHeaders = emptyMap(),
                 onDismiss = { showAddDialog = false },
-                onConfirm = { name, url, apiKey ->
+                onConfirm = { name, url, apiKey, headers ->
                     scope.launch {
-                        val newServer = ExternalMcpServerConfig(
+                        val newServer = McpServerConfig(
                             name = name,
                             url = url,
                             apiKey = apiKey.ifBlank { null },
+                            headers = headers,
                             enabled = true
                         )
-                        config = ExternalMcpConfigLoader.addServer(config, newServer)
-                        saveConfig(config)
+                        config = McpConfigManager.addServer(config, newServer)
+                        McpConfigManager.saveConfig(config)
                         refreshStitcher()
                         toast("Added server '$name'")
                         showAddDialog = false
@@ -171,22 +212,24 @@ fun McpStitcherSettingsScreen() {
                 initialName = name,
                 initialUrl = serverConfig.url,
                 initialApiKey = serverConfig.apiKey ?: "",
+                initialHeaders = serverConfig.headers,
                 isEditing = true,
                 onDismiss = { serverToEdit = null },
-                onConfirm = { newName, newUrl, newApiKey ->
+                onConfirm = { newName, newUrl, newApiKey, headers ->
                     scope.launch {
                         if (newName != name) {
-                            config = ExternalMcpConfigLoader.removeServer(config, name)
+                            config = McpConfigManager.removeServer(config, name)
                         }
-                        val updatedServer = ExternalMcpServerConfig(
+                        val updatedServer = McpServerConfig(
                             name = newName,
                             url = newUrl,
                             apiKey = newApiKey.ifBlank { null },
+                            headers = headers,
                             enabled = serverConfig.enabled,
                             timeoutMs = serverConfig.timeoutMs
                         )
-                        config = ExternalMcpConfigLoader.addServer(config, updatedServer)
-                        saveConfig(config)
+                        config = McpConfigManager.addServer(config, updatedServer)
+                        McpConfigManager.saveConfig(config)
                         refreshStitcher()
                         toast("Updated server '$newName'")
                         serverToEdit = null
@@ -200,7 +243,7 @@ fun McpStitcherSettingsScreen() {
 @Composable
 private fun ServerCard(
     name: String,
-    config: ExternalMcpServerConfig,
+    config: McpServerConfig,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -233,6 +276,13 @@ private fun ServerCard(
                     if (config.apiKey != null) {
                         Text(
                             text = "API Key: ${config.apiKey.take(8)}...",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (config.headers.isNotEmpty()) {
+                        Text(
+                            text = "Headers: ${config.headers.keys.joinToString(", ")}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -277,13 +327,19 @@ private fun AddEditServerDialog(
     initialName: String,
     initialUrl: String,
     initialApiKey: String,
+    initialHeaders: Map<String, String> = emptyMap(),
     isEditing: Boolean = false,
     onDismiss: () -> Unit,
-    onConfirm: (name: String, url: String, apiKey: String) -> Unit
+    onConfirm: (name: String, url: String, apiKey: String, headers: Map<String, String>) -> Unit
 ) {
     var name by remember { mutableStateOf(initialName) }
     var url by remember { mutableStateOf(initialUrl) }
     var apiKey by remember { mutableStateOf(initialApiKey) }
+    var headersJson by remember { mutableStateOf(
+        if (initialHeaders.isNotEmpty()) {
+            try { org.json.JSONObject(initialHeaders).toString(2) } catch (_: Exception) { "" }
+        } else ""
+    ) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -311,11 +367,27 @@ private fun AddEditServerDialog(
                     label = { Text("API Key (optional)") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = headersJson,
+                    onValueChange = { headersJson = it },
+                    label = { Text("Headers JSON (optional)") },
+                    placeholder = { Text("{\"X-Goog-Api-Key\": \"your-key\"}") },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(name, url, apiKey) },
+                onClick = {
+                    val headers = try {
+                        if (headersJson.isNotBlank()) {
+                            val obj = org.json.JSONObject(headersJson)
+                            obj.keys().asSequence().associateWith { obj.getString(it) }
+                        } else emptyMap()
+                    } catch (_: Exception) { emptyMap() }
+                    onConfirm(name, url, apiKey, headers)
+                },
                 enabled = name.isNotBlank() && url.isNotBlank()
             ) {
                 Text("Save")
@@ -329,14 +401,6 @@ private fun AddEditServerDialog(
     )
 }
 
-private fun loadConfig(): ExternalMcpConfig {
-    return ExternalMcpConfigLoader.load(Settings.ai_mcp_servers_config)
-}
-
-private fun saveConfig(config: ExternalMcpConfig) {
-    Settings.ai_mcp_servers_config = ExternalMcpConfigLoader.save(config)
-}
-
 private fun refreshStitcher() {
-    IdeBridge.refreshStitcher()
+    AiProvider.ideBridge?.refreshStitcher()
 }

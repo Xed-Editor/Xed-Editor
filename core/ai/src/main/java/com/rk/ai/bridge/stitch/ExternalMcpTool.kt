@@ -10,7 +10,7 @@ class ExternalMcpTool(
     private val schema: ExternalMcpToolSchema,
     private val client: ExternalMcpClient,
 ) : McpTool {
-    override fun getName(): String = "stitch_${schema.serverName}_${schema.name}"
+    override fun getName(): String = "stitch_${schema.name}"
     override fun getDescription(): String = "[${schema.serverName}] ${schema.description}"
     override fun getCategory(): String = "External MCP ($serverName)"
     override fun getTimeoutMs(): Long = client.timeoutMs

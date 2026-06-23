@@ -31,6 +31,7 @@ object AiProvider {
         fun connectedClients(): Int
         fun availableTools(): Int
         fun setWorkspacePath(path: String)
+        fun refreshStitcher()
     }
 
     interface SessionManagerProvider {
