@@ -7,14 +7,14 @@ import com.rk.xededitor.BuildConfig
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
+import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.plugins.cors.CORS
+import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
@@ -38,14 +38,15 @@ class McpSdkServer(
     @Volatile
     var toolRegistry: McpToolRegistry = McpToolRegistry()
 
-    private var ktorServer: ApplicationEngine? = null
+    private var ktorServer: EmbeddedServer<*, *>? = null
+    private var actualPort: Int = -1
 
-    val port: Int get() = ktorServer?.environment?.connectors?.firstOrNull()?.port ?: -1
+    val port: Int get() = actualPort
     val isRunning: Boolean get() = ktorServer != null
 
     fun start(requestedPort: Int = 0, registry: McpToolRegistry): Int {
         toolRegistry = registry
-        ktorServer = embeddedServer(CIO, host = host, port = requestedPort) {
+        val server = embeddedServer(CIO, host = host, port = requestedPort) {
             install(CORS) {
                 anyHost()
                 allowMethod(HttpMethod.Options)
@@ -86,7 +87,8 @@ class McpSdkServer(
                 }
             }
         }.start(wait = false)
-        val actualPort = port
+        ktorServer = server
+        actualPort = server.environment.connectors.first().port
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "MCP SDK server started on $host:$actualPort")
         }
@@ -98,15 +100,17 @@ class McpSdkServer(
         if (p <= 0) return
         ktorServer?.stop(1000, 3000)
         ktorServer = null
+        actualPort = -1
         start(p, toolRegistry)
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "MCP SDK server rebuilt on $host:${ktorServer?.port()}")
+            Log.d(TAG, "MCP SDK server rebuilt on $host:${port}")
         }
     }
 
     fun stop() {
         ktorServer?.stop(1000, 5000)
         ktorServer = null
+        actualPort = -1
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "MCP SDK server stopped")
         }
