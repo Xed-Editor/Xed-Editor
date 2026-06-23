@@ -691,4 +691,5 @@
     <string name="seccomp_unspecified">Nieokreślony</string>
     <string name="seccomp_no_seccomp">Brak Seccomp</string>
     <string name="seccomp_seccomp">Seccomp</string>
+    <string name="download_count">Liczba pobrań</string>
 </resources>
