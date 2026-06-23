@@ -143,7 +143,7 @@ fun Support(modifier: Modifier = Modifier) {
                             "upi://pay"
                                 .toUri()
                                 .buildUpon()
-                                .appendQueryParameter("pa", "rohitkushvaha01@axl")
+                                .appendQueryParameter("pa", "rohitkushwaha01x@axl")
                                 .appendQueryParameter("pn", "Rohit Kushwaha")
                                 .appendQueryParameter("tn", "Xed-Editor")
                                 .appendQueryParameter("cu", "INR")
