@@ -217,11 +217,11 @@ class McpManager(
             )
         )
 
-        // 注册 transport 回调以支持自动重连
+        // Register transport callbacks for auto-reconnect
         transport.onClose {
             Log.i(TAG, "Transport closed for ${config.commonOptions.name}")
             val currentStatus = syncingStatus.value[config.id]
-            // 只有在已连接状态下才触发重连，避免正常关闭时重连
+            // Only reconnect when previously connected, avoid reconnecting on normal close
             if (currentStatus == McpStatus.Connected) {
                 scheduleReconnect(config)
             }
@@ -230,7 +230,7 @@ class McpManager(
         transport.onError { error ->
             Log.e(TAG, "Transport error for ${config.commonOptions.name}: ${error.message}")
             val currentStatus = syncingStatus.value[config.id]
-            // 只有在已连接状态下才触发重连
+            // Only reconnect when previously connected
             if (currentStatus == McpStatus.Connected) {
                 scheduleReconnect(config)
             }
@@ -242,7 +242,7 @@ class McpManager(
             client.connect(transport)
             sync(config)
             setStatus(config = config, status = McpStatus.Connected)
-            reconnectAttempts[config.id] = 0 // 重置重连计数
+            reconnectAttempts[config.id] = 0 // Reset reconnect attempt counter
             Log.i(TAG, "addClient: connected ${config.commonOptions.name}")
         }.onFailure {
             it.printStackTrace()
@@ -268,7 +268,7 @@ class McpManager(
                     val common = serverConfig.commonOptions
                     val tools = common.tools.toMutableList()
 
-                    // 基于server对比
+                    // Diff against server tool list
                     serverTools.forEach { serverTool ->
                         val tool = tools.find { it.name == serverTool.name }
                         if (tool == null) {
@@ -289,10 +289,10 @@ class McpManager(
                         }
                     }
 
-                    // 删除不在server内的
+                    // Remove tools no longer on server
                     tools.removeIf { tool -> serverTools.none { it.name == tool.name } }
 
-                    // 更新clients
+                    // Update clients map
                     clients.remove(config)
                     clients.put(
                         config.clone(
@@ -302,7 +302,7 @@ class McpManager(
                         ), client
                     )
 
-                    // 返回新的serverConfig，更新到settings store
+                    // Return updated serverConfig for settings store
                     serverConfig.clone(
                         commonOptions = common.copy(
                             tools = tools
@@ -349,17 +349,17 @@ class McpManager(
         if (currentAttempt > MAX_RECONNECT_ATTEMPTS) {
             Log.w(TAG, "Max reconnect attempts reached for ${config.commonOptions.name}")
             appScope.launch {
-                setStatus(config, McpStatus.Error("连接断开，已达最大重连次数"))
+                setStatus(config, McpStatus.Error("Connection lost, max reconnect attempts reached"))
             }
             return
         }
 
         reconnectAttempts[configId] = currentAttempt
 
-        // 取消之前的重连任务
+        // Cancel previous reconnect job
         reconnectJobs[configId]?.cancel()
 
-        // 计算指数退避延迟
+        // Calculate exponential backoff delay
         val delayMs = calculateBackoffDelay(currentAttempt)
         Log.i(TAG, "Scheduling reconnect for ${config.commonOptions.name}, attempt $currentAttempt/$MAX_RECONNECT_ATTEMPTS, delay ${delayMs}ms")
 
@@ -384,7 +384,7 @@ class McpManager(
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Reconnect failed for ${config.commonOptions.name}", e)
-                // 继续尝试重连
+                // Retry reconnection
                 scheduleReconnect(config)
             }
         }
@@ -396,13 +396,13 @@ class McpManager(
     }
 
     private fun calculateBackoffDelay(attempt: Int): Long {
-        // 指数退避: baseDelay * 2^(attempt-1)，最大不超过 maxDelay
+        // Exponential backoff: baseDelay * 2^(attempt-1), capped at maxDelay
         val exponentialDelay = BASE_RECONNECT_DELAY_MS * (1L shl (attempt - 1).coerceAtMost(10))
         return exponentialDelay.coerceAtMost(MAX_RECONNECT_DELAY_MS)
     }
 
     private suspend fun reconnectClient(config: McpServerConfig) = withContext(Dispatchers.IO) {
-        // 先关闭旧客户端
+        // Close old client first
         val oldEntry = clients.entries.find { it.key.id == config.id }
         if (oldEntry != null) {
             runCatching { oldEntry.value.close() }.onFailure { it.printStackTrace() }
@@ -417,7 +417,7 @@ class McpManager(
             )
         )
 
-        // 注册回调
+        // Register callbacks
         transport.onClose {
             Log.i(TAG, "Transport closed for ${config.commonOptions.name}")
             val currentStatus = syncingStatus.value[config.id]
@@ -439,7 +439,7 @@ class McpManager(
         client.connect(transport)
         sync(config)
         setStatus(config, McpStatus.Connected)
-        reconnectAttempts[config.id] = 0 // 重置重连计数
+        reconnectAttempts[config.id] = 0 // Reset reconnect attempt counter
         Log.i(TAG, "Reconnected successfully: ${config.commonOptions.name}")
     }
 

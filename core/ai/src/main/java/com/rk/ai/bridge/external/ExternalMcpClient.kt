@@ -1,4 +1,4 @@
-package com.rk.ai.bridge.stitch
+package com.rk.ai.bridge.external
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
@@ -83,7 +83,7 @@ class ExternalMcpClient(
     }
 
     private suspend fun connect() {
-        runCatching {
+        try {
             val transport = StreamableHttpClientTransport(
                 url = endpointUrl,
                 client = httpClient,
@@ -100,14 +100,14 @@ class ExternalMcpClient(
             )
             val client = Client(
                 clientInfo = Implementation(
-                    name = "xed-stitch",
+                    name = "xed-mcp-client",
                     version = "1.0.0",
                 ),
             )
             client.connect(transport)
             mcpClient = client
-        }.onFailure {
-            runCatching { kotlinx.coroutines.runBlocking { mcpClient?.close() } }
+        } catch (e: Exception) {
+            mcpClient?.let { runCatching { kotlinx.coroutines.runBlocking { it.close() } } }
             mcpClient = null
         }
     }
@@ -186,8 +186,8 @@ class ExternalMcpClient(
         }.getOrDefault(false)
     }
 
-    fun disconnect() {
-        runCatching { kotlinx.coroutines.runBlocking { mcpClient?.close() } }
+    suspend fun disconnect() {
+        runCatching { mcpClient?.close() }
         mcpClient = null
     }
 

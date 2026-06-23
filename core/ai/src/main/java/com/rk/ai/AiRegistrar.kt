@@ -105,7 +105,11 @@ object AiRegistrar {
         override fun connectedClients(): Int = IdeBridge.connectedClients()
         override fun availableTools(): Int = IdeBridge.availableTools()
         override fun setWorkspacePath(path: String) = IdeBridge.setWorkspacePath(path)
-        override fun refreshStitcher() = IdeBridge.refreshStitcher()
+        override fun refreshExternalMcp() = IdeBridge.refreshExternalMcp()
+        override fun getExternalMcpStatus(): String? {
+            val status = IdeBridge.getExternalMcpStatus() ?: return null
+            return com.google.gson.GsonBuilder().create().toJson(status)
+        }
         override fun setOnMcpServersConfigChanged(callback: ((String) -> Unit)?) {
             IdeBridge.onMcpServersConfigChanged = callback
         }

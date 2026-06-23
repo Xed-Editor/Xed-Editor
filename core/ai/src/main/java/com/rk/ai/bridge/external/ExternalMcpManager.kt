@@ -1,8 +1,7 @@
-package com.rk.ai.bridge.stitch
+package com.rk.ai.bridge.external
 
 import android.util.Log
 import com.rk.ai.AiConfig
-import com.rk.ai.IdeBridge
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.CoroutineScope
@@ -10,13 +9,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
-class McpStitcher {
-    private val stitcherScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+class ExternalMcpManager {
+    private val managerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val clients = CopyOnWriteArrayList<ExternalMcpClient>()
     private val schemas = CopyOnWriteArrayList<ExternalMcpToolSchema>()
     private var onToolsChanged: ((List<ExternalMcpTool>) -> Unit)? = null
@@ -30,13 +28,13 @@ class McpStitcher {
     val toolSchemas: List<ExternalMcpToolSchema> get() = schemas.toList()
 
     fun connectAll(configJson: String) {
-        disconnectAll()
         val config = ExternalMcpConfigLoader.load(configJson)
         val enabled = config.mcpServers.filter { it.value.enabled }
         onConfigChanged?.invoke(configJson)
-        if (enabled.isEmpty()) return
 
-        stitcherScope.launch {
+        managerScope.launch {
+            disconnectAll()
+            if (enabled.isEmpty()) return@launch
             val results = enabled.map { (name, cfg) ->
                 async {
                     connectServer(name, cfg)
@@ -52,7 +50,7 @@ class McpStitcher {
     }
 
     fun connectFromConfigFile(workspacePath: String) {
-        val configFile = File(workspacePath, AiConfig.Discovery.mcpStitcherConfigFile)
+        val configFile = File(workspacePath, AiConfig.Discovery.mcpExternalServersFile)
         if (!configFile.exists()) return
         val text = runCatching { configFile.readText() }.getOrNull() ?: return
         connectAll(text)
@@ -95,14 +93,14 @@ class McpStitcher {
         }
     }
 
-    fun disconnectAll() {
+    suspend fun disconnectAll() {
         clients.forEach { it.disconnect() }
         clients.clear()
         schemas.clear()
         onToolsChanged?.invoke(emptyList())
     }
 
-    fun disconnectServer(name: String) {
+    suspend fun disconnectServer(name: String) {
         val idx = clients.indexOfFirst { it.serverName == name }
         if (idx >= 0) {
             clients[idx].disconnect()
@@ -113,9 +111,7 @@ class McpStitcher {
     }
 
     fun refresh() {
-        val currentConfig = Settings.ai_mcp_servers_config
-        disconnectAll()
-        connectAll(currentConfig)
+        connectAll(Settings.ai_mcp_servers_config)
     }
 
     fun getCurrentConfigJson(): String = Settings.ai_mcp_servers_config
@@ -141,6 +137,6 @@ class McpStitcher {
     }
 
     companion object {
-        private const val TAG = "McpStitcher"
+        private const val TAG = "ExternalMcpManager"
     }
 }

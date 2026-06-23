@@ -57,5 +57,5 @@ sealed class SettingsRoutes(val route: String) {
 
     data object Git : SettingsRoutes("git")
 
-    data object McpStitcher : SettingsRoutes("mcp_stitcher")
+    data object ExternalMcp : SettingsRoutes("external_mcp")
 }

@@ -6,10 +6,11 @@ import com.rk.ai.bridge.DiscoveryFileWriter
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.server.McpSdkServer
 import com.rk.ai.bridge.server.registerBuiltInTools
-import com.rk.ai.bridge.stitch.ExternalMcpTool
-import com.rk.ai.bridge.stitch.McpStitcher
+import com.rk.ai.bridge.external.ExternalMcpManager
+import com.rk.ai.bridge.external.ExternalMcpTool
 import com.rk.ai.service.IdeServiceImpl
 import com.rk.xededitor.BuildConfig
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -21,9 +22,9 @@ object IdeBridge {
     data class Info(val port: Int, val token: String, val host: String = "127.0.0.1")
 
     private var sdkServer: McpSdkServer? = null
-    private val stitcher = McpStitcher()
+    private val externalManager = ExternalMcpManager()
 
-    fun connectedClients(): Int = 0
+    fun connectedClients(): Int = externalManager.connectedServers.size
     fun availableTools(): Int = synchronized(stateLock) { sdkServer?.toolRegistry?.listNames()?.size ?: 0 }
     private var token: String? = null
     private var port: Int = 0
@@ -33,7 +34,7 @@ object IdeBridge {
     private val workspacePathsLock = Any()
     private val stateLock = Any()
 
-    val bridgeStitcher: McpStitcher get() = stitcher
+    val bridgeExternalManager: ExternalMcpManager get() = externalManager
 
     var onMcpServersConfigChanged: ((configJson: String) -> Unit)? = null
 
@@ -67,7 +68,7 @@ object IdeBridge {
                 port = s.port
             }
 
-            initStitcher()
+            initExternalManager()
 
             if (workspacePath != null) {
                 addWorkspacePath(workspacePath)
@@ -90,17 +91,17 @@ object IdeBridge {
         return registry
     }
 
-    private fun initStitcher() {
-        stitcher.onConfigChanged = { configJson ->
+    private fun initExternalManager() {
+        externalManager.onConfigChanged = { configJson ->
             onMcpServersConfigChanged?.invoke(configJson)
         }
-        stitcher.setOnToolsChanged { externalTools ->
+        externalManager.setOnToolsChanged { externalTools ->
             val registry = synchronized(stateLock) { sdkServer?.toolRegistry } ?: return@setOnToolsChanged
             synchronized(registry) {
                 val activeNames = HashSet<String>()
                 for (tool in externalTools) { activeNames.add(tool.getName()) }
                 for (n in registry.listNames()) {
-                    if (n.startsWith("stitch_") && n !in activeNames) {
+                    if (n.startsWith("ext_") && n !in activeNames) {
                         registry.remove(n)
                     }
                 }
@@ -110,14 +111,14 @@ object IdeBridge {
             }
             synchronized(stateLock) { sdkServer?.rebuild() }
             if (BuildConfig.DEBUG) {
-                Log.d("IdeBridge", "Stitcher: ${externalTools.size} external tools registered")
+                Log.d("IdeBridge", "External MCP: ${externalTools.size} external tools registered")
             }
         }
         val ws = workspacePaths.lastOrNull()
         if (ws != null) {
-            stitcher.connectFromConfigFile(ws)
+            externalManager.connectFromConfigFile(ws)
         }
-        stitcher.connectAllFromSettings()
+        externalManager.connectAllFromSettings()
     }
 
     fun healthCheck(): Boolean {
@@ -144,7 +145,7 @@ object IdeBridge {
                 if (sdk != null && t != null) {
                     writeDiscoveryFile(host, sdk.port, t, workspacePathForResolution())
                 }
-                stitcher.connectFromConfigFile(path)
+                externalManager.connectFromConfigFile(path)
             }
         }
     }
@@ -153,7 +154,7 @@ object IdeBridge {
         synchronized(stateLock) {
             if (BuildConfig.DEBUG) Log.d("IdeBridge", "Stopping server")
             sdkServer?.stop()
-            stitcher.disconnectAll()
+            runBlocking { externalManager.disconnectAll() }
             sdkServer = null
             token = null
             port = 0
@@ -171,9 +172,21 @@ object IdeBridge {
 
     fun workspacePaths(): List<String> = synchronized(workspacePathsLock) { workspacePaths.toList() }
 
-    fun refreshStitcher() {
-        stitcher.refresh()
+    fun refreshExternalMcp() {
+        externalManager.refresh()
         synchronized(stateLock) { sdkServer?.rebuild() }
+    }
+
+    fun getExternalMcpStatus(): Map<String, Any>? {
+        if (!isRunning()) return null
+        val statusList = externalManager.getClientStatus()
+        val serverCount = statusList.size
+        val toolCount = externalManager.toolSchemas.size
+        return mapOf(
+            "servers" to serverCount,
+            "tools" to toolCount,
+            "status" to statusList,
+        )
     }
 
     private fun newToken(): String {

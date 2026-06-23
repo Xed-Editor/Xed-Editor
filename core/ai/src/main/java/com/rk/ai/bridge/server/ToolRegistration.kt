@@ -40,6 +40,6 @@ fun registerBuiltInTools(registry: McpToolRegistry) {
         register(SemanticSearchTool())
         register(CustomInstructionsTool()); register(AgentWorkflowTool())
         register(PlanModeTool()); register(DependencyAnalyzerTool())
-        register(McpStitcherConfigTool())
+        register(ExternalMcpConfigTool())
     }
 }

@@ -24,7 +24,7 @@ object AiConfig {
         const val ideEnvFile = "ide.env"
         const val xedBridgeEnvHomeFile = ".xed-bridge.env"
         const val launcherScriptFile = "launcher.sh"
-        const val mcpStitcherConfigFile = "mcp-servers.json"
+        const val mcpExternalServersFile = "mcp-servers.json"
 
         val discoveryDirs = listOf(
             "gemini/ide",
@@ -63,7 +63,7 @@ object AiConfig {
         const val claudeName = "claude"
     }
 
-    object Stitcher {
+    object ExternalMcp {
         const val maxServers = 10
         const val defaultTimeoutMs = 60_000L
         const val maxToolsPerServer = 50

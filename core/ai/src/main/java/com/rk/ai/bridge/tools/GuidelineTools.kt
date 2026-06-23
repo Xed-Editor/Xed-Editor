@@ -145,33 +145,34 @@ Use `runCommand` ONLY for: installing packages, compiling/running code, or tasks
 | `getEnvironment` | System environment variables |
 | `getClipboard` / `writeToClipboard` | Device clipboard |
 
-## 🌐 External MCP Tools (Stitch)
-Xed-Editor supports connecting to **external MCP servers** (like Google Stitch, databases, APIs, etc.). These tools are dynamically registered with a `stitch_` prefix and appear alongside built-in tools in `tools/list`.
+## 🌐 External MCP Tools
+Xed-Editor supports connecting to **external MCP servers** (Google Stitch, databases, APIs, custom tools, etc.). These tools are dynamically registered with an `ext_` prefix and appear alongside built-in tools in `tools/list`.
 
 | Tool | Description |
 |------|-------------|
-| `mcpStitcher` | Manage external MCP server connections. Actions: `list` (view connected servers), `add` (connect a new server), `remove` (disconnect), `refresh` (reconnect all). |
-| `stitch_*` | Tools from connected external MCP servers. Use these when the user asks to generate UI designs, manage projects, or interact with external services. |
+| `mcpManager` | Manage external MCP server connections. Actions: `list` (view connected servers), `add` (connect a new server), `remove` (disconnect), `refresh` (reconnect all). |
+| `ext_*` | Tools from connected external MCP servers. Use these when the user asks to generate UI designs, manage projects, or interact with external services. |
 
 ### Using External MCP Tools
-1. **Check what's available**: Call `mcpStitcher` with `action=list` to see configured servers.
-2. **Connect a new server**: Call `mcpStitcher` with `action=add`, `name=<serverName>`, `url=<serverUrl>`, and optional `apiKey` or `headers`.
-3. **Use stitch tools**: Once connected, stitch tools appear in `tools/list` with `stitch_` prefix. Call them directly like any other tool.
-4. **Refresh**: After adding/removing a server, call `mcpStitcher` with `action=refresh` to update the tool list.
+1. **Check what's available**: Call `mcpManager` with `action=list` to see configured servers.
+2. **Connect a new server**: Call `mcpManager` with `action=add`, `name=<serverName>`, `url=<serverUrl>`, and optional `apiKey` or `headers`.
+3. **Use external tools**: Once connected, external tools appear in `tools/list` with `ext_` prefix. Call them directly like any other tool.
+4. **Refresh**: After adding/removing a server, call `mcpManager` with `action=refresh` to update the tool list.
 
 ### When to Use External MCP Tools
-- **UI Design generation** → Google Stitch tools (`stitch_create_project`, `stitch_generate_screen_from_text`, etc.)
+- **UI Design generation** → Google Stitch tools (`ext_create_project`, `ext_generate_screen_from_text`, etc.)
 - **External API integration** → Any MCP-compatible service the user has configured
 - **Database queries** → Database MCP servers (if configured)
 - **Custom workflows** → User-defined MCP servers
 
 ### Example: Google Stitch Workflow
 When the user asks you to generate a UI design:
-1. First check if stitch is connected: `mcpStitcher` with `action=list`
-2. If no stitch server, add it: `mcpStitcher` with `action=add`, `name=stitch`, `url=https://stitch.googleapis.com/mcp`, `headers={"X-Goog-Api-Key": "<key>"}`
-3. List available stitch tools: They'll appear in `tools/list` as `stitch_create_project`, `stitch_generate_screen_from_text`, etc.
-4. Create a project: `stitch_create_project` with `title=...`
-5. Generate a screen: `stitch_generate_screen_from_text` with `projectId=...`, `prompt=...`
+1. First check what external servers are connected: `mcpManager` with `action=list`
+2. If no Google Stitch server, add it: `mcpManager` with `action=add`, `name=stitch`, `url=https://stitch.googleapis.com/mcp`, `headers={"X-Goog-Api-Key": "<key>"}`
+3. Refresh to load available tools: `mcpManager` with `action=refresh`
+4. List available tools: They'll appear in `tools/list` as `ext_create_project`, `ext_generate_screen_from_text`, etc.
+5. Create a project: `ext_create_project` with `title=...`
+6. Generate a screen: `ext_generate_screen_from_text` with `projectId=...`, `prompt=...`
 
 ## 🔍 Tool Selection Guidance
 - **Need to understand the project?** → `getProjectSummary` → `getProjectStructure`

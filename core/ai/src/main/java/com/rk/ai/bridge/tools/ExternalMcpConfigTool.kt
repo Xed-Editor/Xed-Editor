@@ -4,15 +4,15 @@ import com.google.gson.JsonObject
 import com.rk.ai.IdeBridge
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
-import com.rk.ai.bridge.stitch.ExternalMcpConfig
-import com.rk.ai.bridge.stitch.ExternalMcpConfigLoader
-import com.rk.ai.bridge.stitch.ExternalMcpServerConfig
+import com.rk.ai.bridge.external.ExternalMcpConfig
+import com.rk.ai.bridge.external.ExternalMcpConfigLoader
+import com.rk.ai.bridge.external.ExternalMcpServerConfig
 import com.rk.settings.Settings
 
-class McpStitcherConfigTool : BaseMcpTool() {
-    override fun getCategory(): String = "MCP Stitcher"
-    override fun getName(): String = "mcpStitcher"
-    override fun getDescription(): String = "Manage external MCP server connections. Connects to remote MCP servers (like Google Stitch) and makes their tools available with 'stitch_' prefix. Actions: list (view servers), add (connect new server with name, url, optional apiKey/headers), remove (disconnect), refresh (reconnect all). After adding a server, call refresh to make its tools available in tools/list."
+class ExternalMcpConfigTool : BaseMcpTool() {
+    override fun getCategory(): String = "External MCP"
+    override fun getName(): String = "mcpManager"
+    override fun getDescription(): String = "Manage external MCP server connections. Connects to remote MCP servers and makes their tools available with 'ext_' prefix. Actions: list (view servers), add (connect new server with name, url, optional apiKey/headers), remove (disconnect), refresh (reconnect all). After adding a server, call refresh to make its tools available in tools/list."
 
     override fun getRequiredParams(): Map<String, String> = mapOf("action" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -95,9 +95,9 @@ class McpStitcherConfigTool : BaseMcpTool() {
             name = name, url = url, apiKey = apiKey, headers = headers, enabled = enabled
         ))
         saveConfig(config)
-        IdeBridge.refreshStitcher()
+        IdeBridge.refreshExternalMcp()
 
-        return McpToolResult.success("Added MCP server '$name' at $url and refreshed stitcher.")
+        return McpToolResult.success("Added MCP server '$name' at $url and refreshed external MCP.")
     }
 
     private fun removeServer(args: JsonObject): McpToolResult {
@@ -107,12 +107,12 @@ class McpStitcherConfigTool : BaseMcpTool() {
         if (name !in config.mcpServers) return McpToolResult.error("Server '$name' not found")
         config = ExternalMcpConfigLoader.removeServer(config, name)
         saveConfig(config)
-        IdeBridge.refreshStitcher()
+        IdeBridge.refreshExternalMcp()
         return McpToolResult.success("Removed MCP server '$name'.")
     }
 
     private fun refreshServers(): McpToolResult {
-        IdeBridge.refreshStitcher()
+        IdeBridge.refreshExternalMcp()
         val config = loadConfig()
         return McpToolResult.success("Refreshed MCP server connections. ${config.mcpServers.size} servers configured.")
     }

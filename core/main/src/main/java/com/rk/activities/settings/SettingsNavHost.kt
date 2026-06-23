@@ -28,7 +28,7 @@ import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.extension.ExtensionDetail
 import com.rk.settings.extension.ExtensionScreen
 import com.rk.settings.git.GitSettings
-import com.rk.settings.mcp.McpStitcherSettingsScreen
+import com.rk.settings.mcp.ExternalMcpSettingsScreen
 import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
 import com.rk.settings.lsp.LspServerDetail
@@ -112,6 +112,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             ExtensionDetail(extension)
         }
         composable(SettingsRoutes.Git.route) { GitSettings() }
-        composable(SettingsRoutes.McpStitcher.route) { McpStitcherSettingsScreen() }
+        composable(SettingsRoutes.ExternalMcp.route) { ExternalMcpSettingsScreen() }
     }
 }

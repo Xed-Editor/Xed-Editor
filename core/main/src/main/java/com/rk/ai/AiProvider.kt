@@ -31,7 +31,8 @@ object AiProvider {
         fun connectedClients(): Int
         fun availableTools(): Int
         fun setWorkspacePath(path: String)
-        fun refreshStitcher()
+        fun refreshExternalMcp()
+        fun getExternalMcpStatus(): String?
         fun setOnMcpServersConfigChanged(callback: ((String) -> Unit)?)
     }
 

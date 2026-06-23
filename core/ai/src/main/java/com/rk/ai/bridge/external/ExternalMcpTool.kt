@@ -1,4 +1,4 @@
-package com.rk.ai.bridge.stitch
+package com.rk.ai.bridge.external
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -10,7 +10,7 @@ class ExternalMcpTool(
     private val schema: ExternalMcpToolSchema,
     private val client: ExternalMcpClient,
 ) : McpTool {
-    override fun getName(): String = "stitch_${schema.name}"
+    override fun getName(): String = "ext_${schema.name}"
     override fun getDescription(): String = "[${schema.serverName}] ${schema.description}"
     override fun getCategory(): String = "External MCP ($serverName)"
     override fun getTimeoutMs(): Long = client.timeoutMs
