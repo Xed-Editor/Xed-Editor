@@ -9,8 +9,8 @@ import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 import kotlinx.coroutines.CoroutineScope
-import okio.sink
-import okio.source
+import kotlinx.io.asSink
+import kotlinx.io.asSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -85,8 +85,8 @@ class McpStdioServer(
         kotlinx.coroutines.runBlocking {
             try {
                 val transport = StdioServerTransport(
-                    inputStream = input.source(),
-                    outputStream = output.sink(),
+                    inputStream = input.asSource(),
+                    outputStream = output.asSink(),
                 )
                 sdkServer.createSession(transport)
                 if (com.rk.xededitor.BuildConfig.DEBUG) {
@@ -122,8 +122,8 @@ class McpStdioServer(
                 Runnable {
                     runBlocking {
                         val transport = StdioServerTransport(
-                            inputStream = process.inputStream.source(),
-                            outputStream = process.outputStream.sink(),
+                            inputStream = process.inputStream.asSource(),
+                            outputStream = process.outputStream.asSink(),
                         )
                         sdkServer.createSession(transport)
                     }
@@ -162,8 +162,8 @@ class McpStdioServer(
             Runnable {
                 runBlocking {
                     val transport = StdioServerTransport(
-                        inputStream = clientToServerIn.source(),
-                        outputStream = serverToClientOut.sink(),
+                        inputStream = clientToServerIn.asSource(),
+                        outputStream = serverToClientOut.asSink(),
                     )
                     sdkServer.createSession(transport)
                 }
