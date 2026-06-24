@@ -10,9 +10,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import com.rk.utils.okHttpClient
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import com.google.gson.GsonBuilder
+import com.rk.theme.ThemeConfig
+import com.rk.icons.pack.IconPackManifest
 
 @Serializable private data class ExtensionListResponse(val extensions: List<ExtensionEntry>)
 
@@ -22,6 +26,26 @@ import okhttp3.Request
 
 @Serializable
 private data class DownloadUrls(val icon: String? = null, val readme: String? = null, val zip: String, val size: Int)
+
+@Serializable
+data class ThemeStoreEntry(
+    val id: String,
+    val userId: String,
+    val manifest: JsonObject
+)
+
+@Serializable
+data class ThemesResponse(val themes: List<ThemeStoreEntry>)
+
+@Serializable
+data class IconPackStoreEntry(
+    val id: String,
+    val userId: String,
+    val manifest: IconPackManifest
+)
+
+@Serializable
+data class IconPacksResponse(val iconPacks: List<IconPackStoreEntry>)
 
 object ExtensionRegistry {
     private const val TAG = "ExtensionRegistry"
@@ -97,5 +121,52 @@ object ExtensionRegistry {
                     errorDialog(throwable = it)
                 }
                 .getOrElse { false }
+        }
+
+    suspend fun fetchThemes(): List<ThemeStoreEntry> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val jsonString = requestJson("https://xed-editor.app/api/themes")
+                val response = json.decodeFromString<ThemesResponse>(jsonString)
+                response.themes
+            }
+            .onFailure {
+                it.printStackTrace()
+            }
+            .getOrElse { emptyList() }
+        }
+
+    suspend fun fetchIconPacks(): List<IconPackStoreEntry> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val jsonString = requestJson("https://xed-editor.app/api/icon-packs")
+                val response = json.decodeFromString<IconPacksResponse>(jsonString)
+                response.iconPacks
+            }
+            .onFailure {
+                it.printStackTrace()
+            }
+            .getOrElse { emptyList() }
+        }
+
+    suspend fun downloadIconPackZip(id: String, destFile: File): Boolean =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val zipUrl = "https://xed-editor.app/api/icon-packs/$id/iconpack.zip"
+                val request = Request.Builder().url(zipUrl).build()
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) error("HTTP ${response.code}")
+                    destFile.parentFile?.mkdirs()
+                    response.body.byteStream().use { input ->
+                        destFile.outputStream().use { output -> input.copyTo(output) }
+                    }
+                }
+                true
+            }
+            .onFailure {
+                it.printStackTrace()
+                errorDialog(throwable = it)
+            }
+            .getOrElse { false }
         }
 }

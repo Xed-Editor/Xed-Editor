@@ -101,9 +101,9 @@ private fun Categories(navController: NavController) {
 
     if (InbuiltFeatures.extensions.state.value) {
         PreferenceCategory(
-            label = stringResource(strings.ext),
-            description = stringResource(strings.ext_desc),
-            iconResource = drawables.extension,
+            label = stringResource(strings.store),
+            description = stringResource(strings.store_desc),
+            iconResource = drawables.store,
             onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
         )
     }

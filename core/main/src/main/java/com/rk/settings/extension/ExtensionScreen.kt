@@ -4,6 +4,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -16,8 +17,10 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -26,9 +29,13 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.Tab
+import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -45,13 +52,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.App.Companion.extensionManager
+import com.rk.App.Companion.iconPackManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayoutLazyColumn
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.extension.Extension
 import com.rk.extension.StoreExtension
 import com.rk.extension.UpdatableExtension
@@ -65,11 +75,29 @@ import kotlinx.coroutines.withContext
 import androidx.compose.runtime.mutableStateMapOf
 import com.rk.extension.ExtensionId
 import com.rk.extension.ExtensionStats
+import com.rk.extension.manager.ExtensionRegistry
+import com.rk.extension.manager.ThemeStoreEntry
+import com.rk.extension.manager.IconPackStoreEntry
+import com.rk.utils.LoadingPopup
+import com.rk.file.toFileObject
+import com.rk.file.copyToTempDir
+import com.rk.theme.ThemeConfig
+import com.rk.theme.installTheme
+import com.rk.theme.updateThemes
+import com.rk.settings.theme.themes
+import com.rk.file.themeDir
+import com.rk.file.child
+import kotlinx.serialization.json.jsonPrimitive
+import com.google.gson.GsonBuilder
+import com.rk.icons.XedIcons
+import com.rk.icons.Download
+import java.io.ObjectOutputStream
+import java.io.FileOutputStream
+import java.io.File
 
 private enum class ExtensionSortOptions(val stringRes: Int) {
     NAME(strings.name),
     RATING(strings.rating),
-   // DATE_ADDED(strings.date_added),
     DOWNLOAD_COUNT(strings.download_count)
 }
 
@@ -88,6 +116,8 @@ fun ExtensionScreen(navController: NavController) {
     var isRefreshing by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
 
+    var selectedTab by remember { mutableIntStateOf(0) } // 0 = Extensions, 1 = Themes, 2 = Icon Packs
+
     var currentSortOption by remember { mutableStateOf(ExtensionSortOptions.DOWNLOAD_COUNT) }
     var currentFilterOption by remember { mutableStateOf(ExtensionFilterOptions.ALL) }
     val searchQuery = rememberTextFieldState("")
@@ -97,10 +127,15 @@ fun ExtensionScreen(navController: NavController) {
 
     val statsMap = remember { mutableStateMapOf<ExtensionId, ExtensionStats>() }
 
+    var storeThemes by remember { mutableStateOf<List<ThemeStoreEntry>>(emptyList()) }
+    var storeIconPacks by remember { mutableStateOf<List<IconPackStoreEntry>>(emptyList()) }
+
     LaunchedEffect(refreshKey) {
         val shouldLoad = refreshKey > 0 ||
                 extensionManager.localExtensions.isEmpty() ||
-                extensionManager.storeExtension.isEmpty()
+                extensionManager.storeExtension.isEmpty() ||
+                storeThemes.isEmpty() ||
+                storeIconPacks.isEmpty()
 
         if (shouldLoad) {
             isIndexing = true
@@ -114,9 +149,27 @@ fun ExtensionScreen(navController: NavController) {
                 runCatching { extensionManager.indexStoreExtensions() }
                 isFetching = false
             }
+            val themesJob = launch(Dispatchers.IO) {
+                runCatching {
+                    val list = ExtensionRegistry.fetchThemes()
+                    withContext(Dispatchers.Main) {
+                        storeThemes = list
+                    }
+                }
+            }
+            val iconPacksJob = launch(Dispatchers.IO) {
+                runCatching {
+                    val list = ExtensionRegistry.fetchIconPacks()
+                    withContext(Dispatchers.Main) {
+                        storeIconPacks = list
+                    }
+                }
+            }
 
             localJob.join()
             storeJob.join()
+            themesJob.join()
+            iconPacksJob.join()
             isRefreshing = false
         }
     }
@@ -142,6 +195,35 @@ fun ExtensionScreen(navController: NavController) {
             installExtensionFromUri(scope, uri, activity)
         }
 
+    val themeFilePickerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                scope.launch {
+                    val loading = LoadingPopup(activity, null)
+                    loading.show()
+                    runCatching {
+                        com.rk.theme.installFromFile(uri.toFileObject(expectedIsFile = true))
+                    }
+                    loading.hide()
+                }
+            }
+        }
+
+    val iconPackFilePickerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                scope.launch {
+                    val loading = LoadingPopup(activity, null)
+                    loading.show()
+                    runCatching {
+                        val file = uri.toFileObject(expectedIsFile = true).copyToTempDir()
+                        iconPackManager.installIconPack(file)
+                    }
+                    loading.hide()
+                }
+            }
+        }
+
     val sortedExtension by remember {
         derivedStateOf {
             val rawList = extensionManager.getSyncedExtensions()
@@ -154,9 +236,40 @@ fun ExtensionScreen(navController: NavController) {
         }
     }
 
+    val sortedThemes by remember {
+        derivedStateOf {
+            val query = searchQuery.text
+            val filtered = if (query.isEmpty()) {
+                storeThemes
+            } else {
+                storeThemes.filter { theme ->
+                    theme.manifest.get("name")?.jsonPrimitive?.content?.contains(query, ignoreCase = true) == true ||
+                    theme.id.contains(query, ignoreCase = true)
+                }
+            }
+            filtered.sortedBy { theme ->
+                theme.manifest.get("name")?.jsonPrimitive?.content ?: theme.id
+            }
+        }
+    }
+
+    val sortedIconPacks by remember {
+        derivedStateOf {
+            val query = searchQuery.text
+            val filtered = if (query.isEmpty()) {
+                storeIconPacks
+            } else {
+                storeIconPacks.filter { pack ->
+                    pack.manifest.name.contains(query, ignoreCase = true) ||
+                    pack.manifest.id.contains(query, ignoreCase = true)
+                }
+            }
+            filtered.sortedBy { it.manifest.name }
+        }
+    }
 
     RefreshablePreferenceLayoutLazyColumn(
-        label = stringResource(strings.ext),
+        label = stringResource(strings.store),
         isExpandedScreen = false,
         backArrowVisible = true,
         isRefreshing = isRefreshing,
@@ -166,87 +279,353 @@ fun ExtensionScreen(navController: NavController) {
         },
         fab = {
             ExtendedFloatingActionButton(
-                onClick = { filePickerLauncher.launch(arrayOf("application/zip")) },
+                onClick = {
+                    when (selectedTab) {
+                        0 -> filePickerLauncher.launch(arrayOf("application/zip"))
+                        1 -> themeFilePickerLauncher.launch(arrayOf("application/json"))
+                        2 -> iconPackFilePickerLauncher.launch(arrayOf("application/zip"))
+                    }
+                },
                 icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
                 text = { Text(stringResource(strings.install_from_storage)) },
             )
         },
     ) {
         item {
-            InfoBlock(
-                onClick = { activity?.openDocs("extensions") },
-                modifier = Modifier.padding(bottom = 16.dp),
-                icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
-                text = stringResource(strings.info_ext),
-            )
+            PrimaryScrollableTabRow(
+                selectedTabIndex = selectedTab,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                edgePadding = 16.dp
+            ) {
+                Tab(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    text = { Text(stringResource(strings.ext)) }
+                )
+                Tab(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    text = { Text(stringResource(strings.themes)) }
+                )
+                Tab(
+                    selected = selectedTab == 2,
+                    onClick = { selectedTab = 2 },
+                    text = { Text(stringResource(strings.icon_packs)) }
+                )
+            }
         }
 
-        item {
-            ExtensionSearchBar(
-                searchQuery = searchQuery,
-                currentSortOption = currentSortOption,
-                currentFilterOption = currentFilterOption,
-                onSortOptionChange = { currentSortOption = it },
-                onFilterOptionChange = { currentFilterOption = it },
-            )
-        }
-
-        if (sortedExtension.isNotEmpty() || isIndexing || isFetching) {
+        if (selectedTab == 0) {
             item {
-                PreferenceGroup {
-                    sortedExtension.forEach { extension ->
-                        key(extension.id) {
-                            var installState by
-                                remember(extension) {
-                                    mutableStateOf(
-                                        if (extensionManager.isInstalled(extension.id)) {
-                                            if (extension is UpdatableExtension && extension.isUpdatable()) {
-                                                InstallState.Updatable
-                                            } else {
-                                                InstallState.Installed
-                                            }
-                                        } else {
-                                            InstallState.Idle
-                                        }
-                                    )
-                                }
+                InfoBlock(
+                    onClick = { activity?.openDocs("extensions") },
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
+                    text = stringResource(strings.info_ext),
+                )
+            }
 
-                            ExtensionCard(
-                                extension = extension,
-                                installState = installState,
-                                onInstallClick = {
-                                    runExtensionInstallAction(extension, { installState = it }, context, activity)
-                                },
-                                onUninstallClick = {
-                                    runExtensionUninstallAction(extension, { installState = it }, scope, activity)
-                                },
-                                onUpdateClick = {
-                                    if (extension !is UpdatableExtension) return@ExtensionCard
-                                    runExtensionUpdateAction(extension, { installState = it }, context, activity)
-                                },
-                                onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
-                            )
+            item {
+                ExtensionSearchBar(
+                    searchQuery = searchQuery,
+                    currentSortOption = currentSortOption,
+                    currentFilterOption = currentFilterOption,
+                    onSortOptionChange = { currentSortOption = it },
+                    onFilterOptionChange = { currentFilterOption = it },
+                )
+            }
+
+            if (sortedExtension.isNotEmpty() || isIndexing || isFetching) {
+                item {
+                    PreferenceGroup {
+                        sortedExtension.forEach { extension ->
+                            key(extension.id) {
+                                var installState by
+                                    remember(extension) {
+                                        mutableStateOf(
+                                            if (extensionManager.isInstalled(extension.id)) {
+                                                if (extension is UpdatableExtension && extension.isUpdatable()) {
+                                                    InstallState.Updatable
+                                                } else {
+                                                    InstallState.Installed
+                                                }
+                                            } else {
+                                                InstallState.Idle
+                                            }
+                                        )
+                                    }
+
+                                ExtensionCard(
+                                    extension = extension,
+                                    installState = installState,
+                                    onInstallClick = {
+                                        runExtensionInstallAction(extension, { installState = it }, context, activity)
+                                    },
+                                    onUninstallClick = {
+                                        runExtensionUninstallAction(extension, { installState = it }, scope, activity)
+                                    },
+                                    onUpdateClick = {
+                                        if (extension !is UpdatableExtension) return@ExtensionCard
+                                        runExtensionUpdateAction(extension, { installState = it }, context, activity)
+                                    },
+                                    onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            if (isIndexing || isFetching) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterHorizontally),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                        Text(text = stringResource(strings.loading))
+                if (isIndexing || isFetching) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterHorizontally),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            Text(text = stringResource(strings.loading))
+                        }
                     }
                 }
+            } else {
+                item { PreferenceGroup { Text(text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp)) } }
             }
-        } else {
-            item { PreferenceGroup { Text(text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp)) } }
+        } else if (selectedTab == 1) {
+            item {
+                StoreSearchBar(
+                    searchQuery = searchQuery,
+                    placeholderText = stringResource(strings.search_themes)
+                )
+            }
+
+            if (sortedThemes.isNotEmpty() || isRefreshing) {
+                item {
+                    PreferenceGroup {
+                        sortedThemes.forEach { themeEntry ->
+                            key(themeEntry.id) {
+                                val isInstalled = themes.any { it.id == themeEntry.id }
+                                ThemeStoreCard(
+                                    themeEntry = themeEntry,
+                                    isInstalled = isInstalled,
+                                    onInstallClick = {
+                                        val manifestJsonString = themeEntry.manifest.toString()
+                                        val gson = GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.STATIC).create()
+                                        val themeConfig = gson.fromJson(manifestJsonString, ThemeConfig::class.java)
+                                        scope.launch {
+                                            val loading = LoadingPopup(activity, null)
+                                            loading.show()
+                                            runCatching {
+                                                themeConfig.installTheme()
+                                            }
+                                            loading.hide()
+                                        }
+                                    },
+                                    onUninstallClick = {
+                                        val installedTheme = themes.find { it.id == themeEntry.id }
+                                        if (installedTheme != null) {
+                                            scope.launch(Dispatchers.IO) {
+                                                runCatching {
+                                                    val loading = withContext(Dispatchers.Main) {
+                                                        val l = LoadingPopup(activity, null)
+                                                        l.show()
+                                                        l
+                                                    }
+                                                    themeDir().child(installedTheme.name).delete()
+                                                    withContext(Dispatchers.Main) {
+                                                        themes.remove(installedTheme)
+                                                        loading.hide()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                item { PreferenceGroup { Text(text = stringResource(strings.no_themes), modifier = Modifier.padding(16.dp)) } }
+            }
+        } else if (selectedTab == 2) {
+            item {
+                StoreSearchBar(
+                    searchQuery = searchQuery,
+                    placeholderText = stringResource(strings.search_icon_packs)
+                )
+            }
+
+            if (sortedIconPacks.isNotEmpty() || isRefreshing) {
+                item {
+                    PreferenceGroup {
+                        sortedIconPacks.forEach { iconPackEntry ->
+                            key(iconPackEntry.id) {
+                                val isInstalled = iconPackManager.iconPacks.containsKey(iconPackEntry.id)
+                                IconPackStoreCard(
+                                    iconPackEntry = iconPackEntry,
+                                    isInstalled = isInstalled,
+                                    onInstallClick = {
+                                        scope.launch {
+                                            val loading = LoadingPopup(activity, null)
+                                            loading.show()
+                                            val tempFile = withContext(Dispatchers.IO) {
+                                                File(context.cacheDir, "iconpack_${iconPackEntry.id}.zip")
+                                            }
+                                            val success = ExtensionRegistry.downloadIconPackZip(iconPackEntry.id, tempFile)
+                                            if (success) {
+                                                runCatching {
+                                                    iconPackManager.installIconPack(tempFile)
+                                                }
+                                            }
+                                            withContext(Dispatchers.IO) {
+                                                if (tempFile.exists()) {
+                                                    tempFile.delete()
+                                                }
+                                            }
+                                            loading.hide()
+                                        }
+                                    },
+                                    onUninstallClick = {
+                                        scope.launch {
+                                            val loading = LoadingPopup(activity, null)
+                                            loading.show()
+                                            runCatching {
+                                                iconPackManager.uninstallIconPack(iconPackEntry.id)
+                                            }
+                                            loading.hide()
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                item { PreferenceGroup { Text(text = stringResource(strings.no_icon_packs), modifier = Modifier.padding(16.dp)) } }
+            }
         }
     }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun StoreSearchBar(
+    searchQuery: TextFieldState,
+    placeholderText: String,
+) {
+    SearchBarDefaults.InputField(
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        state = searchQuery,
+        leadingIcon = { Icon(Icons.Rounded.Search, null) },
+        trailingIcon = {
+            IconButton({ searchQuery.clearText() }) {
+                Icon(imageVector = Icons.Rounded.Close, contentDescription = stringResource(strings.close))
+            }
+        },
+        onSearch = {},
+        expanded = false,
+        onExpandedChange = {},
+        placeholder = { Text(placeholderText) },
+    )
+}
+
+@Composable
+fun ThemeStoreCard(
+    themeEntry: ThemeStoreEntry,
+    isInstalled: Boolean,
+    onInstallClick: () -> Unit,
+    onUninstallClick: () -> Unit,
+) {
+    val name = themeEntry.manifest.get("name")?.jsonPrimitive?.content ?: themeEntry.id
+    PreferenceTemplate(
+        modifier = Modifier.fillMaxWidth(),
+        startWidget = {
+            Icon(
+                painter = painterResource(drawables.palette),
+                contentDescription = null,
+                modifier = Modifier.size(48.dp).padding(8.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        title = {
+            Text(text = name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        description = {
+            Text(
+                text = themeEntry.id,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = Typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        endWidget = {
+            if (isInstalled) {
+                IconButton(
+                    onClick = onUninstallClick,
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) {
+                    Icon(Icons.Outlined.Delete, contentDescription = stringResource(strings.delete))
+                }
+            } else {
+                IconButton(
+                    onClick = onInstallClick
+                ) {
+                    Icon(XedIcons.Download, contentDescription = null)
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun IconPackStoreCard(
+    iconPackEntry: IconPackStoreEntry,
+    isInstalled: Boolean,
+    onInstallClick: () -> Unit,
+    onUninstallClick: () -> Unit,
+) {
+    val name = iconPackEntry.manifest.name
+    val id = iconPackEntry.manifest.id
+    PreferenceTemplate(
+        modifier = Modifier.fillMaxWidth(),
+        startWidget = {
+            Icon(
+                painter = painterResource(drawables.widgets),
+                contentDescription = null,
+                modifier = Modifier.size(48.dp).padding(8.dp),
+                tint = MaterialTheme.colorScheme.secondary
+            )
+        },
+        title = {
+            Text(text = name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        description = {
+            Text(
+                text = id,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = Typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        endWidget = {
+            if (isInstalled) {
+                IconButton(
+                    onClick = onUninstallClick,
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) {
+                    Icon(Icons.Outlined.Delete, contentDescription = stringResource(strings.delete))
+                }
+            } else {
+                IconButton(
+                    onClick = onInstallClick
+                ) {
+                    Icon(XedIcons.Download, contentDescription = null)
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -321,8 +700,6 @@ private fun ExtensionSearchBar(
         placeholder = { Text(stringResource(strings.search_extensions)) },
     )
 }
-
-
 
 private fun applyFilter(
     searchQuery: TextFieldState,

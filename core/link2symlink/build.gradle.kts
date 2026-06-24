@@ -4,6 +4,7 @@ plugins {
 
 android {
     namespace = "com.rk.link2symlink"
+    ndkVersion = "29.0.13846066"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
