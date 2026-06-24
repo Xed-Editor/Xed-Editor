@@ -18,6 +18,9 @@ import com.google.gson.GsonBuilder
 import com.rk.theme.ThemeConfig
 import com.rk.icons.pack.IconPackManifest
 
+import androidx.compose.runtime.mutableStateMapOf
+import com.rk.settings.extension.InstallState
+
 @Serializable private data class ExtensionListResponse(val extensions: List<ExtensionEntry>)
 
 @Serializable private data class ExtensionEntry(val manifest: ExtensionManifest)
@@ -53,6 +56,44 @@ object ExtensionRegistry {
 
     private val client: OkHttpClient = okHttpClient
     private val json = Json { ignoreUnknownKeys = true }
+
+    val downloadProgress = mutableStateMapOf<String, Float>()
+    val activeInstalls = mutableStateMapOf<String, InstallState>()
+
+    suspend fun downloadFileWithProgress(
+        url: String,
+        destFile: File,
+        onProgress: (progress: Float) -> Unit
+    ): Boolean = withContext(Dispatchers.IO) {
+        runCatching {
+            val request = Request.Builder().url(url).build()
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) error("HTTP ${response.code}")
+                val totalBytes = response.body.contentLength()
+                destFile.parentFile?.mkdirs()
+                response.body.byteStream().use { input ->
+                    destFile.outputStream().use { output ->
+                        val buffer = ByteArray(8192)
+                        var bytesRead: Int
+                        var totalBytesRead = 0L
+                        while (input.read(buffer).also { bytesRead = it } != -1) {
+                            output.write(buffer, 0, bytesRead)
+                            totalBytesRead += bytesRead
+                            if (totalBytes > 0) {
+                                val progress = totalBytesRead.toFloat() / totalBytes
+                                onProgress(progress)
+                            } else {
+                                onProgress(-1f)
+                            }
+                        }
+                    }
+                }
+            }
+            true
+        }.onFailure {
+            it.printStackTrace()
+        }.getOrElse { false }
+    }
 
     suspend fun fetchExtensions(): List<ExtensionManifest> =
         withContext(Dispatchers.IO) {
@@ -126,7 +167,7 @@ object ExtensionRegistry {
     suspend fun fetchThemes(): List<ThemeStoreEntry> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val jsonString = requestJson("https://xed-editor.app/api/themes")
+                val jsonString = requestJson(XedConstants.THEMES_API_BASE)
                 val response = json.decodeFromString<ThemesResponse>(jsonString)
                 response.themes
             }
@@ -139,7 +180,7 @@ object ExtensionRegistry {
     suspend fun fetchIconPacks(): List<IconPackStoreEntry> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val jsonString = requestJson("https://xed-editor.app/api/icon-packs")
+                val jsonString = requestJson(XedConstants.ICONPACKS_API_BASE)
                 val response = json.decodeFromString<IconPacksResponse>(jsonString)
                 response.iconPacks
             }
@@ -152,7 +193,7 @@ object ExtensionRegistry {
     suspend fun downloadIconPackZip(id: String, destFile: File): Boolean =
         withContext(Dispatchers.IO) {
             runCatching {
-                val zipUrl = "https://xed-editor.app/api/icon-packs/$id/iconpack.zip"
+                val zipUrl = "${XedConstants.ICONPACKS_API_BASE}/$id/iconpack.zip"
                 val request = Request.Builder().url(zipUrl).build()
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) error("HTTP ${response.code}")

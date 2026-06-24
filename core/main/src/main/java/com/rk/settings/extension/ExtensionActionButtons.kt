@@ -107,6 +107,7 @@ fun ExtensionActionButtons(
     onUpdateClick: suspend () -> Unit,
     modifier: Modifier = Modifier,
     outdatedWarning: Boolean = false,
+    progress: Float? = null,
 ) {
     when (installState) {
         InstallState.Idle -> {
@@ -114,7 +115,7 @@ fun ExtensionActionButtons(
         }
 
         InstallState.Installing -> {
-            InstallingButton(modifier)
+            InstallingButton(modifier, progress)
         }
 
         InstallState.Installed -> {
@@ -129,7 +130,7 @@ fun ExtensionActionButtons(
         }
 
         InstallState.Updating -> {
-            UpdatingButton(modifier)
+            UpdatingButton(modifier, progress)
         }
     }
 }
@@ -149,7 +150,7 @@ private fun InstallButton(
 }
 
 @Composable
-private fun InstallingButton(modifier: Modifier = Modifier) {
+private fun InstallingButton(modifier: Modifier = Modifier, progress: Float? = null) {
     Button(modifier = modifier, onClick = {}, enabled = false) {
         CircularProgressIndicator(
             modifier = Modifier.size(16.dp),
@@ -157,7 +158,12 @@ private fun InstallingButton(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.width(6.dp))
-        Text(stringResource(strings.installing))
+        val text = if (progress != null && progress >= 0f) {
+            "${stringResource(strings.installing)} (${(progress * 100).toInt()}%)"
+        } else {
+            stringResource(strings.installing)
+        }
+        Text(text)
     }
 }
 
@@ -210,7 +216,7 @@ private fun UpdateButton(
 }
 
 @Composable
-private fun UpdatingButton(modifier: Modifier = Modifier) {
+private fun UpdatingButton(modifier: Modifier = Modifier, progress: Float? = null) {
     Button(modifier = modifier, onClick = {}, enabled = false) {
         CircularProgressIndicator(
             modifier = Modifier.size(16.dp),
@@ -218,6 +224,11 @@ private fun UpdatingButton(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.width(6.dp))
-        Text(stringResource(strings.updating))
+        val text = if (progress != null && progress >= 0f) {
+            "${stringResource(strings.updating)} (${(progress * 100).toInt()}%)"
+        } else {
+            stringResource(strings.updating)
+        }
+        Text(text)
     }
 }

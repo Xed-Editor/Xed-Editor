@@ -53,9 +53,12 @@ ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
+
 COMMAND="(cd $LOCAL/sandbox && tar -xf $TMP_DIR/sandbox.tar.gz)"
 
+
 set +e
+# Samsung devices doesn't like running system binaries under proot
 $PROOT $ARGS /system/bin/sh -c "$COMMAND"
 ret=$?
 set -e
@@ -66,7 +69,10 @@ if [ "$ret" -ne 0 ]; then
     warn "PRoot extraction failed (exit code $ret), falling back to direct extraction..."
 
     set +e
+    LD_PRELOAD="$(realpath "$NATIVE_LIB_DIR/liblink2symlink.so")"
+    export LD_PRELOAD
     /bin/sh -c "$COMMAND"
+    unset LD_PRELOAD
     ret=$?
     set -e
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -72,6 +73,8 @@ import com.rk.utils.openDocs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import androidx.compose.runtime.mutableStateMapOf
 import com.rk.extension.ExtensionId
 import com.rk.extension.ExtensionStats
@@ -131,6 +134,9 @@ fun ExtensionScreen(navController: NavController) {
     var storeIconPacks by remember { mutableStateOf<List<IconPackStoreEntry>>(emptyList()) }
 
     LaunchedEffect(refreshKey) {
+        if (refreshKey > 0) {
+            statsMap.clear()
+        }
         val shouldLoad = refreshKey > 0 ||
                 extensionManager.localExtensions.isEmpty() ||
                 extensionManager.storeExtension.isEmpty() ||
@@ -177,12 +183,17 @@ fun ExtensionScreen(navController: NavController) {
     LaunchedEffect(refreshKey, isFetching) {
         if (!isFetching) {
             val rawList = extensionManager.getSyncedExtensions()
-            rawList.forEach { ext ->
-                launch(Dispatchers.IO) {
-                    runCatching {
-                        val stats = ext.getStats()
-                        withContext(Dispatchers.Main) {
-                            statsMap[ext.id] = stats
+            launch(Dispatchers.IO) {
+                val deferreds = rawList.filter { !statsMap.containsKey(it.id) }.map { ext ->
+                    async {
+                        ext.id to runCatching { ext.getStats() }.getOrNull()
+                    }
+                }
+                val results = deferreds.awaitAll()
+                withContext(Dispatchers.Main) {
+                    results.forEach { (id, stats) ->
+                        if (stats != null) {
+                            statsMap[id] = stats
                         }
                     }
                 }
@@ -281,7 +292,11 @@ fun ExtensionScreen(navController: NavController) {
             ExtendedFloatingActionButton(
                 onClick = {
                     when (selectedTab) {
-                        0 -> filePickerLauncher.launch(arrayOf("application/zip"))
+                        0 -> {
+                            checkExtensionWarningAndRun(activity) {
+                                filePickerLauncher.launch(arrayOf("application/zip"))
+                            }
+                        }
                         1 -> themeFilePickerLauncher.launch(arrayOf("application/json"))
                         2 -> iconPackFilePickerLauncher.launch(arrayOf("application/zip"))
                     }
@@ -340,33 +355,35 @@ fun ExtensionScreen(navController: NavController) {
                     PreferenceGroup {
                         sortedExtension.forEach { extension ->
                             key(extension.id) {
-                                var installState by
-                                    remember(extension) {
-                                        mutableStateOf(
-                                            if (extensionManager.isInstalled(extension.id)) {
-                                                if (extension is UpdatableExtension && extension.isUpdatable()) {
-                                                    InstallState.Updatable
-                                                } else {
-                                                    InstallState.Installed
-                                                }
-                                            } else {
-                                                InstallState.Idle
-                                            }
-                                        )
+                                val installState = remember(extension, ExtensionRegistry.activeInstalls[extension.id]) {
+                                    val active = ExtensionRegistry.activeInstalls[extension.id]
+                                    if (active != null) {
+                                        active
+                                    } else if (extensionManager.isInstalled(extension.id)) {
+                                        if (extension is UpdatableExtension && extension.isUpdatable()) {
+                                            InstallState.Updatable
+                                        } else {
+                                            InstallState.Installed
+                                        }
+                                    } else {
+                                        InstallState.Idle
                                     }
+                                }
 
                                 ExtensionCard(
                                     extension = extension,
                                     installState = installState,
                                     onInstallClick = {
-                                        runExtensionInstallAction(extension, { installState = it }, context, activity)
+                                        checkExtensionWarningAndRun(activity) {
+                                            runExtensionInstallAction(extension, {}, context, activity)
+                                        }
                                     },
                                     onUninstallClick = {
-                                        runExtensionUninstallAction(extension, { installState = it }, scope, activity)
+                                        runExtensionUninstallAction(extension, {}, scope, activity)
                                     },
                                     onUpdateClick = {
                                         if (extension !is UpdatableExtension) return@ExtensionCard
-                                        runExtensionUpdateAction(extension, { installState = it }, context, activity)
+                                        runExtensionUpdateAction(extension, {}, context, activity)
                                     },
                                     onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
                                 )
@@ -411,29 +428,28 @@ fun ExtensionScreen(navController: NavController) {
                                         val manifestJsonString = themeEntry.manifest.toString()
                                         val gson = GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.STATIC).create()
                                         val themeConfig = gson.fromJson(manifestJsonString, ThemeConfig::class.java)
-                                        scope.launch {
-                                            val loading = LoadingPopup(activity, null)
-                                            loading.show()
+                                        com.rk.DefaultScope.launch(Dispatchers.IO) {
                                             runCatching {
                                                 themeConfig.installTheme()
+                                            }.onSuccess {
+                                                withContext(Dispatchers.Main) {
+                                                    com.rk.utils.toast(strings.installed)
+                                                }
+                                            }.onFailure { err ->
+                                                withContext(Dispatchers.Main) {
+                                                    com.rk.utils.errorDialog(activity, err)
+                                                }
                                             }
-                                            loading.hide()
                                         }
                                     },
                                     onUninstallClick = {
                                         val installedTheme = themes.find { it.id == themeEntry.id }
                                         if (installedTheme != null) {
-                                            scope.launch(Dispatchers.IO) {
+                                            com.rk.DefaultScope.launch(Dispatchers.IO) {
                                                 runCatching {
-                                                    val loading = withContext(Dispatchers.Main) {
-                                                        val l = LoadingPopup(activity, null)
-                                                        l.show()
-                                                        l
-                                                    }
                                                     themeDir().child(installedTheme.name).delete()
                                                     withContext(Dispatchers.Main) {
                                                         themes.remove(installedTheme)
-                                                        loading.hide()
                                                     }
                                                 }
                                             }
@@ -465,34 +481,18 @@ fun ExtensionScreen(navController: NavController) {
                                     iconPackEntry = iconPackEntry,
                                     isInstalled = isInstalled,
                                     onInstallClick = {
-                                        scope.launch {
-                                            val loading = LoadingPopup(activity, null)
-                                            loading.show()
-                                            val tempFile = withContext(Dispatchers.IO) {
-                                                File(context.cacheDir, "iconpack_${iconPackEntry.id}.zip")
-                                            }
-                                            val success = ExtensionRegistry.downloadIconPackZip(iconPackEntry.id, tempFile)
-                                            if (success) {
-                                                runCatching {
-                                                    iconPackManager.installIconPack(tempFile)
-                                                }
-                                            }
-                                            withContext(Dispatchers.IO) {
-                                                if (tempFile.exists()) {
-                                                    tempFile.delete()
-                                                }
-                                            }
-                                            loading.hide()
-                                        }
+                                        runIconPackInstallAction(
+                                            iconPackEntry.id,
+                                            iconPackEntry.manifest.name,
+                                            context,
+                                            activity
+                                        )
                                     },
                                     onUninstallClick = {
-                                        scope.launch {
-                                            val loading = LoadingPopup(activity, null)
-                                            loading.show()
+                                        com.rk.DefaultScope.launch(Dispatchers.IO) {
                                             runCatching {
                                                 iconPackManager.uninstallIconPack(iconPackEntry.id)
                                             }
-                                            loading.hide()
                                         }
                                     }
                                 )
@@ -503,6 +503,9 @@ fun ExtensionScreen(navController: NavController) {
             } else {
                 item { PreferenceGroup { Text(text = stringResource(strings.no_icon_packs), modifier = Modifier.padding(16.dp)) } }
             }
+        }
+        item {
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
@@ -537,6 +540,7 @@ fun ThemeStoreCard(
     onUninstallClick: () -> Unit,
 ) {
     val name = themeEntry.manifest.get("name")?.jsonPrimitive?.content ?: themeEntry.id
+    val progress = ExtensionRegistry.downloadProgress[themeEntry.id]
     PreferenceTemplate(
         modifier = Modifier.fillMaxWidth(),
         startWidget = {
@@ -551,13 +555,30 @@ fun ThemeStoreCard(
             Text(text = name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         description = {
-            Text(
-                text = themeEntry.id,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = Typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            androidx.compose.foundation.layout.Column {
+                Text(
+                    text = themeEntry.id,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = Typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (progress != null) {
+                    androidx.compose.foundation.layout.Spacer(Modifier.height(4.dp))
+                    if (progress >= 0f) {
+                        androidx.compose.material3.LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth().height(4.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        androidx.compose.material3.LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth().height(4.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
         },
         endWidget = {
             if (isInstalled) {
@@ -587,6 +608,7 @@ fun IconPackStoreCard(
 ) {
     val name = iconPackEntry.manifest.name
     val id = iconPackEntry.manifest.id
+    val progress = ExtensionRegistry.downloadProgress[id]
     PreferenceTemplate(
         modifier = Modifier.fillMaxWidth(),
         startWidget = {
@@ -601,13 +623,30 @@ fun IconPackStoreCard(
             Text(text = name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         description = {
-            Text(
-                text = id,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = Typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            androidx.compose.foundation.layout.Column {
+                Text(
+                    text = id,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = Typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (progress != null) {
+                    androidx.compose.foundation.layout.Spacer(Modifier.height(4.dp))
+                    if (progress >= 0f) {
+                        androidx.compose.material3.LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth().height(4.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        androidx.compose.material3.LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth().height(4.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
         },
         endWidget = {
             if (isInstalled) {

@@ -1,5 +1,6 @@
 package com.rk.settings.extension
 
+import com.rk.extension.manager.ExtensionRegistry
 import android.content.Intent
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
@@ -104,7 +105,7 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
         if (extension == null) {
             Text(stringResource(strings.ext_not_found_desc), modifier = Modifier.padding(horizontal = 16.dp))
         } else {
-            var installState by remember {
+            var localInstallState by remember {
                 mutableStateOf(
                     if (extensionManager.isInstalled(extension.id)) {
                         if (extension is UpdatableExtension && extension.isUpdatable()) {
@@ -118,8 +119,28 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
                 )
             }
 
+            val installState = remember(extension, localInstallState, ExtensionRegistry.activeInstalls[extension.id]) {
+                val active = ExtensionRegistry.activeInstalls[extension.id]
+                if (active != null) {
+                    active
+                } else {
+                    localInstallState
+                }
+            }
+
             Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                AboutSection(extension, refreshKey, installState, { installState = it }, scope)
+                AboutSection(
+                    extension = extension,
+                    refreshKey = refreshKey,
+                    installState = installState,
+                    updateInstallState = {
+                        localInstallState = it
+                        if (it == InstallState.Idle && extensionManager.storeExtension[extension.id] == null) {
+                            navController.popBackStack()
+                        }
+                    },
+                    scope = scope,
+                )
             }
             TabSection(extension, scope, refreshKey, onLoaded = { isRefreshing = false })
 
@@ -249,12 +270,33 @@ private fun AboutSection(
     val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
     val outdatedExtension = maxAppVersion != null && xedVersionCode > maxAppVersion
 
+    val progress = ExtensionRegistry.downloadProgress[extension.id]
+    if (progress != null) {
+        if (progress >= 0f) {
+            androidx.compose.material3.LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            androidx.compose.material3.LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+
     ExtensionActionButtons(
         outdatedWarning = outdatedClient || outdatedExtension,
         modifier = Modifier.fillMaxWidth(),
         installState = installState,
         scope = scope,
-        onInstallClick = { runExtensionInstallAction(extension, updateInstallState, context, activity) },
+        progress = progress,
+        onInstallClick = {
+            checkExtensionWarningAndRun(activity) {
+                runExtensionInstallAction(extension, updateInstallState, context, activity)
+            }
+        },
         onUninstallClick = { runExtensionUninstallAction(extension, updateInstallState, scope, activity) },
         onUpdateClick = {
             if (extension !is UpdatableExtension) return@ExtensionActionButtons

@@ -154,6 +154,7 @@
     <string name="ext">Extensions</string>
     <string name="ext_desc">Manage extensions</string>
     <string name="store_desc">Download extensions, themes, and icon packs</string>
+    <string name="extension_warning_msg">Extensions can execute arbitrary code and potentially be malicious. Only install extensions if you trust the developer of the extension and has verified the source code of the extension.</string>
     <string name="tab_opened">Tab opened</string>
     <string name="name_empty_err">Name cannot be empty</string>
     <string name="value_empty_err">Value cannot be empty</string>

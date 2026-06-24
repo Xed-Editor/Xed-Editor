@@ -36,6 +36,7 @@ object Settings {
 
     var read_only_default by CachedPreference("read_only_default", false)
     var shown_disclaimer by CachedPreference("shown_disclaimer", false)
+    var warn_extensions by CachedPreference("warn_extensions", true)
     var amoled by CachedPreference("amoled", false)
     var monet by CachedPreference("monet", false)
     var pin_line_number by CachedPreference("pin_line_number", false)

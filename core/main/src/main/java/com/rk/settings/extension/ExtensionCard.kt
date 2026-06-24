@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -73,35 +74,54 @@ fun ExtensionCard(
             Text(text = extension.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         description = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ExtensionAuthorIcon(extension.author, Modifier.size(20.dp).padding(end = 4.dp))
-                Text(
-                    text = "${extension.author} • v${extension.version}",
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = Typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-
-                val isUpdatable = extension is UpdatableExtension && extension.isUpdatable()
-                if (isUpdatable) {
+            androidx.compose.foundation.layout.Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ExtensionAuthorIcon(extension.author, Modifier.size(20.dp).padding(end = 4.dp))
                     Text(
-                        text = " → v${extension.newVersion}",
-                        style = Typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
+                        text = "${extension.author} • v${extension.version}",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        style = Typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+
+                    val isUpdatable = extension is UpdatableExtension && extension.isUpdatable()
+                    if (isUpdatable) {
+                        Text(
+                            text = " → v${extension.newVersion}",
+                            style = Typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+
+                    if (extensionManager.isExtensionDisabled(extension.id)) {
+                        Text(
+                            text = " • ${stringResource(strings.disabled_crashed)}",
+                            style = Typography.labelMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
 
-                if (extensionManager.isExtensionDisabled(extension.id)) {
-                    Text(
-                        text = " • ${stringResource(strings.disabled_crashed)}",
-                        style = Typography.labelMedium,
-                        color = MaterialTheme.colorScheme.error,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                val progress = com.rk.extension.manager.ExtensionRegistry.downloadProgress[extension.id]
+                if (progress != null) {
+                    androidx.compose.foundation.layout.Spacer(Modifier.height(4.dp))
+                    if (progress >= 0f) {
+                        androidx.compose.material3.LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth().height(4.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    } else {
+                        androidx.compose.material3.LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth().height(4.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
             }
         },

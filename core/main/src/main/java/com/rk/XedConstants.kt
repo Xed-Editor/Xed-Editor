@@ -1,7 +1,6 @@
 package com.rk
 
 object XedConstants {
-    private const val BASE_URL = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main"
     private const val ROOTFS_BASE = "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu"
 
     const val ROOTFS_ARM = "$ROOTFS_BASE/ubuntu-base-24.04.3-base-armhf.tar.gz"
@@ -10,4 +9,6 @@ object XedConstants {
 
 
     const val EXTENSION_API_BASE="https://xed-editor.app/api/extensions"
+    const val THEMES_API_BASE="https://xed-editor.app/api/themes"
+    const val ICONPACKS_API_BASE="https://xed-editor.app/api/icon-packs"
 }
