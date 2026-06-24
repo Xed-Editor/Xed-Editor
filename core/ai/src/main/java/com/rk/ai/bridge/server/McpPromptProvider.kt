@@ -6,7 +6,6 @@ import io.modelcontextprotocol.kotlin.sdk.types.GetPromptResult
 import io.modelcontextprotocol.kotlin.sdk.types.PromptArgument
 import io.modelcontextprotocol.kotlin.sdk.types.PromptMessage
 import io.modelcontextprotocol.kotlin.sdk.types.Role
-import kotlinx.serialization.json.jsonPrimitive
 
 object McpPromptProvider {
     private const val TAG = "McpPromptProvider"
@@ -21,9 +20,9 @@ object McpPromptProvider {
                 PromptArgument(name = "focus", description = "Focus area: security, performance, readability, all", required = false),
             ),
         ) { request ->
-            val code = request.params.arguments?.get("code")?.jsonPrimitive?.content ?: ""
-            val language = request.params.arguments?.get("language")?.jsonPrimitive?.content ?: "auto-detect"
-            val focus = request.params.arguments?.get("focus")?.jsonPrimitive?.content ?: "all"
+            val code = request.params?.arguments?.get("code") ?: ""
+            val language = request.params?.arguments?.get("language") ?: "auto-detect"
+            val focus = request.params?.arguments?.get("focus") ?: "all"
             GetPromptResult(
                 messages = listOf(
                     PromptMessage(
@@ -45,9 +44,9 @@ object McpPromptProvider {
                 PromptArgument(name = "depth", description = "Explanation depth: brief, detailed, beginner", required = false),
             ),
         ) { request ->
-            val code = request.params.arguments?.get("code")?.jsonPrimitive?.content ?: ""
-            val language = request.params.arguments?.get("language")?.jsonPrimitive?.content ?: "auto-detect"
-            val depth = request.params.arguments?.get("depth")?.jsonPrimitive?.content ?: "detailed"
+            val code = request.params?.arguments?.get("code") ?: ""
+            val language = request.params?.arguments?.get("language") ?: "auto-detect"
+            val depth = request.params?.arguments?.get("depth") ?: "detailed"
             GetPromptResult(
                 messages = listOf(
                     PromptMessage(
@@ -70,10 +69,10 @@ object McpPromptProvider {
                 PromptArgument(name = "coverage", description = "Coverage level: basic, comprehensive, edge-cases", required = false),
             ),
         ) { request ->
-            val code = request.params.arguments?.get("code")?.jsonPrimitive?.content ?: ""
-            val language = request.params.arguments?.get("language")?.jsonPrimitive?.content ?: "auto-detect"
-            val framework = request.params.arguments?.get("framework")?.jsonPrimitive?.content ?: "default"
-            val coverage = request.params.arguments?.get("coverage")?.jsonPrimitive?.content ?: "comprehensive"
+            val code = request.params?.arguments?.get("code") ?: ""
+            val language = request.params?.arguments?.get("language") ?: "auto-detect"
+            val framework = request.params?.arguments?.get("framework") ?: "default"
+            val coverage = request.params?.arguments?.get("coverage") ?: "comprehensive"
             GetPromptResult(
                 messages = listOf(
                     PromptMessage(
@@ -95,9 +94,9 @@ object McpPromptProvider {
                 PromptArgument(name = "goal", description = "Refactoring goal: readability, performance, maintainability, testability", required = false),
             ),
         ) { request ->
-            val code = request.params.arguments?.get("code")?.jsonPrimitive?.content ?: ""
-            val language = request.params.arguments?.get("language")?.jsonPrimitive?.content ?: "auto-detect"
-            val goal = request.params.arguments?.get("goal")?.jsonPrimitive?.content ?: "readability"
+            val code = request.params?.arguments?.get("code") ?: ""
+            val language = request.params?.arguments?.get("language") ?: "auto-detect"
+            val goal = request.params?.arguments?.get("goal") ?: "readability"
             GetPromptResult(
                 messages = listOf(
                     PromptMessage(
@@ -120,10 +119,10 @@ object McpPromptProvider {
                 PromptArgument(name = "context", description = "Additional context (stack trace, logs, etc.)", required = false),
             ),
         ) { request ->
-            val error = request.params.arguments?.get("error")?.jsonPrimitive?.content ?: ""
-            val code = request.params.arguments?.get("code")?.jsonPrimitive?.content ?: ""
-            val language = request.params.arguments?.get("language")?.jsonPrimitive?.content ?: "auto-detect"
-            val context = request.params.arguments?.get("context")?.jsonPrimitive?.content ?: ""
+            val error = request.params?.arguments?.get("error") ?: ""
+            val code = request.params?.arguments?.get("code") ?: ""
+            val language = request.params?.arguments?.get("language") ?: "auto-detect"
+            val context = request.params?.arguments?.get("context") ?: ""
             val prompt = buildString {
                 append("Help debug this error:\n\nError: $error\n")
                 if (code.isNotBlank()) append("\nRelevant code:\n```$language\n$code\n```\n")

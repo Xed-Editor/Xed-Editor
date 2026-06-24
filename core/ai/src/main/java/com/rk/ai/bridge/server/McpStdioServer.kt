@@ -9,6 +9,8 @@ import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 import kotlinx.coroutines.CoroutineScope
+import okio.sink
+import okio.source
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -83,8 +85,8 @@ class McpStdioServer(
         kotlinx.coroutines.runBlocking {
             try {
                 val transport = StdioServerTransport(
-                    inputStream = input.buffered(),
-                    outputStream = output.buffered(),
+                    inputStream = input.source(),
+                    outputStream = output.sink(),
                 )
                 sdkServer.createSession(transport)
                 if (com.rk.xededitor.BuildConfig.DEBUG) {
@@ -117,24 +119,17 @@ class McpStdioServer(
             activeServer = sdkServer
 
             val serverProcess = Thread(
-                name = "mcp-stdio-server",
-            ) {
-                try {
+                Runnable {
                     runBlocking {
                         val transport = StdioServerTransport(
-                            inputStream = process.inputStream.buffered(),
-                            outputStream = process.outputStream.buffered(),
+                            inputStream = process.inputStream.source(),
+                            outputStream = process.outputStream.sink(),
                         )
                         sdkServer.createSession(transport)
                     }
-                } catch (e: Exception) {
-                    if (com.rk.xededitor.BuildConfig.DEBUG) {
-                        Log.e(TAG, "Stdio process server error", e)
-                    }
-                } finally {
-                    activeServer = null
-                }
-            }
+                },
+                "mcp-stdio-server",
+            )
             serverProcess.isDaemon = true
             serverProcess.start()
 
@@ -164,24 +159,17 @@ class McpStdioServer(
         activeServer = sdkServer
 
         val thread = Thread(
-            name = "mcp-stdio-pipe-server",
-        ) {
-            try {
+            Runnable {
                 runBlocking {
                     val transport = StdioServerTransport(
-                        inputStream = clientToServerIn.buffered(),
-                        outputStream = serverToClientOut.buffered(),
+                        inputStream = clientToServerIn.source(),
+                        outputStream = serverToClientOut.sink(),
                     )
                     sdkServer.createSession(transport)
                 }
-            } catch (e: Exception) {
-                if (com.rk.xededitor.BuildConfig.DEBUG) {
-                    Log.e(TAG, "Stdio pipe server error", e)
-                }
-            } finally {
-                activeServer = null
-            }
-        }
+            },
+            "mcp-stdio-pipe-server",
+        )
         thread.isDaemon = true
         thread.start()
 
