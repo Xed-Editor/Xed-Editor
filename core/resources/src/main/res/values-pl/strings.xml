@@ -692,4 +692,9 @@
     <string name="seccomp_no_seccomp">Brak Seccomp</string>
     <string name="seccomp_seccomp">Seccomp</string>
     <string name="download_count">Liczba pobrań</string>
+    <string name="store_desc">Pobierz rozszerzenia, motywy oraz paczki ikon</string>
+    <string name="no_themes">Nie znaleziono motywów.</string>
+    <string name="no_icon_packs">Nie znaleziono paczek ikon.</string>
+    <string name="search_themes">Wyszukaj motywy</string>
+    <string name="search_icon_packs">Wyszukaj paczki ikon</string>
 </resources>
