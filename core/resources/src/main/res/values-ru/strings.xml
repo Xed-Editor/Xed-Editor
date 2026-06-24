@@ -690,4 +690,11 @@
     <string name="disabled_crashed">Отключено (Вылет приложения)</string>
     <string name="seccomp_no_seccomp">Seccomp не доступен</string>
     <string name="seccomp_seccomp">Seccomp</string>
+    <string name="store_desc">Скачать расширения, темы и наборы иконок</string>
+    <string name="extension_warning_msg">Расширения могут выполнять произвольный код и потенциально быть вредоносными. Устанавливайте расширения только в том случае, если вы доверяете разработчику расширения и проверили его исходный код.</string>
+    <string name="no_themes">Темы не найдены.</string>
+    <string name="no_icon_packs">Наборы иконок не найдены.</string>
+    <string name="search_themes">Поиск тем</string>
+    <string name="search_icon_packs">Поиск наборов иконок</string>
+    <string name="download_count">Количество скачиваний</string>
 </resources>
