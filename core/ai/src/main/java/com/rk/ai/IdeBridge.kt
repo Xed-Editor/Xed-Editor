@@ -2,6 +2,7 @@ package com.rk.ai
 
 import android.util.Log
 import com.rk.activities.main.MainViewModel
+import com.rk.ai.AiConfig
 import com.rk.ai.bridge.DiscoveryFileWriter
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.server.McpSdkServer
@@ -10,6 +11,7 @@ import com.rk.ai.bridge.server.registerBuiltInTools
 import com.rk.ai.bridge.external.ExternalMcpManager
 import com.rk.ai.bridge.external.ExternalMcpTool
 import com.rk.ai.service.IdeServiceImpl
+import com.rk.file.sandboxHomeDir
 import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -51,6 +53,9 @@ object IdeBridge {
 
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String? = null): Info? {
         synchronized(stateLock) {
+            if (sdkServer?.isRunning == true) {
+                return Info(port, token ?: return@ensureStarted null, host)
+            }
             sdkServer?.let { it.stop(); sdkServer = null }
             token = null
             port = 0
@@ -242,9 +247,15 @@ object IdeBridge {
     }
 
     private fun newToken(): String {
+        val tokenFile = File(sandboxHomeDir(), ".xed/${AiConfig.Discovery.tokenFile}")
+        tokenFile.parentFile?.mkdirs()
+        val existing = runCatching { tokenFile.readText().trim() }.getOrNull()
+        if (!existing.isNullOrBlank()) return existing
         val bytes = ByteArray(24)
         secureRandom.nextBytes(bytes)
-        return bytes.joinToString("") { "%02x".format(it) }
+        val token = bytes.joinToString("") { "%02x".format(it) }
+        runCatching { tokenFile.writeText(token) }
+        return token
     }
 
     private fun writeDiscoveryFile(host: String, port: Int, token: String, workspacePath: String) {

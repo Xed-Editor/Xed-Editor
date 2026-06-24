@@ -63,15 +63,21 @@ object DiscoveryFileWriter {
                     if (key != "mcp" && key != "mcpServers") put(key, value)
                 }
 
-                val existingMcpServers = existingObj["mcpServers"]?.jsonObject
-                if (existingMcpServers != null) {
-                    putJsonObject("mcpServers") {
-                        existingMcpServers.forEach { key, value ->
-                            if (key != "xed-ide") put(key, value)
+                val existingMcpServers = existingObj["mcpServers"]?.jsonObject ?: buildJsonObject {}
+                putJsonObject("mcpServers") {
+                    existingMcpServers.forEach { key, value ->
+                        if (key != "xed-ide") put(key, value)
+                    }
+                    putJsonObject("xed-ide") {
+                        put("url", "http://${info.host}:${info.port}/mcp")
+                        put("type", "remote")
+                        put("enabled", true)
+                        putJsonObject("headers") {
+                            put("Authorization", "Bearer ${info.token}")
                         }
                     }
                 }
-                
+
                 val existingMcp = existingObj["mcp"]?.jsonObject ?: buildJsonObject {}
                 putJsonObject("mcp") {
                     existingMcp.forEach { key, value ->
@@ -299,7 +305,22 @@ object DiscoveryFileWriter {
                         existingMcpObj.forEach { key, value ->
                             if (key != "mcpServers" && key != "mcp") put(key, value)
                         }
-                        
+
+                        val existingMcpServers = existingMcpObj["mcpServers"]?.jsonObject ?: buildJsonObject {}
+                        putJsonObject("mcpServers") {
+                            existingMcpServers.forEach { key, value ->
+                                if (key != "xed-ide") put(key, value)
+                            }
+                            putJsonObject("xed-ide") {
+                                put("url", "$url/mcp")
+                                put("type", "remote")
+                                put("enabled", true)
+                                putJsonObject("headers") {
+                                    put("Authorization", "Bearer ${info.token}")
+                                }
+                            }
+                        }
+
                         val existingMcp = existingMcpObj["mcp"]?.jsonObject ?: buildJsonObject {}
                         putJsonObject("mcp") {
                             existingMcp.forEach { key, value ->

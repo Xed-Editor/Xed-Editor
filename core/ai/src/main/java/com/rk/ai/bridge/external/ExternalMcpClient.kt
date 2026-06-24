@@ -267,7 +267,7 @@ class ExternalMcpClient(
             }
             conn.outputStream.write("{}".toByteArray())
             val code = conn.responseCode
-            code in 200..399 || code == 405
+            code in 200..499
         }.getOrDefault(false)
     }
 

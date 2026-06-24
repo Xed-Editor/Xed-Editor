@@ -25,6 +25,7 @@ object AiConfig {
         const val xedBridgeEnvHomeFile = ".xed-bridge.env"
         const val launcherScriptFile = "launcher.sh"
         const val mcpExternalServersFile = "mcp-servers.json"
+        const val tokenFile = "mcp-token.txt"
 
         val discoveryDirs = listOf(
             "gemini/ide",
