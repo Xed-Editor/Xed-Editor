@@ -6,6 +6,7 @@ import io.modelcontextprotocol.kotlin.sdk.types.GetPromptResult
 import io.modelcontextprotocol.kotlin.sdk.types.PromptArgument
 import io.modelcontextprotocol.kotlin.sdk.types.PromptMessage
 import io.modelcontextprotocol.kotlin.sdk.types.Role
+import kotlinx.serialization.json.jsonPrimitive
 
 object McpPromptProvider {
     private const val TAG = "McpPromptProvider"
@@ -26,7 +27,7 @@ object McpPromptProvider {
             GetPromptResult(
                 messages = listOf(
                     PromptMessage(
-                        role = Role.user,
+                        role = Role.User,
                         content = io.modelcontextprotocol.kotlin.sdk.types.TextContent(
                             text = "Please review the following $language code with focus on $focus:\n\n```$language\n$code\n```\n\nProvide:\n1. Bug findings\n2. Style issues\n3. Performance concerns\n4. Security vulnerabilities\n5. Suggestions for improvement",
                         ),
@@ -50,7 +51,7 @@ object McpPromptProvider {
             GetPromptResult(
                 messages = listOf(
                     PromptMessage(
-                        role = Role.user,
+                        role = Role.User,
                         content = io.modelcontextprotocol.kotlin.sdk.types.TextContent(
                             text = "Explain the following $language code at a $depth level:\n\n```$language\n$code\n```\n\nProvide:\n1. Overall purpose\n2. Line-by-line explanation\n3. Key concepts used\n4. How it interacts with the rest of the codebase",
                         ),
@@ -76,7 +77,7 @@ object McpPromptProvider {
             GetPromptResult(
                 messages = listOf(
                     PromptMessage(
-                        role = Role.user,
+                        role = Role.User,
                         content = io.modelcontextprotocol.kotlin.sdk.types.TextContent(
                             text = "Generate $coverage unit tests for the following $language code using $framework:\n\n```$language\n$code\n```\n\nRequirements:\n1. Test all public methods\n2. Include edge cases\n3. Use proper assertions\n4. Follow testing best practices\n5. Add descriptive test names",
                         ),
@@ -100,7 +101,7 @@ object McpPromptProvider {
             GetPromptResult(
                 messages = listOf(
                     PromptMessage(
-                        role = Role.user,
+                        role = Role.User,
                         content = io.modelcontextprotocol.kotlin.sdk.types.TextContent(
                             text = "Refactor the following $language code to improve $goal:\n\n```$language\n$code\n```\n\nProvide:\n1. Refactored code\n2. Explanation of changes\n3. Before/after comparison\n4. Any trade-offs",
                         ),
@@ -132,7 +133,7 @@ object McpPromptProvider {
             GetPromptResult(
                 messages = listOf(
                     PromptMessage(
-                        role = Role.user,
+                        role = Role.User,
                         content = io.modelcontextprotocol.kotlin.sdk.types.TextContent(text = prompt),
                     ),
                 ),

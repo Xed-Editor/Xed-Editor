@@ -90,17 +90,18 @@ object McpResourceProvider {
                 "children" to buildDirTree(root, maxDepth = 3, currentDepth = 0),
             )
         }
+        val elements = tree.map { node ->
+            kotlinx.serialization.json.buildJsonObject {
+                put("path", JsonPrimitive(node["path"] as String))
+                put("name", JsonPrimitive(node["name"] as String))
+                @Suppress("UNCHECKED_CAST")
+                val children = node["children"] as? List<Map<String, Any>> ?: emptyList()
+                put("children", serializeTreeNodes(children))
+            }
+        }
         return kotlinx.serialization.json.Json.encodeToString(
             kotlinx.serialization.json.JsonElement.serializer(),
-            tree.map { node ->
-                kotlinx.serialization.json.buildJsonObject {
-                    put("path", JsonPrimitive(node["path"] as String))
-                    put("name", JsonPrimitive(node["name"] as String))
-                    @Suppress("UNCHECKED_CAST")
-                    val children = node["children"] as? List<Map<String, Any>> ?: emptyList()
-                    put("children", serializeTreeNodes(children))
-                }
-            },
+            kotlinx.serialization.json.JsonArray(elements),
         )
     }
 

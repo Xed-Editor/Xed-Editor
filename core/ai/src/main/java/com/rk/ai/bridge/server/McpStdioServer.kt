@@ -83,8 +83,8 @@ class McpStdioServer(
         kotlinx.coroutines.runBlocking {
             try {
                 val transport = StdioServerTransport(
-                    input = input.buffered(),
-                    output = output.buffered(),
+                    inputStream = input.buffered(),
+                    outputStream = output.buffered(),
                 )
                 sdkServer.createSession(transport)
                 if (com.rk.xededitor.BuildConfig.DEBUG) {
@@ -116,12 +116,14 @@ class McpStdioServer(
             val sdkServer = createServer(registry, workspacePaths)
             activeServer = sdkServer
 
-            val serverProcess = Thread {
+            val serverProcess = Thread(
+                name = "mcp-stdio-server",
+            ) {
                 try {
                     runBlocking {
                         val transport = StdioServerTransport(
-                            input = process.inputStream.buffered(),
-                            output = process.outputStream.buffered(),
+                            inputStream = process.inputStream.buffered(),
+                            outputStream = process.outputStream.buffered(),
                         )
                         sdkServer.createSession(transport)
                     }
@@ -132,7 +134,7 @@ class McpStdioServer(
                 } finally {
                     activeServer = null
                 }
-            }, "mcp-stdio-server")
+            }
             serverProcess.isDaemon = true
             serverProcess.start()
 
@@ -161,12 +163,14 @@ class McpStdioServer(
         val sdkServer = createServer(registry, workspacePaths)
         activeServer = sdkServer
 
-        val thread = Thread {
+        val thread = Thread(
+            name = "mcp-stdio-pipe-server",
+        ) {
             try {
                 runBlocking {
                     val transport = StdioServerTransport(
-                        input = clientToServerIn.buffered(),
-                        output = serverToClientOut.buffered(),
+                        inputStream = clientToServerIn.buffered(),
+                        outputStream = serverToClientOut.buffered(),
                     )
                     sdkServer.createSession(transport)
                 }
@@ -177,7 +181,7 @@ class McpStdioServer(
             } finally {
                 activeServer = null
             }
-        }, "mcp-stdio-pipe-server")
+        }
         thread.isDaemon = true
         thread.start()
 

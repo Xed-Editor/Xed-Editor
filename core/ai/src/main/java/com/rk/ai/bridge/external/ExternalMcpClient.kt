@@ -233,7 +233,7 @@ class ExternalMcpClient(
         }
     }
 
-    private suspend fun handleConnectionError(e: Exception) {
+    private suspend fun handleConnectionError(e: Throwable) {
         if (isConnectionError(e)) {
             if (com.rk.xededitor.BuildConfig.DEBUG) {
                 Log.w(TAG, "Connection error detected for '$serverName', resetting connection")

@@ -50,7 +50,7 @@ class McpSdkServer(
         val embedded = embeddedServer(CIO, host = host, port = portToUse) {
             intercept(ApplicationCallPipeline.Call) {
                 if (context.request.uri.startsWith("/mcp") &&
-                    context.request.httpMethod.value != "OPTIONS" &&
+                    context.request.method.value != "OPTIONS" &&
                     !me.isAuthorized(context)
                 ) {
                     context.respondText(

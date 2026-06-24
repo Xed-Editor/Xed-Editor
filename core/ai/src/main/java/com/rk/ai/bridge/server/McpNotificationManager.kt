@@ -106,7 +106,9 @@ class McpNotificationManager(
                     srv.sendResourceUpdated(
                         sessionId = sessionKey.toString(),
                         notification = ResourceUpdatedNotification(
-                            uri = "xed://workspace/tree",
+                            params = io.modelcontextprotocol.kotlin.sdk.types.ResourceUpdatedNotificationParams(
+                                uri = "xed://workspace/tree",
+                            ),
                         ),
                     )
                 }
