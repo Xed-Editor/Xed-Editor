@@ -683,4 +683,11 @@
     <string name="seccomp_unspecified">Belirtilmemiş</string>
     <string name="seccomp_no_seccomp">Seccomp yok</string>
     <string name="seccomp_seccomp">Güvenli Hesaplama Modu</string>
+    <string name="store_desc">Eklentileri, temaları ve simge paketlerini indirin</string>
+    <string name="extension_warning_msg">Eklentiler rastgele kod çalıştırabilir ve potansiyel olarak kötü amaçlı olabilir. Eklentileri yalnızca eklentinin geliştiricisine güveniyorsanız ve eklentinin kaynak kodunu doğruladıysanız yükleyin.</string>
+    <string name="no_themes">Tema bulunamadı.</string>
+    <string name="no_icon_packs">Simge paketi bulunamadı.</string>
+    <string name="search_themes">Temaları ara</string>
+    <string name="search_icon_packs">Simge paketlerini ara</string>
+    <string name="download_count">İndirme Sayısı</string>
 </resources>
