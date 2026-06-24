@@ -85,8 +85,8 @@ class McpStdioServer(
         kotlinx.coroutines.runBlocking {
             try {
                 val transport = StdioServerTransport(
-                    inputStream = input.asSource(),
-                    outputStream = output.asSink(),
+                    inputStream = input.asSource().buffer(),
+                    outputStream = output.asSink().buffer(),
                 )
                 sdkServer.createSession(transport)
                 if (com.rk.xededitor.BuildConfig.DEBUG) {
@@ -122,8 +122,8 @@ class McpStdioServer(
                 Runnable {
                     runBlocking {
                         val transport = StdioServerTransport(
-                            inputStream = process.inputStream.asSource(),
-                            outputStream = process.outputStream.asSink(),
+                            inputStream = process.inputStream.asSource().buffer(),
+                            outputStream = process.outputStream.asSink().buffer(),
                         )
                         sdkServer.createSession(transport)
                     }
@@ -162,8 +162,8 @@ class McpStdioServer(
             Runnable {
                 runBlocking {
                     val transport = StdioServerTransport(
-                        inputStream = clientToServerIn.asSource(),
-                        outputStream = serverToClientOut.asSink(),
+                        inputStream = clientToServerIn.asSource().buffer(),
+                        outputStream = serverToClientOut.asSink().buffer(),
                     )
                     sdkServer.createSession(transport)
                 }
