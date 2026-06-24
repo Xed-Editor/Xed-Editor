@@ -679,4 +679,10 @@
     <string name="seccomp_seccomp">Seccomp</string>
     <string name="disabled_crashed">Tidak berfungsi (Rusak)</string>
     <string name="download_count">Jumlah Unduhan</string>
+    <string name="store_desc">Unduh ekstensi, tema, dan paket ikon</string>
+    <string name="extension_warning_msg">Ekstensi dapat menjalankan kode sembarangan dan berpotensi berbahaya. Hanya pasang ekstensi jika Anda mempercayai pengembangnya dan telah memverifikasi kode sumber ekstensi tersebut.</string>
+    <string name="no_themes">Tema tidak ditemukan.</string>
+    <string name="no_icon_packs">Paket ikon tidak ditemukan.</string>
+    <string name="search_themes">Cari tema</string>
+    <string name="search_icon_packs">Cari paket ikon</string>
 </resources>
