@@ -688,4 +688,9 @@
     <string name="seccomp_no_seccomp">Pas de seccomp</string>
     <string name="seccomp_seccomp">Seccomp</string>
     <string name="download_count">Nombre de téléchargements</string>
+    <string name="store_desc">Téléchargement des extensions, thèmes et lots d\'icônes</string>
+    <string name="no_themes">Aucun thème trouvé.</string>
+    <string name="no_icon_packs">Aucun lot d\'icônes trouvé.</string>
+    <string name="search_themes">Rechercher des thèmes</string>
+    <string name="search_icon_packs">Rechercher des lots d\'icônes</string>
 </resources>
