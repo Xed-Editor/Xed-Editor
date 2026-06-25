@@ -18,7 +18,7 @@ class McpNotificationManager(
 ) {
     companion object {
         private const val TAG = "McpNotificationManager"
-        private const val FILE_WATCH_INTERVAL_MS = 2000L
+        private const val FILE_WATCH_INTERVAL_MS = 5000L
     }
 
     private var watchJob: Job? = null
@@ -60,14 +60,12 @@ class McpNotificationManager(
                     .maxDepth(5)
                     .onEnter { !it.name.startsWith(".") && it.name != "node_modules" && it.name != "build" }
                     .filter { it.isFile }
-                    .take(5000)
+                    .take(1000)
                     .forEach { file ->
                         fileTimestamps[file.absolutePath] = file.lastModified()
                     }
-            } catch (e: Exception) {
-                if (com.rk.xededitor.BuildConfig.DEBUG) {
-                    Log.w(TAG, "Error scanning workspace: ${e.message}")
-                }
+            } catch (_: Exception) {
+                // skip
             }
         }
     }
@@ -84,7 +82,7 @@ class McpNotificationManager(
                     .maxDepth(5)
                     .onEnter { !it.name.startsWith(".") && it.name != "node_modules" && it.name != "build" }
                     .filter { it.isFile }
-                    .take(5000)
+                    .take(1000)
                     .forEach { file ->
                         val lastModified = file.lastModified()
                         val previous = fileTimestamps[file.absolutePath]

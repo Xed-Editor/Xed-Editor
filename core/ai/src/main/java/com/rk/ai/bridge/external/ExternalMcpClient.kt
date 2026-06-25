@@ -247,7 +247,11 @@ class ExternalMcpClient(
         val msg = e.message?.lowercase() ?: return false
         return msg.contains("connection") || msg.contains("closed") ||
             msg.contains("broken pipe") || msg.contains("reset") ||
-            msg.contains("eof") || msg.contains("timeout")
+            msg.contains("eof") || msg.contains("timeout") ||
+            e is java.net.ConnectException ||
+            e is java.net.SocketException ||
+            e is java.net.SocketTimeoutException ||
+            e is java.io.IOException
     }
 
     fun isReachable(): Boolean {

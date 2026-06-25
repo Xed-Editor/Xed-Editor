@@ -157,13 +157,11 @@ object IdeBridge {
         }
     }
 
-    fun startStdioServer(): Boolean {
+    fun startStdioServer(viewModel: com.rk.activities.main.MainViewModel? = null): Boolean {
         val registry = buildToolRegistry()
         val server = McpStdioServer(
             ideServiceProvider = {
-                val vm = com.rk.activities.main.MainViewModel::class.java
-                    .getDeclaredConstructor().newInstance()
-                IdeServiceImpl(vm)
+                IdeServiceImpl(viewModel ?: IdeBridge.defaultViewModel())
             },
         )
         server.start(
@@ -177,13 +175,11 @@ object IdeBridge {
         return true
     }
 
-    fun startStdioWithProcess(command: List<String>): Process? {
+    fun startStdioWithProcess(command: List<String>, viewModel: com.rk.activities.main.MainViewModel? = null): Process? {
         val registry = buildToolRegistry()
         val server = McpStdioServer(
             ideServiceProvider = {
-                val vm = com.rk.activities.main.MainViewModel::class.java
-                    .getDeclaredConstructor().newInstance()
-                IdeServiceImpl(vm)
+                IdeServiceImpl(viewModel ?: IdeBridge.defaultViewModel())
             },
         )
         val process = server.startWithProcess(
@@ -244,6 +240,12 @@ object IdeBridge {
             "tools" to toolCount,
             "status" to statusList,
         )
+    }
+
+    private fun defaultViewModel(): com.rk.activities.main.MainViewModel {
+        return com.rk.activities.main.MainViewModel::class.java
+            .getDeclaredConstructor()
+            .newInstance()
     }
 
     private fun newToken(): String {

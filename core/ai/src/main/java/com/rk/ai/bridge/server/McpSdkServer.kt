@@ -187,9 +187,10 @@ class McpSdkServer(
     private fun findFreePort(): Int {
         return try {
             val socket = java.net.ServerSocket(0)
+            socket.reuseAddress = true
             val p = socket.localPort
             socket.close()
-            p
+            if (p <= 0) 0 else p
         } catch (_: Exception) {
             0
         }

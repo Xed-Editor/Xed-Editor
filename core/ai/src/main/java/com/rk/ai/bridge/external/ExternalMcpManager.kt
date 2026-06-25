@@ -32,17 +32,22 @@ class ExternalMcpManager {
     fun connectAll(configJson: String) {
         val config = ExternalMcpConfigLoader.load(configJson)
         val enabled = config.mcpServers.filter { it.value.enabled }
-        onConfigChanged?.invoke(configJson)
 
         managerScope.launch {
             disconnectAll()
-            if (enabled.isEmpty()) return@launch
+
+            if (enabled.isEmpty()) {
+                onConfigChanged?.invoke(configJson)
+                return@launch
+            }
+
             val results = enabled.map { (name, cfg) ->
                 async {
                     connectServer(name, cfg)
                 }
             }
             results.awaitAll()
+            onConfigChanged?.invoke(configJson)
             notifyToolsChanged()
         }
     }

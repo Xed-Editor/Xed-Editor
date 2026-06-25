@@ -6,6 +6,9 @@ import io.modelcontextprotocol.kotlin.sdk.server.Server
 import io.modelcontextprotocol.kotlin.sdk.types.ReadResourceResult
 import io.modelcontextprotocol.kotlin.sdk.types.TextResourceContents
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
@@ -177,15 +180,23 @@ object McpResourceProvider {
     private fun buildDiagnosticsJson(ideService: IdeService): String {
         return try {
             val openFiles = runBlocking { ideService.getOpenFiles() }
-            val results = mutableListOf<String>()
-            for (fileObj in openFiles) {
-                val filePath = fileObj.get("path")?.asString ?: continue
-                val diags = runBlocking { ideService.getDiagnostics(filePath) }
-                if (diags.size() > 0) {
-                    results.add("{\"file\":\"$filePath\",\"diagnostics\":$diags}")
+            val results = kotlinx.serialization.json.buildJsonArray {
+                for (fileObj in openFiles) {
+                    val filePath = fileObj.get("path")?.asString ?: continue
+                    val diags = runBlocking { ideService.getDiagnostics(filePath) }
+                    if (diags.size() > 0) {
+                        add(kotlinx.serialization.json.buildJsonObject {
+                            put("file", JsonPrimitive(filePath))
+                            put("diagnostics", kotlinx.serialization.json.JsonElement.serializer().let {
+                                kotlinx.serialization.json.Json.parseToJsonElement(diags.toString())
+                            })
+                        })
+                    }
                 }
             }
-            "[${results.joinToString(",")}]"
+            kotlinx.serialization.json.Json.encodeToString(
+                kotlinx.serialization.json.JsonElement.serializer(), results
+            )
         } catch (_: Exception) {
             "[]"
         }
