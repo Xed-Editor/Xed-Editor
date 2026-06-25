@@ -60,32 +60,13 @@ object DiscoveryFileWriter {
             
             val newObj = buildJsonObject {
                 existingObj.forEach { key, value ->
-                    if (key != "mcp" && key != "mcpServers") put(key, value)
+                    if (key != "mcpServers") put(key, value)
                 }
 
-                val existingMcpServers = existingObj["mcpServers"]?.jsonObject ?: buildJsonObject {}
                 putJsonObject("mcpServers") {
-                    existingMcpServers.forEach { key, value ->
-                        if (key != "xed-ide") put(key, value)
-                    }
                     putJsonObject("xed-ide") {
                         put("url", "http://${info.host}:${info.port}/mcp")
                         put("type", "remote")
-                        put("enabled", true)
-                        putJsonObject("headers") {
-                            put("Authorization", "Bearer ${info.token}")
-                        }
-                    }
-                }
-
-                val existingMcp = existingObj["mcp"]?.jsonObject ?: buildJsonObject {}
-                putJsonObject("mcp") {
-                    existingMcp.forEach { key, value ->
-                        if (key != "xed-ide") put(key, value)
-                    }
-                    putJsonObject("xed-ide") {
-                        put("type", "remote")
-                        put("url", "http://${info.host}:${info.port}/mcp")
                         put("enabled", true)
                         putJsonObject("headers") {
                             put("Authorization", "Bearer ${info.token}")
