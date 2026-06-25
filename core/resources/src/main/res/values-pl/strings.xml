@@ -697,4 +697,5 @@
     <string name="no_icon_packs">Nie znaleziono paczek ikon.</string>
     <string name="search_themes">Wyszukaj motywy</string>
     <string name="search_icon_packs">Wyszukaj paczki ikon</string>
+    <string name="extension_warning_msg">Rozszerzenia mogą wykonywać dowolny kod i potencjalnie stanowić zagrożenie. Należy instalować rozszerzenia wyłącznie wtedy, gdy ufasz ich twórcy i sprawdziłeś kod źródłowy rozszerzenia.</string>
 </resources>
