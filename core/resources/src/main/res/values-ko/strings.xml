@@ -320,4 +320,5 @@
     <string name="desktop_mode">데스크탑 모드 (실험용)</string>
     <string name="desktop_mode_desc">태블릿이나 데스트탑 크기의 화면에서 앱을 더욱 쉽게 사용할 수 있도록 만들어 줍니다</string>
     <string name="built_in">내장됨</string>
+    <string name="store_desc">확장 가능, 테마, 그리고 아이콘 팩을 다운로드 합니다</string>
 </resources>
