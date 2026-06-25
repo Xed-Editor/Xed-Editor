@@ -9,8 +9,7 @@ import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.io.asSink
-import kotlinx.io.asSource
+import kotlinx.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -85,8 +84,8 @@ class McpStdioServer(
         kotlinx.coroutines.runBlocking {
             try {
                 val transport = StdioServerTransport(
-                    inputStream = input.asSource().buffer(),
-                    outputStream = output.asSink().buffer(),
+                    inputStream = input.asSource().buffered(),
+                    outputStream = output.asSink().buffered(),
                 )
                 sdkServer.createSession(transport)
                 if (com.rk.xededitor.BuildConfig.DEBUG) {
@@ -122,8 +121,8 @@ class McpStdioServer(
                 Runnable {
                     runBlocking {
                         val transport = StdioServerTransport(
-                            inputStream = process.inputStream.asSource().buffer(),
-                            outputStream = process.outputStream.asSink().buffer(),
+                            inputStream = process.inputStream.asSource().buffered(),
+                            outputStream = process.outputStream.asSink().buffered(),
                         )
                         sdkServer.createSession(transport)
                     }
@@ -162,8 +161,8 @@ class McpStdioServer(
             Runnable {
                 runBlocking {
                     val transport = StdioServerTransport(
-                        inputStream = clientToServerIn.asSource().buffer(),
-                        outputStream = serverToClientOut.asSink().buffer(),
+                        inputStream = clientToServerIn.asSource().buffered(),
+                        outputStream = serverToClientOut.asSink().buffered(),
                     )
                     sdkServer.createSession(transport)
                 }
