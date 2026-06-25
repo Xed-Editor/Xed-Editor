@@ -60,13 +60,17 @@ object DiscoveryFileWriter {
             
             val newObj = buildJsonObject {
                 existingObj.forEach { key, value ->
-                    if (key != "mcpServers") put(key, value)
+                    if (key != "mcpServers" && key != "mcp") put(key, value)
                 }
 
-                putJsonObject("mcpServers") {
+                val existingMcp = existingObj["mcp"]?.jsonObject ?: buildJsonObject {}
+                putJsonObject("mcp") {
+                    existingMcp.forEach { key, value ->
+                        if (key != "xed-ide") put(key, value)
+                    }
                     putJsonObject("xed-ide") {
-                        put("url", "http://${info.host}:${info.port}/mcp")
                         put("type", "remote")
+                        put("url", "http://${info.host}:${info.port}/mcp")
                         put("enabled", true)
                         putJsonObject("headers") {
                             put("Authorization", "Bearer ${info.token}")
@@ -284,22 +288,7 @@ object DiscoveryFileWriter {
                     
                     val newObj = buildJsonObject {
                         existingMcpObj.forEach { key, value ->
-                            if (key != "mcpServers" && key != "mcp") put(key, value)
-                        }
-
-                        val existingMcpServers = existingMcpObj["mcpServers"]?.jsonObject ?: buildJsonObject {}
-                        putJsonObject("mcpServers") {
-                            existingMcpServers.forEach { key, value ->
-                                if (key != "xed-ide") put(key, value)
-                            }
-                            putJsonObject("xed-ide") {
-                                put("url", "$url/mcp")
-                                put("type", "remote")
-                                put("enabled", true)
-                                putJsonObject("headers") {
-                                    put("Authorization", "Bearer ${info.token}")
-                                }
-                            }
+                            if (key != "mcp") put(key, value)
                         }
 
                         val existingMcp = existingMcpObj["mcp"]?.jsonObject ?: buildJsonObject {}
