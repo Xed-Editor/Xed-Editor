@@ -92,6 +92,14 @@
     <string name="discard_changes">Discard changes</string>
     <string name="discard_changes_message">Permanently discard your local changes to this file? This cannot be undone.</string>
     <string name="loading_diff">Loading diff…</string>
+    <string name="dependencies">Dependencies</string>
+    <string name="detecting_project">Detecting project type…</string>
+    <string name="no_dependencies_needed">No extra tools are required for this project.</string>
+    <string name="installing">Installing…</string>
+    <string name="dep_installed">Installed</string>
+    <string name="dep_failed">Failed</string>
+    <string name="dep_available">Available</string>
+    <string name="dep_queued">Queued</string>
     <string name="private_files">Private files</string>
     <string name="private_files_desc">Private files of Xed-Editor</string>
     <string name="cloning">Cloning repository…</string>

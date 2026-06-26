@@ -1,5 +1,6 @@
 package com.rk.projects
 
+import com.rk.utils.application
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -234,7 +235,7 @@ object ProjectScaffolder {
 
     private fun scaffoldFabric(root: File, config: ProjectConfig) {
         val modId = config.resolvedModId()
-        val pkg = config.packageName.ifBlank { "com.example.$modId" }
+        val pkg = config.resolvedPackageName()
         val pkgPath = pkg.replace('.', '/')
         val mainClass = config.name.replace(Regex("[^A-Za-z0-9]"), "").ifBlank { "ExampleMod" }
         val mc = config.minecraftVersion.ifBlank { "1.21.1" }
@@ -390,7 +391,7 @@ object ProjectScaffolder {
 
     private fun scaffoldForge(root: File, config: ProjectConfig) {
         val modId = config.resolvedModId()
-        val pkg = config.packageName.ifBlank { "com.example.$modId" }
+        val pkg = config.resolvedPackageName()
         val pkgPath = pkg.replace('.', '/')
         val mainClass = config.name.replace(Regex("[^A-Za-z0-9]"), "").ifBlank { "ExampleMod" }
         val mc = config.minecraftVersion.ifBlank { "1.20.1" }
@@ -555,20 +556,29 @@ object ProjectScaffolder {
         """
             .trimIndent() + "\n"
 
-    // ---- Android Jetpack Compose ------------------------------------------------
+    // ---- Android Jetpack Compose (faithful Android Studio "Empty Activity" project) -----
 
     private fun scaffoldAndroidCompose(root: File, config: ProjectConfig) {
-        val pkg = config.packageName.ifBlank { "com.example.${config.name.lowercase().replace(Regex("[^a-z0-9]"), "")}" }
+        val pkg = config.resolvedPackageName()
         val pkgPath = pkg.replace('.', '/')
         val jdk = config.jdkVersion.ifBlank { "17" }
-        val appLabel = config.name
+        val appNoSpace = config.name.replace(Regex("[^A-Za-z0-9]"), "").ifBlank { "App" }
+        val themeName = appNoSpace.replaceFirstChar { it.uppercase() } + "Theme"
+        val styleName = "Theme.$appNoSpace"
 
+        // settings.gradle.kts
         root.write(
             "settings.gradle.kts",
             """
             pluginManagement {
                 repositories {
-                    google()
+                    google {
+                        content {
+                            includeGroupByRegex("com\.android.*")
+                            includeGroupByRegex("com\.google.*")
+                            includeGroupByRegex("androidx.*")
+                        }
+                    }
                     mavenCentral()
                     gradlePluginPortal()
                 }
@@ -580,28 +590,73 @@ object ProjectScaffolder {
                     mavenCentral()
                 }
             }
+
             rootProject.name = "${config.name}"
             include(":app")
             """
                 .trimIndent() + "\n",
         )
 
+        // Root build.gradle.kts (version-catalog aliases)
         root.write(
             "build.gradle.kts",
             """
+            // Top-level build file where you can add configuration options common to all sub-projects/modules.
             plugins {
-                id("com.android.application") version "8.5.2" apply false
-                id("org.jetbrains.kotlin.android") version "2.0.0" apply false
-                id("org.jetbrains.kotlin.plugin.compose") version "2.0.0" apply false
+                alias(libs.plugins.android.application) apply false
+                alias(libs.plugins.kotlin.android) apply false
+                alias(libs.plugins.kotlin.compose) apply false
             }
             """
                 .trimIndent() + "\n",
         )
 
+        // Version catalog
+        root.write(
+            "gradle/libs.versions.toml",
+            """
+            [versions]
+            agp = "8.5.2"
+            kotlin = "2.0.0"
+            coreKtx = "1.13.1"
+            junit = "4.13.2"
+            junitVersion = "1.2.1"
+            espressoCore = "3.6.1"
+            lifecycleRuntimeKtx = "2.8.6"
+            activityCompose = "1.9.2"
+            composeBom = "2024.09.00"
+
+            [libraries]
+            androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+            junit = { group = "junit", name = "junit", version.ref = "junit" }
+            androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+            androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+            androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+            androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+            androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+            androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+            androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+            androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+            androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+            androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+            androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+            androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+
+            [plugins]
+            android-application = { id = "com.android.application", version.ref = "agp" }
+            kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+            kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+            """
+                .trimIndent() + "\n",
+        )
+
+        // gradle.properties
         root.write(
             "gradle.properties",
             """
-            org.gradle.jvmargs=-Xmx2048m
+            # Project-wide Gradle settings.
+            org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+            org.gradle.parallel=true
             android.useAndroidX=true
             kotlin.code.style=official
             android.nonTransitiveRClass=true
@@ -609,13 +664,14 @@ object ProjectScaffolder {
                 .trimIndent() + "\n",
         )
 
+        // app/build.gradle.kts
         root.write(
             "app/build.gradle.kts",
             """
             plugins {
-                id("com.android.application")
-                id("org.jetbrains.kotlin.android")
-                id("org.jetbrains.kotlin.plugin.compose")
+                alias(libs.plugins.android.application)
+                alias(libs.plugins.kotlin.android)
+                alias(libs.plugins.kotlin.compose)
             }
 
             android {
@@ -628,11 +684,18 @@ object ProjectScaffolder {
                     targetSdk = 34
                     versionCode = 1
                     versionName = "1.0"
+
+                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                    vectorDrawables { useSupportLibrary = true }
                 }
 
                 buildTypes {
                     release {
                         isMinifyEnabled = false
+                        proguardFiles(
+                            getDefaultProguardFile("proguard-android-optimize.txt"),
+                            "proguard-rules.pro",
+                        )
                     }
                 }
                 compileOptions {
@@ -644,30 +707,52 @@ object ProjectScaffolder {
             }
 
             dependencies {
-                val composeBom = platform("androidx.compose:compose-bom:2024.09.00")
-                implementation(composeBom)
-                implementation("androidx.core:core-ktx:1.13.1")
-                implementation("androidx.activity:activity-compose:1.9.2")
-                implementation("androidx.compose.ui:ui")
-                implementation("androidx.compose.material3:material3")
+                implementation(libs.androidx.core.ktx)
+                implementation(libs.androidx.lifecycle.runtime.ktx)
+                implementation(libs.androidx.activity.compose)
+                implementation(platform(libs.androidx.compose.bom))
+                implementation(libs.androidx.ui)
+                implementation(libs.androidx.ui.graphics)
+                implementation(libs.androidx.ui.tooling.preview)
+                implementation(libs.androidx.material3)
+                testImplementation(libs.junit)
+                androidTestImplementation(libs.androidx.junit)
+                androidTestImplementation(libs.androidx.espresso.core)
+                androidTestImplementation(platform(libs.androidx.compose.bom))
+                androidTestImplementation(libs.androidx.ui.test.junit4)
+                debugImplementation(libs.androidx.ui.tooling)
+                debugImplementation(libs.androidx.ui.test.manifest)
             }
             """
                 .trimIndent() + "\n",
         )
 
+        root.write("app/proguard-rules.pro", "# Add project specific ProGuard rules here.\n")
+        root.write("app/.gitignore", "/build\n")
+
+        // AndroidManifest.xml
         root.write(
             "app/src/main/AndroidManifest.xml",
             """
             <?xml version="1.0" encoding="utf-8"?>
-            <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools">
 
                 <application
                     android:allowBackup="true"
-                    android:label="$appLabel"
-                    android:theme="@style/Theme.App">
+                    android:dataExtractionRules="@xml/data_extraction_rules"
+                    android:fullBackupContent="@xml/backup_rules"
+                    android:icon="@mipmap/ic_launcher"
+                    android:label="@string/app_name"
+                    android:roundIcon="@mipmap/ic_launcher_round"
+                    android:supportsRtl="true"
+                    android:theme="@style/$styleName"
+                    tools:targetApi="31">
                     <activity
                         android:name=".MainActivity"
-                        android:exported="true">
+                        android:exported="true"
+                        android:label="@string/app_name"
+                        android:theme="@style/$styleName">
                         <intent-filter>
                             <action android:name="android.intent.action.MAIN" />
                             <category android:name="android.intent.category.LAUNCHER" />
@@ -680,6 +765,7 @@ object ProjectScaffolder {
                 .trimIndent() + "\n",
         )
 
+        // MainActivity.kt
         root.write(
             "app/src/main/java/$pkgPath/MainActivity.kt",
             """
@@ -688,87 +774,355 @@ object ProjectScaffolder {
             import android.os.Bundle
             import androidx.activity.ComponentActivity
             import androidx.activity.compose.setContent
-            import androidx.compose.material3.MaterialTheme
-            import androidx.compose.material3.Surface
+            import androidx.activity.enableEdgeToEdge
+            import androidx.compose.foundation.layout.fillMaxSize
+            import androidx.compose.foundation.layout.padding
+            import androidx.compose.material3.Scaffold
             import androidx.compose.material3.Text
             import androidx.compose.runtime.Composable
+            import androidx.compose.ui.Modifier
+            import androidx.compose.ui.tooling.preview.Preview
+            import $pkg.ui.theme.$themeName
 
             class MainActivity : ComponentActivity() {
                 override fun onCreate(savedInstanceState: Bundle?) {
                     super.onCreate(savedInstanceState)
+                    enableEdgeToEdge()
                     setContent {
-                        MaterialTheme {
-                            Surface { Greeting("$appLabel") }
+                        $themeName {
+                            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                                Greeting(
+                                    name = "Android",
+                                    modifier = Modifier.padding(innerPadding),
+                                )
+                            }
                         }
                     }
                 }
             }
 
             @Composable
-            fun Greeting(name: String) {
-                Text(text = "Hello, ${'$'}name!")
+            fun Greeting(name: String, modifier: Modifier = Modifier) {
+                Text(text = "Hello ${'$'}name!", modifier = modifier)
+            }
+
+            @Preview(showBackground = true)
+            @Composable
+            fun GreetingPreview() {
+                $themeName { Greeting("Android") }
+            }
+            """
+                .trimIndent() + "\n",
+        )
+
+        // Theme package
+        root.write(
+            "app/src/main/java/$pkgPath/ui/theme/Color.kt",
+            """
+            package $pkg.ui.theme
+
+            import androidx.compose.ui.graphics.Color
+
+            val Purple80 = Color(0xFFD0BCFF)
+            val PurpleGrey80 = Color(0xFFCCC2DC)
+            val Pink80 = Color(0xFFEFB8C8)
+
+            val Purple40 = Color(0xFF6650a4)
+            val PurpleGrey40 = Color(0xFF625b71)
+            val Pink40 = Color(0xFF7D5260)
+            """
+                .trimIndent() + "\n",
+        )
+
+        root.write(
+            "app/src/main/java/$pkgPath/ui/theme/Theme.kt",
+            """
+            package $pkg.ui.theme
+
+            import android.os.Build
+            import androidx.compose.foundation.isSystemInDarkTheme
+            import androidx.compose.material3.MaterialTheme
+            import androidx.compose.material3.darkColorScheme
+            import androidx.compose.material3.dynamicDarkColorScheme
+            import androidx.compose.material3.dynamicLightColorScheme
+            import androidx.compose.material3.lightColorScheme
+            import androidx.compose.runtime.Composable
+            import androidx.compose.ui.platform.LocalContext
+
+            private val DarkColorScheme = darkColorScheme(
+                primary = Purple80,
+                secondary = PurpleGrey80,
+                tertiary = Pink80,
+            )
+
+            private val LightColorScheme = lightColorScheme(
+                primary = Purple40,
+                secondary = PurpleGrey40,
+                tertiary = Pink40,
+            )
+
+            @Composable
+            fun $themeName(
+                darkTheme: Boolean = isSystemInDarkTheme(),
+                dynamicColor: Boolean = true,
+                content: @Composable () -> Unit,
+            ) {
+                val colorScheme = when {
+                    dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                        val context = LocalContext.current
+                        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+                    }
+                    darkTheme -> DarkColorScheme
+                    else -> LightColorScheme
+                }
+
+                MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
             }
             """
                 .trimIndent() + "\n",
         )
 
         root.write(
-            "app/src/main/res/values/themes.xml",
+            "app/src/main/java/$pkgPath/ui/theme/Type.kt",
             """
-            <?xml version="1.0" encoding="utf-8"?>
-            <resources>
-                <style name="Theme.App" parent="android:Theme.Material.Light.NoActionBar" />
-            </resources>
+            package $pkg.ui.theme
+
+            import androidx.compose.material3.Typography
+            import androidx.compose.ui.text.TextStyle
+            import androidx.compose.ui.text.font.FontFamily
+            import androidx.compose.ui.text.font.FontWeight
+            import androidx.compose.ui.unit.sp
+
+            val Typography = Typography(
+                bodyLarge = TextStyle(
+                    fontFamily = FontFamily.Default,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    letterSpacing = 0.5.sp,
+                ),
+            )
             """
                 .trimIndent() + "\n",
         )
 
+        // Resources
         root.write(
             "app/src/main/res/values/strings.xml",
             """
             <?xml version="1.0" encoding="utf-8"?>
             <resources>
-                <string name="app_name">$appLabel</string>
+                <string name="app_name">${config.name}</string>
+            </resources>
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "app/src/main/res/values/colors.xml",
+            """
+            <?xml version="1.0" encoding="utf-8"?>
+            <resources>
+                <color name="black">#FF000000</color>
+                <color name="white">#FFFFFFFF</color>
+            </resources>
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "app/src/main/res/values/themes.xml",
+            """
+            <resources xmlns:tools="http://schemas.android.com/tools">
+                <style name="$styleName" parent="android:Theme.Material.Light.NoActionBar" />
+            </resources>
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "app/src/main/res/values-night/themes.xml",
+            """
+            <resources xmlns:tools="http://schemas.android.com/tools">
+                <style name="$styleName" parent="android:Theme.Material.NoActionBar" />
             </resources>
             """
                 .trimIndent() + "\n",
         )
 
+        // Backup / data-extraction rules
+        root.write(
+            "app/src/main/res/xml/backup_rules.xml",
+            """
+            <?xml version="1.0" encoding="utf-8"?>
+            <full-backup-content>
+            </full-backup-content>
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "app/src/main/res/xml/data_extraction_rules.xml",
+            """
+            <?xml version="1.0" encoding="utf-8"?>
+            <data-extraction-rules>
+                <cloud-backup>
+                </cloud-backup>
+            </data-extraction-rules>
+            """
+                .trimIndent() + "\n",
+        )
+
+        // Launcher icons (vector adaptive + legacy fallback — fully buildable without binaries)
+        root.write(
+            "app/src/main/res/drawable/ic_launcher_background.xml",
+            """
+            <vector xmlns:android="http://schemas.android.com/apk/res/android"
+                android:width="108dp"
+                android:height="108dp"
+                android:viewportWidth="108"
+                android:viewportHeight="108">
+                <path android:fillColor="#3DDC84" android:pathData="M0,0h108v108h-108z" />
+            </vector>
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "app/src/main/res/drawable/ic_launcher_foreground.xml",
+            """
+            <vector xmlns:android="http://schemas.android.com/apk/res/android"
+                android:width="108dp"
+                android:height="108dp"
+                android:viewportWidth="108"
+                android:viewportHeight="108">
+                <path android:fillColor="#FFFFFF" android:pathData="M54,34 a20,20 0 1,0 0,40 a20,20 0 1,0 0,-40 z" />
+            </vector>
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+            """
+            <?xml version="1.0" encoding="utf-8"?>
+            <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+                <background android:drawable="@drawable/ic_launcher_background" />
+                <foreground android:drawable="@drawable/ic_launcher_foreground" />
+                <monochrome android:drawable="@drawable/ic_launcher_foreground" />
+            </adaptive-icon>
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+            """
+            <?xml version="1.0" encoding="utf-8"?>
+            <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+                <background android:drawable="@drawable/ic_launcher_background" />
+                <foreground android:drawable="@drawable/ic_launcher_foreground" />
+                <monochrome android:drawable="@drawable/ic_launcher_foreground" />
+            </adaptive-icon>
+            """
+                .trimIndent() + "\n",
+        )
+        // Legacy (<26) fallback so the icon resolves on all minSdk-24 devices without binary assets.
+        val legacyIcon =
+            """
+            <?xml version="1.0" encoding="utf-8"?>
+            <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+                <item android:drawable="@drawable/ic_launcher_background" />
+                <item android:drawable="@drawable/ic_launcher_foreground" />
+            </layer-list>
+            """
+                .trimIndent() + "\n"
+        root.write("app/src/main/res/mipmap/ic_launcher.xml", legacyIcon)
+        root.write("app/src/main/res/mipmap/ic_launcher_round.xml", legacyIcon)
+
+        // Tests
+        root.write(
+            "app/src/test/java/$pkgPath/ExampleUnitTest.kt",
+            """
+            package $pkg
+
+            import org.junit.Assert.assertEquals
+            import org.junit.Test
+
+            class ExampleUnitTest {
+                @Test
+                fun addition_isCorrect() {
+                    assertEquals(4, 2 + 2)
+                }
+            }
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "app/src/androidTest/java/$pkgPath/ExampleInstrumentedTest.kt",
+            """
+            package $pkg
+
+            import androidx.test.ext.junit.runners.AndroidJUnit4
+            import androidx.test.platform.app.InstrumentationRegistry
+            import org.junit.Assert.assertEquals
+            import org.junit.Test
+            import org.junit.runner.RunWith
+
+            @RunWith(AndroidJUnit4::class)
+            class ExampleInstrumentedTest {
+                @Test
+                fun useAppContext() {
+                    val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+                    assertEquals("$pkg", appContext.packageName)
+                }
+            }
+            """
+                .trimIndent() + "\n",
+        )
+
+        // Root .gitignore (Android Studio default)
         root.write(
             ".gitignore",
             """
             *.iml
-            .gradle/
+            .gradle
+            /local.properties
+            /.idea
+            .DS_Store
+            /build
+            /captures
+            .externalNativeBuild
+            .cxx
             local.properties
-            .idea/
-            build/
-            captures/
-            .externalNativeBuild/
-            .cxx/
             """
                 .trimIndent() + "\n",
         )
 
         writeGradleWrapper(root, "8.9")
+
         root.write(
             "README.md",
             """
             # ${config.name}
 
-            Jetpack Compose Android app (Java $jdk).
+            A Jetpack Compose Android app generated as a complete Android Studio project
+            (version catalog, theme package, adaptive icons, tests).
 
-            > Build from an exec-capable filesystem (the terminal sandbox), not /sdcard.
-            > The Gradle wrapper jar is fetched on first run via `gradle wrapper` if missing.
+            ## Building
+            Requires the Android SDK. Install it from the editor's **Dependencies** download dialog,
+            or point Gradle at an existing SDK via `local.properties`:
+
+            ```
+            sdk.dir=/path/to/android-sdk
+            ```
+
+            Then:
 
             ```bash
             ./gradlew assembleDebug
             ```
+
+            > Build from an exec-capable filesystem (the terminal sandbox), not /sdcard.
             """
                 .trimIndent() + "\n",
         )
     }
 
-    // ---- Gradle wrapper (properties only; the jar is fetched on first run) -------
+    // ---- Gradle wrapper (real, working: scripts + jar copied from bundled assets) ------
 
     private fun writeGradleWrapper(root: File, gradleVersion: String) {
         root.write(
@@ -784,5 +1138,22 @@ object ProjectScaffolder {
             """
                 .trimIndent() + "\n",
         )
+
+        // Copy the bundled wrapper jar + launcher scripts so `./gradlew` works out of the box.
+        copyAsset("templates/gradle-wrapper.jar", File(root, "gradle/wrapper/gradle-wrapper.jar"))
+        val gradlew = File(root, "gradlew")
+        copyAsset("templates/gradlew", gradlew)
+        copyAsset("templates/gradlew.bat", File(root, "gradlew.bat"))
+        runCatching { gradlew.setExecutable(true, false) }
+    }
+
+    /** Copies a bundled asset to [target], creating parent dirs. No-op (logged) if the asset is missing. */
+    private fun copyAsset(assetPath: String, target: File) {
+        runCatching {
+            target.parentFile?.mkdirs()
+            application!!.assets.open(assetPath).use { input ->
+                target.outputStream().use { output -> input.copyTo(output) }
+            }
+        }
     }
 }

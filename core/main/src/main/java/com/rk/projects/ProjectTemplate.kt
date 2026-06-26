@@ -67,6 +67,23 @@ data class ProjectConfig(
         return base.lowercase().replace(Regex("[^a-z0-9_]"), "_").trim('_').ifBlank { "modid" }
     }
 
+    /** Lowercase alphanumeric slug of the author, used to build a package name. */
+    fun authorSlug(): String = author.lowercase().replace(Regex("[^a-z0-9]"), "").ifBlank { "example" }
+
+    /** Lowercase alphanumeric slug of the project name. */
+    fun nameSlug(): String = name.lowercase().replace(Regex("[^a-z0-9]"), "").ifBlank { "app" }
+
+    /**
+     * Intelligently resolved package / applicationId. Uses the user-provided [packageName] when set,
+     * otherwise derives `com.<author>.<name>` from the project name and author.
+     */
+    fun resolvedPackageName(): String =
+        packageName.trim().ifBlank { "com.${authorSlug()}.${nameSlug()}" }
+            .lowercase()
+            .split(".")
+            .filter { it.isNotBlank() }
+            .joinToString(".") { it.replace(Regex("[^a-z0-9_]"), "") }
+
     /** Package as a relative path (e.g. com.example -> com/example). */
-    fun packagePath(): String = packageName.replace('.', '/')
+    fun packagePath(): String = resolvedPackageName().replace('.', '/')
 }

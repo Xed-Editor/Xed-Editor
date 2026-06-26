@@ -359,6 +359,17 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     RunnerSheet(context)
                 }
 
+                if (editorState.showDependenciesDialog) {
+                    val rootPath =
+                        projectRoot?.getAbsolutePath()
+                            ?: java.io.File(file.getAbsolutePath()).parent
+                            ?: file.getAbsolutePath()
+                    com.rk.projects.DependenciesDialog(
+                        projectRoot = java.io.File(rootPath),
+                        onDismiss = { editorState.showDependenciesDialog = false },
+                    )
+                }
+
                 if (editorState.showFindingsDialog) {
                     FindingsDialog(
                         title = editorState.findingsTitle,

@@ -3,6 +3,7 @@ package com.rk.commands
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.commands.editor.CopyCommand
 import com.rk.commands.editor.CutCommand
+import com.rk.commands.editor.DependenciesCommand
 import com.rk.commands.editor.DuplicateLineCommand
 import com.rk.commands.editor.EmulateKeyCommand
 import com.rk.commands.editor.JumpToLineCommand
@@ -66,6 +67,7 @@ object CommandProvider {
     lateinit var RedoCommand: RedoCommand
     lateinit var RunCommand: RunCommand
     lateinit var MarkdownPreviewCommand: MarkdownPreviewCommand
+    lateinit var DependenciesCommand: DependenciesCommand
     lateinit var ToggleReadOnlyCommand: ToggleReadOnlyCommand
     lateinit var SearchCommand: SearchCommand
     lateinit var ReplaceCommand: ReplaceCommand
@@ -106,6 +108,7 @@ object CommandProvider {
             registerBuiltin(RedoCommand()) { RedoCommand = it }
             registerBuiltin(RunCommand()) { RunCommand = it }
             registerBuiltin(MarkdownPreviewCommand()) { MarkdownPreviewCommand = it }
+            registerBuiltin(DependenciesCommand()) { DependenciesCommand = it }
             registerBuiltin(ToggleReadOnlyCommand()) { ToggleReadOnlyCommand = it }
             registerBuiltin(SearchCommand()) { SearchCommand = it }
             registerBuiltin(ReplaceCommand()) { ReplaceCommand = it }

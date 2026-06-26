@@ -168,6 +168,9 @@ class Editor : CodeEditor {
         props.deleteEmptyLineFast = fastDelete
         props.stickyScroll = stickyScroll
         props.useICULibToSelectWords = true
+        // Cache render nodes for long lines: smoother scrolling/typing on long-line files (e.g. JSON,
+        // minified code) at a small memory cost. The app uses largeHeap, so this is a safe trade.
+        props.cacheRenderNodeForLongLines = true
         props.selectCompletionItemOnEnterForSoftKbd = completeOnEnter
         props.symbolPairAutoCompletion = autoClosingBracket
         props.showMinimap = showMinimap

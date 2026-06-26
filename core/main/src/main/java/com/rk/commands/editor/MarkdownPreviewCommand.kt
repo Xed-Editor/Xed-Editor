@@ -1,6 +1,5 @@
 package com.rk.commands.editor
 
-import com.rk.DefaultScope
 import com.rk.commands.CommandProvider
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
@@ -10,26 +9,29 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.runners.web.markdown.MarkdownRunner
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.launch
+import com.rk.tabs.markdown.MarkdownPreviewTab
 
 /**
- * Opens the GitHub-style rendered preview for the current Markdown file.
+ * Opens a native, themed Markdown preview ([MarkdownPreviewTab]) for the current file in a new tab.
  *
- * Only shown when the active editor tab holds a Markdown file. Saves first so the preview reflects
- * unsaved edits, then launches the existing [MarkdownRunner] (zero-md / github-markdown-css).
+ * Only shown for Markdown files. Saves first so the preview reflects unsaved edits. Reuses an
+ * already-open preview for the same file instead of stacking duplicates.
  */
-@OptIn(DelicateCoroutinesApi::class)
 class MarkdownPreviewCommand : EditorCommand() {
     override val id: String = "editor.markdown_preview"
 
     override fun getLabel(): String = strings.markdown_preview.getString()
 
     override fun action(editorActionContext: EditorActionContext) {
-        val editorTab = editorActionContext.editorTab
-        val activity = editorActionContext.currentActivity
         CommandProvider.SaveCommand.action(editorActionContext)
-        DefaultScope.launch { MarkdownRunner.run(activity, editorTab.file) }
+        val file = editorActionContext.editorTab.file
+        val viewModel = commandContext.mainViewModel
+        val existing = viewModel.tabs.indexOfFirst { it is MarkdownPreviewTab && it.file == file }
+        if (existing != -1) {
+            viewModel.tabManager.setCurrentTab(existing)
+        } else {
+            viewModel.tabManager.addTab(MarkdownPreviewTab(file), switchToTab = true, checkDuplicate = false)
+        }
     }
 
     override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean {

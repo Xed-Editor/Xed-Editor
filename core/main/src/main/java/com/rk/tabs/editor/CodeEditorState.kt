@@ -61,6 +61,8 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var runnersToShow by mutableStateOf<List<Runner>>(emptyList())
     var showRunnerDialog by mutableStateOf(false)
 
+    var showDependenciesDialog by mutableStateOf(false)
+
     var showColorPicker by mutableStateOf<Pair<Color, ColorFormat>?>(null)
     var colorPickerRange by mutableStateOf<TextRange?>(null)
 
