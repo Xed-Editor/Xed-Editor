@@ -188,3 +188,4 @@ abstract class GenerateSupportedLocales : DefaultTask() {
         logger.lifecycle("✅ Generated ${outFile.path}")
     }
 }
+
