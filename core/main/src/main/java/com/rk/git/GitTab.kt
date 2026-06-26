@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,12 +25,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -54,11 +57,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
@@ -433,6 +438,85 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 },
             )
         }
+
+        // --- Diff viewer (VS Code style) ---
+        viewModel.diffTarget?.let { change ->
+            DiffDialog(
+                fileName = change.path.substringAfterLast("/"),
+                diff = viewModel.diffContent,
+                onDismiss = { viewModel.closeDiff() },
+            )
+        }
+
+        // --- Discard changes confirmation (destructive) ---
+        viewModel.discardTarget?.let { change ->
+            AlertDialog(
+                onDismissRequest = { viewModel.discardTarget = null },
+                title = { Text(stringResource(strings.discard_changes)) },
+                text = {
+                    Text(stringResource(strings.discard_changes_message) + "\n\n" + change.path.substringAfterLast("/"))
+                },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.discardChanges(change) }) {
+                        Text(stringResource(strings.discard_changes))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.discardTarget = null }) {
+                        Text(stringResource(strings.cancel))
+                    }
+                },
+            )
+        }
+    }
+
+    @Composable
+    private fun DiffDialog(fileName: String, diff: String?, onDismiss: () -> Unit) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = fileName, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            text = {
+                if (diff == null) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                        Text(stringResource(strings.loading_diff))
+                    }
+                } else {
+                    val scheme = MaterialTheme.colorScheme
+                    Column(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .heightIn(max = 440.dp)
+                                .verticalScroll(rememberScrollState())
+                                .horizontalScroll(rememberScrollState())
+                    ) {
+                        diff.split("\n").forEach { line ->
+                            val color =
+                                when {
+                                    line.startsWith("+++") || line.startsWith("---") -> scheme.onSurfaceVariant
+                                    line.startsWith("+") -> Color(0xFF4CAF50)
+                                    line.startsWith("-") -> Color(0xFFE53935)
+                                    line.startsWith("@@") -> scheme.primary
+                                    line.startsWith("diff ") || line.startsWith("index ") -> scheme.onSurfaceVariant
+                                    else -> scheme.onSurface
+                                }
+                            Text(
+                                text = if (line.isEmpty()) " " else line,
+                                color = color,
+                                fontFamily = FontFamily.Monospace,
+                                style = MaterialTheme.typography.bodySmall,
+                                softWrap = false,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.close)) } },
+        )
     }
 
     @Composable
@@ -646,7 +730,10 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier =
                         Modifier.width((getDrawerWidth() - 61.dp))
-                            .clickable { viewModel.toggleChange(change) }
+                            .combinedClickable(
+                                onClick = { viewModel.openDiff(change) },
+                                onLongClick = { viewModel.discardTarget = change },
+                            )
                             .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {

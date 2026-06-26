@@ -11,6 +11,7 @@ import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.findGitRoot
 import com.rk.utils.toast
+import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,12 +22,17 @@ import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.api.errors.DetachedHeadException
 import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
+import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+import org.eclipse.jgit.treewalk.CanonicalTreeParser
+import org.eclipse.jgit.treewalk.EmptyTreeIterator
+import org.eclipse.jgit.treewalk.FileTreeIterator
+import org.eclipse.jgit.treewalk.filter.PathFilter
 
 class GitViewModel : ViewModel() {
     var currentRoot = mutableStateOf<File?>(null)
@@ -36,6 +42,11 @@ class GitViewModel : ViewModel() {
     var amends = mutableStateMapOf<String, Boolean>()
 
     var isLoading by mutableStateOf(false)
+
+    // VS Code-style diff/discard UI state
+    var diffTarget by mutableStateOf<GitChange?>(null)
+    var diffContent by mutableStateOf<String?>(null)
+    var discardTarget by mutableStateOf<GitChange?>(null)
 
     fun loadRepository(root: String) {
         try {
@@ -490,6 +501,83 @@ class GitViewModel : ViewModel() {
                     isLoading = false
                     currentBranch = Git.open(currentRoot.value).currentHead()
                     syncChanges(currentRoot.value!!)
+                }
+            }
+        }
+    }
+
+    /** Opens the diff for [change] (HEAD → working tree) and loads it asynchronously. */
+    fun openDiff(change: GitChange) {
+        diffTarget = change
+        diffContent = null
+        viewModelScope.launch(Dispatchers.IO) {
+            val text = computeDiff(change)
+            withContext(Dispatchers.Main) { diffContent = text }
+        }
+    }
+
+    fun closeDiff() {
+        diffTarget = null
+        diffContent = null
+    }
+
+    private fun computeDiff(change: GitChange): String {
+        val root = currentRoot.value ?: return ""
+        return try {
+            Git.open(root).use { git ->
+                val repo = git.repository
+                val out = ByteArrayOutputStream()
+                DiffFormatter(out).use { df ->
+                    df.setRepository(repo)
+                    df.setPathFilter(PathFilter.create(change.path))
+                    val reader = repo.newObjectReader()
+                    val headId = repo.resolve("HEAD^{tree}")
+                    val oldTree =
+                        if (headId != null) {
+                            CanonicalTreeParser().apply { reset(reader, headId) }
+                        } else {
+                            EmptyTreeIterator()
+                        }
+                    val newTree = FileTreeIterator(repo)
+                    val entries = df.scan(oldTree, newTree)
+                    for (entry in entries) df.format(entry)
+                }
+                out.toString("UTF-8").ifBlank { "No textual changes to display." }
+            }
+        } catch (e: Exception) {
+            "Unable to compute diff: ${e.message}"
+        }
+    }
+
+    /** Discards local changes for [change], restoring it to its committed state (destructive). */
+    fun discardChanges(change: GitChange): Job {
+        return viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            val root = currentRoot.value
+            try {
+                if (root != null) {
+                    Git.open(root).use { git ->
+                        when (change.type) {
+                            ChangeType.UNTRACKED,
+                            ChangeType.ADDED -> {
+                                // New content not in HEAD: unstage (if staged) then remove from disk.
+                                runCatching { git.reset().addPath(change.path).call() }
+                                File(root, change.path).delete()
+                            }
+                            else -> {
+                                // Restore the path from HEAD, dropping staged and unstaged edits.
+                                git.checkout().setStartPoint(Constants.HEAD).addPath(change.path).call()
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    discardTarget = null
+                    isLoading = false
+                    if (root != null) syncChanges(root)
                 }
             }
         }

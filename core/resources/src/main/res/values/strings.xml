@@ -89,6 +89,9 @@
     <string name="tools_missing">Will be installed after creation:</string>
     <string name="tools_no_terminal">Set up the terminal to auto-install required tools</string>
     <string name="git_init">Initialize Git repository</string>
+    <string name="discard_changes">Discard changes</string>
+    <string name="discard_changes_message">Permanently discard your local changes to this file? This cannot be undone.</string>
+    <string name="loading_diff">Loading diff…</string>
     <string name="private_files">Private files</string>
     <string name="private_files_desc">Private files of Xed-Editor</string>
     <string name="cloning">Cloning repository…</string>
