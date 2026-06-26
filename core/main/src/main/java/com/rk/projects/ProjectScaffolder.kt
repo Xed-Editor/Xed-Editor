@@ -3,6 +3,7 @@ package com.rk.projects
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
 
 /**
  * Writes the real files for a [ProjectConfig] onto disk.
@@ -41,6 +42,8 @@ object ProjectScaffolder {
                         ProjectTemplate.ANDROID_COMPOSE -> scaffoldAndroidCompose(root, config)
                     }
 
+                    if (config.initGit) initGitRepository(root, config)
+
                     Result.Success(root)
                 }
                 .getOrElse { Result.Failure(it.message ?: "Unknown error while creating project", it) }
@@ -52,6 +55,24 @@ object ProjectScaffolder {
         val target = File(this, relativePath)
         target.parentFile?.mkdirs()
         target.writeText(content.trimStart('\n'))
+    }
+
+    /**
+     * Initialises a git repository and creates an initial commit. Failures are swallowed so a git
+     * problem (e.g. on a filesystem that rejects it) never aborts project creation.
+     */
+    private fun initGitRepository(root: File, config: ProjectConfig) {
+        runCatching {
+            Git.init().setDirectory(root).call().use { git ->
+                git.add().addFilepattern(".").call()
+                val author = config.author.ifBlank { "Xed" }
+                git.commit()
+                    .setAuthor(author, "noreply@xed-editor")
+                    .setCommitter(author, "noreply@xed-editor")
+                    .setMessage("Initial commit")
+                    .call()
+            }
+        }
     }
 
     // ---- None -------------------------------------------------------------------

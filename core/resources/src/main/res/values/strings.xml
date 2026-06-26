@@ -88,6 +88,7 @@
     <string name="tools_installed">✓ Required tools are installed</string>
     <string name="tools_missing">Will be installed after creation:</string>
     <string name="tools_no_terminal">Set up the terminal to auto-install required tools</string>
+    <string name="git_init">Initialize Git repository</string>
     <string name="private_files">Private files</string>
     <string name="private_files_desc">Private files of Xed-Editor</string>
     <string name="cloning">Cloning repository…</string>

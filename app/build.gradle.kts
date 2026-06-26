@@ -53,21 +53,45 @@ android {
                 }
 
             val propertiesFile = File(propertiesFilePath)
+            var configured = false
             if (propertiesFile.exists()) {
                 val properties = Properties()
                 properties.load(propertiesFile.inputStream())
-                keyAlias = properties["keyAlias"] as String?
-                keyPassword = properties["keyPassword"] as String?
-                storeFile =
+                val pKeyAlias = properties["keyAlias"] as String?
+                val pKeyPassword = properties["keyPassword"] as String?
+                val pStorePassword = properties["storePassword"] as String?
+                val pStoreFile =
                     if (isGitHubActions) {
                         File("/tmp/xed.keystore")
                     } else {
                         (properties["storeFile"] as String?)?.let { File(it) }
                     }
 
-                storePassword = properties["storePassword"] as String?
-            } else {
-                println("Signing properties file not found at $propertiesFilePath")
+                // Only use real signing when every value is actually present (forks without
+                // signing secrets get an empty properties file, which must not be used).
+                if (
+                    !pKeyAlias.isNullOrBlank() &&
+                        !pKeyPassword.isNullOrBlank() &&
+                        !pStorePassword.isNullOrBlank() &&
+                        pStoreFile != null &&
+                        pStoreFile.exists()
+                ) {
+                    keyAlias = pKeyAlias
+                    keyPassword = pKeyPassword
+                    storeFile = pStoreFile
+                    storePassword = pStorePassword
+                    configured = true
+                }
+            }
+
+            if (!configured) {
+                // Fallback so `assembleRelease` produces an installable APK on forks/CI without
+                // signing secrets. NOTE: signed with the public testkey — not for store upload.
+                println("Release signing secrets not found; falling back to bundled debug testkey.")
+                storeFile = file(layout.buildDirectory.dir("../testkey.keystore"))
+                storePassword = "testkey"
+                keyAlias = "testkey"
+                keyPassword = "testkey"
             }
         }
         getByName("debug") {

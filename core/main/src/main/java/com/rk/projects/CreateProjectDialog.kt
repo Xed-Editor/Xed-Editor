@@ -53,6 +53,7 @@ fun CreateProjectDialog(documentsDir: File, sandboxDir: File, onDismiss: () -> U
     var modVersion by remember { mutableStateOf("1.0.0") }
     var minecraftVersion by remember { mutableStateOf("") }
     var jdkVersion by remember { mutableStateOf("21") }
+    var initGit by remember { mutableStateOf(false) }
 
     // Build templates default into the exec-capable sandbox; user may override.
     var useSandbox by remember { mutableStateOf(false) }
@@ -216,6 +217,16 @@ fun CreateProjectDialog(documentsDir: File, sandboxDir: File, onDismiss: () -> U
                     )
                 }
 
+                // Initialize Git repository
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(stringResource(strings.git_init), modifier = Modifier.weight(1f))
+                    Switch(checked = initGit, onCheckedChange = { initGit = it })
+                }
+
                 // Live toolchain status for the selected template
                 when (val state = toolState) {
                     ToolState.None -> {}
@@ -260,6 +271,7 @@ fun CreateProjectDialog(documentsDir: File, sandboxDir: File, onDismiss: () -> U
                             modVersion = modVersion.trim().ifBlank { "1.0.0" },
                             minecraftVersion = minecraftVersion.trim(),
                             jdkVersion = jdkVersion.trim().ifBlank { "21" },
+                            initGit = initGit,
                         )
                     )
                 },

@@ -58,6 +58,7 @@ data class ProjectConfig(
     val modVersion: String = "1.0.0",
     val minecraftVersion: String = "",
     val jdkVersion: String = "21",
+    val initGit: Boolean = false,
 ) {
     /** Sanitised mod id derived from [modId] (falls back to the project name). */
     fun resolvedModId(): String {
