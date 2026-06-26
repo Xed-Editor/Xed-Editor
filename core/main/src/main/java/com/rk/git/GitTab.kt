@@ -240,17 +240,28 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 }
             } else {
                 Column(
-                    modifier = Modifier.fillMaxSize().weight(1f),
+                    modifier = Modifier.fillMaxSize().weight(1f).padding(24.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Icon(
-                        painter = painterResource(drawables.file),
+                        painter = painterResource(drawables.git),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(40.dp),
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(stringResource(strings.no_changes), color = MaterialTheme.colorScheme.onSurface)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        stringResource(strings.no_changes),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        stringResource(strings.no_changes_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
 
@@ -477,6 +488,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
+
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = conflicts.size.toString(),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 8.dp),
+            )
         }
 
         AnimatedVisibility(visible = conflictsExpanded) { ChangesItemList(conflicts) }
@@ -536,6 +555,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
+
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = changes.size.toString(),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 8.dp),
+            )
         }
 
         AnimatedVisibility(visible = changesExpanded) { ChangesItemList(changes) }
@@ -594,6 +621,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 text = stringResource(strings.untracked),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = untracked.size.toString(),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 8.dp),
             )
         }
 

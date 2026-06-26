@@ -98,6 +98,11 @@ class MDViewer : WebActivity() {
                         <head>
                             <meta name="viewport" content="width=device-width, initial-scale=1.0">
                             <title>${md.getName().removeSuffix(".md")}</title>
+                            <style>
+                              html, body { margin: 0; padding: 0; background-color: ${if (isDarkMode) "#0d1117" else "#ffffff"}; }
+                              .md-container { max-width: 980px; margin: 0 auto; padding: 16px 16px 64px; box-sizing: border-box; }
+                              @media (min-width: 768px) { .md-container { padding: 32px 45px 64px; } }
+                            </style>
                         </head>
                         <script type="module">
                           import ZeroMd, { STYLES } from 'https://cdn.jsdelivr.net/npm/zero-md@3'
@@ -112,8 +117,10 @@ class MDViewer : WebActivity() {
                             }
                           )
                         </script>
-                        <body style="background-color: ${if (isDarkMode) "#0D1117" else "#FFFFFF"};">
-                             <zero-md src="/$pathAfterSlash?textmd"></zero-md>
+                        <body>
+                             <div class="md-container">
+                               <zero-md src="/$pathAfterSlash?textmd"></zero-md>
+                             </div>
                         </body>
                         </html>
                         """

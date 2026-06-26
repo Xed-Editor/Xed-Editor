@@ -39,6 +39,7 @@ fun AddProjectSheet(
     openFolder: ManagedActivityResultLauncher<Uri?, Uri?>,
     showPrivateFileWarning: (onOK: () -> Unit) -> Unit,
     showGitCloneDialog: () -> Unit,
+    showCreateProject: () -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as MainActivity
@@ -48,6 +49,16 @@ fun AddProjectSheet(
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.Companion.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
+            AddDialogItem(
+                icon = Icon.ResourceIcon(drawables.folder_code),
+                title = stringResource(strings.create_project),
+                description = stringResource(strings.create_project_desc),
+                onClick = {
+                    showCreateProject()
+                    onDismiss()
+                },
+            )
+
             AddDialogItem(
                 icon = Icon.ResourceIcon(drawables.file_symlink),
                 title = stringResource(strings.open_directory),

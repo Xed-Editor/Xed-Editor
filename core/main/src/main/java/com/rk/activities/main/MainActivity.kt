@@ -74,6 +74,11 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         isPaused = false
         instance = this
+        // Re-check storage permission after returning from system settings so granting it is
+        // picked up immediately (and storage-gated features unlock) without restarting the app.
+        if (Settings.shown_disclaimer) {
+            lifecycleScope.launch(Dispatchers.Main) { FilePermission.verifyStoragePermission(this@MainActivity) }
+        }
         lifecycleScope.launch(Dispatchers.IO) {
             handleIntent(intent)
             foregroundListener.values.forEach { it.invoke(true) }

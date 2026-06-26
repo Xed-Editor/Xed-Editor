@@ -7,6 +7,7 @@ import com.rk.commands.editor.DuplicateLineCommand
 import com.rk.commands.editor.EmulateKeyCommand
 import com.rk.commands.editor.JumpToLineCommand
 import com.rk.commands.editor.LowerCaseCommand
+import com.rk.commands.editor.MarkdownPreviewCommand
 import com.rk.commands.editor.PasteCommand
 import com.rk.commands.editor.RedoCommand
 import com.rk.commands.editor.RefreshCommand
@@ -64,6 +65,7 @@ object CommandProvider {
     lateinit var UndoCommand: UndoCommand
     lateinit var RedoCommand: RedoCommand
     lateinit var RunCommand: RunCommand
+    lateinit var MarkdownPreviewCommand: MarkdownPreviewCommand
     lateinit var ToggleReadOnlyCommand: ToggleReadOnlyCommand
     lateinit var SearchCommand: SearchCommand
     lateinit var ReplaceCommand: ReplaceCommand
@@ -103,6 +105,7 @@ object CommandProvider {
             registerBuiltin(UndoCommand()) { UndoCommand = it }
             registerBuiltin(RedoCommand()) { RedoCommand = it }
             registerBuiltin(RunCommand()) { RunCommand = it }
+            registerBuiltin(MarkdownPreviewCommand()) { MarkdownPreviewCommand = it }
             registerBuiltin(ToggleReadOnlyCommand()) { ToggleReadOnlyCommand = it }
             registerBuiltin(SearchCommand()) { SearchCommand = it }
             registerBuiltin(ReplaceCommand()) { ReplaceCommand = it }

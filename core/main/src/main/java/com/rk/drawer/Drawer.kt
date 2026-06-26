@@ -55,14 +55,24 @@ import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.gitViewModel
 import com.rk.components.DoubleInputDialog
+import com.rk.file.FileWrapper
+import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.filetree.ProjectCloseConfirmationDialog
 import com.rk.git.ProgressCoordinator
 import com.rk.icons.XedIcon
+import com.rk.projects.CreateProjectDialog
+import com.rk.projects.ProjectDependencies
+import com.rk.projects.ProjectScaffolder
+import com.rk.exec.isTerminalInstalled
+import com.rk.exec.launchTerminal
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.dialogRes
+import com.rk.utils.toast
+import com.rk.utils.StorageUtils
+import android.os.Environment
 import java.io.File
 import kotlinx.coroutines.launch
 
@@ -111,6 +121,12 @@ fun DrawerContent(fullscreen: Boolean) {
 
                 // Git clone dialog
                 var showGitCloneDialog by remember { mutableStateOf(false) }
+
+                // Create project dialog
+                var showCreateProjectDialog by remember { mutableStateOf(false) }
+
+                // Missing dependencies prompt after project creation
+                var pendingDeps by remember { mutableStateOf<List<ProjectDependencies.Tool>>(emptyList()) }
 
                 var repoURL by remember { mutableStateOf("") }
                 var repoBranch by remember { mutableStateOf("main") }
@@ -213,7 +229,7 @@ fun DrawerContent(fullscreen: Boolean) {
                 ) {
                     Column(modifier = Modifier.fillMaxHeight()) {
                         LazyColumn(modifier = Modifier.weight(1f, fill = true), state = lazyListState) {
-                            items(items = viewModel.drawerTabs) { tab ->
+                            items(items = viewModel.drawerTabs, key = { System.identityHashCode(it) }) { tab ->
                                 if (!tab.isSupported()) return@items
                                 NavigationRailItem(
                                     selected = viewModel.currentDrawerTab == tab,
@@ -323,6 +339,10 @@ fun DrawerContent(fullscreen: Boolean) {
                             showAddDialog = false
                             showGitCloneDialog = true
                         },
+                        showCreateProject = {
+                            showAddDialog = false
+                            showCreateProjectDialog = true
+                        },
                     )
                 }
 
@@ -379,9 +399,71 @@ fun DrawerContent(fullscreen: Boolean) {
                     )
                 }
 
+                if (showCreateProjectDialog) {
+                    val documentsXed =
+                        File(Environment.getExternalStorageDirectory(), "Documents/XED")
+                    CreateProjectDialog(
+                        documentsDir = documentsXed,
+                        sandboxDir = sandboxHomeDir(),
+                        onDismiss = { showCreateProjectDialog = false },
+                        onCreate = { config ->
+                            showCreateProjectDialog = false
+                            scope.launch {
+                                when (val result = ProjectScaffolder.scaffold(config)) {
+                                    is ProjectScaffolder.Result.Success -> {
+                                        viewModel.addFileTreeTab(FileWrapper(result.projectRoot), save = true)
+                                        // Honest heads-up: builds can't run from noexec shared storage.
+                                        if (config.template.recommendsSandbox &&
+                                            StorageUtils.isOnSharedStorage(result.projectRoot)) {
+                                            toast(strings.shared_storage_build_warning)
+                                        }
+                                        // Detect (and later offer to install) the project's toolchain.
+                                        if (isTerminalInstalled()) {
+                                            val tools = ProjectDependencies.requiredTools(config)
+                                            if (tools.isNotEmpty()) {
+                                                val missing = ProjectDependencies.missingTools(tools)
+                                                if (missing.isNotEmpty()) pendingDeps = missing
+                                            }
+                                        }
+                                    }
+                                    is ProjectScaffolder.Result.Failure -> toast(result.message)
+                                }
+                            }
+                        },
+                    )
+                }
+
+                if (pendingDeps.isNotEmpty()) {
+                    val deps = pendingDeps
+                    AlertDialog(
+                        onDismissRequest = { pendingDeps = emptyList() },
+                        title = { Text(stringResource(strings.install_dependencies)) },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(stringResource(strings.install_dependencies_msg))
+                                deps.forEach { Text("•  ${it.name}") }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    pendingDeps = emptyList()
+                                    launchTerminal(mainActivity, ProjectDependencies.installCommand(deps))
+                                }
+                            ) {
+                                Text(stringResource(strings.install_action))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { pendingDeps = emptyList() }) {
+                                Text(stringResource(strings.cancel))
+                            }
+                        },
+                    )
+                }
+
                 val currentDrawerTab = viewModel.currentDrawerTab
-                if (closeProjectDialog && currentDrawerTab != null) {
-                    ProjectCloseConfirmationDialog(
+                if (closeProjectDialog && currentDrawerTab != null) {                    ProjectCloseConfirmationDialog(
                         projectName = currentDrawerTab.getName(),
                         onConfirm = {
                             closeProjectDialog = false
