@@ -95,7 +95,6 @@
     <string name="dependencies">Dependencies</string>
     <string name="detecting_project">Detecting project type…</string>
     <string name="no_dependencies_needed">No extra tools are required for this project.</string>
-    <string name="installing">Installing…</string>
     <string name="dep_installed">Installed</string>
     <string name="dep_failed">Failed</string>
     <string name="dep_available">Available</string>
