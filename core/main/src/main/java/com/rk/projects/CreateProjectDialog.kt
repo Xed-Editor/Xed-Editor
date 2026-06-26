@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.rk.exec.isTerminalInstalled
 import com.rk.resources.strings
 import java.io.File
 
@@ -72,6 +73,23 @@ fun CreateProjectDialog(documentsDir: File, sandboxDir: File, onDismiss: () -> U
 
     val parentDir = if (useSandbox) sandboxDir else documentsDir
     val trimmedName = name.trim()
+
+    // Live detection of the toolchain the chosen template needs (Python/Node/JDK).
+    var toolState by remember { mutableStateOf<ToolState>(ToolState.None) }
+    LaunchedEffect(template, jdkVersion) {
+        val cfg = ProjectConfig(name = "check", template = template, parentDir = parentDir, jdkVersion = jdkVersion)
+        val tools = ProjectDependencies.requiredTools(cfg)
+        when {
+            tools.isEmpty() -> toolState = ToolState.None
+            !isTerminalInstalled() -> toolState = ToolState.NoTerminal
+            else -> {
+                toolState = ToolState.Checking
+                val missing = ProjectDependencies.missingTools(tools)
+                toolState =
+                    if (missing.isEmpty()) ToolState.Ready else ToolState.Missing(missing.map { it.name })
+            }
+        }
+    }
 
     val nameError: String? =
         when {
@@ -198,6 +216,22 @@ fun CreateProjectDialog(documentsDir: File, sandboxDir: File, onDismiss: () -> U
                     )
                 }
 
+                // Live toolchain status for the selected template
+                when (val state = toolState) {
+                    ToolState.None -> {}
+                    ToolState.Checking ->
+                        ToolStatusRow(stringResource(strings.tools_checking), MaterialTheme.colorScheme.onSurfaceVariant)
+                    ToolState.Ready ->
+                        ToolStatusRow(stringResource(strings.tools_installed), MaterialTheme.colorScheme.primary)
+                    ToolState.NoTerminal ->
+                        ToolStatusRow(stringResource(strings.tools_no_terminal), MaterialTheme.colorScheme.error)
+                    is ToolState.Missing ->
+                        ToolStatusRow(
+                            stringResource(strings.tools_missing) + " " + state.names.joinToString(", "),
+                            MaterialTheme.colorScheme.tertiary,
+                        )
+                }
+
                 // Resolved location
                 Text(
                     text = stringResource(strings.project_location) + ": " +
@@ -269,3 +303,22 @@ private fun LabeledDropdown(label: String, selected: String, options: List<Strin
         }
     }
 }
+
+@Composable
+private fun ToolStatusRow(text: String, color: androidx.compose.ui.graphics.Color) {
+    Text(text = text, style = MaterialTheme.typography.bodySmall, color = color)
+}
+
+/** UI state for the live toolchain check shown in the create dialog. */
+private sealed interface ToolState {
+    data object None : ToolState
+
+    data object Checking : ToolState
+
+    data object Ready : ToolState
+
+    data object NoTerminal : ToolState
+
+    data class Missing(val names: List<String>) : ToolState
+}
+

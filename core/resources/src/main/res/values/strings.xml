@@ -84,6 +84,10 @@
     <string name="install_action">Install</string>
     <string name="no_changes_desc">Your working tree is clean</string>
     <string name="shared_storage_build_warning">Heads up: builds can\'t run from shared storage. Gradle/npm need the terminal sandbox.</string>
+    <string name="tools_checking">Checking required tools…</string>
+    <string name="tools_installed">✓ Required tools are installed</string>
+    <string name="tools_missing">Will be installed after creation:</string>
+    <string name="tools_no_terminal">Set up the terminal to auto-install required tools</string>
     <string name="private_files">Private files</string>
     <string name="private_files_desc">Private files of Xed-Editor</string>
     <string name="cloning">Cloning repository…</string>
