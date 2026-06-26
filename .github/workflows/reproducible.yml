@@ -56,6 +56,9 @@ jobs:
 
       - name: Build First APK
         run: |
+          sed -r '/(foojay|toolchainVendor)/d' -i gradle/gradle-daemon-jvm.properties || true
+          sed -ri '/foojay-resolver-convention/d' settings.gradle.kts || true
+          sed -r '/signingConfigs.getByName/d' -i app/build.gradle.kts || true
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
             ./gradlew assembleRelease --no-daemon
             find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
@@ -64,6 +67,7 @@ jobs:
             find app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
           fi
           echo "First built APK size: $(wc -c < /tmp/build1.apk) bytes"
+
 
       - name: Check if Reference APK provided
         id: ref_check
