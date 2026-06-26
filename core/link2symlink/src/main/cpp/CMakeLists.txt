@@ -7,8 +7,6 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
         "-ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=."
-        "-ffile-prefix-map=${CMAKE_CURRENT_BINARY_DIR}=."
-        "-g0"
         "-fno-ident"
         "-fno-exceptions"
         "-fno-rtti"
