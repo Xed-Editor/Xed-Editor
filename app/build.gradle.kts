@@ -124,6 +124,21 @@ android {
             matchingFallbacks += listOf("release")
             isDebuggable = false
         }
+
+        // Standalone "clone" build: distinct applicationId + label so it installs ALONGSIDE the
+        // official Xed-Editor (and the debug build) instead of replacing it. Signed with the
+        // bundled testkey, so it needs no signing secrets and builds on any fork/CI.
+        create("clone") {
+            initWith(buildTypes.getByName("release"))
+            matchingFallbacks += listOf("release")
+            applicationIdSuffix = ".pro"
+            versionNameSuffix = "-PRO"
+            resValue("string", "app_name", "Xed PRO")
+            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            isShrinkResources = false
+            isDebuggable = false
+        }
     }
 }
 

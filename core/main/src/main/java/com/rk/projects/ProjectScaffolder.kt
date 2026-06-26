@@ -38,6 +38,7 @@ object ProjectScaffolder {
                         ProjectTemplate.PYTHON3 -> scaffoldPython(root, config, python3 = true)
                         ProjectTemplate.PYTHON -> scaffoldPython(root, config, python3 = false)
                         ProjectTemplate.NODEJS -> scaffoldNode(root, config)
+                        ProjectTemplate.WEB -> scaffoldWeb(root, config)
                         ProjectTemplate.MINECRAFT_MOD -> scaffoldMinecraft(root, config)
                         ProjectTemplate.ANDROID_COMPOSE -> scaffoldAndroidCompose(root, config)
                     }
@@ -169,8 +170,61 @@ object ProjectScaffolder {
         )
     }
 
-    // ---- Minecraft --------------------------------------------------------------
+    // ---- Static Web -------------------------------------------------------------
 
+    private fun scaffoldWeb(root: File, config: ProjectConfig) {
+        root.write(
+            "index.html",
+            """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <title>${config.name}</title>
+                <link rel="stylesheet" href="style.css" />
+            </head>
+            <body>
+                <main>
+                    <h1>${config.name}</h1>
+                    <p id="message">Hello from ${config.name}!</p>
+                </main>
+                <script src="script.js"></script>
+            </body>
+            </html>
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "style.css",
+            """
+            :root { color-scheme: light dark; }
+            body {
+                font-family: system-ui, sans-serif;
+                margin: 0;
+                display: grid;
+                place-items: center;
+                min-height: 100vh;
+            }
+            main { text-align: center; padding: 1.5rem; }
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(
+            "script.js",
+            """
+            document.addEventListener("DOMContentLoaded", () => {
+              const el = document.getElementById("message");
+              if (el) el.textContent = "${config.name} is running!";
+            });
+            """
+                .trimIndent() + "\n",
+        )
+        root.write(".gitignore", "node_modules/\ndist/\n.env\n")
+        root.write("README.md", "# ${config.name}\n\nOpen `index.html` and use the HTML preview/runner.\n")
+    }
+
+    // ---- Minecraft --------------------------------------------------------------
     private fun scaffoldMinecraft(root: File, config: ProjectConfig) {
         when (config.modLoader) {
             ModLoader.FORGE -> scaffoldForge(root, config)

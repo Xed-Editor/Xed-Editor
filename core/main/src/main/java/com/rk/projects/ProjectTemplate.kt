@@ -17,6 +17,7 @@ enum class ProjectTemplate(
     PYTHON3("Python 3", recommendsSandbox = false),
     PYTHON("Python", recommendsSandbox = false),
     NODEJS("Node.js", recommendsSandbox = true),
+    WEB("Static Web (HTML/CSS/JS)", recommendsSandbox = false),
     MINECRAFT_MOD("Minecraft Java Mod", recommendsSandbox = true, showsPackageName = true),
     ANDROID_COMPOSE("Android (Jetpack Compose)", recommendsSandbox = true, showsPackageName = true);
 

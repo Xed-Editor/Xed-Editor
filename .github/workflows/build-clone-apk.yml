@@ -1,8 +1,9 @@
-name: Build Debug APK
+name: Build Clone APK (Xed PRO)
 
-# Builds an installable debug APK signed with the bundled testkey.
-# Requires NO repository secrets, so it works on any fork. The APK is uploaded
-# as a workflow artifact (Actions run -> Artifacts -> "Xed-Editor-Debug").
+# Builds an installable, standalone "clone" APK (applicationId com.rk.xededitor.pro,
+# label "Xed PRO") signed with the bundled testkey. It installs ALONGSIDE the official
+# Xed-Editor instead of replacing it, and needs NO repository secrets, so it works on any
+# fork. Download it from: Actions run -> Artifacts -> "Xed-PRO".
 
 on:
   push:
@@ -14,8 +15,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-debug:
-    name: Build Debug APK
+  build-clone:
+    name: Build Clone APK
     runs-on: ubuntu-latest
 
     steps:
@@ -51,17 +52,17 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+      - name: Build clone APK
+        run: ./gradlew assembleClone --no-daemon --stacktrace
 
-      - name: Rename APK
+      - name: Collect APK
         run: |
           mkdir -p out
-          cp app/build/outputs/apk/debug/*.apk "out/xed-editor-debug-${COMMIT_HASH}.apk"
+          cp app/build/outputs/apk/clone/*.apk "out/xed-pro-${COMMIT_HASH}.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Xed-Editor-Debug
+          name: Xed-PRO
           path: out/*.apk
           if-no-files-found: error

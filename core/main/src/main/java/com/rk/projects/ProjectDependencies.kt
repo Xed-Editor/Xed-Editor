@@ -26,6 +26,7 @@ object ProjectDependencies {
     fun requiredTools(config: ProjectConfig): List<Tool> =
         when (config.template) {
             ProjectTemplate.NONE -> emptyList()
+            ProjectTemplate.WEB -> emptyList()
             ProjectTemplate.PYTHON3 ->
                 listOf(Tool("Python 3", "python3", listOf("python3", "python3-pip", "python3-venv")))
             ProjectTemplate.PYTHON ->
