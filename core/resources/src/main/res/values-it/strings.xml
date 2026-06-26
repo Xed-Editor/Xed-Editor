@@ -685,4 +685,9 @@
     <string name="seccomp_unspecified">Non specificato</string>
     <string name="seccomp_seccomp">Seccomp</string>
     <string name="seccomp_no_seccomp">No seccomp</string>
+    <string name="store_desc">Scarica estensioni, temi e pacchetti di icone</string>
+    <string name="no_icon_packs">Nessun pacchetto di icone trovato.</string>
+    <string name="search_themes">Cerca temi</string>
+    <string name="search_icon_packs">Cerca pacchetti di icone</string>
+    <string name="download_count">Numero di download</string>
 </resources>
