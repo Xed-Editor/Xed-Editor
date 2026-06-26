@@ -48,5 +48,31 @@
       "start": "^\\s*//\\s*#?region\\b",
       "end": "^\\s*//\\s*#?endregion\\b"
     }
-  }
+  },
+  "onEnterRules": [
+    {
+      "beforeText": "^\\s*/\\*\\*?(?!/)\\s*$",
+      "afterText": "^\\s*\\*\\s*/\\s*$",
+      "action": {
+        "indent": "none",
+        "appendText": " * "
+      }
+    },
+    {
+      "beforeText": "^\\s*/\\*\\*?(?!/)\\s*.*$",
+      "afterText": "^\\s*\\*\\s*/\\s*$",
+      "action": {
+        "indent": "none",
+        "appendText": " * "
+      }
+    },
+    {
+      "beforeText": "^\\s*\\*\\s.*$",
+      "afterText": "^\\s*\\*\\s*/\\s*$",
+      "action": {
+        "indent": "none",
+        "appendText": " * "
+      }
+    }
+  ]
 }
