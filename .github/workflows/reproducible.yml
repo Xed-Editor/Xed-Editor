@@ -1,0 +1,141 @@
+name: Verify Reproducible Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      reference_apk_url:
+        description: 'URL of the official signed APK to compare against (optional)'
+        required: false
+        type: string
+      build_type:
+        description: 'Build type (release or debug)'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - 'release'
+          - 'debug'
+
+jobs:
+  verify-reproducibility:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            apksigner dexdump diffoscope
+
+      - name: Install Python Tools
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install apksigcopier reproducible-apk-tools
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Clone submodules
+        run: git submodule update --init --recursive
+
+      - name: Build First APK
+        run: |
+          if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
+            ./gradlew assembleRelease --no-daemon
+            find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
+          else
+            ./gradlew assembleDebug --no-daemon
+            find app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
+          fi
+          echo "First built APK size: $(wc -c < /tmp/build1.apk) bytes"
+
+      - name: Check if Reference APK provided
+        id: ref_check
+        run: |
+          if [ -n "${{ github.event.inputs.reference_apk_url }}" ]; then
+            echo "has_ref=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_ref=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download Reference APK
+        if: steps.ref_check.outputs.has_ref == 'true'
+        run: |
+          curl -L -o /tmp/reference.apk "${{ github.event.inputs.reference_apk_url }}"
+          echo "Reference APK size: $(wc -c < /tmp/reference.apk) bytes"
+
+      - name: Verify Reproducibility against Reference APK
+        if: steps.ref_check.outputs.has_ref == 'true'
+        run: |
+          # Copy the signature from the reference APK to our built APK
+          if apksigcopier copy /tmp/reference.apk /tmp/build1.apk /tmp/reproduced.apk; then
+            echo "Successfully copied signature using apksigcopier!"
+            
+            # Calculate SHA256 checksums
+            REF_SHA=$(sha256sum /tmp/reference.apk | cut -d' ' -f1)
+            REP_SHA=$(sha256sum /tmp/reproduced.apk | cut -d' ' -f1)
+            
+            echo "Reference SHA256:  $REF_SHA"
+            echo "Reproduced SHA256: $REP_SHA"
+            
+            if [ "$REF_SHA" = "$REP_SHA" ]; then
+              echo "=== SUCCESS: Build is 100% reproducible! ==="
+            else
+              echo "=== FAILURE: APK contents differ after signature copying. ==="
+              echo "Running apkdiff for details..."
+              apkdiff /tmp/reference.apk /tmp/reproduced.apk || true
+              echo "Running diffoscope for details..."
+              diffoscope /tmp/reference.apk /tmp/reproduced.apk || true
+              exit 1
+            fi
+          else
+            echo "=== FAILURE: apksigcopier failed to copy the signature. ==="
+            echo "This usually means the files inside the APKs are structured differently."
+            echo "Running apkdiff between reference and built APK..."
+            apkdiff /tmp/reference.apk /tmp/build1.apk || true
+            exit 1
+          fi
+
+      - name: Check local determinism (Build twice and compare)
+        if: steps.ref_check.outputs.has_ref == 'false'
+        run: |
+          echo "No reference APK provided. Checking local build determinism by building a second time..."
+          ./gradlew clean
+          
+          if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
+            ./gradlew assembleRelease --no-daemon
+            find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} /tmp/build2.apk \;
+          else
+            ./gradlew assembleDebug --no-daemon
+            find app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} /tmp/build2.apk \;
+          fi
+          
+          SHA1=$(sha256sum /tmp/build1.apk | cut -d' ' -f1)
+          SHA2=$(sha256sum /tmp/build2.apk | cut -d' ' -f1)
+          
+          echo "First Build SHA256:  $SHA1"
+          echo "Second Build SHA256: $SHA2"
+          
+          if [ "$SHA1" = "$SHA2" ]; then
+            echo "=== SUCCESS: Local builds are 100% deterministic! ==="
+          else
+            echo "=== FAILURE: Local builds differ. ==="
+            echo "Running apkdiff..."
+            apkdiff /tmp/build1.apk /tmp/build2.apk || true
+            exit 1
+          fi

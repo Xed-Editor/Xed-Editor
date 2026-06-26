@@ -35,3 +35,4 @@ core/wasm3
 __pycache__/
 .DS_Store
 *~
+/rbuilder_setup
