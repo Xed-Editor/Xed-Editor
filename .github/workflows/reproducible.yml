@@ -45,7 +45,8 @@ jobs:
       - name: Install Python Tools
         run: |
           python3 -m pip install --upgrade pip
-          pip install apksigcopier reproducible-apk-tools
+          pip install apksigcopier git+https://github.com/obfusk/reproducible-apk-tools.git
+
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
