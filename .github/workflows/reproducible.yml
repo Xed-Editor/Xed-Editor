@@ -29,6 +29,32 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Setup exact SDK versions (cmdline-tools, cmake, ndk)
+        run: |
+          # Set up permissions for SDK folder
+          sudo chown -R $USER:$USER /usr/local/lib/android/sdk
+          
+          # Clean up any existing cmdline-tools 20.0 to avoid conflicts
+          rm -rf /usr/local/lib/android/sdk/cmdline-tools/20.0
+          
+          # Download the exact version of cmdline-tools
+          curl -L -o /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-14742923_latest.zip
+          echo "04453066b540409d975c676d781da1477479dde3761310f1a7eb92a1dfb15af7  /tmp/cmdline-tools.zip" | sha256sum -c -
+          
+          # Extract cmdline-tools
+          unzip -q /tmp/cmdline-tools.zip -d /tmp/cmdline-tools-extracted
+          mkdir -p /usr/local/lib/android/sdk/cmdline-tools
+          mv /tmp/cmdline-tools-extracted/cmdline-tools /usr/local/lib/android/sdk/cmdline-tools/20.0
+          
+          # Accept licenses using the new sdkmanager
+          yes | /usr/local/lib/android/sdk/cmdline-tools/20.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk --licenses
+          
+          # Install the exact cmake and ndk versions
+          /usr/local/lib/android/sdk/cmdline-tools/20.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk \
+            "cmake;4.1.2" \
+            "ndk;29.0.13846066"
+
+
       - name: Install System Dependencies & JDK 21 (APT)
         run: |
           sudo apt-get update
@@ -54,6 +80,11 @@ jobs:
           sed -r '/(foojay|toolchainVendor)/d' -i gradle/gradle-daemon-jvm.properties || true
           sed -ri '/foojay-resolver-convention/d' settings.gradle.kts || true
           sed -r '/signingConfigs.getByName/d' -i app/build.gradle.kts || true
+          
+          # Configure exact NDK location as per recipe
+          export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/29.0.13846066
+          echo "ndk.dir=${ANDROID_NDK}" >> local.properties
+          
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
             ./gradlew assembleRelease --no-daemon
             find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
@@ -62,6 +93,7 @@ jobs:
             find app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
           fi
           echo "First built APK size: $(wc -c < /tmp/build1.apk) bytes"
+
 
 
       - name: Check if Reference APK provided
@@ -117,6 +149,10 @@ jobs:
           echo "No reference APK provided. Checking local build determinism by building a second time..."
           ./gradlew clean
           
+          # Configure exact NDK location as per recipe
+          export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/29.0.13846066
+          echo "ndk.dir=${ANDROID_NDK}" >> local.properties
+          
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
             ./gradlew assembleRelease --no-daemon
             find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} /tmp/build2.apk \;
@@ -124,6 +160,7 @@ jobs:
             ./gradlew assembleDebug --no-daemon
             find app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} /tmp/build2.apk \;
           fi
+
           
           SHA1=$(sha256sum /tmp/build1.apk | cut -d' ' -f1)
           SHA2=$(sha256sum /tmp/build2.apk | cut -d' ' -f1)
