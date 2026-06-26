@@ -16,4 +16,20 @@ subprojects {
             maxWidth.set(120)
         }
     }
+    plugins.withId("com.android.library") {
+            configure<com.android.build.api.dsl.LibraryExtension> {
+                defaultConfig {
+                    externalNativeBuild {
+                        cmake {
+                            // Force identical linker optimization (O2) on all environments
+                            arguments(
+                                "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-O2",
+                                "-DCMAKE_EXE_LINKER_FLAGS=-Wl,-O2"
+                            )
+                        }
+                    }
+                }
+            }
+    }
+
 }
