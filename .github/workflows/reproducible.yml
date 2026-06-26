@@ -29,7 +29,24 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.inputs.git_ref || github.ref }}
+
+      - name: Checkout target commit or branch
+        run: |
+          if [ -n "${{ github.event.inputs.git_ref }}" ]; then
+            INPUT_REF="${{ github.event.inputs.git_ref }}"
+            # Extract 40-char SHA if present at the end of the input (e.g. main/79ee0d60fff4f835bb31a5f64f5f0f6f4b30409a)
+            CLEAN_REF=$(echo "$INPUT_REF" | grep -oE '[0-9a-f]{40}$' || echo "$INPUT_REF")
+            echo "Checking out parsed ref: $CLEAN_REF"
+            git checkout "$CLEAN_REF"
+          fi
+
+      - name: Detect NDK Version
+        run: |
+          # Dynamically extract NDK version from build files
+          NDK_VERSION=$(grep -rnw . -e "ndkVersion" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "29.0.13846066")
+          echo "Detected NDK version: $NDK_VERSION"
+          echo "NDK_VERSION=$NDK_VERSION" >> $GITHUB_ENV
+
 
 
       - name: Setup Android SDK
@@ -55,10 +72,12 @@ jobs:
           # Accept licenses using the new sdkmanager
           yes | /usr/local/lib/android/sdk/cmdline-tools/20.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk --licenses
           
-          # Install the exact cmake and ndk versions
+          # Install the exact cmake and dynamically detected ndk version
+          echo "Installing NDK version: $NDK_VERSION"
           /usr/local/lib/android/sdk/cmdline-tools/20.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk \
             "cmake;4.1.2" \
-            "ndk;29.0.13846066"
+            "ndk;$NDK_VERSION"
+
 
 
       - name: Install System Dependencies & JDK 21 (APT)
@@ -87,8 +106,8 @@ jobs:
           sed -ri '/foojay-resolver-convention/d' settings.gradle.kts || true
           sed -r '/signingConfigs.getByName/d' -i app/build.gradle.kts || true
           
-          # Configure exact NDK location as per recipe
-          export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/29.0.13846066
+          # Configure exact NDK location dynamically
+          export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/$NDK_VERSION
           echo "ndk.dir=${ANDROID_NDK}" >> local.properties
           
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
@@ -135,8 +154,6 @@ jobs:
               echo "=== SUCCESS: Build is 100% reproducible! ==="
             else
               echo "=== FAILURE: APK contents differ after signature copying. ==="
-              echo "Running apkdiff for details..."
-              apkdiff /tmp/reference.apk /tmp/reproduced.apk || true
               echo "Running diffoscope for details..."
               diffoscope /tmp/reference.apk /tmp/reproduced.apk || true
               exit 1
@@ -144,8 +161,8 @@ jobs:
           else
             echo "=== FAILURE: apksigcopier failed to copy the signature. ==="
             echo "This usually means the files inside the APKs are structured differently."
-            echo "Running apkdiff between reference and built APK..."
-            apkdiff /tmp/reference.apk /tmp/build1.apk || true
+            echo "Running diffoscope between reference and built APK..."
+            diffoscope /tmp/reference.apk /tmp/build1.apk || true
             exit 1
           fi
 
@@ -155,8 +172,8 @@ jobs:
           echo "No reference APK provided. Checking local build determinism by building a second time..."
           ./gradlew clean
           
-          # Configure exact NDK location as per recipe
-          export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/29.0.13846066
+          # Configure exact NDK location dynamically
+          export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/$NDK_VERSION
           echo "ndk.dir=${ANDROID_NDK}" >> local.properties
           
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
@@ -178,7 +195,7 @@ jobs:
             echo "=== SUCCESS: Local builds are 100% deterministic! ==="
           else
             echo "=== FAILURE: Local builds differ. ==="
-            echo "Running apkdiff..."
-            apkdiff /tmp/build1.apk /tmp/build2.apk || true
+            echo "Running diffoscope..."
+            diffoscope /tmp/build1.apk /tmp/build2.apk || true
             exit 1
           fi
