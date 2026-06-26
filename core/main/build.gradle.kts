@@ -142,13 +142,16 @@ dependencies {
     // Modules
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
-    implementation(project(":terminal-view"))
-    implementation(project(":terminal-emulator"))
+    //implementation(project(":terminal-view"))
+    //implementation(project(":terminal-emulator"))
     implementation(project(":editor"))
     implementation(project(":editor-lsp"))
     implementation(project(":language-textmate"))
     implementation(project(":core:proot"))
     implementation(project(":core:link2symlink"))
+
+    implementation("com.github.termux.termux-app:terminal-view:v0.118.3")
+    implementation("com.github.termux.termux-app:terminal-emulator:v0.118.3")
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {
