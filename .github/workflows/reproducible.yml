@@ -7,6 +7,10 @@ on:
         description: 'URL of the official signed APK to compare against (optional)'
         required: false
         type: string
+      git_ref:
+        description: 'Commit hash, branch name, or tag to checkout and test (optional, defaults to triggering branch/commit)'
+        required: false
+        type: string
       build_type:
         description: 'Build type (release or debug)'
         required: true
@@ -25,6 +29,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.inputs.git_ref || github.ref }}
+
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
