@@ -93,6 +93,97 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install apksigcopier git+https://github.com/obfusk/reproducible-apk-tools.git
 
+      - name: Install apkdiff utility
+        run: |
+          cat << 'EOF' > /tmp/apkdiff
+          #!/usr/bin/env python3
+          import sys
+          import os
+          import zipfile
+          import hashlib
+
+          def get_files_and_hashes(apk_path):
+              files = {}
+              with zipfile.ZipFile(apk_path, 'r') as z:
+                  for name in z.namelist():
+                      if name.startswith('META-INF/'):
+                          continue
+                      try:
+                          data = z.read(name)
+                          h = hashlib.sha256(data).hexdigest()
+                          files[name] = (len(data), h)
+                      except Exception as e:
+                          print(f"Warning: Could not read {name} in {apk_path}: {e}")
+              return files
+
+          def main():
+              if len(sys.argv) < 3:
+                  print("Usage: apkdiff <apk1> <apk2>")
+                  sys.exit(1)
+                  
+              apk1, apk2 = sys.argv[1], sys.argv[2]
+              
+              if not os.path.exists(apk1) or not os.path.exists(apk2):
+                  print(f"Error: One of the files does not exist. {apk1} or {apk2}")
+                  sys.exit(1)
+                  
+              files1 = get_files_and_hashes(apk1)
+              files2 = get_files_and_hashes(apk2)
+              
+              all_names = sorted(list(set(files1.keys()) | set(files2.keys())))
+              
+              mismatches = 0
+              only_in_1 = []
+              only_in_2 = []
+              diff_hash = []
+              
+              for name in all_names:
+                  in1 = name in files1
+                  in2 = name in files2
+                  
+                  if in1 and not in2:
+                      only_in_1.append(name)
+                      mismatches += 1
+                  elif in2 and not in1:
+                      only_in_2.append(name)
+                      mismatches += 1
+                  else:
+                      len1, h1 = files1[name]
+                      len2, h2 = files2[name]
+                      if h1 != h2:
+                          diff_hash.append((name, len1, len2, h1[:8], h2[:8]))
+                          mismatches += 1
+                          
+              if mismatches == 0:
+                  print("APK contents (excluding META-INF signatures) are identical!")
+                  sys.exit(0)
+                  
+              print(f"Found {mismatches} differences between APKs (excluding META-INF signatures):")
+              
+              if only_in_1:
+                  print("\nFiles only in APK 1:")
+                  for name in only_in_1:
+                      print(f"  - {name}")
+                      
+              if only_in_2:
+                  print("\nFiles only in APK 2:")
+                  for name in only_in_2:
+                      print(f"  - {name}")
+                      
+              if diff_hash:
+                  print("\nModified files (name: size1 vs size2, sha256_1 vs sha256_2):")
+                  for name, size1, size2, h1, h2 in diff_hash:
+                      print(f"  - {name}: {size1} vs {size2} bytes, {h1} vs {h2}")
+                      
+              sys.exit(1)
+
+          if __name__ == '__main__':
+              main()
+          EOF
+          sudo cp /tmp/apkdiff /usr/local/bin/apkdiff
+          sudo chmod +x /usr/local/bin/apkdiff
+
+
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -154,17 +245,25 @@ jobs:
               echo "=== SUCCESS: Build is 100% reproducible! ==="
             else
               echo "=== FAILURE: APK contents differ after signature copying. ==="
+              echo "Running apkdiff for details..."
+              apkdiff /tmp/reference.apk /tmp/reproduced.apk || true
               echo "Running diffoscope for details..."
-              diffoscope /tmp/reference.apk /tmp/reproduced.apk || true
+              mkdir -p diffoscope-report
+              diffoscope --html diffoscope-report/index.html /tmp/reference.apk /tmp/reproduced.apk || true
               exit 1
             fi
           else
             echo "=== FAILURE: apksigcopier failed to copy the signature. ==="
             echo "This usually means the files inside the APKs are structured differently."
+            echo "Running apkdiff between reference and built APK..."
+            apkdiff /tmp/reference.apk /tmp/build1.apk || true
             echo "Running diffoscope between reference and built APK..."
-            diffoscope /tmp/reference.apk /tmp/build1.apk || true
+            mkdir -p diffoscope-report
+            diffoscope --html diffoscope-report/index.html /tmp/reference.apk /tmp/build1.apk || true
             exit 1
           fi
+
+
 
       - name: Check local determinism (Build twice and compare)
         if: steps.ref_check.outputs.has_ref == 'false'
@@ -195,7 +294,18 @@ jobs:
             echo "=== SUCCESS: Local builds are 100% deterministic! ==="
           else
             echo "=== FAILURE: Local builds differ. ==="
+            echo "Running apkdiff..."
+            apkdiff /tmp/build1.apk /tmp/build2.apk || true
             echo "Running diffoscope..."
-            diffoscope /tmp/build1.apk /tmp/build2.apk || true
+            mkdir -p diffoscope-report
+            diffoscope --html diffoscope-report/index.html /tmp/build1.apk /tmp/build2.apk || true
             exit 1
           fi
+
+      - name: Upload Diffoscope Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diffoscope-report
+          path: diffoscope-report/
+
