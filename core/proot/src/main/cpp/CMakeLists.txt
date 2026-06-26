@@ -6,10 +6,10 @@ add_definitions(-D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -D__STDC_WANT_LIB_EXT1__=1)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/talloc)
 
 # Compiler flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -O2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -O2 -g0")
 # Reproducibility flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=. -fno-ident")
-set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=. -ffile-prefix-map=${CMAKE_CURRENT_BINARY_DIR}=. -fno-ident")
+set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=. -ffile-prefix-map=${CMAKE_CURRENT_BINARY_DIR}=. -g0")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack -Wl,--build-id=sha1")
 
 # Tools from environment (NDK)
@@ -242,7 +242,7 @@ function(build_loader SUFFIX EXTRA_CFLAGS LOADER_ADDR)
 
     add_executable(${LOADER_TARGET} loader/loader.c loader/assembly.S)
     set_target_properties(${LOADER_TARGET} PROPERTIES 
-        COMPILE_FLAGS "-fPIC -ffreestanding ${EXTRA_CFLAGS}"
+        COMPILE_FLAGS "-fPIC -ffreestanding -g0 -ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=. -ffile-prefix-map=${CMAKE_CURRENT_BINARY_DIR}=. ${EXTRA_CFLAGS}"
         LINK_FLAGS "-static -nostdlib ${EXTRA_CFLAGS} -Wl,-Ttext=${LOADER_ADDR},--rosegment,-z,noexecstack"
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/loader
         OUTPUT_NAME ${LOADER_NAME}
