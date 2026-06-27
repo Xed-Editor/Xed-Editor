@@ -20,7 +20,7 @@ object LspRegistry {
     }
 
     suspend fun getConfigurationChanges(context: Context): List<LspServer> {
-        return externalServers.filter {
+        return extensionServers + externalServers.filter {
             val isInstalled = it.isInstalled(context)
             (configuration[it] ?: false) != isInstalled
         }

@@ -34,9 +34,6 @@ fun sandboxHomeDir(context: Context = application!!): File {
     return localDir(context).child("home").createDirIfNot()
 }
 
-fun runnerDir(context: Context = application!!): File {
-    return localDir(context).child("runners").createDirIfNot()
-}
 
 fun themeDir(context: Context = application!!): File {
     return localDir(context).child("themes").createDirIfNot()

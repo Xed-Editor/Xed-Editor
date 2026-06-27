@@ -5,9 +5,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.Composable
 import com.rk.icons.Icon
 
-object DrawerOverlayRegistry {
-    val overlays = mutableStateListOf<@Composable () -> Unit>()
-}
 
 object ServiceTabRegistry {
     val providers = mutableStateListOf<(androidx.lifecycle.ViewModelStoreOwner) -> DrawerTab>()

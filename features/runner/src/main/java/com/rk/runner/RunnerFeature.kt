@@ -8,6 +8,7 @@ import com.rk.feature.SettingsRegistry
 import com.rk.feature.SettingsCategory
 import com.rk.feature.SettingsRoute
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.components.DialogRegistry
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.runners.RunnerSettings
@@ -15,6 +16,12 @@ import com.rk.settings.runners.HtmlRunnerSettings
 
 class RunnerFeature : Feature {
     override fun init(application: Application) {
+        // Register RunnerSheet overlay
+        DialogRegistry.dialogs.add {
+            if (RunnerUI.showRunnerDialog) {
+                RunnerSheet()
+            }
+        }
         // Register settings category
         SettingsRegistry.registerCategory(
             SettingsCategory(

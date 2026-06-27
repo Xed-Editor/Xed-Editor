@@ -15,6 +15,7 @@ import com.rk.runner.RunnerManager
 import com.rk.settings.Settings
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
+import com.rk.runner.RunnerUI
 
 @OptIn(DelicateCoroutinesApi::class)
 class RunCommand : EditorCommand() {
@@ -32,8 +33,8 @@ class RunCommand : EditorCommand() {
                 activity = activity,
                 fileObject = editorTab.file,
                 onMultipleRunners = {
-                    editorTab.editorState.showRunnerDialog = true
-                    editorTab.editorState.runnersToShow = it
+                    RunnerUI.runnersToShow = it
+                    RunnerUI.showRunnerDialog = true
                 },
             )
         }

@@ -11,7 +11,6 @@ import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.localDir
-import com.rk.file.runnerDir
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import java.io.File

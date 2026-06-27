@@ -13,7 +13,6 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.drawer.AddProjectRegistry
 import com.rk.drawer.AddProjectOption
-import com.rk.drawer.DrawerOverlayRegistry
 import com.rk.drawer.ServiceTabRegistry
 import com.rk.icons.Icon
 import com.rk.file.FileObject
@@ -27,6 +26,7 @@ import com.rk.file.FileChangeNotifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.MaterialTheme
+import com.rk.components.DialogRegistry
 import com.rk.theme.vcsAdded
 import com.rk.theme.vcsModified
 import com.rk.theme.vcsDeleted
@@ -132,7 +132,7 @@ class GitFeature : Feature {
             )
         }
 
-        DrawerOverlayRegistry.overlays.add {
+        DialogRegistry.dialogs.add {
             if (showCloneDialog) {
                 GitCloneDialog(
                     onDismiss = { showCloneDialog = false },

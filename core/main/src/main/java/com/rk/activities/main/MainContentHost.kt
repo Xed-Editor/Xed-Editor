@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import com.rk.components.DialogRegistry
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
@@ -205,6 +206,10 @@ fun MainActivity.MainContentHost(
                 mainContent = mainContent,
                 sheetContent = sheetContent,
             )
+
+            DialogRegistry.dialogs.forEach { dialog ->
+                dialog()
+            }
         }
     }
 }

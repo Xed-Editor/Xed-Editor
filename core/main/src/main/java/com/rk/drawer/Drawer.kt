@@ -226,10 +226,6 @@ fun DrawerContent(fullscreen: Boolean) {
                     )
                 }
 
-                DrawerOverlayRegistry.overlays.forEach { overlay ->
-                    overlay()
-                }
-
                 val currentDrawerTab = viewModel.currentDrawerTab
                 if (closeProjectDialog && currentDrawerTab != null) {
                     ProjectCloseConfirmationDialog(
