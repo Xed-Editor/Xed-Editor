@@ -49,6 +49,31 @@ Xed-Editor, from the very beginning of the PRO work.
 - **UI polish**: per-section change **count badges** and a richer empty state.
 - **Initialize Git repository** option during project creation (init + initial commit).
 
+## Project-aware Run button
+- The editor **Run (play) button is now project-aware** (`ProjectRunner`, `RunCommand`): instead of
+  blindly running a single file, it detects the project type (`ProjectTypeDetector`) of the open
+  file's project and acts accordingly, always running from the **project's own folder** in the
+  terminal sandbox:
+  - **Python** – runs the open `.py` file, or falls back to `main.py`/`app.py`/`run.py`/`manage.py`;
+    installs `requirements.txt` first when present.
+  - **Node.js** – `npm install` (if needed) then `npm start`, or `node index.js`.
+  - **Fabric / Forge / generic Gradle** – checks the JDK is installed, then runs `./gradlew build`
+    and surfaces any build errors directly in the terminal.
+  - **Rust** – `cargo run`. **Go** – `go run .`.
+  - **Static web** – opens the existing in-app HTML preview.
+  - **Android & unidentified projects** – the button is **hidden** (Android needs the full SDK and a
+    different flow; unknown projects have no meaningful run command).
+- Missing toolchains produce a clear message pointing to the **Dependencies** download dialog instead
+  of a cryptic shell error.
+- New `project_runner.sh` terminal asset implements the per-type run/build logic (no `set -e`, so
+  errors stay visible; prints a DONE/FAILED result banner with the exit code).
+
+## Editor input
+- **Cursor now follows the on-screen keyboard.** When the IME moves the caret (e.g. Gboard's
+  space-bar swipe / cursor control), the editor scrolls to keep the caret visible
+  (`EditorInputConnection.setSelection` now requests visibility for IME-driven moves, except during
+  active text composition to avoid jumpiness while typing).
+
 ## Performance
 - Stable list `key` for the projects list to avoid needless recomposition.
 - Editor: enabled `cacheRenderNodeForLongLines` for smoother scrolling/typing on long-line files (hardware-accelerated drawing is already on by default in this editor).

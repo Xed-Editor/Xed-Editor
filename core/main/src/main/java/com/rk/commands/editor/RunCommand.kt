@@ -11,11 +11,21 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.RunnerManager
+import com.rk.runner.ProjectRunner
 import com.rk.settings.Settings
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
+/**
+ * The editor "Run" (play) button. It is **project-aware**: visibility and behaviour are driven by
+ * the type of the project the open file belongs to (see [ProjectRunner]).
+ *
+ *  - Shown for Python, Node, Rust, Go, static Web, and Fabric/Forge/Gradle projects.
+ *  - Hidden for Android projects and for projects the editor can't identify.
+ *
+ * Clicking it runs (or builds) the project from its own folder in the terminal sandbox, or opens
+ * the in-app HTML preview for static web projects.
+ */
 @OptIn(DelicateCoroutinesApi::class)
 class RunCommand : EditorCommand() {
     override val id: String = "editor.run"
@@ -28,19 +38,14 @@ class RunCommand : EditorCommand() {
         CommandProvider.SaveCommand.action(editorActionContext)
         DefaultScope.launch {
             Settings.runs += 1
-            RunnerManager.run(
-                activity = activity,
-                fileObject = editorTab.file,
-                onMultipleRunners = {
-                    editorTab.editorState.showRunnerDialog = true
-                    editorTab.editorState.runnersToShow = it
-                },
-            )
+            ProjectRunner.run(activity = activity, projectRoot = editorTab.projectRoot, file = editorTab.file)
         }
     }
 
     override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean {
-        return RunnerManager.isRunnable(editorNonActionContext.editorTab.file)
+        val tab = editorNonActionContext.editorTab
+        val rootPath = ProjectRunner.resolveProjectRootPath(tab.projectRoot, tab.file)
+        return ProjectRunner.canRun(rootPath)
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.run)
