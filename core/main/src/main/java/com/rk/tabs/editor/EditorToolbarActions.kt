@@ -39,7 +39,7 @@ import com.rk.commands.ToolbarConfiguration
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.strings
-import com.rk.terminal.isV
+import com.rk.utils.isV
 import com.rk.theme.Typography
 import com.rk.utils.x
 import kotlin.math.min

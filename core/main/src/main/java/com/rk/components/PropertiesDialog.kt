@@ -35,16 +35,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.rk.activities.main.gitViewModel
-import com.rk.exec.ShellUtils
 import com.rk.file.FileObject
+import com.rk.file.FilePropertiesRegistry
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.formatFileSize
-import com.rk.utils.getGitColor
 import com.rk.utils.rememberNumberFormatter
 import java.text.DateFormat
 import java.util.Date
@@ -167,29 +165,39 @@ fun AdvancedProperties(file: FileObject) {
     InfoRow(stringResource(strings.permissions), getPseudoPermissions(file))
     InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
 
-    val changeType = gitViewModel.get()?.getChangeType(file.getAbsolutePath())
-    val gitStatus = changeType?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: strings.unknown.getString()
-    InfoRow(
-        label = stringResource(strings.git_status),
-        value = gitStatus,
-        customTextColor = changeType?.let { getGitColor(it) },
-    )
+    FilePropertiesRegistry.providers.forEach { provider ->
+        provider.getProperties(file).forEach { property ->
+            InfoRow(
+                label = property.label,
+                value = property.value,
+                customTextColor = property.valueColor
+            )
+        }
+    }
 
     if (file is FileWrapper && file.isFile()) {
         var fileInfo by remember { mutableStateOf(strings.loading.getString()) }
         InfoRow(label = stringResource(strings.file_type), fileInfo)
 
         LaunchedEffect(file) {
-            val result = withContext(Dispatchers.IO) { ShellUtils.run("file", file.getAbsolutePath()) }
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val process = ProcessBuilder("file", file.getAbsolutePath()).start()
+                    val output = process.inputStream.bufferedReader().use { it.readText() }.trim()
+                    val error = process.errorStream.bufferedReader().use { it.readText() }.trim()
+                    val code = process.waitFor()
+                    Triple(code, output, error)
+                }.getOrElse { Triple(-1, "", it.message.orEmpty()) }
+            }
 
             fileInfo =
-                if (result.exitCode == 0) {
-                    result.output
+                if (result.first == 0) {
+                    result.second
                         .removePrefix(file.getAbsolutePath())
                         .removePrefix(file.getCanonicalPath())
                         .removePrefix(":")
                 } else {
-                    result.error
+                    result.third
                 }
         }
     }

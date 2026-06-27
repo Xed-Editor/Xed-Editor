@@ -26,7 +26,7 @@
     </queries>
 
     <application
-        android:name="com.rk.App"
+        android:name="com.rk.application.XedApplication"
         android:allowBackup="true"
         android:appCategory="productivity"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -45,9 +45,7 @@
             android:shell="true"
             tools:targetApi="29" />
 
-        <service
-            android:name="com.rk.terminal.SessionService"
-            android:foregroundServiceType="specialUse" />
+
 
         <activity
             android:name="com.rk.activities.main.MainActivity"
@@ -93,15 +91,5 @@
         <activity
             android:name="com.rk.activities.settings.SettingsActivity"
             android:exported="false" />
-        <activity
-            android:name="com.rk.runner.runners.web.markdown.MDViewer"
-            android:exported="false"
-            tools:ignore="Instantiatable" />
-        <activity
-            android:name="com.rk.activities.terminal.Terminal"
-            android:exported="true"
-            android:label="Terminal"
-            android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustResize|stateVisible" />
     </application>
 </manifest>

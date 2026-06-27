@@ -15,10 +15,6 @@ import com.rk.editor.CodeHighlighter
 import com.rk.editor.FontCache
 import com.rk.editor.KeywordManager
 import com.rk.editor.LanguageManager
-import com.rk.extension.ActivityProvider
-import com.rk.extension.manager.ExtensionAPIManager
-import com.rk.extension.loader.loadAllExtensions
-import com.rk.extension.manager.ExtensionManager
 import com.rk.icons.pack.IconPackManager
 import com.rk.lsp.FileIconProvider
 import com.rk.lsp.LspPersistence
@@ -42,7 +38,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @OptIn(DelicateCoroutinesApi::class)
-class App : Application() {
+open class App : Application() {
     companion object {
         val versionCode: Long by lazy {
             val app = application ?: throw IllegalStateException("Application is not initialized yet")
@@ -51,15 +47,7 @@ class App : Application() {
             )
         }
 
-        private var _extensionManager: ExtensionManager? = null
-        val extensionManager: ExtensionManager
-            get() {
-                if (_extensionManager == null) {
-                    _extensionManager = ExtensionManager(application!!)
-                }
 
-                return _extensionManager!!
-            }
 
         private var _iconPackManager: IconPackManager? = null
         val iconPackManager: IconPackManager
@@ -96,12 +84,7 @@ class App : Application() {
         AppCompatDelegate.setApplicationLocales(appLocale)
 
         GlobalScope.launch(Dispatchers.IO) {
-            launch(Dispatchers.IO) {
-                extensionManager.indexLocalExtensions()
-                extensionManager.loadAllExtensions()
-                registerActivityLifecycleCallbacks(ExtensionAPIManager)
-                registerActivityLifecycleCallbacks(ActivityProvider)
-            }
+
 
             launch(Dispatchers.IO) { iconPackManager.indexIconPacks() }
 

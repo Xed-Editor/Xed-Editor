@@ -9,8 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeTab
-import com.rk.git.GitTab
-import com.rk.git.GitViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -38,9 +36,11 @@ class DrawerViewModel : ViewModel() {
     val currentServiceTab: DrawerTab?
         get() = _serviceTabs.getOrNull(currentServiceTabIndex)
 
-    internal fun setupBuiltinServices(gitViewModel: GitViewModel) {
+    internal fun setupBuiltinServices(owner: androidx.lifecycle.ViewModelStoreOwner) {
         _serviceTabs.clear()
-        _serviceTabs.add(GitTab(gitViewModel))
+        ServiceTabRegistry.providers.forEach { provider ->
+            _serviceTabs.add(provider(owner))
+        }
         currentServiceTabIndex = -1
     }
 

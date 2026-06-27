@@ -1,7 +1,7 @@
 package com.rk.lsp
 
 import android.util.Log
-import com.rk.exec.ubuntuProcess
+import com.rk.drawer.SandboxedProcessRegistry
 import java.io.InputStream
 import java.io.OutputStream
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +31,8 @@ class ProcessConnection(private val cmd: Array<String>, instance: LspServerInsta
     override fun start() {
         if (process != null) return
         scope = CoroutineScope(Dispatchers.IO)
-        runBlocking { process = ubuntuProcess(command = cmd) }
+        val provider = SandboxedProcessRegistry.provider ?: throw IllegalStateException("PRoot Sandbox is not registered")
+        runBlocking { process = provider(cmd.toList(), null, listOf()) }
 
         loggingInput =
             LoggingInputStream(process!!.inputStream) { json ->

@@ -3,7 +3,6 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.baselineprofile)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktfmt)
 }
 
@@ -25,7 +24,7 @@ android {
 
     buildFeatures {
         viewBinding = true
-        compose = true
+        compose = false
         buildConfig = true
     }
 
@@ -111,4 +110,8 @@ dependencies {
 
     baselineProfile(project(":baselineprofile"))
     implementation(project(":core:main"))
+    implementation(project(":features:terminal"))
+    implementation(project(":features:extensions"))
+    implementation(project(":features:runner"))
+    implementation(project(":features:git"))
 }

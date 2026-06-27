@@ -36,6 +36,7 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.SettingsRegistry
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -74,37 +75,12 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.Keybindings.route) },
     )
 
-    if (InbuiltFeatures.git.state.value) {
+    SettingsRegistry.categories.forEach { category ->
         PreferenceCategory(
-            label = stringResource(strings.git),
-            description = stringResource(strings.git_desc),
-            iconResource = drawables.git,
-            onNavigate = { navController.navigate(SettingsRoutes.Git.route) },
-        )
-    }
-
-    if (InbuiltFeatures.terminal.state.value) {
-        PreferenceCategory(
-            label = stringResource(id = strings.terminal),
-            description = stringResource(id = strings.terminal_desc),
-            iconResource = drawables.terminal,
-            onNavigate = { navController.navigate(SettingsRoutes.TerminalSettings.route) },
-        )
-
-        PreferenceCategory(
-            label = stringResource(id = strings.runners),
-            description = stringResource(id = strings.runners_desc),
-            iconResource = drawables.run,
-            onNavigate = { navController.navigate(SettingsRoutes.Runners.route) },
-        )
-    }
-
-    if (InbuiltFeatures.extensions.state.value) {
-        PreferenceCategory(
-            label = stringResource(strings.store),
-            description = stringResource(strings.store_desc),
-            iconResource = drawables.store,
-            onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
+            label = stringResource(id = category.labelRes),
+            description = stringResource(id = category.descriptionRes),
+            iconResource = category.iconRes,
+            onNavigate = { navController.navigate(category.route) },
         )
     }
 

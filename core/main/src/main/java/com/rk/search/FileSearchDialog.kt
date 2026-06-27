@@ -49,7 +49,7 @@ import com.rk.filetree.getAppropriateName
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab
-import com.rk.utils.getGitColor
+import com.rk.utils.getFileColor
 import com.rk.utils.rememberNumberFormatter
 import java.io.File
 
@@ -132,7 +132,7 @@ fun SearchItem(
     onSelect: (FileObject, FileObject) -> Unit,
 ) {
     val isHidden = fileObject.getName().startsWith(".") || fileObject.getAbsolutePath().contains("/.")
-    val fileNameColor = getGitColor(fileObject) ?: Color.Unspecified
+    val fileNameColor = getFileColor(fileObject) ?: Color.Unspecified
 
     Row(
         verticalAlignment = Alignment.CenterVertically,

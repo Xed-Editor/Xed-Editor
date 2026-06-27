@@ -90,15 +90,6 @@ fun LspSettings(navController: NavController) {
     }
 
     @Composable
-    fun BuiltinServersSection() {
-        PreferenceGroup(heading = stringResource(strings.built_in)) {
-            LspRegistry.builtInServer.forEach { server ->
-                key(server.id) { LspServerItem(context, scope, server, navController, refreshKey) }
-            }
-        }
-    }
-
-    @Composable
     fun ExtensionServersSection(extensionServers: List<LspServer>) {
         PreferenceGroup(heading = stringResource(strings.ext)) {
             extensionServers.forEach { server ->
@@ -168,7 +159,6 @@ fun LspSettings(navController: NavController) {
             text = stringResource(strings.info_lsp),
         )
 
-        if (LspRegistry.builtInServer.isNotEmpty()) BuiltinServersSection()
 
         val extensionServers = LspRegistry.extensionServers
         if (extensionServers.isNotEmpty()) ExtensionServersSection(extensionServers)

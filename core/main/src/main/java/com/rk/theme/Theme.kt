@@ -119,15 +119,15 @@ val ColorScheme.greenStatus: Color
 val ColorScheme.yellowStatus: Color
     @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFE082)) else Color(harmonize(0xFFE6AC00))
 
-// Git change colors
-val ColorScheme.gitAdded: Color
+// VCS change colors
+val ColorScheme.vcsAdded: Color
     @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF81C784)) else Color(harmonize(0xFF2E7D32))
 
-val ColorScheme.gitModified: Color
+val ColorScheme.vcsModified: Color
     @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF64B5F6)) else Color(harmonize(0xFF1565C0))
 
-val ColorScheme.gitDeleted: Color
+val ColorScheme.vcsDeleted: Color
     get() = this.onSurface.copy(alpha = 0.6f)
 
-val ColorScheme.gitConflicted: Color
+val ColorScheme.vcsConflicted: Color
     @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFE57373)) else Color(harmonize(0xFFC62828))

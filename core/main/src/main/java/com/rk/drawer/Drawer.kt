@@ -53,11 +53,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.gitViewModel
-import com.rk.components.DoubleInputDialog
-import com.rk.file.toFileObject
 import com.rk.filetree.ProjectCloseConfirmationDialog
-import com.rk.git.ProgressCoordinator
+import com.rk.file.toFileObject
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -109,100 +106,7 @@ fun DrawerContent(fullscreen: Boolean) {
                 var showAddDialog by rememberSaveable { mutableStateOf(false) }
                 var closeProjectDialog by remember { mutableStateOf(false) }
 
-                // Git clone dialog
-                var showGitCloneDialog by remember { mutableStateOf(false) }
 
-                var repoURL by remember { mutableStateOf("") }
-                var repoBranch by remember { mutableStateOf("main") }
-
-                var repoURLError by remember { mutableStateOf<String?>(null) }
-                var repoBranchError by remember { mutableStateOf<String?>(null) }
-
-                // Git clone progress dialog
-                var showCloneProgressDialog by remember { mutableStateOf(false) }
-                var progress by remember { mutableIntStateOf(0) }
-                var maxProgress by remember { mutableIntStateOf(0) }
-                var message by remember { mutableStateOf(strings.cloning.getString()) }
-
-                val monitor = remember {
-                    object : ProgressCoordinator {
-                        private var cancelled = false
-
-                        override fun start(totalTasks: Int) {}
-
-                        override fun beginTask(title: String?, totalWork: Int) {
-                            message = title ?: strings.cloning.getString()
-                            maxProgress = totalWork
-                            progress = 0
-                        }
-
-                        override fun update(completed: Int) {
-                            progress += completed
-                        }
-
-                        override fun cancel() {
-                            cancelled = true
-                            hideDialog()
-                        }
-
-                        override fun endTask() {}
-
-                        override fun isCancelled(): Boolean = cancelled || Thread.currentThread().isInterrupted
-
-                        override fun showDialog() {
-                            showCloneProgressDialog = true
-                            progress = 0
-                            maxProgress = 0
-                            message = strings.cloning.getString()
-                        }
-
-                        override fun hideDialog() {
-                            showCloneProgressDialog = false
-                        }
-                    }
-                }
-
-                val cloneGitRepo =
-                    rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.OpenDocumentTree(),
-                        onResult = { uri ->
-                            uri?.let {
-                                runCatching {
-                                        context.contentResolver.takePersistableUriPermission(
-                                            it,
-                                            Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
-                                        )
-                                    }
-                                    .onFailure { it.printStackTrace() }
-                                scope.launch {
-                                    val fileObject =
-                                        it.toFileObject(expectedIsFile = false)
-                                            .createChild(
-                                                false,
-                                                repoURL.substringAfterLast("/").substringBeforeLast("."),
-                                            )
-                                    gitViewModel
-                                        .get()
-                                        ?.cloneRepository(
-                                            repoURL = repoURL,
-                                            repoBranch = repoBranch,
-                                            targetDir = File(fileObject!!.getAbsolutePath()),
-                                            progressCoordinator = monitor,
-                                            onComplete = { success ->
-                                                repoURL = ""
-                                                repoBranch = "main"
-                                                repoURLError = null
-                                                repoBranchError = null
-                                                if (success) {
-                                                    viewModel.addFileTreeTab(fileObject)
-                                                }
-                                            },
-                                        )
-                                }
-                            }
-                        },
-                    )
 
                 val lazyListState = rememberLazyListState()
                 val showHorizontalDivider by remember { derivedStateOf { lazyListState.canScrollForward } }
@@ -319,63 +223,6 @@ fun DrawerContent(fullscreen: Boolean) {
                                 onOk = { callback.invoke() },
                             )
                         },
-                        showGitCloneDialog = {
-                            showAddDialog = false
-                            showGitCloneDialog = true
-                        },
-                    )
-                }
-
-                if (showCloneProgressDialog) {
-                    AlertDialog(
-                        title = { Text(stringResource(strings.cloning)) },
-                        text = {
-                            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                Text(
-                                    text = "$message ($progress/$maxProgress)",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
-                                LinearProgressIndicator(
-                                    progress = { if (maxProgress > 0) progress.toFloat() / maxProgress else 0f }
-                                )
-                            }
-                        },
-                        onDismissRequest = {},
-                        confirmButton = {},
-                        dismissButton = { TextButton({ monitor.cancel() }) { Text(stringResource(strings.cancel)) } },
-                    )
-                }
-
-                if (showGitCloneDialog) {
-                    DoubleInputDialog(
-                        title = stringResource(strings.clone_repo),
-                        firstInputLabel = stringResource(strings.repo_url),
-                        firstInputValue = repoURL,
-                        onFirstInputValueChange = {
-                            repoURL = it
-                            repoURLError = validateValue(repoURL)
-                        },
-                        secondInputLabel = stringResource(strings.branch),
-                        secondInputValue = repoBranch,
-                        onSecondInputValueChange = {
-                            repoBranch = it
-                            repoBranchError = validateValue(repoBranch)
-                        },
-                        firstErrorMessage = repoURLError,
-                        secondErrorMessage = repoBranchError,
-                        onConfirm = {
-                            showGitCloneDialog = false
-                            cloneGitRepo.launch(null)
-                        },
-                        onDismiss = {
-                            showGitCloneDialog = false
-                            repoURL = ""
-                            repoBranch = "main"
-                            repoURLError = null
-                            repoBranchError = null
-                        },
-                        confirmText = stringResource(strings.ok),
-                        confirmEnabled = repoURLError == null && repoBranchError == null && repoURL.isNotBlank(),
                     )
                 }
 

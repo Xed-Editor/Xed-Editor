@@ -11,7 +11,6 @@ import com.rk.commands.editor.PasteCommand
 import com.rk.commands.editor.RedoCommand
 import com.rk.commands.editor.RefreshCommand
 import com.rk.commands.editor.ReplaceCommand
-import com.rk.commands.editor.RunCommand
 import com.rk.commands.editor.SaveCommand
 import com.rk.commands.editor.SearchCommand
 import com.rk.commands.editor.SelectAllCommand
@@ -31,7 +30,6 @@ import com.rk.commands.global.SaveAllCommand
 import com.rk.commands.global.SearchCodeCommand
 import com.rk.commands.global.SearchFileFolderCommand
 import com.rk.commands.global.SettingsCommand
-import com.rk.commands.global.TerminalCommand
 import com.rk.commands.lsp.FormatDocumentCommand
 import com.rk.commands.lsp.FormatSelectionCommand
 import com.rk.commands.lsp.GoToDefinitionCommand
@@ -45,7 +43,6 @@ object CommandProvider {
         get() = _commandList
 
     lateinit var DocumentationCommand: DocumentationCommand
-    lateinit var TerminalCommand: TerminalCommand
     lateinit var SettingsCommand: SettingsCommand
     lateinit var NewFileCommand: NewFileCommand
     lateinit var CommandPaletteCommand: CommandPaletteCommand
@@ -63,7 +60,6 @@ object CommandProvider {
     lateinit var SaveAllCommand: SaveAllCommand
     lateinit var UndoCommand: UndoCommand
     lateinit var RedoCommand: RedoCommand
-    lateinit var RunCommand: RunCommand
     lateinit var ToggleReadOnlyCommand: ToggleReadOnlyCommand
     lateinit var SearchCommand: SearchCommand
     lateinit var ReplaceCommand: ReplaceCommand
@@ -84,7 +80,6 @@ object CommandProvider {
     fun buildCommands() =
         synchronized(this) {
             registerBuiltin(DocumentationCommand()) { DocumentationCommand = it }
-            registerBuiltin(TerminalCommand()) { TerminalCommand = it }
             registerBuiltin(SettingsCommand()) { SettingsCommand = it }
             registerBuiltin(NewFileCommand()) { NewFileCommand = it }
             registerBuiltin(CommandPaletteCommand()) { CommandPaletteCommand = it }
@@ -102,7 +97,6 @@ object CommandProvider {
             registerBuiltin(SaveAllCommand()) { SaveAllCommand = it }
             registerBuiltin(UndoCommand()) { UndoCommand = it }
             registerBuiltin(RedoCommand()) { RedoCommand = it }
-            registerBuiltin(RunCommand()) { RunCommand = it }
             registerBuiltin(ToggleReadOnlyCommand()) { ToggleReadOnlyCommand = it }
             registerBuiltin(SearchCommand()) { SearchCommand = it }
             registerBuiltin(ReplaceCommand()) { ReplaceCommand = it }

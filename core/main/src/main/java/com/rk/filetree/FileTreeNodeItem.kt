@@ -40,7 +40,7 @@ import com.rk.file.FileObject
 import com.rk.resources.drawables
 import com.rk.settings.Settings
 import com.rk.utils.drawErrorUnderline
-import com.rk.utils.getGitColor
+import com.rk.utils.getFileColor
 import com.rk.utils.getUnderlineColor
 
 @Composable
@@ -171,7 +171,7 @@ fun FileTreeNodeItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
-                    color = getGitColor(node.file) ?: MaterialTheme.colorScheme.onSurface,
+                    color = getFileColor(node.file) ?: MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
