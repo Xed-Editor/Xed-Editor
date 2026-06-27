@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.findGitRoot
+import com.rk.git.findGitRoot
 import com.rk.utils.toast
 import java.io.File
 import kotlinx.coroutines.Dispatchers

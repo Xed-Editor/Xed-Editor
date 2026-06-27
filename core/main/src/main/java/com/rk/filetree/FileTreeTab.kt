@@ -57,7 +57,6 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.findGitRoot
 import com.rk.utils.formatFileSize
 import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.Dispatchers
@@ -82,12 +81,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         val drawerViewModel = MainActivity.instance?.drawerViewModel
 
         LaunchedEffect(root) {
-            if (InbuiltFeatures.git.state.value) {
-                val gitRoot = findGitRoot(root.getAbsolutePath())
-                if (gitRoot != null) {
-                    FileChangeNotifier.notifyRepositoryOpened(gitRoot)
-                }
-            }
+            FileChangeNotifier.notifyProjectOpened(root.getAbsolutePath())
         }
 
         LaunchedEffect(enableIndexing) {

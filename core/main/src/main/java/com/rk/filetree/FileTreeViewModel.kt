@@ -296,7 +296,7 @@ class FileTreeViewModel : ViewModel() {
 
     fun updateCache(file: FileObject) {
         searchViewModel.get()?.syncIndex(file)
-        FileChangeNotifier.notifyFileChanged(file.getAbsolutePath())
+        viewModelScope.launch { FileChangeNotifier.notifyFileChanged(file.getAbsolutePath()) }
         if (file.isDirectory().not()) {
             return
         }

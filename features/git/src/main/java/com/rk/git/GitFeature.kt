@@ -16,11 +16,21 @@ import com.rk.drawer.AddProjectOption
 import com.rk.drawer.DrawerOverlayRegistry
 import com.rk.drawer.ServiceTabRegistry
 import com.rk.icons.Icon
-import com.rk.file.FileStatus
-import com.rk.file.FileStatusRegistry
-import com.rk.file.FileStatusProvider
+import com.rk.file.FileObject
+import com.rk.file.FileDecoration
+import com.rk.file.FileDecorationProvider
+import com.rk.file.FileDecorationRegistry
+import com.rk.file.FileProperty
+import com.rk.file.FilePropertiesProvider
+import com.rk.file.FilePropertiesRegistry
 import com.rk.file.FileChangeNotifier
-import java.io.File
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import androidx.compose.material3.MaterialTheme
+import com.rk.theme.vcsAdded
+import com.rk.theme.vcsModified
+import com.rk.theme.vcsDeleted
+import com.rk.theme.vcsConflicted
 import java.lang.ref.WeakReference
 
 // Global reference for gitViewModel
@@ -45,21 +55,47 @@ class GitFeature : Feature {
             }
         )
 
-        // Register FileStatusProvider
-        FileStatusRegistry.provider = object : FileStatusProvider {
-            override fun getStatus(path: String): FileStatus? {
-                val changeType = gitViewModel.get()?.getChangeType(path) ?: return null
-                return when (changeType) {
-                    ChangeType.ADDED -> FileStatus.ADDED
-                    ChangeType.UNTRACKED -> FileStatus.UNTRACKED
-                    ChangeType.DELETED -> FileStatus.DELETED
-                    ChangeType.CONFLICTING -> FileStatus.CONFLICTING
-                    ChangeType.MODIFIED -> FileStatus.MODIFIED
-                    ChangeType.RENAMED -> FileStatus.RENAMED
-                    else -> FileStatus.MODIFIED
+        // Register FileDecorationProvider
+        FileDecorationRegistry.provider = object : FileDecorationProvider {
+            @Composable
+            override fun getDecoration(file: FileObject): FileDecoration? {
+                if (!com.rk.settings.app.InbuiltFeatures.git.state.value || !com.rk.settings.Settings.git_colorize_names) return null
+                val changeType = gitViewModel.get()?.getChangeType(file.getAbsolutePath()) ?: return null
+                val color = when (changeType) {
+                    ChangeType.ADDED,
+                    ChangeType.UNTRACKED -> MaterialTheme.colorScheme.vcsAdded
+                    ChangeType.DELETED -> MaterialTheme.colorScheme.vcsDeleted
+                    ChangeType.CONFLICTING -> MaterialTheme.colorScheme.vcsConflicted
+                    ChangeType.MODIFIED -> MaterialTheme.colorScheme.vcsModified
+                    ChangeType.RENAMED -> MaterialTheme.colorScheme.vcsModified
                 }
+                return FileDecoration(color = color)
             }
         }
+
+        // Register FilePropertiesProvider
+        FilePropertiesRegistry.providers.add(object : FilePropertiesProvider {
+            @Composable
+            override fun getProperties(file: FileObject): List<FileProperty> {
+                val changeType = gitViewModel.get()?.getChangeType(file.getAbsolutePath()) ?: return emptyList()
+                val gitStatus = changeType.name.lowercase().replaceFirstChar { it.uppercase() }
+                val color = when (changeType) {
+                    ChangeType.ADDED,
+                    ChangeType.UNTRACKED -> MaterialTheme.colorScheme.vcsAdded
+                    ChangeType.DELETED -> MaterialTheme.colorScheme.vcsDeleted
+                    ChangeType.CONFLICTING -> MaterialTheme.colorScheme.vcsConflicted
+                    ChangeType.MODIFIED -> MaterialTheme.colorScheme.vcsModified
+                    ChangeType.RENAMED -> MaterialTheme.colorScheme.vcsModified
+                }
+                return listOf(
+                    FileProperty(
+                        label = stringResource(strings.git_status),
+                        value = gitStatus,
+                        valueColor = color
+                    )
+                )
+            }
+        })
 
         // Register Service Tab Provider
         ServiceTabRegistry.providers.add { owner ->
@@ -72,8 +108,12 @@ class GitFeature : Feature {
         FileChangeNotifier.fileChangeListeners.add { path ->
             gitViewModel.get()?.syncChanges(path)
         }
-        FileChangeNotifier.repositoryOpenListeners.add { root ->
-            gitViewModel.get()?.loadRepository(root)
+        FileChangeNotifier.projectOpenListeners.add { root ->
+
+            val gitRoot = findGitRoot(root)
+            if (gitRoot != null) {
+                gitViewModel.get()?.loadRepository(gitRoot)
+            }
         }
 
         // Register Git Clone Overlay and Add Project Sheet action

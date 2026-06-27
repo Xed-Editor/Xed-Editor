@@ -1,6 +1,5 @@
 package com.rk.utils
 
-import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -11,7 +10,6 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PictureDrawable
 import android.os.Build
-import android.telephony.TelephonyManager
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
@@ -40,24 +38,17 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
 import com.caverock.androidsvg.SVG
-import com.rk.activities.main.MainActivity
 import com.rk.extension.ActivityProvider
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
-import com.rk.file.FileStatus
-import com.rk.file.FileStatusRegistry
+import com.rk.file.FileDecorationRegistry
 import com.rk.resources.getQuantityString
 import com.rk.resources.getString
 import com.rk.resources.plurals
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
 import com.rk.theme.currentTheme
-import com.rk.theme.gitAdded
-import com.rk.theme.gitConflicted
-import com.rk.theme.gitDeleted
-import com.rk.theme.gitModified
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.InputStream
@@ -334,37 +325,10 @@ fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
 }
 
 @Composable
-fun getGitColor(file: FileObject?): Color? {
-    if (!InbuiltFeatures.git.state.value || !Settings.git_colorize_names) return null
-    val status = file?.let { FileStatusRegistry.provider?.getStatus(file.getAbsolutePath()) } ?: return null
-    return getGitColor(status)
+fun getFileColor(file: FileObject?): Color? {
+    if (file == null) return null
+    return FileDecorationRegistry.provider?.getDecoration(file)?.color
 }
-
-@Composable
-fun getGitColor(status: FileStatus): Color =
-    when (status) {
-        FileStatus.ADDED,
-        FileStatus.UNTRACKED -> MaterialTheme.colorScheme.gitAdded
-        FileStatus.DELETED -> MaterialTheme.colorScheme.gitDeleted
-        FileStatus.CONFLICTING -> MaterialTheme.colorScheme.gitConflicted
-        FileStatus.MODIFIED -> MaterialTheme.colorScheme.gitModified
-        FileStatus.RENAMED -> MaterialTheme.colorScheme.gitModified
-    }
-
-suspend fun findGitRoot(path: String): String? =
-    withContext(Dispatchers.IO) {
-        runCatching {
-            var current = File(path).let { if (it.isDirectory) it else it.parentFile }
-            while (current != null) {
-                val gitDir = File(current, ".git")
-                if (gitDir.exists()) {
-                    return@withContext current.canonicalPath
-                }
-                current = current.parentFile
-            }
-            null
-        }.getOrNull()
-    }
 
 fun hasBinaryChars(text: String): Boolean {
     val threshold = 0.3

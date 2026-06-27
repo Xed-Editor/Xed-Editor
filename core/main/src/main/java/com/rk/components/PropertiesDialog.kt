@@ -36,14 +36,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.file.FileObject
-import com.rk.file.FileStatusRegistry
+import com.rk.file.FilePropertiesRegistry
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.formatFileSize
-import com.rk.utils.getGitColor
 import com.rk.utils.rememberNumberFormatter
 import java.text.DateFormat
 import java.util.Date
@@ -166,13 +165,15 @@ fun AdvancedProperties(file: FileObject) {
     InfoRow(stringResource(strings.permissions), getPseudoPermissions(file))
     InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
 
-    val status = FileStatusRegistry.provider?.getStatus(file.getAbsolutePath())
-    val gitStatus = status?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: strings.unknown.getString()
-    InfoRow(
-        label = stringResource(strings.git_status),
-        value = gitStatus,
-        customTextColor = status?.let { getGitColor(it) },
-    )
+    FilePropertiesRegistry.providers.forEach { provider ->
+        provider.getProperties(file).forEach { property ->
+            InfoRow(
+                label = property.label,
+                value = property.value,
+                customTextColor = property.valueColor
+            )
+        }
+    }
 
     if (file is FileWrapper && file.isFile()) {
         var fileInfo by remember { mutableStateOf(strings.loading.getString()) }

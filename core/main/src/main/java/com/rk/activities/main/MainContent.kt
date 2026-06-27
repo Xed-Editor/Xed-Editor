@@ -67,7 +67,7 @@ import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialogRes
 import com.rk.utils.drawErrorUnderline
-import com.rk.utils.getGitColor
+import com.rk.utils.getFileColor
 import com.rk.utils.getUnderlineColor
 import kotlinx.coroutines.launch
 
@@ -413,9 +413,9 @@ private fun TabItemContent(
         }
     }
 
-    val gitColor = getGitColor(tabState.file)
-    val activeColor = gitColor ?: MaterialTheme.colorScheme.primary
-    val inactiveColor = gitColor ?: MaterialTheme.colorScheme.onSurfaceVariant
+    val fileColor = getFileColor(tabState.file)
+    val activeColor = fileColor ?: MaterialTheme.colorScheme.primary
+    val inactiveColor = fileColor ?: MaterialTheme.colorScheme.onSurfaceVariant
 
     if (showIcon && tabState.file != null) {
         LeadingIconTab(

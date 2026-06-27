@@ -77,9 +77,11 @@ import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.drawErrorUnderline
-import com.rk.file.FileStatus
-import com.rk.utils.findGitRoot
-import com.rk.utils.getGitColor
+import com.rk.git.findGitRoot
+import com.rk.theme.vcsAdded
+import com.rk.theme.vcsModified
+import com.rk.theme.vcsDeleted
+import com.rk.theme.vcsConflicted
 import com.rk.utils.getUnderlineColor
 import java.io.File
 import kotlinx.coroutines.launch
@@ -633,14 +635,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     Text(
                         text = fileName,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = getGitColor(when(change.type) {
-                            ChangeType.ADDED -> FileStatus.ADDED
-                            ChangeType.UNTRACKED -> FileStatus.UNTRACKED
-                            ChangeType.DELETED -> FileStatus.DELETED
-                            ChangeType.CONFLICTING -> FileStatus.CONFLICTING
-                            ChangeType.MODIFIED -> FileStatus.MODIFIED
-                            ChangeType.RENAMED -> FileStatus.RENAMED
-                        }),
+                        color = when (change.type) {
+                            ChangeType.ADDED,
+                            ChangeType.UNTRACKED -> MaterialTheme.colorScheme.vcsAdded
+                            ChangeType.DELETED -> MaterialTheme.colorScheme.vcsDeleted
+                            ChangeType.CONFLICTING -> MaterialTheme.colorScheme.vcsConflicted
+                            ChangeType.MODIFIED -> MaterialTheme.colorScheme.vcsModified
+                            ChangeType.RENAMED -> MaterialTheme.colorScheme.vcsModified
+                        },
                         modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
