@@ -7,8 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import com.rk.activities.main.MainActivity
-import com.rk.exec.TerminalCommand
-import com.rk.exec.launchTerminal
+import com.rk.drawer.TerminalLauncher
 import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.tabs.editor.EditorTab
@@ -30,15 +29,12 @@ abstract class ScriptedLspServer : LspServer() {
     override fun update(activity: Activity) = launchInstaller(activity, "--update")
 
     protected fun launchInstaller(activity: Activity, vararg flags: String) {
-        launchTerminal(
+        TerminalLauncher.launch(
             activity = activity,
-            terminalCommand =
-                TerminalCommand(
-                    exe = "/bin/bash",
-                    args = arrayOf(installScript.absolutePath, *flags),
-                    id = installId,
-                    env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
-                ),
+            exe = "/bin/bash",
+            args = arrayOf(installScript.absolutePath, *flags),
+            id = installId,
+            env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
         )
     }
 }

@@ -39,8 +39,8 @@ import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
-import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
+import com.rk.file.FileChangeNotifier
 import com.rk.color.ColorPicker
 import com.rk.components.AddDialogItem
 import com.rk.runner.RunnableOption
@@ -313,7 +313,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
             if (isTemp) return@withLock
             write()
             searchViewModel.get()?.syncIndex(file)
-            gitViewModel.get()?.syncChanges(file.getAbsolutePath())
+            FileChangeNotifier.notifyFileChanged(file.getAbsolutePath())
         }
 
     suspend fun save() =
@@ -331,7 +331,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                             scope.launch {
                                 write()
                                 searchViewModel.get()?.syncIndex(file)
-                                gitViewModel.get()?.syncChanges(file.getAbsolutePath())!!.join()
+                                FileChangeNotifier.notifyFileChanged(file.getAbsolutePath())
                             }
                         }
                     }
@@ -341,7 +341,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
             write()
             searchViewModel.get()?.syncIndex(file)
-            gitViewModel.get()?.syncChanges(file.getAbsolutePath())
+            FileChangeNotifier.notifyFileChanged(file.getAbsolutePath())
 
             Settings.saves += 1
             MainActivity.instance?.handleSupport()

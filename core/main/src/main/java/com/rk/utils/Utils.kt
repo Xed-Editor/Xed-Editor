@@ -41,12 +41,12 @@ import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
 import com.caverock.androidsvg.SVG
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.gitViewModel
 import com.rk.extension.ActivityProvider
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
-import com.rk.git.ChangeType
+import com.rk.file.FileStatus
+import com.rk.file.FileStatusRegistry
 import com.rk.resources.getQuantityString
 import com.rk.resources.getString
 import com.rk.resources.plurals
@@ -72,7 +72,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
@@ -337,31 +336,33 @@ fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
 @Composable
 fun getGitColor(file: FileObject?): Color? {
     if (!InbuiltFeatures.git.state.value || !Settings.git_colorize_names) return null
-    val gitChangeType = file?.let { gitViewModel.get()?.getChangeType(file.getAbsolutePath()) } ?: return null
-    return getGitColor(gitChangeType)
+    val status = file?.let { FileStatusRegistry.provider?.getStatus(file.getAbsolutePath()) } ?: return null
+    return getGitColor(status)
 }
 
 @Composable
-fun getGitColor(changeType: ChangeType): Color =
-    when (changeType) {
-        ChangeType.ADDED,
-        ChangeType.UNTRACKED -> MaterialTheme.colorScheme.gitAdded
-        ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
-        ChangeType.CONFLICTING -> MaterialTheme.colorScheme.gitConflicted
-        ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
+fun getGitColor(status: FileStatus): Color =
+    when (status) {
+        FileStatus.ADDED,
+        FileStatus.UNTRACKED -> MaterialTheme.colorScheme.gitAdded
+        FileStatus.DELETED -> MaterialTheme.colorScheme.gitDeleted
+        FileStatus.CONFLICTING -> MaterialTheme.colorScheme.gitConflicted
+        FileStatus.MODIFIED -> MaterialTheme.colorScheme.gitModified
+        FileStatus.RENAMED -> MaterialTheme.colorScheme.gitModified
     }
 
 suspend fun findGitRoot(path: String): String? =
     withContext(Dispatchers.IO) {
         runCatching {
-            val startDir = File(path).let { if (it.isDirectory) it else it.parentFile }
-            FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()?.use { repo ->
-                if (!repo.isBare) {
-                    repo.workTree?.canonicalPath
-                } else {
-                    null
+            var current = File(path).let { if (it.isDirectory) it else it.parentFile }
+            while (current != null) {
+                val gitDir = File(current, ".git")
+                if (gitDir.exists()) {
+                    return@withContext current.canonicalPath
                 }
+                current = current.parentFile
             }
+            null
         }.getOrNull()
     }
 

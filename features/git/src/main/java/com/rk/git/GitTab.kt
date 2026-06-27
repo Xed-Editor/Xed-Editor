@@ -77,6 +77,7 @@ import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.drawErrorUnderline
+import com.rk.file.FileStatus
 import com.rk.utils.findGitRoot
 import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
@@ -120,6 +121,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 when (change.type) {
                     ChangeType.ADDED,
                     ChangeType.MODIFIED,
+                    ChangeType.RENAMED,
                     ChangeType.DELETED -> trackedChanges.add(change)
                     ChangeType.CONFLICTING -> conflictingChanges.add(change)
                     ChangeType.UNTRACKED -> untrackedChanges.add(change)
@@ -631,7 +633,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     Text(
                         text = fileName,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = getGitColor(change.type),
+                        color = getGitColor(when(change.type) {
+                            ChangeType.ADDED -> FileStatus.ADDED
+                            ChangeType.UNTRACKED -> FileStatus.UNTRACKED
+                            ChangeType.DELETED -> FileStatus.DELETED
+                            ChangeType.CONFLICTING -> FileStatus.CONFLICTING
+                            ChangeType.MODIFIED -> FileStatus.MODIFIED
+                            ChangeType.RENAMED -> FileStatus.RENAMED
+                        }),
                         modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

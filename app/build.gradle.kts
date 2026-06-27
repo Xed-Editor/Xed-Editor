@@ -113,4 +113,5 @@ dependencies {
     implementation(project(":features:terminal"))
     implementation(project(":features:extensions"))
     implementation(project(":features:runner"))
+    implementation(project(":features:git"))
 }

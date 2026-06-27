@@ -129,10 +129,7 @@ dependencies {
     implementation(libs.androidsvg.aar)
     implementation(libs.ec4j.core)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.jgit)
-    implementation(libs.semver)
     debugImplementation(libs.leakcanary)
-    // implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
@@ -142,13 +139,9 @@ dependencies {
     // Modules
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
-    //implementation(project(":terminal-view"))
-    //implementation(project(":terminal-emulator"))
     implementation(project(":editor"))
     implementation(project(":editor-lsp"))
     implementation(project(":language-textmate"))
-    implementation(project(":core:proot"))
-    implementation(project(":core:link2symlink"))
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

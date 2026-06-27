@@ -23,7 +23,6 @@ import com.rk.settings.editor.EditorFontScreen
 import com.rk.settings.editor.ExcludeFiles
 import com.rk.settings.editor.FormatterSettings
 import com.rk.settings.editor.SettingsEditorScreen
-import com.rk.settings.git.GitSettings
 import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
 import com.rk.settings.lsp.LspServerDetail
@@ -91,7 +90,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             LspServerLogs(server, instanceId)
         }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
-        composable(SettingsRoutes.Git.route) { GitSettings() }
         SettingsRegistry.routes.forEach { customRoute ->
             composable(customRoute.route) {
                 customRoute.content(navController)

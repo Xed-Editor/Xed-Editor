@@ -6,8 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rk.DefaultScope
-import com.rk.exec.TerminalCommand
-import com.rk.exec.launchTerminal
+import com.rk.drawer.TerminalLauncher
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.createFileIfNot
@@ -78,13 +77,11 @@ data class ShellBasedRunner(override val label: String, val regex: String) : Run
 
     override suspend fun run(activity: Activity, fileObject: FileObject) {
         val script = runnerDir().child("${label}.sh").createFileIfNot()
-        launchTerminal(
+        TerminalLauncher.launch(
             activity = activity,
-            TerminalCommand(
-                exe = "/bin/bash",
-                args = arrayOf(script.absolutePath, fileObject.getAbsolutePath()),
-                id = label,
-            ),
+            exe = "/bin/bash",
+            args = arrayOf(script.absolutePath, fileObject.getAbsolutePath()),
+            id = label,
         )
     }
 

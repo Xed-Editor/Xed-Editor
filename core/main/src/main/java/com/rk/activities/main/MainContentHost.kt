@@ -34,7 +34,6 @@ import com.rk.components.ResponsiveDrawer
 import com.rk.drawer.DrawerContent
 import com.rk.drawer.DrawerPersistence
 import com.rk.filetree.FileTreeViewModel
-import com.rk.git.GitViewModel
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.search.SearchViewModel
@@ -45,7 +44,6 @@ import com.rk.utils.dialogRes
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-var gitViewModel = WeakReference<GitViewModel?>(null)
 var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
 var searchViewModel = WeakReference<SearchViewModel?>(null)
 
@@ -55,11 +53,9 @@ var drawerStateRef: WeakReference<DrawerState?> = WeakReference(null)
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MainActivity.MainContentHost(
-    gitViewModel: GitViewModel = viewModel(),
     fileTreeViewModel: FileTreeViewModel = viewModel(),
     searchViewModel: SearchViewModel = viewModel(),
 ) {
-    com.rk.activities.main.gitViewModel = WeakReference(gitViewModel)
     com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
     com.rk.activities.main.searchViewModel = WeakReference(searchViewModel)
 
@@ -196,7 +192,7 @@ fun MainActivity.MainContentHost(
             val sheetContent: @Composable ColumnScope.() -> Unit = {
                 LaunchedEffect(Unit) {
                     drawerViewModel.isLoading = true
-                    drawerViewModel.setupBuiltinServices(gitViewModel)
+                    drawerViewModel.setupBuiltinServices(this@MainContentHost)
                     DrawerPersistence.restoreState(drawerViewModel)
                     drawerViewModel.isLoading = false
                 }

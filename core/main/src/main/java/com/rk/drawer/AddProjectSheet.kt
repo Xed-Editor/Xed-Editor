@@ -38,7 +38,6 @@ fun AddProjectSheet(
     onAddProject: (FileObject) -> Unit,
     openFolder: ManagedActivityResultLauncher<Uri?, Uri?>,
     showPrivateFileWarning: (onOK: () -> Unit) -> Unit,
-    showGitCloneDialog: () -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as MainActivity
@@ -123,15 +122,14 @@ fun AddProjectSheet(
                 )
             }
 
-            // Clone repository option
-            if (InbuiltFeatures.git.state.value) {
+            // Custom options from registries
+            AddProjectRegistry.options.forEach { option ->
                 AddDialogItem(
-                    icon = Icon.ResourceIcon(drawables.git),
-                    title = stringResource(strings.clone_repo),
-                    description = stringResource(strings.clone_repo_desc),
+                    icon = option.icon,
+                    title = stringResource(option.titleRes),
+                    description = stringResource(option.descriptionRes),
                     onClick = {
-                        showGitCloneDialog()
-                        onDismiss()
+                        option.onClick { onDismiss() }
                     },
                 )
             }

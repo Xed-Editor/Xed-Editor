@@ -9,9 +9,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.file.FileObject
+import com.rk.file.FileChangeNotifier
 import com.rk.search.GlobExcluder
 import com.rk.settings.Settings
 import kotlin.time.Duration.Companion.milliseconds
@@ -296,7 +296,7 @@ class FileTreeViewModel : ViewModel() {
 
     fun updateCache(file: FileObject) {
         searchViewModel.get()?.syncIndex(file)
-        gitViewModel.get()?.syncChanges(file.getAbsolutePath())
+        FileChangeNotifier.notifyFileChanged(file.getAbsolutePath())
         if (file.isDirectory().not()) {
             return
         }

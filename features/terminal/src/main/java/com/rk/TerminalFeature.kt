@@ -69,6 +69,30 @@ class TerminalFeature : Feature {
         // Register UniversalRunner dynamically
         RunnerManager.registerRunner(UniversalRunner)
 
+        // Register TerminalLauncher handler
+        com.rk.drawer.TerminalLauncher.handler = { activity, sandbox, exe, args, id, terminatePreviousSession, workingDir, env ->
+            com.rk.exec.pendingCommand = com.rk.exec.TerminalCommand(
+                sandbox = sandbox,
+                exe = exe,
+                args = args,
+                id = id,
+                terminatePreviousSession = terminatePreviousSession,
+                workingDir = workingDir,
+                env = env
+            )
+            try {
+                val intent = Intent(activity, Terminal::class.java)
+                activity.startActivity(intent)
+            } catch (e: Exception) {
+                com.rk.utils.toast("Terminal feature is not available in this build")
+            }
+        }
+
+        // Register SandboxedProcessRegistry provider
+        com.rk.drawer.SandboxedProcessRegistry.provider = { command, workingDir, excludeMounts ->
+            com.rk.exec.ubuntuProcess(excludeMounts, workingDir = workingDir, command = command)
+        }
+
         // Register global command
         val command = TerminalCommand()
         CommandProvider.registerCommand(command)
