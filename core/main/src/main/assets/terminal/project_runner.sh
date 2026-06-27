@@ -20,10 +20,23 @@ TYPE="${1:-UNKNOWN}"
 PROJECT_DIR="${2:-$PWD}"
 ENTRY="${3:-}"
 
-cd "$PROJECT_DIR" 2>/dev/null || {
+# Resolve the directory we can actually enter. Shared storage is reliably available at /sdcard
+# inside the sandbox, while the canonical /storage/emulated/0 form sometimes isn't, so fall back
+# to the /sdcard equivalent before giving up.
+enter_dir() {
+  cd "$1" 2>/dev/null && return 0
+  case "$1" in
+    /storage/emulated/0/*) cd "/sdcard/${1#/storage/emulated/0/}" 2>/dev/null && return 0 ;;
+    /storage/self/primary/*) cd "/sdcard/${1#/storage/self/primary/}" 2>/dev/null && return 0 ;;
+  esac
+  return 1
+}
+
+if ! enter_dir "$PROJECT_DIR"; then
   error "Cannot enter project directory: $PROJECT_DIR"
   exit 1
-}
+fi
+PROJECT_DIR="$PWD"
 
 info "Project : $PROJECT_DIR"
 info "Type    : $TYPE"

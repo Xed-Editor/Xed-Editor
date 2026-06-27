@@ -46,8 +46,17 @@ Xed-Editor, from the very beginning of the PRO work.
 - **`ProjectTypeDetector`** infers the project kind (Fabric/Forge mod, Android, Gradle, Node, Python, Web, Rust, Go) from marker files — works for created, imported, or cloned projects.
 
 ## Markdown preview
-- **Native (non-WebView), themed, fast preview**: a first-class **Preview** action opens `MarkdownPreviewTab`, which renders Markdown with the in-app `SimpleMarkdownRenderer` into a native Android `TextView` (via `AndroidView`) — no WebView, no CDN, instant and offline, styled with the app's Material theme, with animated (Crossfade) loading→content transitions.
-- The legacy WebView preview's HTML (still used by the "Run" runner) was also given a GitHub-style centered container.
+- **GitHub-accurate, offline preview**: the **Preview** action opens `MarkdownPreviewTab`, which now
+  converts Markdown to HTML with a self-contained, dependency-free converter (`MarkdownToHtml`) and
+  renders it in a WebView styled with a bundled GitHub-flavored stylesheet (`GithubMarkdownStyle`,
+  light + dark). This matches GitHub far more closely than the old TextView could — proper headings
+  with rules, **GFM tables** with column alignment, fenced code blocks with backgrounds, blockquotes,
+  **task lists** (`- [ ]` / `- [x]`), nested lists, horizontal rules, links/autolinks and images.
+  It stays fully offline (no CDN) and safe (JavaScript disabled, `javascript:` URLs stripped,
+  everything HTML-escaped); relative images/links resolve against the file's folder. Animated
+  (Crossfade) loading→content transitions are retained.
+- The in-app `SimpleMarkdownRenderer` (shared with LSP hovers/extension READMEs) is left untouched.
+- The legacy WebView preview's HTML (still used by the "Run" runner) keeps its GitHub-style container.
 
 ## Git (VS Code-style)
 - **Diff viewer**: tap a changed file to see a color-coded unified diff (HEAD → working tree) via jgit `DiffFormatter`.
@@ -74,6 +83,19 @@ Xed-Editor, from the very beginning of the PRO work.
   of a cryptic shell error.
 - New `project_runner.sh` terminal asset implements the per-type run/build logic (no `set -e`, so
   errors stay visible; prints a DONE/FAILED result banner with the exit code).
+- **Reliable working directory**: shared-storage project paths (`/storage/emulated/0/…`) are mapped
+  to `/sdcard/…`, which the sandbox binds reliably, and `project_runner.sh` retries the `/sdcard`
+  form before failing — fixing the "Cannot enter project directory" error for Documents projects.
+- `./gradlew` is `chmod +x`'d before building, with a `bash ./gradlew` fallback if the exec bit
+  can't be set.
+
+## Editor tabs (project scoping)
+- **"Show all files" toggle** in the editor toolbar / top-right overflow (`ToggleShowAllFilesCommand`,
+  default **off**). When off, the open tabs are **scoped to the project/directory selected in the
+  drawer** — like an IDE, each project shows only its own open files so files from different
+  directories don't get mixed together. When on, every open file is shown at once (the classic
+  behaviour). Persisted via `Settings.show_all_files`; a one-time migration adds the toggle to
+  existing toolbars.
 
 ## Editor input
 - **Cursor now follows the on-screen keyboard.** When the IME moves the caret (e.g. Gboard's

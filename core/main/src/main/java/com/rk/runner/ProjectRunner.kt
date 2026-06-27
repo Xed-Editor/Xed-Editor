@@ -82,7 +82,12 @@ object ProjectRunner {
         }
 
         // Everything else runs/builds in the terminal sandbox, rooted at the project folder.
+        // Translate shared-storage paths to /sdcard, which the sandbox binds reliably (the canonical
+        // /storage/emulated/0 path is not always reachable inside proot, which caused the
+        // "Cannot enter project directory" error).
         setupAssetFile("project_runner")
+        val sandboxRoot = toSandboxPath(rootPath)
+        val sandboxFile = toSandboxPath(file.getAbsolutePath())
         launchTerminal(
             activity = activity,
             terminalCommand =
@@ -93,15 +98,30 @@ object ProjectRunner {
                         arrayOf(
                             localBinDir().child("project_runner").absolutePath,
                             type.name,
-                            rootPath,
-                            file.getAbsolutePath(),
+                            sandboxRoot,
+                            sandboxFile,
                         ),
                     id = "Run · ${rootFile.name}",
                     terminatePreviousSession = true,
-                    workingDir = rootPath,
+                    workingDir = sandboxRoot,
                 ),
         )
     }
+
+    /**
+     * Map an Android path to the path the terminal sandbox can actually `cd` into. Shared storage is
+     * bound at `/sdcard` inside proot, but the canonical `/storage/emulated/0` (and
+     * `/storage/self/primary`) form isn't always traversable there — so rewrite those prefixes to
+     * `/sdcard`. Private app paths (the sandbox home under /data) are left untouched.
+     */
+    fun toSandboxPath(path: String): String =
+        when {
+            path == "/storage/emulated/0" || path.startsWith("/storage/emulated/0/") ->
+                "/sdcard" + path.removePrefix("/storage/emulated/0")
+            path == "/storage/self/primary" || path.startsWith("/storage/self/primary/") ->
+                "/sdcard" + path.removePrefix("/storage/self/primary")
+            else -> path
+        }
 
     /** Pick the HTML file to preview: the open file if it's HTML, else index.html, else the first HTML. */
     private fun webEntry(root: File, file: FileObject): FileObject {

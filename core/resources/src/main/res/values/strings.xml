@@ -211,6 +211,7 @@
     <string name="disable_virtual_kbd_desc">Disable virtual keyboard if hardware keyboard is available</string>
     <string name="highlighting">Syntax highlighting</string>
     <string name="toggle_word_wrap">Toggle word wrap</string>
+    <string name="show_all_files">Show all files</string>
     <string name="warning_private_dir">Content of this directory will get deleted if you clear data or delete Xed-Editor</string>
     <string name="file">File</string>
     <string name="folder">Folder</string>

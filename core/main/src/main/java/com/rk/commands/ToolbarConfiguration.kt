@@ -7,7 +7,7 @@ import com.rk.settings.Settings
 
 object ToolbarConfiguration {
     const val DEFAULT_EDITOR_TOOLBAR_COMMANDS =
-        "editor.undo|editor.redo|editor.save|editor.run|editor.markdown_preview|editor.dependencies|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings"
+        "editor.undo|editor.redo|editor.save|editor.run|editor.markdown_preview|editor.dependencies|editor.show_all_files|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings"
 
     val editorCommands: List<Command>
         get() = Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) }

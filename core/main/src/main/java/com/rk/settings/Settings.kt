@@ -81,6 +81,11 @@ object Settings {
     var compact_folders_drawer by CachedPreference("compact_folders_drawer", true)
     var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
     var show_tab_icons by CachedPreference("show_tab_icons", true)
+    // When false (default), open editor tabs are scoped to the currently selected project/directory
+    // in the drawer; when true, every open file is shown together regardless of its project.
+    var show_all_files by CachedPreference("show_all_files", false)
+    // One-time flag: ensures the "Show all files" toggle is injected into existing users' toolbars.
+    var migrated_show_all_files_toolbar by CachedPreference("migrated_show_all_files_toolbar", false)
     var split_extra_keys by CachedPreference("split_extra_keys", false)
     var extra_keys_bg by CachedPreference("extra_keys_bg", false)
     var auto_open_new_files by CachedPreference("auto_open_new_files", true)

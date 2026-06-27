@@ -10,6 +10,7 @@ import com.github.anrwatchdog.ANRWatchDog
 import com.rk.activities.main.SessionManager
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
+import com.rk.commands.ToolbarConfiguration
 import com.rk.crashhandler.CrashHandler
 import com.rk.editor.CodeHighlighter
 import com.rk.editor.FontCache
@@ -89,6 +90,14 @@ class App : Application() {
         FileIconProvider.register()
 
         CommandProvider.buildCommands()
+        // One-time: make sure existing users (who already have a saved toolbar layout) get the new
+        // "Show all files" toggle in their editor toolbar / overflow menu.
+        if (!Settings.migrated_show_all_files_toolbar) {
+            if (!Settings.action_items.split("|").contains("editor.show_all_files")) {
+                ToolbarConfiguration.addEditorToolbarCommand("editor.show_all_files")
+            }
+            Settings.migrated_show_all_files_toolbar = true
+        }
         KeybindingsManager.loadKeybindings()
 
         val currentLocale = Locale.forLanguageTag(Settings.current_lang)
