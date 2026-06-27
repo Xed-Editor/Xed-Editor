@@ -3,19 +3,11 @@ package com.rk.lsp
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.api.XedExtensionPoint
-import com.rk.lsp.servers.Bash
-import com.rk.lsp.servers.CSS
-import com.rk.lsp.servers.Emmet
-import com.rk.lsp.servers.HTML
-import com.rk.lsp.servers.TypeScript
-import com.rk.lsp.servers.XML
 
 object LspRegistry {
     private val _extensionServers = mutableStateListOf<LspServer>()
     val extensionServers: List<LspServer>
         get() = _extensionServers.toList()
-
-    val builtInServer = listOf(HTML, Emmet, CSS, TypeScript, Bash, XML)
 
     private val _externalServers = mutableStateListOf<LspServer>()
     val externalServers: List<LspServer>
@@ -24,11 +16,11 @@ object LspRegistry {
     private val configuration: MutableMap<LspServer, Boolean> = mutableMapOf()
 
     suspend fun updateConfiguration(context: Context) {
-        (builtInServer + extensionServers).forEach { configuration[it] = it.isInstalled(context) }
+      externalServers.forEach { configuration[it] = it.isInstalled(context) }
     }
 
     suspend fun getConfigurationChanges(context: Context): List<LspServer> {
-        return (builtInServer + extensionServers).filter {
+        return externalServers.filter {
             val isInstalled = it.isInstalled(context)
             (configuration[it] ?: false) != isInstalled
         }
@@ -51,8 +43,7 @@ object LspRegistry {
     }
 
     fun getForId(id: String): LspServer? {
-        return builtInServer.find { it.id == id }
-            ?: _externalServers.find { it.id == id }
+        return _externalServers.find { it.id == id }
             ?: _extensionServers.find { it.id == id }
     }
 

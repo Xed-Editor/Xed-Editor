@@ -21,7 +21,7 @@ import com.rk.components.GlobalToolbarActions
 import com.rk.components.isPermanentDrawer
 import com.rk.drawer.DrawerViewModel
 import com.rk.resources.strings
-import com.rk.terminal.isV
+import com.rk.utils.isV
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 

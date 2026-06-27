@@ -26,7 +26,7 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.extension.Extension
 import com.rk.extension.UpdatableExtension
 import androidx.compose.ui.res.stringResource
-import com.rk.App.Companion.extensionManager
+import com.rk.extension.extensionManager
 import com.rk.resources.strings
 import com.rk.resources.drawables
 import com.rk.theme.Typography

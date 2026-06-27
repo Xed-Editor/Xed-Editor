@@ -8,12 +8,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.extension.extensionManager
 import com.rk.extension.Extension
 import com.rk.resources.strings
 
 @Composable
 fun ExtensionSettings(extension: Extension?) {
-    val api = App.extensionManager.loadedExtensions[extension]?.api
+    val api = extensionManager.loadedExtensions[extension]?.api
 
     PreferenceLayout(label = extension?.name ?: stringResource(strings.ext_not_found)) {
         if (extension == null || api == null) {

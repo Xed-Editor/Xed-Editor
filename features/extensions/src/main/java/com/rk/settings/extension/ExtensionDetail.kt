@@ -51,7 +51,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.rk.App.Companion.extensionManager
+import com.rk.extension.extensionManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension

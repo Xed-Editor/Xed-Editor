@@ -256,10 +256,9 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
         editorConfigProps?.let { withContext(Dispatchers.Main) { editor.applySettings(it) } }
 
         val activity = editor.context as? Activity ?: return@launch
-        val builtin = getBuiltinServers(activity)
         val extension = getExtensionServers(activity)
         val external = getExternalServers()
-        val servers = builtin + extension + external
+        val servers = extension + external
         if (servers.isEmpty()) return@launch
 
         // Language servers fail with content URIs
@@ -306,10 +305,6 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
     }
 }
 
-private suspend fun EditorTab.getBuiltinServers(activity: Activity): List<LspServer> {
-    val servers = LspRegistry.builtInServer.filter { it.isSupported(file) }
-    return findActiveLspServers(servers, activity)
-}
 
 private fun EditorTab.promptLspInstall(activity: Activity, server: LspServer) {
     scope.launch {

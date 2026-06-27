@@ -161,7 +161,6 @@ private fun buildLogs(
         append("[REPORT] Server id: ").append(server.id).appendLine()
         append("[REPORT] Server status: ").append(instance.status.name).appendLine()
         append("[REPORT] Supported extensions: ").append(server.supportedExtensions).appendLine()
-        append("[REPORT] Is built-in: ").append(LspRegistry.builtInServer.contains(server)).appendLine()
 
         appendLine()
 

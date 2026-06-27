@@ -56,7 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.rk.App.Companion.extensionManager
+import com.rk.extension.extensionManager
 import com.rk.App.Companion.iconPackManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.InfoBlock

@@ -8,7 +8,6 @@ object FileActionProvider {
         mutableListOf(
             CloseAction,
             RefreshAction,
-            TerminalAction,
             CreateNewFileAction,
             CreateNewFolderAction,
             RenameAction,

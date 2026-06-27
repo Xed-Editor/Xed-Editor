@@ -13,12 +13,10 @@ import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_DRAWER
 import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_SEARCH
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
-import com.rk.settings.terminal.DEFAULT_TERMINAL_EXTRA_KEYS
 import com.rk.theme.blueberry
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
-import com.termux.terminal.TerminalEmulator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
@@ -110,7 +108,7 @@ object Settings {
     var theme_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
     var terminal_scrollback_buffer by
-        CachedPreference("terminal_scrollback_buffer", TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS)
+        CachedPreference("terminal_scrollback_buffer", 2000)
     var auto_save_delay by CachedPreference("auto_save_delay", 400L)
 
     var user_declined_value by CachedPreference("user_declined_value", false)
@@ -424,3 +422,5 @@ class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWritePrope
         state = value
     }
 }
+
+private const val DEFAULT_TERMINAL_EXTRA_KEYS = "[\n  [\n    \"ESC\",\n    {\n      \"key\": \"/\",\n      \"popup\": \"\\\\\"\n    },\n    {\n      \"key\": \"-\",\n      \"popup\": \"|\"\n    },\n    \"HOME\",\n    \"UP\",\n    \"END\",\n    \"PGUP\"\n  ],\n  [\n    \"TAB\",\n    \"CTRL\",\n    \"ALT\",\n    \"LEFT\",\n    \"DOWN\",\n    \"RIGHT\",\n    \"PGDN\"\n  ]\n]"

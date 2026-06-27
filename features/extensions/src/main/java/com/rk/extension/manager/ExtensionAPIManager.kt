@@ -6,13 +6,14 @@ import android.os.Bundle
 import com.rk.App
 import com.rk.DefaultScope
 import com.rk.extension.ExtensionAPI
+import com.rk.extension.extensionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 object ExtensionAPIManager : Application.ActivityLifecycleCallbacks, CoroutineScope by DefaultScope {
 
     private fun runForAll(block: ExtensionAPI.() -> Unit) {
-        App.extensionManager.loadedExtensions.values.forEach { loaded -> loaded?.api?.block() }
+        extensionManager.loadedExtensions.values.forEach { loaded -> loaded?.api?.block() }
     }
 
     private fun runForAllAsync(block: ExtensionAPI.() -> Unit) {

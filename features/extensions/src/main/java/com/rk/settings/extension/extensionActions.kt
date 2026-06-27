@@ -12,7 +12,7 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
-import com.rk.App.Companion.extensionManager
+import com.rk.extension.extensionManager
 import com.rk.activities.settings.SettingsActivity
 import com.rk.crashhandler.CrashActivity
 import com.rk.extension.Extension
@@ -193,7 +193,15 @@ fun runExtensionInstallAction(
                         errorMsg = error.message ?: "Failed to load extension"
                         withContext(Dispatchers.Main) {
                             activity?.let {
-                                CrashActivity.start(it, result.extension, error)
+                                CrashActivity.start(
+                                    context = it,
+                                    extensionId = result.extension.id,
+                                    extensionName = result.extension.name,
+                                    extensionVersion = result.extension.version,
+                                    extensionAuthor = result.extension.author.toString(),
+                                    repository = result.extension.repository,
+                                    error = error
+                                )
                             } ?: run {
                                 errorDialog(activity, msg = errorMsg)
                             }
@@ -286,7 +294,15 @@ fun runExtensionUpdateAction(
                         errorMsg = error.message ?: "Failed to load extension"
                         withContext(Dispatchers.Main) {
                             activity?.let {
-                                CrashActivity.start(it, result.extension, error)
+                                CrashActivity.start(
+                                    context = it,
+                                    extensionId = result.extension.id,
+                                    extensionName = result.extension.name,
+                                    extensionVersion = result.extension.version,
+                                    extensionAuthor = result.extension.author.toString(),
+                                    repository = result.extension.repository,
+                                    error = error
+                                )
                             } ?: run {
                                 errorDialog(activity, msg = errorMsg)
                             }
@@ -425,7 +441,15 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                         extensionManager.setExtensionDisabled(result.extension.id, true)
                         withContext(Dispatchers.Main) {
                             activity?.let {
-                                CrashActivity.start(it, result.extension, error)
+                                CrashActivity.start(
+                                    context = it,
+                                    extensionId = result.extension.id,
+                                    extensionName = result.extension.name,
+                                    extensionVersion = result.extension.version,
+                                    extensionAuthor = result.extension.author.toString(),
+                                    repository = result.extension.repository,
+                                    error = error
+                                )
                             } ?: run {
                                 errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
                             }

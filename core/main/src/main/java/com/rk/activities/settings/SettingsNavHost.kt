@@ -23,23 +23,15 @@ import com.rk.settings.editor.EditorFontScreen
 import com.rk.settings.editor.ExcludeFiles
 import com.rk.settings.editor.FormatterSettings
 import com.rk.settings.editor.SettingsEditorScreen
-import com.rk.settings.editor.TerminalFontScreen
-import com.rk.settings.extension.ExtensionDetail
-import com.rk.settings.extension.ExtensionScreen
-import com.rk.settings.extension.ExtensionSettings
 import com.rk.settings.git.GitSettings
 import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
 import com.rk.settings.lsp.LspServerDetail
 import com.rk.settings.lsp.LspServerLogs
 import com.rk.settings.lsp.LspSettings
-import com.rk.settings.runners.HtmlRunnerSettings
-import com.rk.settings.runners.RunnerSettings
 import com.rk.settings.support.Support
-import com.rk.settings.terminal.SettingsTerminalScreen
-import com.rk.settings.terminal.TerminalCheckScreen
-import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.settings.theme.ThemeScreen
+import com.rk.feature.SettingsRegistry
 
 @Composable
 fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity) {
@@ -55,13 +47,11 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity, navController) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
         composable(SettingsRoutes.Keybindings.route) { KeybindingsScreen() }
-        composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
-        composable(SettingsRoutes.TerminalExtraKeys.route) { TerminalExtraKeys() }
-        composable(SettingsRoutes.TerminalCheck.route) { TerminalCheckScreen() }
+
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
         composable(SettingsRoutes.AppFontScreen.route) { AppFontScreen() }
-        composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
+
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
         composable(SettingsRoutes.DefaultLineEnding.route) { DefaultLineEnding() }
         composable(SettingsRoutes.ToolbarActions.route) { EditToolbarActions() }
@@ -77,8 +67,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.AppLogs.route) { AppLogs() }
         composable(SettingsRoutes.Support.route) { Support() }
         composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }
-        composable(SettingsRoutes.Runners.route) { RunnerSettings(navController = navController) }
-        composable(SettingsRoutes.HtmlRunner.route) { HtmlRunnerSettings() }
         composable(SettingsRoutes.Formatters.route) { FormatterSettings(navController) }
         composable(SettingsRoutes.LspSettings.route) { LspSettings(navController) }
         composable(
@@ -103,23 +91,11 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             LspServerLogs(server, instanceId)
         }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
-        composable(SettingsRoutes.Extensions.route) { ExtensionScreen(navController = navController) }
-        composable(
-            "${SettingsRoutes.ExtensionDetail.route}/{extensionId}",
-            arguments = listOf(navArgument("extensionId", builder = { type = NavType.StringType })),
-        ) {
-            val extensionId = it.arguments?.getString("extensionId")
-            val extension = extensionId?.let { App.extensionManager.getExtension(it) }
-            ExtensionDetail(extension, navController)
-        }
-        composable(
-            "${SettingsRoutes.ExtensionSettings.route}/{extensionId}",
-            arguments = listOf(navArgument("extensionId", builder = { type = NavType.StringType })),
-        ) {
-            val extensionId = it.arguments?.getString("extensionId")
-            val extension = extensionId?.let { App.extensionManager.getExtension(it) }
-            ExtensionSettings(extension)
-        }
         composable(SettingsRoutes.Git.route) { GitSettings() }
+        SettingsRegistry.routes.forEach { customRoute ->
+            composable(customRoute.route) {
+                customRoute.content(navController)
+            }
+        }
     }
 }

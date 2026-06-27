@@ -2,8 +2,8 @@ package com.rk.exec
 
 import android.app.Activity
 import android.content.Intent
-import com.rk.activities.terminal.Terminal
 import com.rk.file.child
+import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
@@ -28,5 +28,20 @@ suspend fun isTerminalWorking(): Boolean =
 
 fun launchTerminal(activity: Activity, terminalCommand: TerminalCommand) {
     pendingCommand = terminalCommand
-    activity.startActivity(Intent(activity, Terminal::class.java))
+    try {
+        val intent = Intent().setClassName(activity, "com.rk.activities.terminal.Terminal")
+        activity.startActivity(intent)
+    } catch (e: Exception) {
+        com.rk.utils.toast("Terminal feature is not available in this build")
+    }
+}
+
+fun setupAssetFile(fileName: String) {
+    with(com.rk.file.localBinDir().child(fileName)) {
+        parentFile?.mkdir()
+        if (exists().not()) {
+            createFileIfNot()
+            writeText(com.rk.utils.application!!.assets.open("terminal/$fileName.sh").bufferedReader().use { it.readText() })
+        }
+    }
 }

@@ -10,6 +10,7 @@ import com.rk.extension.LocalExtension
 import com.rk.extension.apkFile
 import com.rk.extension.manager.ExtensionManager
 import com.rk.extension.manager.LoadedExtension
+import com.rk.extension.extensionManager
 import com.rk.file.FileObject
 import com.rk.file.copyToTempDir
 import com.rk.utils.application
@@ -67,7 +68,7 @@ fun LocalExtension.load(
         instance.onExtensionLoaded()
 
         // 6. Cache the loaded extension in the manager
-        App.extensionManager.loadedExtensions[this] = LoadedExtension(instance, scope)
+        extensionManager.loadedExtensions[this] = LoadedExtension(instance, scope)
         instance
     }
 }
@@ -175,7 +176,15 @@ suspend fun ExtensionManager.loadAllExtensions() =
                 extension.load(application!!).onFailure { error ->
                     setExtensionDisabled(extension.id, true)
                     withContext(Dispatchers.Main) {
-                        CrashActivity.start(application!!, extension, error)
+                        CrashActivity.start(
+                            context = application!!,
+                            extensionId = extension.id,
+                            extensionName = extension.name,
+                            extensionVersion = extension.version,
+                            extensionAuthor = extension.author.toString(),
+                            repository = extension.repository,
+                            error = error
+                        )
                     }
                 }
             }

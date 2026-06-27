@@ -31,7 +31,6 @@ import com.rk.commands.global.SaveAllCommand
 import com.rk.commands.global.SearchCodeCommand
 import com.rk.commands.global.SearchFileFolderCommand
 import com.rk.commands.global.SettingsCommand
-import com.rk.commands.global.TerminalCommand
 import com.rk.commands.lsp.FormatDocumentCommand
 import com.rk.commands.lsp.FormatSelectionCommand
 import com.rk.commands.lsp.GoToDefinitionCommand
@@ -45,7 +44,6 @@ object CommandProvider {
         get() = _commandList
 
     lateinit var DocumentationCommand: DocumentationCommand
-    lateinit var TerminalCommand: TerminalCommand
     lateinit var SettingsCommand: SettingsCommand
     lateinit var NewFileCommand: NewFileCommand
     lateinit var CommandPaletteCommand: CommandPaletteCommand
@@ -84,7 +82,6 @@ object CommandProvider {
     fun buildCommands() =
         synchronized(this) {
             registerBuiltin(DocumentationCommand()) { DocumentationCommand = it }
-            registerBuiltin(TerminalCommand()) { TerminalCommand = it }
             registerBuiltin(SettingsCommand()) { SettingsCommand = it }
             registerBuiltin(NewFileCommand()) { NewFileCommand = it }
             registerBuiltin(CommandPaletteCommand()) { CommandPaletteCommand = it }
