@@ -36,13 +36,17 @@ import java.io.File
 /**
  * Dialog that gathers everything needed to scaffold a project and emits a [ProjectConfig].
  *
- * @param documentsDir default location for plain-editing projects (Documents/XED).
- * @param sandboxDir exec-capable home used for build templates (gradle/npm/python).
+ * All projects are created inside the terminal sandbox home (exec-capable), so the toolchain
+ * (gradle/npm/python) can actually run from where the project lives. There is no longer a
+ * Documents/XED option: Android shared storage is mounted noexec and ignores Unix permissions, so
+ * nothing buildable could run there anyway.
+ *
+ * @param projectsDir the terminal sandbox home in which the project folder is created.
  * @param onCreate invoked with the validated config when the user taps Create.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateProjectDialog(documentsDir: File, sandboxDir: File, onDismiss: () -> Unit, onCreate: (ProjectConfig) -> Unit) {
+fun CreateProjectDialog(projectsDir: File, onDismiss: () -> Unit, onCreate: (ProjectConfig) -> Unit) {
     var name by remember { mutableStateOf("") }
     var template by remember { mutableStateOf(ProjectTemplate.NONE) }
     var modLoader by remember { mutableStateOf(ModLoader.FABRIC) }
@@ -54,10 +58,6 @@ fun CreateProjectDialog(documentsDir: File, sandboxDir: File, onDismiss: () -> U
     var minecraftVersion by remember { mutableStateOf("") }
     var jdkVersion by remember { mutableStateOf("21") }
     var initGit by remember { mutableStateOf(false) }
-
-    // Build templates default into the exec-capable sandbox; user may override.
-    var useSandbox by remember { mutableStateOf(false) }
-    LaunchedEffect(template) { useSandbox = template.recommendsSandbox }
 
     // Minecraft versions: show fallback immediately, then replace with the live Mojang list.
     var mcVersions by remember { mutableStateOf(MinecraftVersions.FALLBACK) }
@@ -72,7 +72,7 @@ fun CreateProjectDialog(documentsDir: File, sandboxDir: File, onDismiss: () -> U
         }
     }
 
-    val parentDir = if (useSandbox) sandboxDir else documentsDir
+    val parentDir = projectsDir
     val trimmedName = name.trim()
 
     // Live detection of the toolchain the chosen template needs (Python/Node/JDK).
@@ -190,30 +190,6 @@ fun CreateProjectDialog(documentsDir: File, sandboxDir: File, onDismiss: () -> U
                         selected = jdkVersion,
                         options = listOf("8", "11", "17", "21"),
                         onSelect = { jdkVersion = it },
-                    )
-                }
-
-                // Sandbox toggle for build templates
-                if (template.recommendsSandbox) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(strings.build_in_sandbox), style = MaterialTheme.typography.bodyLarge)
-                            Text(
-                                stringResource(strings.build_in_sandbox_desc),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                        Switch(checked = useSandbox, onCheckedChange = { useSandbox = it })
-                    }
-                    Text(
-                        stringResource(strings.dependency_notice),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
 

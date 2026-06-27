@@ -72,7 +72,6 @@ import com.rk.resources.strings
 import com.rk.utils.dialogRes
 import com.rk.utils.toast
 import com.rk.utils.StorageUtils
-import android.os.Environment
 import java.io.File
 import kotlinx.coroutines.launch
 
@@ -178,47 +177,41 @@ fun DrawerContent(fullscreen: Boolean) {
                     }
                 }
 
-                val cloneGitRepo =
-                    rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.OpenDocumentTree(),
-                        onResult = { uri ->
-                            uri?.let {
-                                runCatching {
-                                        context.contentResolver.takePersistableUriPermission(
-                                            it,
-                                            Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
-                                        )
+                // Clone straight into the terminal sandbox home, each repo in its own folder
+                // (e.g. home/goyapp, home/blah) so multiple cloned projects never get mixed up.
+                // No "where to save" picker: build/run tooling only works from the exec-capable
+                // sandbox anyway, so the destination is chosen intelligently.
+                val cloneIntoSandbox: () -> Unit = {
+                    val repoName =
+                        repoURL.substringAfterLast("/").substringBeforeLast(".").ifBlank { "repo" }
+                    scope.launch {
+                        val baseDir = sandboxHomeDir()
+                        var target = File(baseDir, repoName)
+                        var suffix = 1
+                        while (target.exists()) {
+                            target = File(baseDir, "$repoName-$suffix")
+                            suffix++
+                        }
+                        val fileObject = FileWrapper(target)
+                        gitViewModel
+                            .get()
+                            ?.cloneRepository(
+                                repoURL = repoURL,
+                                repoBranch = repoBranch,
+                                targetDir = target,
+                                progressCoordinator = monitor,
+                                onComplete = { success ->
+                                    repoURL = ""
+                                    repoBranch = "main"
+                                    repoURLError = null
+                                    repoBranchError = null
+                                    if (success) {
+                                        viewModel.addFileTreeTab(fileObject, save = true)
                                     }
-                                    .onFailure { it.printStackTrace() }
-                                scope.launch {
-                                    val fileObject =
-                                        it.toFileObject(expectedIsFile = false)
-                                            .createChild(
-                                                false,
-                                                repoURL.substringAfterLast("/").substringBeforeLast("."),
-                                            )
-                                    gitViewModel
-                                        .get()
-                                        ?.cloneRepository(
-                                            repoURL = repoURL,
-                                            repoBranch = repoBranch,
-                                            targetDir = File(fileObject!!.getAbsolutePath()),
-                                            progressCoordinator = monitor,
-                                            onComplete = { success ->
-                                                repoURL = ""
-                                                repoBranch = "main"
-                                                repoURLError = null
-                                                repoBranchError = null
-                                                if (success) {
-                                                    viewModel.addFileTreeTab(fileObject)
-                                                }
-                                            },
-                                        )
-                                }
-                            }
-                        },
-                    )
+                                },
+                            )
+                    }
+                }
 
                 val lazyListState = rememberLazyListState()
                 val showHorizontalDivider by remember { derivedStateOf { lazyListState.canScrollForward } }
@@ -385,7 +378,7 @@ fun DrawerContent(fullscreen: Boolean) {
                         secondErrorMessage = repoBranchError,
                         onConfirm = {
                             showGitCloneDialog = false
-                            cloneGitRepo.launch(null)
+                            cloneIntoSandbox()
                         },
                         onDismiss = {
                             showGitCloneDialog = false
@@ -400,11 +393,8 @@ fun DrawerContent(fullscreen: Boolean) {
                 }
 
                 if (showCreateProjectDialog) {
-                    val documentsXed =
-                        File(Environment.getExternalStorageDirectory(), "Documents/XED")
                     CreateProjectDialog(
-                        documentsDir = documentsXed,
-                        sandboxDir = sandboxHomeDir(),
+                        projectsDir = sandboxHomeDir(),
                         onDismiss = { showCreateProjectDialog = false },
                         onCreate = { config ->
                             showCreateProjectDialog = false

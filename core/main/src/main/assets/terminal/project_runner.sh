@@ -55,9 +55,15 @@ gradle_build() {
     error "gradlew not found in the project root. This Gradle project is missing its wrapper."
     exit 1
   fi
+  # Make the wrapper executable (shared storage / fresh clones often drop the +x bit).
   chmod +x ./gradlew 2>/dev/null
   info "Building with ./gradlew build ..."
-  ./gradlew build
+  if [ -x ./gradlew ]; then
+    ./gradlew build
+  else
+    # Fallback: run it through bash directly if the exec bit can't be set (noexec mounts).
+    bash ./gradlew build
+  fi
   show_result $?
 }
 

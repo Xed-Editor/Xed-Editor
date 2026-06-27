@@ -25,7 +25,14 @@ Xed-Editor, from the very beginning of the PRO work.
   - **Android (Jetpack Compose)** – a **complete Android Studio "Empty Activity" project**: Gradle **version catalog** (`gradle/libs.versions.toml`), root + app `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`, `AndroidManifest.xml` (backup + data-extraction rules), `MainActivity.kt` with `@Preview`, a full **theme package** (`ui/theme/Color.kt`, `Theme.kt` with dynamic color, `Type.kt`), **adaptive launcher icons** (vector background/foreground + `mipmap-anydpi-v26` + legacy fallback), `proguard-rules.pro`, `colors.xml`/`strings.xml`/`themes.xml` (+ `values-night`), and **unit + instrumented test** sources.
 - **Intelligent derivation**: package name / applicationId and mod id are derived from the **project name + author** (`com.<author>.<name>`) when not supplied (`ProjectConfig.resolvedPackageName()`, `resolvedModId()`).
 - **Working Gradle wrapper**: `gradlew`, `gradlew.bat`, and `gradle-wrapper.jar` are bundled as app assets and copied into generated Gradle projects (plus `gradle-wrapper.properties`), so `./gradlew` works and the old `chmod: cannot access 'gradlew'` error is gone.
-- **Storage location**: projects default to `Documents/XED/`; build-type templates default to the exec-capable terminal sandbox (see "Storage reality" below), with an in-UI explanation and toggle.
+- **Storage location**: every project is created inside the **terminal sandbox home** (`home/<name>`),
+  which is exec-capable, so its toolchain (gradle/npm/python) can actually run from where the project
+  lives. The old Documents/XED location and the per-project "build in sandbox" toggle were removed —
+  Android shared storage is mounted noexec and ignores Unix permissions, so nothing buildable could
+  run there anyway.
+- **Cloning a repo** no longer asks where to save: it clones straight into the sandbox home, each repo
+  in its own folder (`home/goyapp`, `home/blah`, …) — unique-suffixed if the name already exists so
+  multiple clones never collide.
 
 ## Dependencies
 - **Automatic dependency detection/install** after project creation (`ProjectDependencies`): detects missing tools (Python/Node/JDK) via the sandbox and offers a one-tap install.
@@ -71,8 +78,8 @@ Xed-Editor, from the very beginning of the PRO work.
 ## Editor input
 - **Cursor now follows the on-screen keyboard.** When the IME moves the caret (e.g. Gboard's
   space-bar swipe / cursor control), the editor scrolls to keep the caret visible
-  (`EditorInputConnection.setSelection` now requests visibility for IME-driven moves, except during
-  active text composition to avoid jumpiness while typing).
+  (`EditorInputConnection.setSelection` now requests visibility for IME-driven moves). It's a no-op
+  when the caret is already on screen, so it only scrolls when the caret would otherwise be off-view.
 
 ## Performance
 - Stable list `key` for the projects list to avoid needless recomposition.
