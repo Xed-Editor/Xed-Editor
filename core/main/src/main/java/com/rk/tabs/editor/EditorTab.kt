@@ -43,6 +43,7 @@ import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.color.ColorPicker
 import com.rk.components.AddDialogItem
+import com.rk.runner.RunnableOption
 import com.rk.components.SingleInputDialog
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
 import com.rk.extension.api.XedExtensionPoint
@@ -564,11 +565,9 @@ private fun EditorTab.RunnerSheet(context: Context) {
                         icon = runner.getIcon(context) ?: Icon.ResourceIcon(drawableRes = drawables.run),
                         title = runner.label,
                     ) {
-                        DefaultScope.launch {
-                            activity?.let { runner.run(it, file) }
-                            editorState.showRunnerDialog = false
-                            editorState.runnersToShow = emptyList()
-                        }
+                        activity?.let { runner.run(it) }
+                        editorState.showRunnerDialog = false
+                        editorState.runnersToShow = emptyList()
                     }
                 }
             }

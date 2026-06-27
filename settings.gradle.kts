@@ -43,7 +43,7 @@ if (!soraX.exists() || soraX.listFiles()?.isEmpty() != false) {
 }
 
 include(":app", ":core:main", ":core:components", ":core:resources")
-include(":features:terminal", ":features:extensions")
+include(":features:terminal", ":features:extensions", ":features:runner")
 
 include(":editor", ":oniguruma-native", ":editor-lsp", ":language-textmate")
 

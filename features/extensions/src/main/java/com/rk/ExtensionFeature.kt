@@ -1,12 +1,12 @@
-package com.rk.extension
+package com.rk
 
 import android.app.Application
-import androidx.navigation.NavController
-import androidx.navigation.NavType
-import com.rk.App
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.extension.ActivityProvider
+import com.rk.extension.extensionManager
 import com.rk.extension.loader.loadAllExtensions
 import com.rk.extension.manager.ExtensionAPIManager
+import com.rk.extension.manager.ExtensionManager
 import com.rk.feature.Feature
 import com.rk.feature.SettingsRegistry
 import com.rk.feature.SettingsCategory
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 class ExtensionFeature : Feature {
     @OptIn(DelicateCoroutinesApi::class)
     override fun init(application: Application) {
-        extensionManager = com.rk.extension.manager.ExtensionManager(application)
+        extensionManager = ExtensionManager(application)
 
         // Initialize and load extensions
         GlobalScope.launch(Dispatchers.IO) {

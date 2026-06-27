@@ -43,7 +43,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.rk.XedConstants
+import com.rk.terminal.ROOTFS_ARM
+import com.rk.terminal.ROOTFS_ARM64
+import com.rk.terminal.ROOTFS_X64
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -221,11 +223,11 @@ class Terminal : AppCompatActivity() {
                         DownloadFile(
                             url =
                                 if (abi.contains("x86_64")) {
-                                    XedConstants.ROOTFS_X64
+                                    ROOTFS_X64
                                 } else if (abi.contains("arm64-v8a")) {
-                                    XedConstants.ROOTFS_ARM64
+                                    ROOTFS_ARM64
                                 } else if (abi.contains("armeabi-v7a")) {
-                                    XedConstants.ROOTFS_ARM
+                                    ROOTFS_ARM
                                 } else {
                                     throw RuntimeException("Unsupported CPU")
                                 },

@@ -112,4 +112,5 @@ dependencies {
     implementation(project(":core:main"))
     implementation(project(":features:terminal"))
     implementation(project(":features:extensions"))
+    implementation(project(":features:runner"))
 }

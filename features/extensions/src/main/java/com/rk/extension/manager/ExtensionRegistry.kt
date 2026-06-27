@@ -1,7 +1,6 @@
 package com.rk.extension.manager
 
 import android.util.Log
-import com.rk.XedConstants
 import com.rk.extension.ExtensionManifest
 import com.rk.extension.ExtensionStats
 import com.rk.utils.errorDialog
@@ -14,11 +13,12 @@ import kotlinx.serialization.json.JsonObject
 import com.rk.utils.okHttpClient
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import com.google.gson.GsonBuilder
-import com.rk.theme.ThemeConfig
 import com.rk.icons.pack.IconPackManifest
 
 import androidx.compose.runtime.mutableStateMapOf
+import com.rk.extension.EXTENSION_API_BASE
+import com.rk.extension.ICONPACKS_API_BASE
+import com.rk.extension.THEMES_API_BASE
 import com.rk.settings.extension.InstallState
 
 @Serializable private data class ExtensionListResponse(val extensions: List<ExtensionEntry>)
@@ -52,7 +52,7 @@ data class IconPacksResponse(val iconPacks: List<IconPackStoreEntry>)
 
 object ExtensionRegistry {
     private const val TAG = "ExtensionRegistry"
-    private const val BASE_URL = XedConstants.EXTENSION_API_BASE
+    private const val BASE_URL = EXTENSION_API_BASE
 
     private val client: OkHttpClient = okHttpClient
     private val json = Json { ignoreUnknownKeys = true }
@@ -167,7 +167,7 @@ object ExtensionRegistry {
     suspend fun fetchThemes(): List<ThemeStoreEntry> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val jsonString = requestJson(XedConstants.THEMES_API_BASE)
+                val jsonString = requestJson(THEMES_API_BASE)
                 val response = json.decodeFromString<ThemesResponse>(jsonString)
                 response.themes
             }
@@ -180,7 +180,7 @@ object ExtensionRegistry {
     suspend fun fetchIconPacks(): List<IconPackStoreEntry> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val jsonString = requestJson(XedConstants.ICONPACKS_API_BASE)
+                val jsonString = requestJson(ICONPACKS_API_BASE)
                 val response = json.decodeFromString<IconPacksResponse>(jsonString)
                 response.iconPacks
             }
@@ -193,7 +193,7 @@ object ExtensionRegistry {
     suspend fun downloadIconPackZip(id: String, destFile: File): Boolean =
         withContext(Dispatchers.IO) {
             runCatching {
-                val zipUrl = "${XedConstants.ICONPACKS_API_BASE}/$id/iconpack.zip"
+                val zipUrl = "${ICONPACKS_API_BASE}/$id/iconpack.zip"
                 val request = Request.Builder().url(zipUrl).build()
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) error("HTTP ${response.code}")

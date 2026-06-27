@@ -2,11 +2,11 @@ package com.rk.runner
 
 import android.app.Activity
 import android.content.Context
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.icons.Icon
-import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkdownRunner
 import com.rk.settings.Preference
@@ -44,7 +44,7 @@ object RunnerManager {
     val extensionRunners: List<Runner>
         get() = _extensionRunners.toList()
 
-    val builtinRunners = listOf(HtmlRunner, MarkdownRunner, UniversalRunner)
+    val builtinRunners = listOf(HtmlRunner, MarkdownRunner)
 
     @XedExtensionPoint
     fun registerRunner(runner: Runner) {
@@ -75,7 +75,7 @@ object RunnerManager {
         return result
     }
 
-    suspend fun run(activity: Activity, fileObject: FileObject, onMultipleRunners: (List<Runner>) -> Unit) {
+    suspend fun run(activity: Activity, fileObject: FileObject, onMultipleRunners: (List<RunnableOption>) -> Unit) {
         val availableRunners = getAvailableRunners(fileObject)
 
         if (availableRunners.isEmpty()) {
@@ -86,7 +86,18 @@ object RunnerManager {
         if (availableRunners.size == 1) {
             availableRunners[0].run(activity, fileObject)
         } else {
-            onMultipleRunners.invoke(availableRunners)
+            val options = availableRunners.map { runner ->
+                object : RunnableOption {
+                    override val label: String = runner.label
+                    override fun getIcon(context: Context): Icon? = runner.getIcon(context)
+                    override fun run(activity: Activity) {
+                        com.rk.DefaultScope.launch {
+                            runner.run(activity, fileObject)
+                        }
+                    }
+                }
+            }
+            onMultipleRunners.invoke(options)
         }
     }
 }

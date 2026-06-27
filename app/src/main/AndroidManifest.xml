@@ -91,10 +91,5 @@
         <activity
             android:name="com.rk.activities.settings.SettingsActivity"
             android:exported="false" />
-        <activity
-            android:name="com.rk.runner.runners.web.markdown.MDViewer"
-            android:exported="false"
-            tools:ignore="Instantiatable" />
-
     </application>
 </manifest>

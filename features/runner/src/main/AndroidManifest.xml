@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <activity
+            android:name="com.rk.runner.runners.web.markdown.MDViewer"
+            android:exported="false"
+            tools:ignore="Instantiatable" />
+    </application>
+
+</manifest>

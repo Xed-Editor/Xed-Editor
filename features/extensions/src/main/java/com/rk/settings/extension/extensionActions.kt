@@ -4,7 +4,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import androidx.core.app.NotificationCompat
 import com.rk.DefaultScope
-import com.rk.XedConstants
+import com.rk.extension.EXTENSION_API_BASE
+import com.rk.extension.ICONPACKS_API_BASE
 import com.rk.extension.manager.ExtensionRegistry
 import java.io.File
 import com.rk.resources.drawables
@@ -168,7 +169,7 @@ fun runExtensionInstallAction(
             var lastNotificationTime = 0L
 
             val downloadSuccess = ExtensionRegistry.downloadFileWithProgress(
-                url = "${XedConstants.EXTENSION_API_BASE}/$id/plugin.zip",
+                url = "$EXTENSION_API_BASE/$id/plugin.zip",
                 destFile = tempFile,
                 onProgress = { progress ->
                     DefaultScope.launch(Dispatchers.Main) {
@@ -269,7 +270,7 @@ fun runExtensionUpdateAction(
             var lastNotificationTime = 0L
 
             val downloadSuccess = ExtensionRegistry.downloadFileWithProgress(
-                url = "${XedConstants.EXTENSION_API_BASE}/$id/plugin.zip",
+                url = "$EXTENSION_API_BASE/$id/plugin.zip",
                 destFile = tempFile,
                 onProgress = { progress ->
                     DefaultScope.launch(Dispatchers.Main) {
@@ -365,7 +366,7 @@ fun runIconPackInstallAction(
             var lastNotificationTime = 0L
 
             val downloadSuccess = ExtensionRegistry.downloadFileWithProgress(
-                url = "${XedConstants.ICONPACKS_API_BASE}/$id/iconpack.zip",
+                url = "$ICONPACKS_API_BASE/$id/iconpack.zip",
                 destFile = tempFile,
                 onProgress = { progress ->
                     DefaultScope.launch(Dispatchers.Main) {

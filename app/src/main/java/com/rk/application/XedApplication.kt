@@ -2,8 +2,9 @@ package com.rk.application
 
 import com.rk.App
 import com.rk.feature.FeatureRegistry
-import com.rk.terminal.TerminalFeature
-import com.rk.extension.ExtensionFeature
+import com.rk.TerminalFeature
+import com.rk.ExtensionFeature
+import com.rk.runner.RunnerFeature
 
 class XedApplication : App() {
     override fun onCreate() {
@@ -12,6 +13,7 @@ class XedApplication : App() {
         // Register pluggable features
         FeatureRegistry.register(TerminalFeature())
         FeatureRegistry.register(ExtensionFeature())
+        FeatureRegistry.register(RunnerFeature())
 
         // Initialize features
         FeatureRegistry.initFeatures(this)

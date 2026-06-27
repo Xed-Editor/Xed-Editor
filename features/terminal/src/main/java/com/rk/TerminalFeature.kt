@@ -1,12 +1,12 @@
-package com.rk.terminal
+package com.rk
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
-import androidx.compose.ui.Modifier
 import com.rk.activities.terminal.Terminal
 import com.rk.commands.CommandProvider
 import com.rk.commands.global.TerminalCommand
+import com.rk.runner.RunnerManager
+import com.rk.runner.runners.UniversalRunner
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext
 import com.rk.filetree.FileActionType
@@ -23,9 +23,7 @@ import com.rk.feature.SettingsRegistry
 import com.rk.feature.SettingsCategory
 import com.rk.feature.SettingsRoute
 import com.rk.activities.settings.SettingsRoutes
-import com.rk.commands.GlobalCommand
 import com.rk.commands.ToolbarConfiguration
-import com.rk.components.GlobalToolbarActions
 import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.terminal.TerminalCheckScreen
 import com.rk.settings.terminal.TerminalExtraKeys
@@ -45,14 +43,7 @@ class TerminalFeature : Feature {
                 route = SettingsRoutes.TerminalSettings.route
             )
         )
-        SettingsRegistry.registerCategory(
-            SettingsCategory(
-                labelRes = strings.runners,
-                descriptionRes = strings.runners_desc,
-                iconRes = drawables.run,
-                route = SettingsRoutes.Runners.route
-            )
-        )
+
 
         // Register settings routes
         SettingsRegistry.registerRoute(
@@ -75,16 +66,8 @@ class TerminalFeature : Feature {
                 TerminalFontScreen()
             }
         )
-        SettingsRegistry.registerRoute(
-            SettingsRoute(SettingsRoutes.Runners.route) { navController ->
-                com.rk.settings.runners.RunnerSettings(navController = navController)
-            }
-        )
-        SettingsRegistry.registerRoute(
-            SettingsRoute(SettingsRoutes.HtmlRunner.route) {
-                com.rk.settings.runners.HtmlRunnerSettings()
-            }
-        )
+        // Register UniversalRunner dynamically
+        RunnerManager.registerRunner(UniversalRunner)
 
         // Register global command
         val command = TerminalCommand()

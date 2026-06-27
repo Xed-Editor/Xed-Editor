@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rk.terminal"
+    namespace = "com.rk.runner"
     compileSdk = 37
 
     defaultConfig {
@@ -29,10 +29,10 @@ dependencies {
     implementation(project(":core:main"))
     implementation(project(":core:components"))
     implementation(project(":core:resources"))
-    implementation(project(":features:runner"))
     
-    // Editor dependency for ExtraKeys code editor settings
+    // Editor dependencies for code runner settings and markdown rendering
     implementation(project(":editor"))
+    implementation(project(":editor-lsp"))
     
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -49,7 +49,4 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material.icons.core)
-
-    implementation("com.github.termux.termux-app:terminal-view:v0.118.3")
-    implementation("com.github.termux.termux-app:terminal-emulator:v0.118.3")
 }
