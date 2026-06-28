@@ -40,8 +40,8 @@ import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
-import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
+import com.rk.file.FileChangeNotifier
 import com.rk.components.AddDialogItem
 import com.rk.components.codeSearchDialog
 import com.rk.components.fileSearchDialog
@@ -57,7 +57,6 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.findGitRoot
 import com.rk.utils.formatFileSize
 import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.Dispatchers
@@ -82,12 +81,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         val drawerViewModel = MainActivity.instance?.drawerViewModel
 
         LaunchedEffect(root) {
-            if (InbuiltFeatures.git.state.value) {
-                val gitRoot = findGitRoot(root.getAbsolutePath())
-                if (gitRoot != null) {
-                    gitViewModel.get()?.loadRepository(gitRoot)
-                }
-            }
+            FileChangeNotifier.notifyProjectOpened(root.getAbsolutePath())
         }
 
         LaunchedEffect(enableIndexing) {

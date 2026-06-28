@@ -10,7 +10,6 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
-import com.rk.activities.terminal.Terminal
 import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
@@ -104,25 +103,6 @@ object RefreshAction : MultiFileAction() {
     override val type = FileActionType(file = false, folder = true, rootFolder = true)
 }
 
-object TerminalAction : FileAction() {
-    override val icon = Icon.ResourceIcon(drawables.terminal)
-    override val title = strings.open_in_terminal.getString()
-
-    override fun action(context: FileActionContext) {
-        val file = context.file
-        val context = context.context
-
-        val intent = Intent(context, Terminal::class.java)
-        intent.putExtra("cwd", file.getAbsolutePath())
-        context.startActivity(intent)
-    }
-
-    override fun isSupported(file: FileObject): Boolean {
-        return file is FileWrapper && InbuiltFeatures.terminal.state.value
-    }
-
-    override val type = FileActionType(file = false, folder = true, rootFolder = true)
-}
 
 object CreateNewFileAction : FileAction() {
     override val icon = Icon.VectorIcon(XedIcons.CreateNewFile)

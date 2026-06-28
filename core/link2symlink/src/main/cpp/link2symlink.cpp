@@ -1,10 +1,10 @@
 #include <unistd.h>
 #include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <errno.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <climits>
+#include <cerrno>
 #include <sys/stat.h>
 #include <sys/types.h>
 #ifdef __ANDROID__
@@ -56,7 +56,7 @@ static int resolve_to_absolute(int dirfd, const char *path, int flags, char *out
 
     char base_path[PATH_MAX];
     if (dirfd == AT_FDCWD) {
-        if (getcwd(base_path, sizeof(base_path)) == NULL) {
+        if (getcwd(base_path, sizeof(base_path)) == nullptr) {
             return -1;
         }
     } else {
@@ -86,7 +86,7 @@ EXPORT int link(const char *oldpath, const char *newpath) {
     LOGI("link: Intercepted call link(\"%s\", \"%s\")", oldpath ? oldpath : "NULL", newpath ? newpath : "NULL");
 
     // Verify source exists
-    struct stat st;
+    struct stat st{};
     if (fstatat(AT_FDCWD, oldpath, &st, AT_SYMLINK_NOFOLLOW) != 0) {
         LOGE("link: Source file verification failed (errno: %d, %s)", errno, strerror(errno));
         return -1;
@@ -113,7 +113,7 @@ EXPORT int linkat(int olddirfd, const char *oldpath, int newdirfd, const char *n
          olddirfd, oldpath ? oldpath : "NULL", newdirfd, newpath ? newpath : "NULL", flags);
 
     // Verify source exists
-    struct stat st;
+    struct stat st{};
     int fstat_flags = 0;
     if (!(flags & AT_SYMLINK_FOLLOW)) {
         fstat_flags |= AT_SYMLINK_NOFOLLOW;
@@ -134,7 +134,7 @@ EXPORT int linkat(int olddirfd, const char *oldpath, int newdirfd, const char *n
 
     if (flags & AT_SYMLINK_FOLLOW) {
         char final_target[PATH_MAX];
-        if (realpath(target, final_target) != NULL) {
+        if (realpath(target, final_target) != nullptr) {
             strncpy(target, final_target, PATH_MAX - 1);
             target[PATH_MAX - 1] = '\0';
         }

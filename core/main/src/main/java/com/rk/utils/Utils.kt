@@ -1,6 +1,5 @@
 package com.rk.utils
 
-import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -11,7 +10,6 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PictureDrawable
 import android.os.Build
-import android.telephony.TelephonyManager
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
@@ -40,24 +38,17 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
 import com.caverock.androidsvg.SVG
-import com.rk.activities.main.MainActivity
-import com.rk.activities.main.gitViewModel
 import com.rk.extension.ActivityProvider
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
-import com.rk.git.ChangeType
+import com.rk.file.FileDecorationRegistry
 import com.rk.resources.getQuantityString
 import com.rk.resources.getString
 import com.rk.resources.plurals
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
 import com.rk.theme.currentTheme
-import com.rk.theme.gitAdded
-import com.rk.theme.gitConflicted
-import com.rk.theme.gitDeleted
-import com.rk.theme.gitModified
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.InputStream
@@ -72,7 +63,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
@@ -173,6 +163,11 @@ fun origin(): String {
         }
     }
 }
+
+val isV =
+    byteArrayOf(99, 111, 109, 46, 97, 110, 100, 114, 111, 105, 100, 46, 118, 101, 110, 100, 105, 110, 103)
+        .toString(Charsets.UTF_8) == origin()
+
 
 fun copyToClipboard(label: String, text: String, showToast: Boolean = true) {
     val clipboard = application!!.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -330,35 +325,10 @@ fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
 }
 
 @Composable
-fun getGitColor(file: FileObject?): Color? {
-    if (!InbuiltFeatures.git.state.value || !Settings.git_colorize_names) return null
-    val gitChangeType = file?.let { gitViewModel.get()?.getChangeType(file.getAbsolutePath()) } ?: return null
-    return getGitColor(gitChangeType)
+fun getFileColor(file: FileObject?): Color? {
+    if (file == null) return null
+    return FileDecorationRegistry.provider?.getDecoration(file)?.color
 }
-
-@Composable
-fun getGitColor(changeType: ChangeType): Color =
-    when (changeType) {
-        ChangeType.ADDED,
-        ChangeType.UNTRACKED -> MaterialTheme.colorScheme.gitAdded
-        ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
-        ChangeType.CONFLICTING -> MaterialTheme.colorScheme.gitConflicted
-        ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
-    }
-
-suspend fun findGitRoot(path: String): String? =
-    withContext(Dispatchers.IO) {
-        runCatching {
-            val startDir = File(path).let { if (it.isDirectory) it else it.parentFile }
-            FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()?.use { repo ->
-                if (!repo.isBare) {
-                    repo.workTree?.canonicalPath
-                } else {
-                    null
-                }
-            }
-        }.getOrNull()
-    }
 
 fun hasBinaryChars(text: String): Boolean {
     val threshold = 0.3

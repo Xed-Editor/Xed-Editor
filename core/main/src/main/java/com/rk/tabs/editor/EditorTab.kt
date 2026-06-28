@@ -39,8 +39,8 @@ import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
-import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
+import com.rk.file.FileChangeNotifier
 import com.rk.color.ColorPicker
 import com.rk.components.AddDialogItem
 import com.rk.components.SingleInputDialog
@@ -312,7 +312,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
             if (isTemp) return@withLock
             write()
             searchViewModel.get()?.syncIndex(file)
-            gitViewModel.get()?.syncChanges(file.getAbsolutePath())
+            FileChangeNotifier.notifyFileChanged(file.getAbsolutePath())
         }
 
     suspend fun save() =
@@ -330,7 +330,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                             scope.launch {
                                 write()
                                 searchViewModel.get()?.syncIndex(file)
-                                gitViewModel.get()?.syncChanges(file.getAbsolutePath())!!.join()
+                                FileChangeNotifier.notifyFileChanged(file.getAbsolutePath())
                             }
                         }
                     }
@@ -340,7 +340,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
             write()
             searchViewModel.get()?.syncIndex(file)
-            gitViewModel.get()?.syncChanges(file.getAbsolutePath())
+            FileChangeNotifier.notifyFileChanged(file.getAbsolutePath())
 
             Settings.saves += 1
             MainActivity.instance?.handleSupport()
@@ -355,9 +355,6 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
             LaunchedEffect(editorState.editable) { editorState.editor.get()?.editable = editorState.editable }
 
             Column {
-                if (editorState.showRunnerDialog) {
-                    RunnerSheet(context)
-                }
 
                 if (editorState.showFindingsDialog) {
                     FindingsDialog(
@@ -541,37 +538,4 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
     }
 }
 
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun EditorTab.RunnerSheet(context: Context) {
-    ModalBottomSheet(
-        onDismissRequest = {
-            editorState.showRunnerDialog = false
-            editorState.runnersToShow = emptyList()
-        }
-    ) {
-        Column(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(text = stringResource(strings.choose_runner), style = MaterialTheme.typography.titleLarge)
 
-            Column {
-                editorState.runnersToShow.forEach { runner ->
-                    val activity = LocalActivity.current
-
-                    AddDialogItem(
-                        icon = runner.getIcon(context) ?: Icon.ResourceIcon(drawableRes = drawables.run),
-                        title = runner.label,
-                    ) {
-                        DefaultScope.launch {
-                            activity?.let { runner.run(it, file) }
-                            editorState.showRunnerDialog = false
-                            editorState.runnersToShow = emptyList()
-                        }
-                    }
-                }
-            }
-        }
-    }
-}

@@ -34,7 +34,6 @@ import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import com.rk.crashhandler.CrashHandler.logErrorOrExit
 import com.rk.editor.Editor
-import com.rk.extension.Extension
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
@@ -84,15 +83,23 @@ class CrashActivity : ComponentActivity() {
             return true
         }
 
-        fun start(context: Context, extension: Extension, error: Throwable) {
+        fun start(
+            context: Context,
+            extensionId: String,
+            extensionName: String,
+            extensionVersion: String,
+            extensionAuthor: String,
+            repository: String?,
+            error: Throwable
+        ) {
             val intent = Intent(context, CrashActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra("is_extension_crash", true)
-                putExtra("extension_id", extension.id)
-                putExtra("extension_name", extension.name)
-                putExtra("extension_version", extension.version)
-                putExtra("extension_author", extension.author.toString())
-                putExtra("repository", extension.repository)
+                putExtra("extension_id", extensionId)
+                putExtra("extension_name", extensionName)
+                putExtra("extension_version", extensionVersion)
+                putExtra("extension_author", extensionAuthor)
+                putExtra("repository", repository)
                 putExtra("thread", Thread.currentThread().name)
                 putExtra("force_crash", false)
                 putExtra("msg", error.message)
