@@ -8,6 +8,12 @@ on:
     paths-ignore:
       - "**/*.md"
   workflow_dispatch:
+    inputs:
+      use_cache:
+        description: 'Use cache for Gradle'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   build-release:
@@ -26,9 +32,10 @@ jobs:
         with:
           java-version: "21"
           distribution: "temurin"
-          cache: gradle
+          cache: ${{ github.event.inputs.use_cache != 'false' && 'gradle' || '' }}
 
       - name: Cache Gradle Build Files
+        if: ${{ github.event.inputs.use_cache != 'false' }}
         uses: actions/cache@v5
         with:
           path: |
