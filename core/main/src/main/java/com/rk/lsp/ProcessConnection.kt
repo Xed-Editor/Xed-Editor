@@ -1,7 +1,7 @@
 package com.rk.lsp
 
 import android.util.Log
-import com.rk.drawer.SandboxedProcessRegistry
+import com.rk.SandboxedProcessRegistry
 import java.io.InputStream
 import java.io.OutputStream
 import kotlinx.coroutines.CoroutineScope

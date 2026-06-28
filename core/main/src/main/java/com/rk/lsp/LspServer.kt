@@ -6,8 +6,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
+import com.rk.TerminalLauncher
 import com.rk.activities.main.MainActivity
-import com.rk.drawer.TerminalLauncher
 import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.tabs.editor.EditorTab

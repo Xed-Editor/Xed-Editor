@@ -79,7 +79,7 @@ class TerminalFeature : Feature {
         RunnerManager.registerRunner(UniversalRunner)
 
         // Register TerminalLauncher handler
-        com.rk.drawer.TerminalLauncher.handler = { activity, sandbox, exe, args, id, terminatePreviousSession, workingDir, env ->
+         TerminalLauncher.handler = { activity, sandbox, exe, args, id, terminatePreviousSession, workingDir, env ->
             com.rk.exec.pendingCommand = com.rk.exec.TerminalCommand(
                 sandbox = sandbox,
                 exe = exe,
@@ -98,7 +98,7 @@ class TerminalFeature : Feature {
         }
 
         // Register SandboxedProcessRegistry provider
-        com.rk.drawer.SandboxedProcessRegistry.provider = { command, workingDir, excludeMounts ->
+        SandboxedProcessRegistry.provider = { command, workingDir, excludeMounts ->
             com.rk.exec.ubuntuProcess(excludeMounts, workingDir = workingDir, command = command)
         }
 

@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rk.DefaultScope
-import com.rk.drawer.TerminalLauncher
+import com.rk.TerminalLauncher
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.createFileIfNot

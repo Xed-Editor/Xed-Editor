@@ -29,3 +29,11 @@ object TerminalLauncher {
     }
 }
 
+object SandboxedProcessRegistry {
+    // A delegate function to spawn a sandboxed PRoot process dynamically
+    var provider: (suspend (
+        command: List<String>,
+        workingDir: String?,
+        excludeMounts: List<String>
+    ) -> Process)? = null
+}
