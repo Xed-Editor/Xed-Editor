@@ -32,7 +32,7 @@ object XML : ScriptedLspServer() {
         return sandboxHomeDir().child(".lsp/lemminx/server.jar").exists()
     }
 
-    override suspend fun isUpdatable(context: Context): Boolean {
+    override suspend fun hasUpdate(context: Context): Boolean {
         val versionFile = sandboxHomeDir().child(".lsp/lemminx/version.txt")
         val currentVersionText = runCatching { versionFile.readText().trim() }.getOrNull()
         val currentVersion = currentVersionText?.toVersionOrNull() ?: return false

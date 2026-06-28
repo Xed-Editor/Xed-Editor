@@ -112,15 +112,14 @@ fun CodeSearchDialog(
 
     fun replace(codeItem: CodeItem) {
         searchViewModel.viewModelScope.launch {
-            searchViewModel.replaceIn(context, mainViewModel, projectFile, codeItem)
-            searchViewModel.syncIndex(projectFile)
+            searchViewModel.replaceIn(mainViewModel, codeItem)
             searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
         }
     }
 
     fun replaceAll(codeItems: List<CodeItem>) {
         searchViewModel.viewModelScope.launch {
-            searchViewModel.replaceAllIn(context, mainViewModel, projectFile, codeItems)
+            searchViewModel.replaceAllIn(mainViewModel, codeItems)
             searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
         }
     }

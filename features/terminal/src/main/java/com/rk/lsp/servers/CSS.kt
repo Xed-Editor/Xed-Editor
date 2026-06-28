@@ -29,7 +29,7 @@ object CSS : ScriptedLspServer() {
         return sandboxDir().child("/usr/bin/$serverName").exists()
     }
 
-    override suspend fun isUpdatable(context: Context): Boolean {
+    override suspend fun hasUpdate(context: Context): Boolean {
         return NpmUtils.hasUpdate("vscode-langservers-extracted")
     }
 

@@ -1,8 +1,3 @@
-
-
-
-
-//DO NOT UPDATE PACKAGE NAME OTHERWISE EXTENSIONS WILL BREAK
 package com.rk.extension
 
 import android.app.Activity

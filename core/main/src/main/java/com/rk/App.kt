@@ -30,24 +30,20 @@ import com.rk.theme.updateThemes
 import com.rk.utils.application
 import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
-import java.util.Locale
-import java.util.concurrent.Executors
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.util.Locale
+import java.util.concurrent.Executors
 
 @OptIn(DelicateCoroutinesApi::class)
 open class App : Application() {
     companion object {
         val versionCode: Long by lazy {
             val app = application ?: throw IllegalStateException("Application is not initialized yet")
-            PackageInfoCompat.getLongVersionCode(
-                app.packageManager.getPackageInfo(app.packageName, 0)
-            )
+            PackageInfoCompat.getLongVersionCode(app.packageManager.getPackageInfo(app.packageName, 0))
         }
-
-
 
         private var _iconPackManager: IconPackManager? = null
         val iconPackManager: IconPackManager
@@ -84,8 +80,6 @@ open class App : Application() {
         AppCompatDelegate.setApplicationLocales(appLocale)
 
         GlobalScope.launch(Dispatchers.IO) {
-
-
             launch(Dispatchers.IO) { iconPackManager.indexIconPacks() }
 
             launch { LanguageManager.initGrammarRegistry() }

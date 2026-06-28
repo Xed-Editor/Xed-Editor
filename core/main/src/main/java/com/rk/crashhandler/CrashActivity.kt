@@ -31,13 +31,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.pm.PackageInfoCompat
-import androidx.core.net.toUri
 import com.rk.crashhandler.CrashHandler.logErrorOrExit
 import com.rk.editor.Editor
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
+import com.rk.utils.SourceCodeProvider
 import com.rk.utils.copyToClipboard
+import com.rk.utils.openUrl
 import com.rk.utils.origin
 import com.rk.xededitor.BuildConfig
 import java.net.URLEncoder
@@ -90,32 +91,33 @@ class CrashActivity : ComponentActivity() {
             extensionVersion: String,
             extensionAuthor: String,
             repository: String?,
-            error: Throwable
+            error: Throwable,
         ) {
-            val intent = Intent(context, CrashActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                putExtra("is_extension_crash", true)
-                putExtra("extension_id", extensionId)
-                putExtra("extension_name", extensionName)
-                putExtra("extension_version", extensionVersion)
-                putExtra("extension_author", extensionAuthor)
-                putExtra("repository", repository)
-                putExtra("thread", Thread.currentThread().name)
-                putExtra("force_crash", false)
-                putExtra("msg", error.message)
+            val intent =
+                Intent(context, CrashActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    putExtra("is_extension_crash", true)
+                    putExtra("extension_id", extensionId)
+                    putExtra("extension_name", extensionName)
+                    putExtra("extension_version", extensionVersion)
+                    putExtra("extension_author", extensionAuthor)
+                    putExtra("repository", repository)
+                    putExtra("thread", Thread.currentThread().name)
+                    putExtra("force_crash", false)
+                    putExtra("msg", error.message)
 
-                var cause = error.cause?.toString() ?: error.toString()
-                val prefix = "java.lang.Throwable:"
-                if (cause.startsWith(prefix)) {
-                    cause = cause.removePrefix(prefix)
+                    var cause = error.cause?.toString() ?: error.toString()
+                    val prefix = "java.lang.Throwable:"
+                    if (cause.startsWith(prefix)) {
+                        cause = cause.removePrefix(prefix)
+                    }
+                    putExtra("error_cause", cause)
+
+                    val stringWriter = java.io.StringWriter()
+                    val printWriter = java.io.PrintWriter(stringWriter)
+                    error.printStackTrace(printWriter)
+                    putExtra("stacktrace", stringWriter.toString())
                 }
-                putExtra("error_cause", cause)
-
-                val stringWriter = java.io.StringWriter()
-                val printWriter = java.io.PrintWriter(stringWriter)
-                error.printStackTrace(printWriter)
-                putExtra("stacktrace", stringWriter.toString())
-            }
             context.startActivity(intent)
         }
     }
@@ -160,11 +162,12 @@ class CrashActivity : ComponentActivity() {
                                                 }
                                             ) {
                                                 Icon(
-                                                    imageVector = if (mainThreadCrashed){
-                                                        Icons.Default.Close
-                                                    }else{
-                                                        Icons.AutoMirrored.Filled.ArrowBack
-                                                    },
+                                                    imageVector =
+                                                        if (mainThreadCrashed) {
+                                                            Icons.Default.Close
+                                                        } else {
+                                                            Icons.AutoMirrored.Filled.ArrowBack
+                                                        },
                                                     contentDescription = "Back",
                                                 )
                                             }
@@ -235,20 +238,21 @@ class CrashActivity : ComponentActivity() {
 
     private fun reportLogs(crashText: String, context: Context) {
         val repo = intent.getStringExtra("repository")
-        val baseUrl = if (!repo.isNullOrEmpty()) {
-            if (repo.startsWith("http")) {
+        val baseUrl =
+            if (!repo.isNullOrEmpty()) {
                 repo.removeSuffix("/")
             } else {
-                "https://github.com/$repo"
+                "https://github.com/Xed-Editor/Xed-Editor"
             }
-        } else {
-            "https://github.com/Xed-Editor/Xed-Editor"
+        if (SourceCodeProvider.fromUrl(baseUrl) != SourceCodeProvider.GitHub) {
+            context.openUrl(baseUrl)
+            return
         }
-        val url =
+
+        val issueUrl =
             "$baseUrl/issues/new?title=Crash%20Report&body=" +
                 URLEncoder.encode("``` \n$crashText\n ```", StandardCharsets.UTF_8.toString())
-        val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
-        context.startActivity(browserIntent)
+        context.openUrl(issueUrl)
     }
 
     private fun buildCrashReport(): String {
@@ -263,13 +267,12 @@ class CrashActivity : ComponentActivity() {
         return buildString {
             val isExtension = intent.getBooleanExtra("is_extension_crash", false)
             if (isExtension) {
-                append("Extension Crashed").appendLine().appendLine()
-
+                append("Extension crashed").appendLine().appendLine()
 
                 append("Extension ID: ").append(intent.getStringExtra("extension_id")).appendLine()
-                append("Extension Name: ").append(intent.getStringExtra("extension_name")).appendLine()
-                append("Extension Version: ").append(intent.getStringExtra("extension_version")).appendLine()
-                append("Extension Author: ").append(intent.getStringExtra("extension_author")).appendLine()
+                append("Extension name: ").append(intent.getStringExtra("extension_name")).appendLine()
+                append("Extension version: ").append(intent.getStringExtra("extension_version")).appendLine()
+                append("Extension author: ").append(intent.getStringExtra("extension_author")).appendLine()
                 appendLine()
             } else {
                 append("Unexpected crash occurred").appendLine().appendLine()

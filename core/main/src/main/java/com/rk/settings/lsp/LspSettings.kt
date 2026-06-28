@@ -159,7 +159,6 @@ fun LspSettings(navController: NavController) {
             text = stringResource(strings.info_lsp),
         )
 
-
         val extensionServers = LspRegistry.extensionServers
         if (extensionServers.isNotEmpty()) ExtensionServersSection(extensionServers)
 
@@ -256,7 +255,7 @@ fun rememberLspInstallStatus(context: Context, server: LspServer, refreshKey: In
             withContext(Dispatchers.IO) {
                 if (server.isInstalled(context)) {
                     value = LspInstallationAction.UNINSTALL
-                    if (server.isUpdatable(context)) {
+                    if (server.hasUpdate(context)) {
                         value = LspInstallationAction.UPDATE
                     }
                 } else {

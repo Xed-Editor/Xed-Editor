@@ -14,9 +14,9 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.greenStatus
 import com.rk.theme.yellowStatus
+import org.eclipse.lsp4j.ServerCapabilities
 import java.io.File
 import java.net.URI
-import org.eclipse.lsp4j.ServerCapabilities
 
 abstract class ScriptedLspServer : LspServer() {
     abstract val installScript: File
@@ -96,7 +96,7 @@ abstract class LspServer {
 
     abstract fun uninstall(activity: Activity)
 
-    abstract suspend fun isUpdatable(context: Context): Boolean
+    abstract suspend fun hasUpdate(context: Context): Boolean
 
     abstract fun update(activity: Activity)
 

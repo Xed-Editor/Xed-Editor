@@ -1,25 +1,23 @@
 package com.rk.extension.manager
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateMapOf
+import com.rk.extension.EXTENSION_API_BASE
 import com.rk.extension.ExtensionManifest
 import com.rk.extension.ExtensionStats
+import com.rk.extension.ICONPACKS_API_BASE
+import com.rk.extension.THEMES_API_BASE
+import com.rk.icons.pack.IconPackManifest
+import com.rk.settings.extension.InstallState
 import com.rk.utils.errorDialog
-import java.io.File
+import com.rk.utils.okHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import com.rk.utils.okHttpClient
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import com.rk.icons.pack.IconPackManifest
-
-import androidx.compose.runtime.mutableStateMapOf
-import com.rk.extension.EXTENSION_API_BASE
-import com.rk.extension.ICONPACKS_API_BASE
-import com.rk.extension.THEMES_API_BASE
-import com.rk.settings.extension.InstallState
+import java.io.File
 
 @Serializable private data class ExtensionListResponse(val extensions: List<ExtensionEntry>)
 
@@ -34,21 +32,25 @@ private data class DownloadUrls(val icon: String? = null, val readme: String? = 
 data class ThemeStoreEntry(
     val id: String,
     val userId: String,
-    val manifest: JsonObject
+    val manifest: ThemeManifest,
 )
 
 @Serializable
-data class ThemesResponse(val themes: List<ThemeStoreEntry>)
+data class ThemeManifest(
+    val id: String,
+    val name: String,
+)
+
+@Serializable data class ThemesResponse(val themes: List<ThemeStoreEntry>)
 
 @Serializable
 data class IconPackStoreEntry(
     val id: String,
     val userId: String,
-    val manifest: IconPackManifest
+    val manifest: IconPackManifest,
 )
 
-@Serializable
-data class IconPacksResponse(val iconPacks: List<IconPackStoreEntry>)
+@Serializable data class IconPacksResponse(val iconPacks: List<IconPackStoreEntry>)
 
 object ExtensionRegistry {
     private const val TAG = "ExtensionRegistry"
@@ -63,37 +65,40 @@ object ExtensionRegistry {
     suspend fun downloadFileWithProgress(
         url: String,
         destFile: File,
-        onProgress: (progress: Float) -> Unit
-    ): Boolean = withContext(Dispatchers.IO) {
-        runCatching {
-            val request = Request.Builder().url(url).build()
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) error("HTTP ${response.code}")
-                val totalBytes = response.body.contentLength()
-                destFile.parentFile?.mkdirs()
-                response.body.byteStream().use { input ->
-                    destFile.outputStream().use { output ->
-                        val buffer = ByteArray(8192)
-                        var bytesRead: Int
-                        var totalBytesRead = 0L
-                        while (input.read(buffer).also { bytesRead = it } != -1) {
-                            output.write(buffer, 0, bytesRead)
-                            totalBytesRead += bytesRead
-                            if (totalBytes > 0) {
-                                val progress = totalBytesRead.toFloat() / totalBytes
-                                onProgress(progress)
-                            } else {
-                                onProgress(-1f)
+        onProgress: (progress: Float) -> Unit,
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                    val request = Request.Builder().url(url).build()
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) error("HTTP ${response.code}")
+                        val totalBytes = response.body.contentLength()
+                        destFile.parentFile?.mkdirs()
+                        response.body.byteStream().use { input ->
+                            destFile.outputStream().use { output ->
+                                val buffer = ByteArray(8192)
+                                var bytesRead: Int
+                                var totalBytesRead = 0L
+                                while (input.read(buffer).also { bytesRead = it } != -1) {
+                                    output.write(buffer, 0, bytesRead)
+                                    totalBytesRead += bytesRead
+                                    if (totalBytes > 0) {
+                                        val progress = totalBytesRead.toFloat() / totalBytes
+                                        onProgress(progress)
+                                    } else {
+                                        onProgress(-1f)
+                                    }
+                                }
                             }
                         }
                     }
+                    true
                 }
-            }
-            true
-        }.onFailure {
-            it.printStackTrace()
-        }.getOrElse { false }
-    }
+                .onFailure {
+                    it.printStackTrace()
+                }
+                .getOrElse { false }
+        }
 
     suspend fun fetchExtensions(): List<ExtensionManifest> =
         withContext(Dispatchers.IO) {
@@ -167,47 +172,47 @@ object ExtensionRegistry {
     suspend fun fetchThemes(): List<ThemeStoreEntry> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val jsonString = requestJson(THEMES_API_BASE)
-                val response = json.decodeFromString<ThemesResponse>(jsonString)
-                response.themes
-            }
-            .onFailure {
-                it.printStackTrace()
-            }
-            .getOrElse { emptyList() }
+                    val jsonString = requestJson(THEMES_API_BASE)
+                    val response = json.decodeFromString<ThemesResponse>(jsonString)
+                    response.themes
+                }
+                .onFailure {
+                    it.printStackTrace()
+                }
+                .getOrElse { emptyList() }
         }
 
     suspend fun fetchIconPacks(): List<IconPackStoreEntry> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val jsonString = requestJson(ICONPACKS_API_BASE)
-                val response = json.decodeFromString<IconPacksResponse>(jsonString)
-                response.iconPacks
-            }
-            .onFailure {
-                it.printStackTrace()
-            }
-            .getOrElse { emptyList() }
+                    val jsonString = requestJson(ICONPACKS_API_BASE)
+                    val response = json.decodeFromString<IconPacksResponse>(jsonString)
+                    response.iconPacks
+                }
+                .onFailure {
+                    it.printStackTrace()
+                }
+                .getOrElse { emptyList() }
         }
 
     suspend fun downloadIconPackZip(id: String, destFile: File): Boolean =
         withContext(Dispatchers.IO) {
             runCatching {
-                val zipUrl = "${ICONPACKS_API_BASE}/$id/iconpack.zip"
-                val request = Request.Builder().url(zipUrl).build()
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) error("HTTP ${response.code}")
-                    destFile.parentFile?.mkdirs()
-                    response.body.byteStream().use { input ->
-                        destFile.outputStream().use { output -> input.copyTo(output) }
+                    val zipUrl = "${ICONPACKS_API_BASE}/$id/iconpack.zip"
+                    val request = Request.Builder().url(zipUrl).build()
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) error("HTTP ${response.code}")
+                        destFile.parentFile?.mkdirs()
+                        response.body.byteStream().use { input ->
+                            destFile.outputStream().use { output -> input.copyTo(output) }
+                        }
                     }
+                    true
                 }
-                true
-            }
-            .onFailure {
-                it.printStackTrace()
-                errorDialog(throwable = it)
-            }
-            .getOrElse { false }
+                .onFailure {
+                    it.printStackTrace()
+                    errorDialog(throwable = it)
+                }
+                .getOrElse { false }
         }
 }

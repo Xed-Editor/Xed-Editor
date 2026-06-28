@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
 import com.rk.activities.main.MainViewModel
+import com.rk.editor.Editor
 import com.rk.file.FileObject
 import com.rk.file.toFileWrapper
 import com.rk.settings.Preference
@@ -26,9 +27,6 @@ import com.rk.utils.logError
 import com.rk.utils.logWarn
 import com.rk.utils.parseExtensions
 import com.rk.utils.toast
-import java.io.File
-import java.io.InputStreamReader
-import java.nio.charset.Charset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -39,6 +37,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.InputStreamReader
+import java.nio.charset.Charset
 
 /** Strategy for searching file names. */
 private interface FileSearchStrategy {
@@ -759,32 +760,31 @@ class SearchViewModel : ViewModel() {
         cancelFileSearch()
 
         isSearchingFiles = true
-        fileSearchJob =
-            viewModelScope.launch {
-                try {
-                    val useIndex =
-                        Preference.getBoolean(
-                            "enable_indexing_${projectRoot.hashCode()}",
-                            Settings.always_index_projects,
-                        )
+        fileSearchJob = viewModelScope.launch {
+            try {
+                val useIndex =
+                    Preference.getBoolean(
+                        "enable_indexing_${projectRoot.hashCode()}",
+                        Settings.always_index_projects,
+                    )
 
-                    val strategy: FileSearchStrategy =
-                        if (useIndex) {
-                            FileSearchIndexed(context)
-                        } else {
-                            FileSearchDirect(excluder)
-                        }
+                val strategy: FileSearchStrategy =
+                    if (useIndex) {
+                        FileSearchIndexed(context)
+                    } else {
+                        FileSearchDirect(excluder)
+                    }
 
-                    fileSearchResults = strategy.search(fileSearchQuery, projectRoot)
-                } catch (_: CancellationException) {
-                    logDebug("File search cancelled")
-                } catch (e: Exception) {
-                    logError(e, "Error during file search")
-                    fileSearchResults = emptyList()
-                } finally {
-                    isSearchingFiles = false
-                }
+                fileSearchResults = strategy.search(fileSearchQuery, projectRoot)
+            } catch (_: CancellationException) {
+                logDebug("File search cancelled")
+            } catch (e: Exception) {
+                logError(e, "Error during file search")
+                fileSearchResults = emptyList()
+            } finally {
+                isSearchingFiles = false
             }
+        }
     }
 
     /** Cancels any running search */
@@ -808,61 +808,60 @@ class SearchViewModel : ViewModel() {
         }
 
         isSearchingCode = true
-        codeSearchJob =
-            viewModelScope.launch {
-                try {
-                    val useIndex =
-                        Preference.getBoolean(
-                            "enable_indexing_${projectRoot.hashCode()}",
-                            Settings.always_index_projects,
+        codeSearchJob = viewModelScope.launch {
+            try {
+                val useIndex =
+                    Preference.getBoolean(
+                        "enable_indexing_${projectRoot.hashCode()}",
+                        Settings.always_index_projects,
+                    )
+
+                val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
+                val openPaths = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
+
+                // Emit results from open editor tabs first
+                scanOpenTabs(openedEditorTabs, context, mainViewModel, projectRoot)
+
+                // Search in remaining files
+                val strategy: CodeSearchStrategy =
+                    if (useIndex) {
+                        CodeSearchIndexed(
+                            context = context,
+                            projectRoot = projectRoot,
+                            mainViewModel = mainViewModel,
+                            fileMaskFilter = ::matchesFileMask,
+                            ignoreCase = ignoreCase,
+                            openPaths = openPaths,
                         )
-
-                    val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
-                    val openPaths = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
-
-                    // Emit results from open editor tabs first
-                    scanOpenTabs(openedEditorTabs, context, mainViewModel, projectRoot)
-
-                    // Search in remaining files
-                    val strategy: CodeSearchStrategy =
-                        if (useIndex) {
-                            CodeSearchIndexed(
-                                context = context,
-                                projectRoot = projectRoot,
-                                mainViewModel = mainViewModel,
-                                fileMaskFilter = ::matchesFileMask,
-                                ignoreCase = ignoreCase,
-                                openPaths = openPaths,
-                            )
-                        } else {
-                            CodeSearchDirect(
-                                context = context,
-                                projectRoot = projectRoot,
-                                mainViewModel = mainViewModel,
-                                fileMaskFilter = ::matchesFileMask,
-                                excluder = excluder,
-                                ignoreCase = ignoreCase,
-                                openPaths = openPaths,
-                            )
-                        }
-
-                    strategy.search(codeSearchQuery).collect { codeItem ->
-                        if (totalCodeSearchResults < MAX_CODE_RESULTS) {
-                            addCodeResult(codeItem)
-                            totalCodeSearchResults++
-                        } else {
-                            isSearchingCode = false
-                            codeSearchJob?.cancel()
-                        }
+                    } else {
+                        CodeSearchDirect(
+                            context = context,
+                            projectRoot = projectRoot,
+                            mainViewModel = mainViewModel,
+                            fileMaskFilter = ::matchesFileMask,
+                            excluder = excluder,
+                            ignoreCase = ignoreCase,
+                            openPaths = openPaths,
+                        )
                     }
-                } catch (_: CancellationException) {
-                    logDebug("Code search cancelled")
-                } catch (e: Exception) {
-                    logError(e, "Error during code search")
-                } finally {
-                    isSearchingCode = false
+
+                strategy.search(codeSearchQuery).collect { codeItem ->
+                    if (totalCodeSearchResults < MAX_CODE_RESULTS) {
+                        addCodeResult(codeItem)
+                        totalCodeSearchResults++
+                    } else {
+                        isSearchingCode = false
+                        codeSearchJob?.cancel()
+                    }
                 }
+            } catch (_: CancellationException) {
+                logDebug("Code search cancelled")
+            } catch (e: Exception) {
+                logError(e, "Error during code search")
+            } finally {
+                isSearchingCode = false
             }
+        }
     }
 
     private suspend fun scanOpenTabs(
@@ -919,54 +918,33 @@ class SearchViewModel : ViewModel() {
         isReplaceShown = !isReplaceShown
     }
 
-    suspend fun replaceIn(context: Context, mainViewModel: MainViewModel, projectRoot: FileObject, codeItem: CodeItem) {
+    suspend fun replaceIn(mainViewModel: MainViewModel, codeItem: CodeItem) {
         // Pause searches while replacing
         cancelCodeSearch()
         isReplacing = true
 
         try {
             withContext(Dispatchers.IO) {
-                val lineIndex = codeItem.line
-                val startCol = codeItem.column
-                val diff = codeItem.snippet.highlight.endIndex - codeItem.snippet.highlight.startIndex
-                val endCol = codeItem.column + diff
-
                 if (codeItem.isOpen) {
                     val tab =
                         mainViewModel.tabs.filterIsInstance<EditorTab>().find { tab -> tab.file == codeItem.file }
                             ?: return@withContext
                     val editor = tab.editorState.editor.get() ?: return@withContext
-
-                    withContext(Dispatchers.Main) {
-                        editor.text.replace(lineIndex, startCol, lineIndex, endCol, codeReplaceQuery)
-                    }
+                    replaceInEditor(codeItem, editor)
                 } else {
                     val content = codeItem.file.readText() ?: return@withContext
                     val lines = content.lines().toMutableList()
 
-                    val line = lines.getOrNull(lineIndex) ?: return@withContext
-                    val newLine = line.replaceRange(startCol, endCol, codeReplaceQuery)
-                    lines[lineIndex] = newLine
+                    replaceInRawList(codeItem, lines)
 
                     val charset = Charset.forName(Settings.encoding)
                     val lineEnding = LineEnding.detect(content)
-
                     val normalizedContent = lines.joinToString(lineEnding.char)
                     codeItem.file.writeText(normalizedContent, charset)
                 }
             }
 
-            // After replacing, update index for this file if indexing enabled for project
-            try {
-                val useIndex =
-                    Preference.getBoolean("enable_indexing_${projectRoot.hashCode()}", Settings.always_index_projects)
-                if (useIndex) {
-                    val indexer = getOrCreateIndexer(context, projectRoot)
-                    indexer.syncFile(codeItem.file)
-                }
-            } catch (e: Exception) {
-                logWarn("Index sync after replace failed: ${e.message}")
-            }
+            syncIndex(codeItem.file)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -976,8 +954,8 @@ class SearchViewModel : ViewModel() {
         }
     }
 
-    suspend fun replaceAllIn(context: Context, mainViewModel: MainViewModel, projectRoot: FileObject, codeItems: List<CodeItem>) {
-        if (codeItems.isEmpty()) return
+    suspend fun replaceAllIn(mainViewModel: MainViewModel, codeItems: List<CodeItem>) {
+        // Pause searches while replacing
         cancelCodeSearch()
         isReplacing = true
 
@@ -986,37 +964,25 @@ class SearchViewModel : ViewModel() {
 
             withContext(Dispatchers.IO) {
                 for ((file, items) in groupedItems) {
-                    val itemsSorted = items.sortedWith(compareByDescending<CodeItem> { it.line }.thenByDescending { it.column })
+                    val itemsSorted =
+                        items.sortedWith(compareByDescending<CodeItem> { it.line }.thenByDescending { it.column })
                     val firstItem = itemsSorted.first()
                     if (firstItem.isOpen) {
                         val tab = mainViewModel.tabs.filterIsInstance<EditorTab>().find { tab -> tab.file == file }
                         val editor = tab?.editorState?.editor?.get()
                         if (editor != null) {
-                            withContext(Dispatchers.Main) {
-                                for (codeItem in itemsSorted) {
-                                    val lineIndex = codeItem.line
-                                    val startCol = codeItem.column
-                                    val diff = codeItem.snippet.highlight.endIndex - codeItem.snippet.highlight.startIndex
-                                    val endCol = codeItem.column + diff
-                                    editor.text.replace(lineIndex, startCol, lineIndex, endCol, codeReplaceQuery)
-                                }
+                            for (codeItem in itemsSorted) {
+                                replaceInEditor(codeItem, editor)
                             }
                         }
                     } else {
                         val content = file.readText() ?: continue
                         val lines = content.lines().toMutableList()
-                        
+
                         for (codeItem in itemsSorted) {
-                            val lineIndex = codeItem.line
-                            val startCol = codeItem.column
-                            val diff = codeItem.snippet.highlight.endIndex - codeItem.snippet.highlight.startIndex
-                            val endCol = codeItem.column + diff
-                            
-                            val line = lines.getOrNull(lineIndex) ?: continue
-                            val newLine = line.replaceRange(startCol, endCol, codeReplaceQuery)
-                            lines[lineIndex] = newLine
+                            replaceInRawList(codeItem, lines)
                         }
-                        
+
                         val charset = Charset.forName(Settings.encoding)
                         val lineEnding = LineEnding.detect(content)
                         val normalizedContent = lines.joinToString(lineEnding.char)
@@ -1032,6 +998,27 @@ class SearchViewModel : ViewModel() {
             logError(e, "Error replacing all text")
         } finally {
             isReplacing = false
+        }
+    }
+
+    private fun replaceInRawList(codeItem: CodeItem, lines: MutableList<String>) {
+        val lineIndex = codeItem.line
+        val startCol = codeItem.column
+        val diff = codeItem.snippet.highlight.endIndex - codeItem.snippet.highlight.startIndex
+        val endCol = codeItem.column + diff
+
+        val line = lines.getOrNull(lineIndex) ?: return
+        val newLine = line.replaceRange(startCol, endCol, codeReplaceQuery)
+        lines[lineIndex] = newLine
+    }
+
+    private suspend fun replaceInEditor(codeItem: CodeItem, editor: Editor) {
+        withContext(Dispatchers.Main) {
+            val lineIndex = codeItem.line
+            val startCol = codeItem.column
+            val diff = codeItem.snippet.highlight.endIndex - codeItem.snippet.highlight.startIndex
+            val endCol = codeItem.column + diff
+            editor.text.replace(lineIndex, startCol, lineIndex, endCol, codeReplaceQuery)
         }
     }
 
