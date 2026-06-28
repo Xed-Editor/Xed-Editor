@@ -95,6 +95,7 @@ jobs:
           bash plugin-sdk/build-auto.sh
 
       - name: Update Release
+        if: ${{ hashFiles('plugin-sdk/output/sdk.jar') != '' }}
         uses: ncipollo/release-action@v1
         with:
           artifacts: "plugin-sdk/output/sdk.jar"
