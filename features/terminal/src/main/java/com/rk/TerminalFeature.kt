@@ -28,6 +28,15 @@ import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.terminal.TerminalCheckScreen
 import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.settings.editor.TerminalFontScreen
+import com.rk.lsp.LspRegistry
+import com.rk.lsp.servers.Bash
+import com.rk.lsp.servers.CSS
+import com.rk.lsp.servers.ESLint
+import com.rk.lsp.servers.Emmet
+import com.rk.lsp.servers.HTML
+import com.rk.lsp.servers.Markdown
+import com.rk.lsp.servers.TypeScript
+import com.rk.lsp.servers.XML
 
 class TerminalFeature : Feature {
     override fun init(application: Application) {
@@ -99,6 +108,16 @@ class TerminalFeature : Feature {
 
         //assuming there's atleast one item already there
         ToolbarConfiguration.addGlobalToolbarCommand(command, index = 1)
+
+        // Register built-in LSP servers
+        LspRegistry.registerServer(Bash)
+        LspRegistry.registerServer(CSS)
+        LspRegistry.registerServer(ESLint)
+        LspRegistry.registerServer(Emmet)
+        LspRegistry.registerServer(HTML)
+        LspRegistry.registerServer(Markdown)
+        LspRegistry.registerServer(TypeScript)
+        LspRegistry.registerServer(XML)
     }
 }
 
