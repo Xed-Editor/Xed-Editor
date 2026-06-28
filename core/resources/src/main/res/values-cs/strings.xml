@@ -676,4 +676,10 @@
     <string name="check_ubuntu">Zkontrolovat Ubuntu</string>
     <string name="check_network_access">Zkontrolovat přístup k síti</string>
     <string name="check_abnormalities">Zkontrolovat abnormality</string>
+    <string name="store_desc">Stáhněte doplňky, téma a sady ikon</string>
+    <string name="extension_warning_msg">Doplňky mohou spouštět libovolný kód, tudiž mohou škodit. Nainstalujte doplňky jenom jestli důvěřujete vývojáře tohoto doplňku a také jestli ověřil zdrojový kód doplňku.</string>
+    <string name="no_themes">Žádné téma nenalezeny.</string>
+    <string name="no_icon_packs">Žádné sady ikon nenalezeny.</string>
+    <string name="search_themes">Hledat téma</string>
+    <string name="search_icon_packs">Hledat sady ikon</string>
 </resources>
