@@ -366,7 +366,7 @@ private suspend fun EditorTab.findActiveLspServers(
         }
 
         scope.launch(Dispatchers.IO) {
-            if (server.hasUpdate(activity)) {
+            if (server.isUpdatable(activity)) {
                 logInfo("Server ${server.id} has updates available")
                 promptLspUpdate(activity, server)
             }

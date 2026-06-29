@@ -47,6 +47,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -247,17 +248,24 @@ fun ExtensionScreen(navController: NavController) {
             }
         }
 
-    val sortedExtension by remember {
+    val localExtensions by remember {
         derivedStateOf {
-            val rawList = extensionManager.getSyncedExtensions()
-            val filtered = applyFilter(searchQuery, rawList, currentFilterOption)
-            when (currentSortOption) {
-                ExtensionSortOptions.NAME -> filtered.sortedBy { it.name }
-                ExtensionSortOptions.RATING -> filtered.sortedByDescending { statsMap[it.id]?.rating ?: 0f }
-                ExtensionSortOptions.DOWNLOAD_COUNT ->
-                    filtered.sortedByDescending { statsMap[it.id]?.downloadCount ?: 0 }
-            // TODO: ExtensionSortOptions.PUBLISH_DATE -> { }
-            }
+            val allLocal = extensionManager.getLocalExtensions()
+            val filtered = applyFilter(searchQuery, allLocal, currentFilterOption)
+            applySort(currentSortOption, filtered, statsMap)
+        }
+    }
+    val hasLocalExtensions by remember {
+        derivedStateOf {
+            extensionManager.getLocalExtensions().isNotEmpty()
+        }
+    }
+
+    val storeExtensions by remember {
+        derivedStateOf {
+            val allStore = extensionManager.getStoreExtensions()
+            val filtered = applyFilter(searchQuery, allStore, currentFilterOption)
+            applySort(currentSortOption, filtered, statsMap)
         }
     }
 
@@ -370,48 +378,107 @@ fun ExtensionScreen(navController: NavController) {
 
         when (selectedCategory) {
             StoreCategory.EXTENSIONS -> {
-                if (sortedExtension.isNotEmpty() || isIndexing || isFetching) {
-                    item {
-                        PreferenceGroup {
-                            sortedExtension.forEach { extension ->
-                                key(extension.id) {
-                                    val installState =
-                                        remember(
-                                            extension,
-                                            ExtensionRegistry.activeInstalls[extension.id],
-                                        ) {
-                                            val active = ExtensionRegistry.activeInstalls[extension.id]
-                                            active
-                                                ?: if (extensionManager.isInstalled(extension.id)) {
-                                                    if (extension is UpdatableExtension && extension.hasUpdate()) {
-                                                        InstallState.Updatable
+                if (storeExtensions.isNotEmpty() || localExtensions.isNotEmpty() || isIndexing || isFetching) {
+                    if (localExtensions.isNotEmpty()) {
+                        item {
+                            PreferenceGroup(heading = stringResource(strings.local)) {
+                                localExtensions.forEach { extension ->
+                                    key(extension.id) {
+                                        val installState =
+                                            remember(
+                                                extension,
+                                                ExtensionRegistry.activeInstalls[extension.id],
+                                            ) {
+                                                val active = ExtensionRegistry.activeInstalls[extension.id]
+                                                active
+                                                    ?: if (extensionManager.isInstalled(extension.id)) {
+                                                        if (extension is UpdatableExtension && extension.hasUpdate()) {
+                                                            InstallState.Updatable
+                                                        } else {
+                                                            InstallState.Installed
+                                                        }
                                                     } else {
-                                                        InstallState.Installed
+                                                        InstallState.Idle
                                                     }
-                                                } else {
-                                                    InstallState.Idle
-                                                }
-                                        }
-
-                                    ExtensionCard(
-                                        extension = extension,
-                                        installState = installState,
-                                        onInstallClick = {
-                                            checkExtensionWarningAndRun(activity) {
-                                                runExtensionInstallAction(extension, {}, context, activity)
                                             }
-                                        },
-                                        onUninstallClick = {
-                                            runExtensionUninstallAction(extension, {}, scope, activity)
-                                        },
-                                        onUpdateClick = {
-                                            if (extension !is UpdatableExtension) return@ExtensionCard
-                                            runExtensionUpdateAction(extension, {}, context, activity)
-                                        },
-                                        onClick = {
-                                            navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}")
-                                        },
-                                    )
+
+                                        ExtensionCard(
+                                            extension = extension,
+                                            installState = installState,
+                                            onInstallClick = {
+                                                checkExtensionWarningAndRun(activity) {
+                                                    runExtensionInstallAction(extension, {}, context, activity)
+                                                }
+                                            },
+                                            onUninstallClick = {
+                                                runExtensionUninstallAction(extension, {}, scope, activity)
+                                            },
+                                            onUpdateClick = {
+                                                if (extension !is UpdatableExtension) return@ExtensionCard
+                                                runExtensionUpdateAction(extension, {}, context, activity)
+                                            },
+                                            onClick = {
+                                                navController.navigate(
+                                                    "${SettingsRoutes.ExtensionDetail.route}/${it.id}"
+                                                )
+                                            },
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (storeExtensions.isNotEmpty()) {
+                        item {
+                            PreferenceGroup(
+                                heading =
+                                    stringResource(strings.store).takeIf {
+                                        hasLocalExtensions
+                                    }
+                            ) {
+                                storeExtensions.forEach { extension ->
+                                    key(extension.id) {
+                                        val installState =
+                                            remember(
+                                                extension,
+                                                ExtensionRegistry.activeInstalls[extension.id],
+                                            ) {
+                                                val active = ExtensionRegistry.activeInstalls[extension.id]
+                                                active
+                                                    ?: if (extensionManager.isInstalled(extension.id)) {
+                                                        if (extension is UpdatableExtension && extension.hasUpdate()) {
+                                                            InstallState.Updatable
+                                                        } else {
+                                                            InstallState.Installed
+                                                        }
+                                                    } else {
+                                                        InstallState.Idle
+                                                    }
+                                            }
+
+                                        ExtensionCard(
+                                            extension = extension,
+                                            installState = installState,
+                                            onInstallClick = {
+                                                checkExtensionWarningAndRun(activity) {
+                                                    runExtensionInstallAction(extension, {}, context, activity)
+                                                }
+                                            },
+                                            onUninstallClick = {
+                                                runExtensionUninstallAction(extension, {}, scope, activity)
+                                            },
+                                            onUpdateClick = {
+                                                if (extension !is UpdatableExtension) return@ExtensionCard
+                                                runExtensionUpdateAction(extension, {}, context, activity)
+                                            },
+                                            onClick = {
+                                                navController.navigate(
+                                                    "${SettingsRoutes.ExtensionDetail.route}/${it.id}"
+                                                )
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -778,6 +845,18 @@ private fun ExtensionSearchBar(
         placeholder = { Text(stringResource(strings.search_extensions)) },
     )
 }
+
+private fun applySort(
+    currentSortOption: ExtensionSortOptions,
+    filtered: List<Extension>,
+    statsMap: SnapshotStateMap<ExtensionId, ExtensionStats>,
+): List<Extension> =
+    when (currentSortOption) {
+        ExtensionSortOptions.NAME -> filtered.sortedBy { it.name }
+        ExtensionSortOptions.RATING -> filtered.sortedByDescending { statsMap[it.id]?.rating ?: 0f }
+        ExtensionSortOptions.DOWNLOAD_COUNT -> filtered.sortedByDescending { statsMap[it.id]?.downloadCount ?: 0 }
+    // TODO: ExtensionSortOptions.PUBLISH_DATE -> { }
+    }
 
 private fun applyFilter(
     searchQuery: TextFieldState,

@@ -98,6 +98,11 @@ abstract class LspServer {
 
     abstract suspend fun hasUpdate(context: Context): Boolean
 
+    @Deprecated("Rename to hasUpdate instead.", ReplaceWith("hasUpdate(context)"))
+    open suspend fun isUpdatable(context: Context): Boolean {
+        return hasUpdate(context)
+    }
+
     abstract fun update(activity: Activity)
 
     abstract fun getConnectionConfig(): LspConnectionConfig
