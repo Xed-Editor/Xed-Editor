@@ -134,23 +134,6 @@ fun AddProjectSheet(
                 )
             }
 
-            // Terminal Home option
-            AddDialogItem(
-                icon = Icon.ResourceIcon(drawables.terminal),
-                title = stringResource(strings.terminal_home),
-                description = stringResource(strings.terminal_home_desc),
-                onClick = {
-                    if (!Settings.has_shown_terminal_dir_warning) {
-                        showPrivateFileWarning {
-                            Settings.has_shown_terminal_dir_warning = true
-                            lifecycleScope.launch { onAddProject(FileWrapper(sandboxHomeDir())) }
-                        }
-                    } else {
-                        lifecycleScope.launch { onAddProject(FileWrapper(sandboxHomeDir())) }
-                    }
-                    onDismiss()
-                },
-            )
         }
     }
 }

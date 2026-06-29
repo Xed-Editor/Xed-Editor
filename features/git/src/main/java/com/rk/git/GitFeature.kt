@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.MaterialTheme
 import com.rk.components.DialogRegistry
+import com.rk.settings.app.InbuiltFeatures
 import com.rk.theme.vcsAdded
 import com.rk.theme.vcsModified
 import com.rk.theme.vcsDeleted
@@ -118,7 +119,7 @@ class GitFeature : Feature {
 
         // Register Git Clone Overlay and Add Project Sheet action
         var showCloneDialog by mutableStateOf(false)
-        if (com.rk.settings.app.InbuiltFeatures.git.state.value) {
+        if (InbuiltFeatures.git.state.value) {
             AddProjectRegistry.options.add(
                 AddProjectOption(
                     icon = Icon.ResourceIcon(drawables.git),
