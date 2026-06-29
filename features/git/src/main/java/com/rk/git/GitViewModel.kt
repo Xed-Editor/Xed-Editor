@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.FeatureRegistry
 import com.rk.git.findGitRoot
 import com.rk.utils.toast
 import java.io.File
@@ -297,7 +297,7 @@ class GitViewModel : ViewModel() {
 
     fun syncChanges(root: String): Job {
         return viewModelScope.launch {
-            if (!InbuiltFeatures.git.state.value) return@launch
+            if (!FeatureRegistry.isEnabled("enable_git")) return@launch
 
             val gitRoot = findGitRoot(root)
             if (gitRoot != null) {
@@ -308,7 +308,7 @@ class GitViewModel : ViewModel() {
 
     fun syncChanges(root: File): Job {
         return viewModelScope.launch(Dispatchers.IO) {
-            if (!InbuiltFeatures.git.state.value) return@launch
+            if (!FeatureRegistry.isEnabled("enable_git")) return@launch
 
             withContext(Dispatchers.Main) { isLoading = true }
             try {

@@ -35,7 +35,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.FeatureRegistry
 import com.rk.feature.SettingsRegistry
 
 @Composable
@@ -84,7 +84,7 @@ private fun Categories(navController: NavController) {
         )
     }
 
-    if (InbuiltFeatures.debugMode.state.value) {
+    if (FeatureRegistry.isEnabled("debug_mode")) {
         PreferenceCategory(
             label = stringResource(strings.debug_options),
             description = strings.debug_options_desc.getFilledString(strings.app_name.getString()),

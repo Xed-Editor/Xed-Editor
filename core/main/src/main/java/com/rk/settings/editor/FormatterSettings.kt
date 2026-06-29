@@ -59,6 +59,7 @@ import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.feature.FeatureRegistry
 import com.rk.settings.Settings
 import com.rk.utils.handleLazyListScroll
 import kotlinx.coroutines.launch
@@ -246,7 +247,7 @@ fun DraggableLspFormatter(modifier: Modifier = Modifier) {
         checked = it
     }
 
-    val enabled = false // -> set to InbuiltFeatures.terminal.state.value
+    val enabled = FeatureRegistry.isEnabled("feature_terminal")
 
     Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp, modifier = modifier) {
         PreferenceTemplate(

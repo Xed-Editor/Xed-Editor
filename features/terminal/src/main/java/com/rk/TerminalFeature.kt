@@ -18,7 +18,8 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.FeatureRegistry
+import com.rk.feature.FeatureToggle
 import com.rk.feature.Feature
 import com.rk.feature.SettingsRegistry
 import com.rk.feature.SettingsCategory
@@ -50,7 +51,15 @@ import com.rk.utils.dialogRes
 import com.rk.utils.toast
 
 class TerminalFeature : Feature {
+    override val toggle = FeatureToggle(
+        nameRes = strings.terminal_feature,
+        key = "feature_terminal",
+        default = true,
+        iconRes = drawables.terminal
+    )
+
     override fun init(application: Application) {
+
         // Register the file action
         FileActionProvider.registerAction(TerminalAction)
 
@@ -64,7 +73,7 @@ class TerminalFeature : Feature {
             )
         )
 
-        if (InbuiltFeatures.terminal.state.value){
+        if (FeatureRegistry.isEnabled("feature_terminal")){
             AddProjectRegistry.options.add(
                 AddProjectOption(
                     icon = Icon.ResourceIcon(drawables.terminal),
@@ -171,7 +180,7 @@ object TerminalAction : FileAction() {
     }
 
     override fun isSupported(file: FileObject): Boolean {
-        return file is FileWrapper && InbuiltFeatures.terminal.state.value
+        return file is FileWrapper && FeatureRegistry.isEnabled("feature_terminal")
     }
 
     override val type = FileActionType(file = false, folder = true, rootFolder = true)

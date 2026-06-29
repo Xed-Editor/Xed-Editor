@@ -56,7 +56,6 @@ import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.formatFileSize
 import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.Dispatchers

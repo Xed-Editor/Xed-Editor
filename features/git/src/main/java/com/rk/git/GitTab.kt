@@ -74,7 +74,7 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.FeatureRegistry
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.drawErrorUnderline
 import com.rk.git.findGitRoot
@@ -669,7 +669,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     }
 
     override fun isSupported(): Boolean {
-        if (!InbuiltFeatures.git.state.value) return false
+        if (!FeatureRegistry.isEnabled("enable_git")) return false
         val drawerViewModel = MainActivity.instance?.drawerViewModel ?: return false
         val tab = drawerViewModel.currentDrawerTab ?: return false
         if (tab !is FileTreeTab) return false

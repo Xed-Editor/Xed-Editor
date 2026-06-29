@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -45,30 +47,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-data class Feature(
-    val nameRes: Int,
-    val key: String,
-    val default: Boolean,
-    val onChange: ((Boolean) -> Unit)? = null,
-    val supported: Boolean = true,
-) {
-    val state: MutableState<Boolean> by lazy { mutableStateOf(supported && Preference.getBoolean(key, default)) }
-
-    fun setEnable(enable: Boolean) {
-        if (!supported) return
-
-        Preference.setBoolean(key, enable)
-        state.value = enable
-        onChange?.invoke(enable)
-    }
-}
-
-object InbuiltFeatures {
-    val terminal = Feature(nameRes = strings.terminal_feature, key = "feature_terminal", default = true)
-    val debugMode = Feature(nameRes = strings.debug_options, key = "debug_mode", default = BuildConfig.DEBUG)
-    val extensions = Feature(nameRes = strings.ext, key = "enable_extension", default = true)
-    val git = Feature(nameRes = strings.git, key = "enable_git", default = true)
-}
+import com.rk.feature.FeatureRegistry
 
 @Composable
 fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) {
@@ -149,75 +128,28 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
         }
 
         PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
-            val activity = LocalActivity.current
-
-            BasicToggle(
-                label = stringResource(InbuiltFeatures.debugMode.nameRes),
-                checked = InbuiltFeatures.debugMode.state.value,
-                onSwitch = {
-                    if (it) {
-                        dialogRes(
-                            activity = activity,
-                            title = strings.attention.getString(),
-                            msg = strings.debug_mode_warn.getString(),
-                            onCancel = { InbuiltFeatures.debugMode.setEnable(false) },
-                            onOk = { InbuiltFeatures.debugMode.setEnable(true) },
+            FeatureRegistry.toggles.forEach { toggle ->
+                BasicToggle(
+                    label = stringResource(toggle.nameRes),
+                    checked = toggle.state.value,
+                    onSwitch = { checked ->
+                        if (toggle.onSwitch != null) {
+                            toggle.onSwitch.invoke(activity, checked) { ok ->
+                                toggle.setEnable(ok)
+                            }
+                        } else {
+                            toggle.setEnable(checked)
+                        }
+                    },
+                    startWidget = {
+                        Icon(
+                            painter = painterResource(toggle.iconRes),
+                            contentDescription = stringResource(toggle.nameRes),
+                            modifier = Modifier.padding(start = 16.dp),
                         )
-                    } else {
-                        InbuiltFeatures.debugMode.setEnable(false)
                     }
-                },
-                startWidget = {
-                    Icon(
-                        painter = painterResource(drawables.build),
-                        contentDescription = stringResource(strings.debug_options),
-                        modifier = Modifier.padding(start = 16.dp),
-                    )
-                },
-                enabled = InbuiltFeatures.debugMode.supported,
-            )
-
-            SettingsItem(
-                label = stringResource(InbuiltFeatures.terminal.nameRes),
-                default = InbuiltFeatures.terminal.state.value,
-                sideEffect = { InbuiltFeatures.terminal.setEnable(it) },
-                startWidget = {
-                    Icon(
-                        painter = painterResource(drawables.terminal),
-                        contentDescription = stringResource(strings.terminal),
-                        modifier = Modifier.padding(start = 16.dp),
-                    )
-                },
-                isEnabled = InbuiltFeatures.terminal.supported,
-            )
-
-            SettingsItem(
-                label = stringResource(InbuiltFeatures.extensions.nameRes),
-                default = InbuiltFeatures.extensions.state.value,
-                sideEffect = { InbuiltFeatures.extensions.setEnable(it) },
-                startWidget = {
-                    Icon(
-                        painter = painterResource(drawables.extension),
-                        contentDescription = stringResource(strings.ext),
-                        modifier = Modifier.padding(start = 16.dp),
-                    )
-                },
-                isEnabled = InbuiltFeatures.extensions.supported,
-            )
-
-            SettingsItem(
-                label = stringResource(InbuiltFeatures.git.nameRes),
-                default = InbuiltFeatures.git.state.value,
-                sideEffect = { InbuiltFeatures.git.setEnable(it) },
-                startWidget = {
-                    Icon(
-                        painter = painterResource(drawables.git),
-                        contentDescription = stringResource(strings.git),
-                        modifier = Modifier.padding(start = 16.dp),
-                    )
-                },
-                isEnabled = InbuiltFeatures.git.supported,
-            )
+                )
+            }
         }
 
         PreferenceGroup(heading = stringResource(strings.backup)) {

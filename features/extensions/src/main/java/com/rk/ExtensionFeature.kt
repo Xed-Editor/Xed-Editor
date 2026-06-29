@@ -16,12 +16,21 @@ import com.rk.resources.drawables
 import com.rk.settings.extension.ExtensionScreen
 import com.rk.settings.extension.ExtensionDetail
 import com.rk.settings.extension.ExtensionSettings
+import com.rk.feature.FeatureRegistry
+import com.rk.feature.FeatureToggle
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class ExtensionFeature : Feature {
+    override val toggle = FeatureToggle(
+        nameRes = strings.ext,
+        key = "enable_extension",
+        default = true,
+        iconRes = drawables.extension
+    )
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun init(application: Application) {
         extensionManager = ExtensionManager(application)

@@ -28,7 +28,7 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.FeatureRegistry
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,7 +103,7 @@ fun AddProjectSheet(
                 }
             }
 
-            if (InbuiltFeatures.debugMode.state.value) {
+            if (FeatureRegistry.isEnabled("debug_mode")) {
                 AddDialogItem(
                     icon = Icon.ResourceIcon(drawables.build),
                     title = stringResource(strings.private_files),
