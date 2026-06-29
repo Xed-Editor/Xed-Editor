@@ -96,7 +96,10 @@ abstract class LspServer {
 
     abstract fun uninstall(activity: Activity)
 
-    abstract suspend fun hasUpdate(context: Context): Boolean
+    // A default implementation is needed for backward compatibility
+    open suspend fun hasUpdate(context: Context): Boolean{
+        return false
+    }
 
     @Deprecated("Rename to hasUpdate instead.", ReplaceWith("hasUpdate(context)"))
     open suspend fun isUpdatable(context: Context): Boolean {
