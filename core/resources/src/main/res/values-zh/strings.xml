@@ -682,8 +682,9 @@
     <string name="store_desc">下载扩展、主题和图标包</string>
     <string name="extension_warning_msg">扩展程序可以执行任意代码，它可能是恶意的。只有在你信任扩展的开发者并且已经验证过扩展的源代码时，才安装扩展。</string>
     <string name="no_themes">找不到主题。</string>
-    <string name="no_icon_packs">未找到图标包。</string>
+    <string name="no_icon_packs">未找到图标包</string>
     <string name="search_themes">查找主题</string>
     <string name="search_icon_packs">查找图标包</string>
     <string name="download_count">下载次数</string>
+    <string name="vcs_status">VCS状态</string>
 </resources>
