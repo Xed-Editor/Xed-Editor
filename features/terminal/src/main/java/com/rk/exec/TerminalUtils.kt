@@ -7,6 +7,8 @@ import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
+import com.rk.utils.application
+import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -31,8 +33,8 @@ fun launchTerminal(activity: Activity, terminalCommand: TerminalCommand) {
     try {
         val intent = Intent().setClassName(activity, "com.rk.activities.terminal.Terminal")
         activity.startActivity(intent)
-    } catch (e: Exception) {
-        com.rk.utils.toast("Terminal feature is not available in this build")
+    } catch (_: Exception) {
+        toast("Terminal feature is not available in this build")
     }
 }
 
@@ -41,7 +43,7 @@ fun setupAssetFile(fileName: String) {
         parentFile?.mkdir()
         if (exists().not()) {
             createFileIfNot()
-            writeText(com.rk.utils.application!!.assets.open("terminal/$fileName.sh").bufferedReader().use { it.readText() })
+            writeText(application!!.assets.open("terminal/$fileName.sh").bufferedReader().use { it.readText() })
         }
     }
 }

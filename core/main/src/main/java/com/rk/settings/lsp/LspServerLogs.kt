@@ -28,13 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.components.StyledTextField
 import com.rk.lsp.LspConnectionStatus
-import com.rk.lsp.LspRegistry
 import com.rk.lsp.LspServer
 import com.rk.lsp.LspServerInstance
 import com.rk.lsp.MessageSource
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
 import com.rk.settings.debugOptions.LogScreen
 import com.rk.utils.application
 import com.rk.xededitor.BuildConfig
@@ -47,7 +48,13 @@ fun LspServerLogs(server: LspServer, id: String) {
     val scope = rememberCoroutineScope()
     var messageType by remember { mutableStateOf(MessageType.Info) }
 
-    val messageSources = remember { mutableStateSetOf(MessageSource.LSP, MessageSource.Runtime, MessageSource.Client, MessageSource.RPC) }
+    val messageSources = remember {
+        mutableStateSetOf(
+            MessageSource.LSP,
+            MessageSource.Runtime,
+            MessageSource.Client,
+        )
+    }
     var sourceDropdownExpanded by remember { mutableStateOf(false) }
 
     val instance = server.instances.find { it.id == id }
@@ -73,7 +80,10 @@ fun LspServerLogs(server: LspServer, id: String) {
                     Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth().height(42.dp),
             )
 
-            ExposedDropdownMenu(expanded = dropdownMenuExpanded, onDismissRequest = { dropdownMenuExpanded = false }) {
+            ExposedDropdownMenu(
+                expanded = dropdownMenuExpanded,
+                onDismissRequest = { dropdownMenuExpanded = false },
+            ) {
                 MessageType.entries.forEach { type ->
                     DropdownMenuItem(
                         text = { Text(text = type.name) },
@@ -92,11 +102,22 @@ fun LspServerLogs(server: LspServer, id: String) {
                 contentDescription = stringResource(strings.filter_options),
             )
 
-            DropdownMenu(expanded = sourceDropdownExpanded, onDismissRequest = { sourceDropdownExpanded = false }) {
+            DropdownMenu(
+                expanded = sourceDropdownExpanded,
+                onDismissRequest = { sourceDropdownExpanded = false },
+            ) {
                 MessageSource.entries.forEach { source ->
                     DropdownMenuItem(
+                        enabled =
+                            source != MessageSource.RPC ||
+                                (InbuiltFeatures.debugMode.state.value && Settings.record_rpc),
                         text = { Text(text = source.name) },
-                        leadingIcon = { Checkbox(checked = messageSources.contains(source), onCheckedChange = null) },
+                        leadingIcon = {
+                            Checkbox(
+                                checked = messageSources.contains(source),
+                                onCheckedChange = null,
+                            )
+                        },
                         onClick = {
                             if (messageSources.contains(source)) {
                                 messageSources.remove(source)
@@ -114,17 +135,32 @@ fun LspServerLogs(server: LspServer, id: String) {
                 instance?.status != LspConnectionStatus.CRASHED &&
                 instance?.status != LspConnectionStatus.TIMEOUT
         if (isRunning) {
-            IconButton(enabled = instance != null, onClick = { scope.launch { instance?.restart() } }) {
-                Icon(painter = painterResource(drawables.restart), contentDescription = stringResource(strings.restart))
+            IconButton(
+                enabled = instance != null,
+                onClick = { scope.launch { instance?.restart() } },
+            ) {
+                Icon(
+                    painter = painterResource(drawables.restart),
+                    contentDescription = stringResource(strings.restart),
+                )
             }
         } else {
             IconButton(onClick = { scope.launch { instance.start() } }) {
-                Icon(painter = painterResource(drawables.run), contentDescription = stringResource(strings.run))
+                Icon(
+                    painter = painterResource(drawables.run),
+                    contentDescription = stringResource(strings.run),
+                )
             }
         }
 
-        IconButton(enabled = instance != null && isRunning, onClick = { scope.launch { instance?.stop() } }) {
-            Icon(painter = painterResource(drawables.stop), contentDescription = stringResource(strings.stop))
+        IconButton(
+            enabled = instance != null && isRunning,
+            onClick = { scope.launch { instance?.stop() } },
+        ) {
+            Icon(
+                painter = painterResource(drawables.stop),
+                contentDescription = stringResource(strings.stop),
+            )
         }
     }
 }
@@ -139,7 +175,7 @@ private fun buildLogs(
         instance
             .getLspLogs()
             .filter { messageSources.contains(it.source) }
-            .filter { it.source == MessageSource.RPC || it.type == null || it.type.value <= messageType.value }
+            .filter { it.type == null || it.type.value <= messageType.value }
             .joinToString("\n") {
                 val sourceString = it.source.name.uppercase().let { source -> "[$source]" }
                 val levelString = it.type?.name?.uppercase() ?: ""

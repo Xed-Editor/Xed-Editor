@@ -5,21 +5,20 @@ package com.rk.settings.debugOptions
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.components.RoundedValueSlider
 import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.file.child
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -30,7 +29,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 
 private var flipperJob: Job? = null
 
@@ -45,7 +44,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             while (isActive) {
-                delay(300)
+                delay(300.milliseconds)
                 val runtime = Runtime.getRuntime()
                 val usedMem = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024)
                 memoryUsage.value = "$usedMem/${runtime.maxMemory() / (1024 * 1024)}MB"
@@ -54,7 +53,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
     }
 
     PreferenceLayout(label = stringResource(strings.debug_options)) {
-        PreferenceGroup {
+        PreferenceGroup(heading = stringResource(strings.general)) {
             SettingsItem(
                 label = stringResource(strings.force_crash),
                 description = stringResource(strings.force_crash_desc),
@@ -94,14 +93,6 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
             )
 
             SettingsItem(
-                label = stringResource(strings.verbose_errors),
-                description = stringResource(strings.verbose_errors_desc),
-                showSwitch = true,
-                default = Settings.verbose_error,
-                sideEffect = { Settings.verbose_error = it },
-            )
-
-            SettingsItem(
                 label = stringResource(strings.desktop_mode),
                 description = stringResource(strings.desktop_mode_desc),
                 showSwitch = true,
@@ -132,6 +123,34 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     toast(strings.restart_required)
                 },
             )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.logs)) {
+            SettingsItem(
+                label = stringResource(strings.verbose_errors),
+                description = stringResource(strings.verbose_errors_desc),
+                showSwitch = true,
+                default = Settings.verbose_error,
+                sideEffect = { Settings.verbose_error = it },
+            )
+
+            SettingsItem(
+                label = stringResource(strings.record_rpc_traffic),
+                description = stringResource(strings.record_rpc_traffic_desc),
+                showSwitch = true,
+                default = Settings.record_rpc,
+                sideEffect = { Settings.record_rpc = it },
+            )
+
+            RoundedValueSlider(
+                label = stringResource(strings.lsp_log_limit),
+                description = stringResource(strings.lsp_log_limit_desc),
+                min = 1_000,
+                max = 100_000,
+                stepSize = 5_000,
+                default = Settings.lsp_log_limit,
+                onValueChanged = { Settings.lsp_log_limit = it },
+            )
 
             SettingsItem(
                 label = stringResource(strings.view_logs),
@@ -149,21 +168,21 @@ fun startThemeFlipperIfNotRunning() {
         flipperJob =
             GlobalScope.launch(Dispatchers.IO) {
                 runCatching {
-                        while (isActive && Settings.theme_flipper) {
-                            delay(7000)
+                    while (isActive && Settings.theme_flipper) {
+                        delay(7000.milliseconds)
 
-                            val mode =
-                                if (Settings.theme_mode == AppCompatDelegate.MODE_NIGHT_NO) {
-                                    AppCompatDelegate.MODE_NIGHT_YES
-                                } else {
-                                    AppCompatDelegate.MODE_NIGHT_NO
-                                }
+                        val mode =
+                            if (Settings.theme_mode == AppCompatDelegate.MODE_NIGHT_NO) {
+                                AppCompatDelegate.MODE_NIGHT_YES
+                            } else {
+                                AppCompatDelegate.MODE_NIGHT_NO
+                            }
 
-                            Settings.theme_mode = mode
+                        Settings.theme_mode = mode
 
-                            withContext(Dispatchers.Main) { AppCompatDelegate.setDefaultNightMode(mode) }
-                        }
+                        withContext(Dispatchers.Main) { AppCompatDelegate.setDefaultNightMode(mode) }
                     }
+                }
                     .onFailure { it.printStackTrace() }
             }
     }

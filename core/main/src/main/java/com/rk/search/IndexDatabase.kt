@@ -12,6 +12,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.rk.file.FileObject
 import java.io.Serializable
+import java.util.concurrent.ConcurrentHashMap
 
 @Entity(tableName = "files")
 data class FileMeta(@PrimaryKey val path: String, val fileName: String, val lastModified: Long, val size: Long) :
@@ -68,21 +69,21 @@ abstract class IndexDatabase : RoomDatabase() {
     lateinit var projectRoot: FileObject
 
     companion object {
-        private val INSTANCES = java.util.concurrent.ConcurrentHashMap<FileObject, IndexDatabase>()
+        private val INSTANCES = ConcurrentHashMap<FileObject, IndexDatabase>()
 
         fun getDatabase(context: Context, projectRoot: FileObject): IndexDatabase {
             return INSTANCES[projectRoot]
                 ?: synchronized(this) {
-                    INSTANCES[projectRoot]
-                        ?: Room.databaseBuilder(
-                                context,
-                                IndexDatabase::class.java,
-                                "index_database_${projectRoot.hashCode()}",
-                            )
-                            .build().apply {
-                                this.projectRoot = projectRoot
-                                INSTANCES[projectRoot] = this
-                            }
+                    Room.databaseBuilder(
+                            context,
+                            IndexDatabase::class.java,
+                            "index_database_${projectRoot.hashCode()}",
+                        )
+                        .build()
+                        .apply {
+                            this.projectRoot = projectRoot
+                            INSTANCES[projectRoot] = this
+                        }
                 }
         }
 

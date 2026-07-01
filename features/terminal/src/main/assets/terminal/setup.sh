@@ -43,7 +43,6 @@ if [ -e "/proc/self/fd/2" ]; then
   ARGS="$ARGS -b /proc/self/fd/2:/dev/stderr"
 fi
 
-
 ARGS="$ARGS -b $PRIVATE_DIR"
 ARGS="$ARGS -b /sys"
 
@@ -53,9 +52,7 @@ ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
-
 COMMAND="(cd $LOCAL/sandbox && tar -xf $TMP_DIR/sandbox.tar.gz)"
-
 
 set +e
 # Samsung devices doesn't like running system binaries under proot

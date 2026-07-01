@@ -1,8 +1,4 @@
-
-
-
-
-//DO NOT UPDATE PACKAGE NAME OTHERWISE EXTENSIONS WILL BREAK
+// DO NOT UPDATE PACKAGE NAME OTHERWISE EXTENSIONS WILL BREAK
 package com.rk.extension
 
 import android.content.Context
@@ -36,9 +32,11 @@ class ExtensionContext(val extension: LocalExtension, val appContext: Context, v
 
     val resources by lazy { Resources(assets, appContext.resources.displayMetrics, appContext.resources.configuration) }
 
-    //Kept for backward compatibility
     fun logDebug(msg: String) = extension.id.logDebug(msg)
+
     fun logInfo(msg: String) = extension.id.logInfo(msg)
+
     fun logWarn(msg: String) = extension.id.logWarn(msg)
+
     fun logError(msg: String) = extension.id.logError(msg)
 }

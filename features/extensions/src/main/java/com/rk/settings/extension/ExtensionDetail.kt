@@ -1,6 +1,5 @@
 package com.rk.settings.extension
 
-import com.rk.extension.manager.ExtensionRegistry
 import android.content.Intent
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +22,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LeadingIconTab
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Text
@@ -51,11 +51,13 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.rk.extension.extensionManager
+import com.rk.App
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension
 import com.rk.extension.UpdatableExtension
+import com.rk.extension.extensionManager
+import com.rk.extension.manager.ExtensionRegistry
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
@@ -108,7 +110,7 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
             var localInstallState by remember {
                 mutableStateOf(
                     if (extensionManager.isInstalled(extension.id)) {
-                        if (extension is UpdatableExtension && extension.isUpdatable()) {
+                        if (extension is UpdatableExtension && extension.hasUpdate()) {
                             InstallState.Updatable
                         } else {
                             InstallState.Installed
@@ -119,14 +121,15 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
                 )
             }
 
-            val installState = remember(extension, localInstallState, ExtensionRegistry.activeInstalls[extension.id]) {
-                val active = ExtensionRegistry.activeInstalls[extension.id]
-                if (active != null) {
-                    active
-                } else {
-                    localInstallState
+            val installState =
+                remember(extension, localInstallState, ExtensionRegistry.activeInstalls[extension.id]) {
+                    val active = ExtensionRegistry.activeInstalls[extension.id]
+                    if (active != null) {
+                        active
+                    } else {
+                        localInstallState
+                    }
                 }
-            }
 
             Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 AboutSection(
@@ -222,7 +225,7 @@ private fun AboutSection(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                val isUpdatable = extension is UpdatableExtension && extension.isUpdatable()
+                val isUpdatable = extension is UpdatableExtension && extension.hasUpdate()
                 if (isUpdatable) {
                     Text(
                         text = " → v${extension.newVersion}",
@@ -265,23 +268,22 @@ private fun AboutSection(
     val minAppVersion = extension.minAppVersion
     val maxAppVersion = extension.maxAppVersion
 
-    val xedVersionCode = com.rk.App.versionCode
-
+    val xedVersionCode = App.versionCode
     val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
     val outdatedExtension = maxAppVersion != null && xedVersionCode > maxAppVersion
 
     val progress = ExtensionRegistry.downloadProgress[extension.id]
     if (progress != null) {
         if (progress >= 0f) {
-            androidx.compose.material3.LinearProgressIndicator(
+            LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         } else {
-            androidx.compose.material3.LinearProgressIndicator(
+            LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         }
     }

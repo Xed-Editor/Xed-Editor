@@ -3,7 +3,17 @@ package com.rk.extension.manager
 import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.core.content.edit
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.extension.Extension
+import com.rk.extension.ExtensionAPI
+import com.rk.extension.ExtensionError
+import com.rk.extension.ExtensionId
+import com.rk.extension.ExtensionManifest
+import com.rk.extension.InstallResult
+import com.rk.extension.LocalExtension
+import com.rk.extension.StoreExtension
+import com.rk.extension.UpdatableExtension
 import com.rk.file.child
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -19,16 +29,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.zip.ZipFile
-import androidx.core.content.edit
-import com.rk.extension.Extension
-import com.rk.extension.ExtensionAPI
-import com.rk.extension.ExtensionError
-import com.rk.extension.ExtensionId
-import com.rk.extension.ExtensionManifest
-import com.rk.extension.InstallResult
-import com.rk.extension.LocalExtension
-import com.rk.extension.StoreExtension
-import com.rk.extension.UpdatableExtension
 
 private val Context.localDir: File
     get() = filesDir.parentFile!!.resolve("local").apply { if (!exists()) mkdirs() }
@@ -61,11 +61,11 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         context.getSharedPreferences("disabled_extensions", Context.MODE_PRIVATE)
     }
 
-    fun isExtensionDisabled(id: ExtensionId): Boolean {
+    fun isExtensionCrashed(id: ExtensionId): Boolean {
         return disabledPrefs.getBoolean(id, false)
     }
 
-    fun setExtensionDisabled(id: ExtensionId, disabled: Boolean) {
+    fun setExtensionCrashed(id: ExtensionId, disabled: Boolean) {
         disabledPrefs.edit { putBoolean(id, disabled) }
     }
 
@@ -97,24 +97,26 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     suspend fun indexLocalExtensions() = mutex.withLock {
-        val newExtensions = withContext(Dispatchers.IO) {
-            val map = mutableMapOf<ExtensionId, LocalExtension>()
-            val extensionFolders = context.extensionDir.listFiles()?.filter { it.isDirectory }
-            extensionFolders?.forEach { dir ->
-                val extensionJson = dir.resolve("manifest.json")
-                if (extensionJson.exists()) {
-                    runCatching {
-                        val extensionManifest = json.decodeFromString<ExtensionManifest>(extensionJson.readText())
-                        val extension = LocalExtension(
-                            manifest = extensionManifest,
-                            installPath = dir.absolutePath
-                        )
-                        map[extensionManifest.id] = extension
+        val newExtensions =
+            withContext(Dispatchers.IO) {
+                val map = mutableMapOf<ExtensionId, LocalExtension>()
+                val extensionFolders = context.extensionDir.listFiles()?.filter { it.isDirectory }
+                extensionFolders?.forEach { dir ->
+                    val extensionJson = dir.resolve("manifest.json")
+                    if (extensionJson.exists()) {
+                        runCatching {
+                            val extensionManifest = json.decodeFromString<ExtensionManifest>(extensionJson.readText())
+                            val extension =
+                                LocalExtension(
+                                    manifest = extensionManifest,
+                                    installPath = dir.absolutePath,
+                                )
+                            map[extensionManifest.id] = extension
+                        }
                     }
                 }
+                map
             }
-            map
-        }
         withContext(Dispatchers.Main) {
             val toRemove = localExtensions.keys.filter { it !in newExtensions }
             toRemove.forEach { localExtensions.remove(it) }
@@ -214,8 +216,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             dir.copyRecursively(targetDir, overwrite = true)
 
-            val extension =
-                LocalExtension(manifest = extensionInfo, installPath = targetDir.absolutePath)
+            val extension = LocalExtension(manifest = extensionInfo, installPath = targetDir.absolutePath)
             localExtensions[extensionInfo.id] = extension
 
             InstallResult.Success(extension, performedUpdate)

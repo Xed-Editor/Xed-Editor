@@ -1,14 +1,19 @@
 package com.rk.lsp
 
 import android.util.Log
+import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
-import org.eclipse.lsp4j.MessageType
 
-class SocketConnection(private val port: Int, private val host: String? = null, instance: LspServerInstance) :
+class SocketConnection(
+    private val port: Int,
+    private val host: String? = null,
+    instance: LspServerInstance
+) :
     BaseLspConnectionProvider(instance) {
 
     private var socket: Socket? = null
@@ -35,14 +40,14 @@ class SocketConnection(private val port: Int, private val host: String? = null, 
         loggingInput =
             LoggingInputStream(socket!!.getInputStream()) { json ->
                 Log.d("SocketConnection", "[stdout] $json")
-                if (com.rk.settings.Preference.getBoolean("debug_mode", com.rk.xededitor.BuildConfig.DEBUG)) {
+                if (InbuiltFeatures.debugMode.state.value && Settings.record_rpc) {
                     instance.addLog(LspLogEntry(MessageSource.RPC, null, "→ $json"))
                 }
             }
         loggingOutput =
             LoggingOutputStream(socket!!.getOutputStream()) { json ->
                 Log.d("SocketConnection", "[stdin] $json")
-                if (com.rk.settings.Preference.getBoolean("debug_mode", com.rk.xededitor.BuildConfig.DEBUG)) {
+                if (InbuiltFeatures.debugMode.state.value && Settings.record_rpc) {
                     instance.addLog(LspLogEntry(MessageSource.RPC, null, "← $json"))
                 }
             }

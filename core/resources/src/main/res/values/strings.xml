@@ -634,7 +634,8 @@
     <string name="search_themes">Search themes</string>
     <string name="search_icon_packs">Search icon packs</string>
     <string name="date_added">Date added</string>
-    <string name="verified">Verified</string>
+    <string name="supported">Supported</string>
+    <string name="crashed">Crashed</string>
     <string name="filter_options">Filter options</string>
     <string name="sort_options">Sort options</string>
     <string name="source_code">Source code</string>
@@ -692,5 +693,10 @@
     <string name="samsung_proot_warning">Your Samsung device is affected by a known issue that causes the PRoot-based terminal installation to fail.</string>
     <string name="terminal_degraded_warning">The terminal is currently running in a degraded mode due to a known compatibility issue caused by a malfunction in the PRoot environment on certain devices. Some features may be limited or behave differently.</string>
     <string name="disabled_crashed">Disabled (Crashed)</string>
-    <string name="download_count">Download Count</string>
+    <string name="download_count">Download count</string>
+    <string name="publish_date">Publish date</string>
+    <string name="record_rpc_traffic">Record RPC traffic</string>
+    <string name="record_rpc_traffic_desc">Log RPC communication of language servers for debugging</string>
+    <string name="lsp_log_limit">LSP log limit</string>
+    <string name="lsp_log_limit_desc">Older logs are automatically removed when the limit is reached to avoid high memory usage</string>
 </resources>

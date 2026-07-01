@@ -59,7 +59,7 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
                 exitProcess(1)
             }
 
-        //try to keep main thread alive
+        // Try to keep main thread alive
         if (Looper.myLooper() != null) {
             while (true) {
                 try {

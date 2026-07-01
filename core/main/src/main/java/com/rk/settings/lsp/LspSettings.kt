@@ -159,7 +159,6 @@ fun LspSettings(navController: NavController) {
             text = stringResource(strings.info_lsp),
         )
 
-
         val extensionServers = LspRegistry.extensionServers
         if (extensionServers.isNotEmpty()) ExtensionServersSection(extensionServers)
 

@@ -40,7 +40,6 @@ import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 import com.rk.feature.FeatureRegistry
 import com.rk.utils.application
 
@@ -128,7 +127,8 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         )
                     },
                     sideEffect = {
-                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        val intent =
+                            Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                         intent.data = "package:${activity.packageName}".toUri()
                         activity.startActivity(intent)
                     },
@@ -174,7 +174,10 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    activity.fileManager.createNewFile("application/json", "xed-settings.json") { fileObject ->
+                    activity.fileManager.createNewFile(
+                        "application/json",
+                        "xed-settings.json"
+                    ) { fileObject ->
                         if (fileObject == null) return@createNewFile
                         scope.launch(Dispatchers.IO) {
                             try {

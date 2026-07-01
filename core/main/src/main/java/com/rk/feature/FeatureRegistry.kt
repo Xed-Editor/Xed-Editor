@@ -1,13 +1,12 @@
 package com.rk.feature
 
+import android.app.Activity
 import android.app.Application
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.navigation.NavController
-
-import android.app.Activity
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.navigation.NavController
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -17,7 +16,9 @@ import com.rk.xededitor.BuildConfig
 
 interface Feature {
     fun init(application: Application)
-    val toggle: FeatureToggle? get() = null
+
+    val toggle: FeatureToggle?
+        get() = null
 }
 
 data class FeatureToggle(
@@ -25,7 +26,7 @@ data class FeatureToggle(
     val key: String,
     val default: Boolean,
     val iconRes: Int,
-    val onSwitch: ((Activity, Boolean, onComplete: (Boolean) -> Unit) -> Unit)? = null
+    val onSwitch: ((Activity, Boolean, onComplete: (Boolean) -> Unit) -> Unit)? = null,
 ) {
     val state: MutableState<Boolean> by lazy {
         mutableStateOf(Preference.getBoolean(key, default))
@@ -45,7 +46,7 @@ object FeatureRegistry {
         registerToggle(
             FeatureToggle(
                 nameRes = strings.debug_options,
-                key = "debug_mode",
+                key = "debug_mode", // TODO: When checking for debug related settings always check for this to be true
                 default = BuildConfig.DEBUG,
                 iconRes = drawables.build,
                 onSwitch = { activity, checked, onComplete ->
@@ -55,17 +56,15 @@ object FeatureRegistry {
                             title = strings.attention.getString(),
                             msg = strings.debug_mode_warn.getString(),
                             onCancel = { onComplete(false) },
-                            onOk = { onComplete(true) }
+                            onOk = { onComplete(true) },
                         )
                     } else {
                         onComplete(false)
                     }
-                }
+                },
             )
         )
     }
-
-
 
     fun register(feature: Feature) {
         features.add(feature)
@@ -94,12 +93,12 @@ data class SettingsCategory(
     val labelRes: Int,
     val descriptionRes: Int,
     val iconRes: Int,
-    val route: String
+    val route: String,
 )
 
 data class SettingsRoute(
     val route: String,
-    val content: @Composable (NavController) -> Unit
+    val content: @Composable (NavController) -> Unit,
 )
 
 object SettingsRegistry {

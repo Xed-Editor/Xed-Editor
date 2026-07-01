@@ -1,12 +1,13 @@
 package com.rk.extension
+
 import com.rk.extension.manager.ExtensionRegistry
 import com.rk.xededitor.BuildConfig
 import io.github.z4kn4fein.semver.toVersionOrNull
-import java.io.File
-import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import java.io.File
+import java.util.Date
 
 data class ExtensionStats(val downloadCount: Int?, val rating: Float?, val size: Long?)
 
@@ -216,13 +217,13 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
         get() = installed.hasSettings
 
     override val iconUrl
-        get() = if (isUpdatable()) store.iconUrl else installed.iconUrl
+        get() = if (hasUpdate()) store.iconUrl else installed.iconUrl
 
     override val readmeUrl
-        get() = if (isUpdatable()) store.readmeUrl else installed.readmeUrl
+        get() = if (hasUpdate()) store.readmeUrl else installed.readmeUrl
 
     override val changelogUrl
-        get() = if (isUpdatable()) store.changelogUrl else installed.changelogUrl
+        get() = if (hasUpdate()) store.changelogUrl else installed.changelogUrl
 
     override val minAppVersion
         get() = store.minAppVersion
@@ -234,13 +235,12 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
 
     override suspend fun getReviews() = store.getReviews()
 
-    fun isUpdatable(): Boolean {
+    fun hasUpdate(): Boolean {
         val installedVersion = installed.version.toVersionOrNull() ?: return false
         val storeVersion = store.version.toVersionOrNull() ?: return false
         return installedVersion < storeVersion
     }
 }
-
 
 val LocalExtension.apkFile: File
     get() = run {
@@ -251,19 +251,20 @@ val LocalExtension.apkFile: File
         val apks = dir.listFiles { it.extension == "apk" } ?: emptyArray()
         if (apks.isEmpty()) error("APK not found")
 
-        val apk = if (apks.size == 1) {
-            apks.first()
-        } else {
-            val isDebug = BuildConfig.DEBUG
-            if (isDebug) {
-                apks.find { it.name.contains("debug", ignoreCase = true) }
-                    ?: apks.find { !it.name.contains("release", ignoreCase = true) }
-                    ?: apks.first()
+        val apk =
+            if (apks.size == 1) {
+                apks.first()
             } else {
-                apks.find { it.name.contains("release", ignoreCase = true) }
-                    ?: apks.find { !it.name.contains("debug", ignoreCase = true) }
-                    ?: apks.first()
+                val isDebug = BuildConfig.DEBUG
+                if (isDebug) {
+                    apks.find { it.name.contains("debug", ignoreCase = true) }
+                        ?: apks.find { !it.name.contains("release", ignoreCase = true) }
+                        ?: apks.first()
+                } else {
+                    apks.find { it.name.contains("release", ignoreCase = true) }
+                        ?: apks.find { !it.name.contains("debug", ignoreCase = true) }
+                        ?: apks.first()
+                }
             }
-        }
         apk.also { it.setReadOnly() }
     }

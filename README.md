@@ -57,32 +57,43 @@ documentation: https://xed-editor.github.io/Xed-Docs/
 
 ---
 
-## Building the Project
+## Build the Project
 
+Choose one of the following build methods.
 
-1. Build the **Debug APK** (signed with the included testkey):
-   ```bash
-   ./gradlew assembleDebug
-   ```
-   The compiled APK will be located at `app/build/outputs/apk/debug/app-debug.apk`.
----
+<details>
+<summary><strong>Option 1: Build Locally</strong></summary>
 
-### Option 2: Building with Docker
+Build the **debug APK** (signed with the included test key):
 
-If you do not have the Android SDK or JDK 21 installed locally, you can compile the project in a container using Docker.
-This command builds the APK and exports it directly to your host machine:
+```bash
+./gradlew assembleDebug
+```
+
+The compiled APK will be located at `app/build/outputs/apk/debug/app-debug.apk`.
+
+</details>
+
+<details>
+<summary><strong>Option 2: Build with Docker</strong></summary>
+
+If you don't have the Android SDK or JDK 21 installed locally, you can build the project in a Docker
+container:
+
 ```bash
 DOCKER_BUILDKIT=1 docker build --target export-stage --output ./out .
-```              
-The output debug APK will be generated at `out/debug/app-debug.apk`.
+```
+
+The generated debug APK will be located at `out/debug/app-debug.apk`.
+
+</details>
 
 ---
 
 ## Contributing
 
 We welcome contributions! Please read the [`/docs/CONTRIBUTING.md`](/docs/CONTRIBUTING.md) file to
-learn how
-you can get involved.
+learn how you can get involved.
 
 ---
 

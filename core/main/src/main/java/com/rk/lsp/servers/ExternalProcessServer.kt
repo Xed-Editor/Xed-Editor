@@ -24,7 +24,7 @@ data class ExternalProcessServer(
 
     override fun uninstall(activity: Activity) {}
 
-    override suspend fun isUpdatable(context: Context) = false
+    override suspend fun hasUpdate(context: Context) = false
 
     override fun update(activity: Activity) {}
 

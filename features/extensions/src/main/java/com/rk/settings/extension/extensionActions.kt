@@ -1,30 +1,29 @@
 package com.rk.settings.extension
 
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import androidx.core.app.NotificationCompat
-import com.rk.DefaultScope
-import com.rk.extension.EXTENSION_API_BASE
-import com.rk.extension.ICONPACKS_API_BASE
-import com.rk.extension.manager.ExtensionRegistry
-import java.io.File
-import com.rk.resources.drawables
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
-import com.rk.extension.extensionManager
+import androidx.core.app.NotificationCompat
+import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.crashhandler.CrashActivity
+import com.rk.extension.EXTENSION_API_BASE
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionError
+import com.rk.extension.ICONPACKS_API_BASE
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.StoreExtension
 import com.rk.extension.UpdatableExtension
+import com.rk.extension.extensionManager
 import com.rk.extension.loader.installExtensionFromZip
 import com.rk.extension.loader.load
+import com.rk.extension.manager.ExtensionRegistry
 import com.rk.file.toFileObject
+import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -39,6 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
+import java.io.File
 
 fun checkExtensionWarningAndRun(activity: AppCompatActivity?, onApproved: () -> Unit) {
     if (com.rk.settings.Settings.warn_extensions) {
@@ -52,7 +52,7 @@ fun checkExtensionWarningAndRun(activity: AppCompatActivity?, onApproved: () -> 
                 com.rk.settings.Settings.warn_extensions = false
                 onApproved()
             },
-            onCancel = {}
+            onCancel = {},
         )
     } else {
         onApproved()
@@ -87,55 +87,54 @@ fun runExtensionUninstallAction(
     )
 }
 
-
 private fun showDownloadNotification(
     context: Context,
     id: String,
     title: String,
     progress: Float,
     isFinished: Boolean = false,
-    errorMessage: String? = null
+    errorMessage: String? = null,
 ) {
     val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     val channelId = "store_downloads"
-    
+
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(
-            channelId,
-            "Store Downloads",
-            NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            description = "Notifications for store downloads and installations"
-        }
+        val channel =
+            NotificationChannel(
+                    channelId,
+                    "Store Downloads",
+                    NotificationManager.IMPORTANCE_LOW,
+                )
+                .apply {
+                    description = "Notifications for store downloads and installations"
+                }
         notificationManager.createNotificationChannel(channel)
     }
 
-    val builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(drawables.extension)
-        .setOnlyAlertOnce(true)
+    val builder =
+        NotificationCompat.Builder(context, channelId).setSmallIcon(drawables.extension).setOnlyAlertOnce(true)
 
     if (isFinished) {
         if (errorMessage != null) {
-            builder.setContentTitle(strings.install_failed.getString(context))
+            builder
+                .setContentTitle(strings.install_failed.getString(context))
                 .setContentText(errorMessage)
                 .setOngoing(false)
                 .setAutoCancel(true)
         } else {
-            builder.setContentTitle(strings.installed.getString(context))
+            builder
+                .setContentTitle(strings.installed.getString(context))
                 .setContentText(title)
                 .setOngoing(false)
                 .setAutoCancel(true)
         }
     } else {
-        builder.setContentTitle(title)
-            .setOngoing(true)
+        builder.setContentTitle(title).setOngoing(true)
         if (progress >= 0f) {
             val percent = (progress * 100).toInt()
-            builder.setContentText("$percent%")
-                .setProgress(100, percent, false)
+            builder.setContentText("$percent%").setProgress(100, percent, false)
         } else {
-            builder.setContentText(strings.installing.getString(context))
-                .setProgress(100, 0, true)
+            builder.setContentText(strings.installing.getString(context)).setProgress(100, 0, true)
         }
     }
 
@@ -168,29 +167,30 @@ fun runExtensionInstallAction(
         try {
             var lastNotificationTime = 0L
 
-            val downloadSuccess = ExtensionRegistry.downloadFileWithProgress(
-                url = "$EXTENSION_API_BASE/$id/plugin.zip",
-                destFile = tempFile,
-                onProgress = { progress ->
-                    DefaultScope.launch(Dispatchers.Main) {
-                        ExtensionRegistry.downloadProgress[id] = progress
-                    }
-                    val now = System.currentTimeMillis()
-                    if (now - lastNotificationTime > 300) {
-                        lastNotificationTime = now
-                        showDownloadNotification(context, id, name, progress)
-                    }
-                }
-            )
+            val downloadSuccess =
+                ExtensionRegistry.downloadFileWithProgress(
+                    url = "$EXTENSION_API_BASE/$id/plugin.zip",
+                    destFile = tempFile,
+                    onProgress = { progress ->
+                        DefaultScope.launch(Dispatchers.Main) {
+                            ExtensionRegistry.downloadProgress[id] = progress
+                        }
+                        val now = System.currentTimeMillis()
+                        if (now - lastNotificationTime > 300) {
+                            lastNotificationTime = now
+                            showDownloadNotification(context, id, name, progress)
+                        }
+                    },
+                )
 
             if (downloadSuccess) {
                 showDownloadNotification(context, id, name, 1f)
 
                 val result = extensionManager.installExtensionFromZip(tempFile)
                 if (result is InstallResult.Success) {
-                    extensionManager.setExtensionDisabled(result.extension.id, false)
+                    extensionManager.setExtensionCrashed(result.extension.id, false)
                     result.extension.load(application!!, true).onFailure { error ->
-                        extensionManager.setExtensionDisabled(result.extension.id, true)
+                        extensionManager.setExtensionCrashed(result.extension.id, true)
                         errorMsg = error.message ?: "Failed to load extension"
                         withContext(Dispatchers.Main) {
                             activity?.let {
@@ -201,19 +201,21 @@ fun runExtensionInstallAction(
                                     extensionVersion = result.extension.version,
                                     extensionAuthor = result.extension.author.toString(),
                                     repository = result.extension.repository,
-                                    error = error
+                                    error = error,
                                 )
-                            } ?: run {
-                                errorDialog(activity, msg = errorMsg)
                             }
+                                ?: run {
+                                    errorDialog(null, msg = errorMsg)
+                                }
                         }
                     }
                     success = errorMsg == null
                 } else if (result is InstallResult.Error) {
-                    errorMsg = when (result.error) {
-                        ExtensionError.OUTDATED_CLIENT -> strings.outdated_client.getString(context)
-                        ExtensionError.OUTDATED_EXTENSION -> strings.outdated_extension.getString(context)
-                    }
+                    errorMsg =
+                        when (result.error) {
+                            ExtensionError.OUTDATED_CLIENT -> strings.outdated_client.getString(context)
+                            ExtensionError.OUTDATED_EXTENSION -> strings.outdated_extension.getString(context)
+                        }
                 } else if (result is InstallResult.ValidationFailed) {
                     errorMsg = result.error?.message ?: "Validation failed"
                 }
@@ -227,11 +229,11 @@ fun runExtensionInstallAction(
             if (tempFile.exists()) {
                 tempFile.delete()
             }
-            
+
             withContext(Dispatchers.Main) {
                 ExtensionRegistry.activeInstalls.remove(id)
                 ExtensionRegistry.downloadProgress.remove(id)
-                
+
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
                     updateInstallState(InstallState.Installed)
@@ -269,29 +271,30 @@ fun runExtensionUpdateAction(
         try {
             var lastNotificationTime = 0L
 
-            val downloadSuccess = ExtensionRegistry.downloadFileWithProgress(
-                url = "$EXTENSION_API_BASE/$id/plugin.zip",
-                destFile = tempFile,
-                onProgress = { progress ->
-                    DefaultScope.launch(Dispatchers.Main) {
-                        ExtensionRegistry.downloadProgress[id] = progress
-                    }
-                    val now = System.currentTimeMillis()
-                    if (now - lastNotificationTime > 300) {
-                        lastNotificationTime = now
-                        showDownloadNotification(context, id, name, progress)
-                    }
-                }
-            )
+            val downloadSuccess =
+                ExtensionRegistry.downloadFileWithProgress(
+                    url = "$EXTENSION_API_BASE/$id/plugin.zip",
+                    destFile = tempFile,
+                    onProgress = { progress ->
+                        DefaultScope.launch(Dispatchers.Main) {
+                            ExtensionRegistry.downloadProgress[id] = progress
+                        }
+                        val now = System.currentTimeMillis()
+                        if (now - lastNotificationTime > 300) {
+                            lastNotificationTime = now
+                            showDownloadNotification(context, id, name, progress)
+                        }
+                    },
+                )
 
             if (downloadSuccess) {
                 showDownloadNotification(context, id, name, 1f)
 
                 val result = extensionManager.installExtensionFromZip(tempFile)
                 if (result is InstallResult.Success) {
-                    extensionManager.setExtensionDisabled(result.extension.id, false)
+                    extensionManager.setExtensionCrashed(result.extension.id, false)
                     result.extension.load(application!!).onFailure { error ->
-                        extensionManager.setExtensionDisabled(result.extension.id, true)
+                        extensionManager.setExtensionCrashed(result.extension.id, true)
                         errorMsg = error.message ?: "Failed to load extension"
                         withContext(Dispatchers.Main) {
                             activity?.let {
@@ -302,19 +305,21 @@ fun runExtensionUpdateAction(
                                     extensionVersion = result.extension.version,
                                     extensionAuthor = result.extension.author.toString(),
                                     repository = result.extension.repository,
-                                    error = error
+                                    error = error,
                                 )
-                            } ?: run {
-                                errorDialog(activity, msg = errorMsg)
                             }
+                                ?: run {
+                                    errorDialog(activity, msg = errorMsg)
+                                }
                         }
                     }
                     success = errorMsg == null
                 } else if (result is InstallResult.Error) {
-                    errorMsg = when (result.error) {
-                        ExtensionError.OUTDATED_CLIENT -> strings.outdated_client.getString(context)
-                        ExtensionError.OUTDATED_EXTENSION -> strings.outdated_extension.getString(context)
-                    }
+                    errorMsg =
+                        when (result.error) {
+                            ExtensionError.OUTDATED_CLIENT -> strings.outdated_client.getString(context)
+                            ExtensionError.OUTDATED_EXTENSION -> strings.outdated_extension.getString(context)
+                        }
                 } else if (result is InstallResult.ValidationFailed) {
                     errorMsg = result.error?.message ?: "Validation failed"
                 }
@@ -328,11 +333,11 @@ fun runExtensionUpdateAction(
             if (tempFile.exists()) {
                 tempFile.delete()
             }
-            
+
             withContext(Dispatchers.Main) {
                 ExtensionRegistry.activeInstalls.remove(id)
                 ExtensionRegistry.downloadProgress.remove(id)
-                
+
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
                     updateInstallState(InstallState.Installed)
@@ -365,30 +370,33 @@ fun runIconPackInstallAction(
         try {
             var lastNotificationTime = 0L
 
-            val downloadSuccess = ExtensionRegistry.downloadFileWithProgress(
-                url = "$ICONPACKS_API_BASE/$id/iconpack.zip",
-                destFile = tempFile,
-                onProgress = { progress ->
-                    DefaultScope.launch(Dispatchers.Main) {
-                        ExtensionRegistry.downloadProgress[id] = progress
-                    }
-                    val now = System.currentTimeMillis()
-                    if (now - lastNotificationTime > 300) {
-                        lastNotificationTime = now
-                        showDownloadNotification(context, id, name, progress)
-                    }
-                }
-            )
+            val downloadSuccess =
+                ExtensionRegistry.downloadFileWithProgress(
+                    url = "$ICONPACKS_API_BASE/$id/iconpack.zip",
+                    destFile = tempFile,
+                    onProgress = { progress ->
+                        DefaultScope.launch(Dispatchers.Main) {
+                            ExtensionRegistry.downloadProgress[id] = progress
+                        }
+                        val now = System.currentTimeMillis()
+                        if (now - lastNotificationTime > 300) {
+                            lastNotificationTime = now
+                            showDownloadNotification(context, id, name, progress)
+                        }
+                    },
+                )
 
             if (downloadSuccess) {
                 showDownloadNotification(context, id, name, 1f)
                 runCatching {
                     com.rk.App.Companion.iconPackManager.installIconPack(tempFile)
-                }.onSuccess {
-                    success = true
-                }.onFailure {
-                    errorMsg = it.message ?: "Failed to install icon pack"
                 }
+                    .onSuccess {
+                        success = true
+                    }
+                    .onFailure {
+                        errorMsg = it.message ?: "Failed to install icon pack"
+                    }
             } else {
                 errorMsg = "Download failed"
             }
@@ -399,11 +407,11 @@ fun runIconPackInstallAction(
             if (tempFile.exists()) {
                 tempFile.delete()
             }
-            
+
             withContext(Dispatchers.Main) {
                 ExtensionRegistry.activeInstalls.remove(id)
                 ExtensionRegistry.downloadProgress.remove(id)
-                
+
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
                 } else {
@@ -436,10 +444,10 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                 val result = extensionManager.installExtensionFromZip(fileObject)
 
                 if (result is InstallResult.Success) {
-                    extensionManager.setExtensionDisabled(result.extension.id, false)
+                    extensionManager.setExtensionCrashed(result.extension.id, false)
                     val initialInstallation = !result.performedUpdate
                     result.extension.load(application!!, initialInstallation).onFailure { error ->
-                        extensionManager.setExtensionDisabled(result.extension.id, true)
+                        extensionManager.setExtensionCrashed(result.extension.id, true)
                         withContext(Dispatchers.Main) {
                             activity?.let {
                                 CrashActivity.start(
@@ -449,11 +457,12 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                                     extensionVersion = result.extension.version,
                                     extensionAuthor = result.extension.author.toString(),
                                     repository = result.extension.repository,
-                                    error = error
+                                    error = error,
                                 )
-                            } ?: run {
-                                errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
                             }
+                                ?: run {
+                                    errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
+                                }
                         }
                     }
                 }
@@ -466,16 +475,18 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                 withContext(Dispatchers.Main) {
                     errorDialog(
                         activity,
-                        msg = "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
+                        msg =
+                            "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
                     )
                 }
             }
-        }.onFailure { error ->
-            withContext(Dispatchers.Main) {
-                loading?.hide()
-                errorDialog(activity, error)
-            }
         }
+            .onFailure { error ->
+                withContext(Dispatchers.Main) {
+                    loading?.hide()
+                    errorDialog(activity, error)
+                }
+            }
     }
 }
 
