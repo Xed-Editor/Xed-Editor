@@ -52,7 +52,14 @@ data class Feature(
     val onChange: ((Boolean) -> Unit)? = null,
     val supported: Boolean = true,
 ) {
-    val state: MutableState<Boolean> by lazy { mutableStateOf(supported && Preference.getBoolean(key, default)) }
+    val state: MutableState<Boolean> by lazy {
+        mutableStateOf(
+            supported && Preference.getBoolean(
+                key,
+                default
+            )
+        )
+    }
 
     fun setEnable(enable: Boolean) {
         if (!supported) return
@@ -64,8 +71,13 @@ data class Feature(
 }
 
 object InbuiltFeatures {
-    val terminal = Feature(nameRes = strings.terminal_feature, key = "feature_terminal", default = true)
-    val debugMode = Feature(nameRes = strings.debug_options, key = "debug_mode", default = BuildConfig.DEBUG)
+    val terminal =
+        Feature(nameRes = strings.terminal_feature, key = "feature_terminal", default = true)
+    val debugMode = Feature(
+        nameRes = strings.debug_options,
+        key = "debug_mode",
+        default = BuildConfig.DEBUG
+    ) // TODO: When checking for debug related settings always check for this to be true
     val extensions = Feature(nameRes = strings.ext, key = "enable_extension", default = true)
     val git = Feature(nameRes = strings.git, key = "enable_git", default = true)
 }
@@ -134,7 +146,8 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         )
                     },
                     sideEffect = {
-                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        val intent =
+                            Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                         intent.data = "package:${activity.packageName}".toUri()
                         activity.startActivity(intent)
                     },
@@ -227,7 +240,10 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    activity.fileManager.createNewFile("application/json", "xed-settings.json") { fileObject ->
+                    activity.fileManager.createNewFile(
+                        "application/json",
+                        "xed-settings.json"
+                    ) { fileObject ->
                         if (fileObject == null) return@createNewFile
                         scope.launch(Dispatchers.IO) {
                             try {

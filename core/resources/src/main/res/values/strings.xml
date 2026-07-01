@@ -695,4 +695,8 @@
     <string name="disabled_crashed">Disabled (Crashed)</string>
     <string name="download_count">Download count</string>
     <string name="publish_date">Publish date</string>
+    <string name="record_rpc_traffic">Record RPC traffic</string>
+    <string name="record_rpc_traffic_desc">Log RPC communication of language servers for debugging</string>
+    <string name="lsp_log_limit">LSP log limit</string>
+    <string name="lsp_log_limit_desc">Older logs are automatically removed when the limit is reached to avoid high memory usage</string>
 </resources>

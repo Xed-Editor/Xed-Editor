@@ -21,6 +21,7 @@ import com.rk.file.FileObject
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.greenStatus
@@ -56,7 +57,11 @@ data class LspLogEntry(
     val timestamp: Long = System.currentTimeMillis(),
 )
 
-data class LspServerInstance(val server: LspServer, internal val lspProject: LspProject, val projectRoot: FileObject) {
+data class LspServerInstance(
+    val server: LspServer,
+    internal val lspProject: LspProject,
+    val projectRoot: FileObject
+) {
     val id = "${server.id}_${projectRoot.getAbsolutePath().hashCode()}"
 
     var status by mutableStateOf(LspConnectionStatus.NOT_RUNNING)
@@ -65,12 +70,24 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
     var hasError by mutableStateOf(false)
 
     fun addLog(messageParams: MessageParams) {
-        logs.add(LspLogEntry(type = messageParams.type, message = messageParams.message, source = MessageSource.LSP))
+        addLog(
+            LspLogEntry(
+                type = messageParams.type,
+                message = messageParams.message,
+                source = MessageSource.LSP
+            )
+        )
     }
 
     fun addLog(lspLogEntry: LspLogEntry) {
         if (lspLogEntry.type == MessageType.Error) hasError = true
+
         logs.add(lspLogEntry)
+
+        if (logs.size > Settings.lsp_log_limit) {
+            val removeCount = logs.size - Settings.lsp_log_limit
+            logs.removeRange(0, removeCount)
+        }
     }
 
     fun getLspLogs() = logs.toList()
@@ -81,7 +98,13 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
         }
             ?: run {
                 hasError = true
-                addLog(LspLogEntry(MessageSource.Client, MessageType.Error, "Language server instance not found..."))
+                addLog(
+                    LspLogEntry(
+                        MessageSource.Client,
+                        MessageType.Error,
+                        "Language server instance not found..."
+                    )
+                )
                 return null
             }
     }
@@ -89,7 +112,13 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
     /** Stops this language server instance */
     suspend fun stop() {
         withContext(Dispatchers.IO) {
-            addLog(LspLogEntry(MessageSource.Client, MessageType.Info, "User stopped language server instance..."))
+            addLog(
+                LspLogEntry(
+                    MessageSource.Client,
+                    MessageType.Info,
+                    "User stopped language server instance..."
+                )
+            )
             val wrapper = getWrapper() ?: return@withContext
             DefinitionPrevention.register(lspProject, server)
             try {
@@ -103,7 +132,13 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
     /** Restarts this language server instance */
     suspend fun restart() {
         withContext(Dispatchers.IO) {
-            addLog(LspLogEntry(MessageSource.Client, MessageType.Info, "User restarted language server instance..."))
+            addLog(
+                LspLogEntry(
+                    MessageSource.Client,
+                    MessageType.Info,
+                    "User restarted language server instance..."
+                )
+            )
             val wrapper = getWrapper() ?: return@withContext
             try {
                 wrapper.restartAndReconnect()
@@ -120,7 +155,13 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
      */
     suspend fun start(): List<EditorTab> {
         return withContext(Dispatchers.IO) {
-            addLog(LspLogEntry(MessageSource.Client, MessageType.Info, "User started language server instance..."))
+            addLog(
+                LspLogEntry(
+                    MessageSource.Client,
+                    MessageType.Info,
+                    "User started language server instance..."
+                )
+            )
             val wrapper = getWrapper() ?: return@withContext emptyList()
             hasError = false
             DefinitionPrevention.unregister(lspProject, server)
@@ -142,7 +183,8 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
         filteredEditors.forEach { editor ->
             val matchingEditorTab =
                 MainActivity.instance!!.viewModel.run {
-                    tabs.filterIsInstance<EditorTab>().find { it.editorState.editor.get() == editor.editor }
+                    tabs.filterIsInstance<EditorTab>()
+                        .find { it.editorState.editor.get() == editor.editor }
                 } ?: return@forEach
             matchingEditorTab.applyHighlightingAndConnectLSP()
             reconnectedEditors.add(matchingEditorTab)
@@ -152,7 +194,12 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
     suspend fun disconnect() {
         withContext(Dispatchers.IO) {
             val wrapper = getWrapper() ?: return@withContext
-            server.supportedExtensions.forEach { lspProject.removeServerDefinition(it, server.serverName) }
+            server.supportedExtensions.forEach {
+                lspProject.removeServerDefinition(
+                    it,
+                    server.serverName
+                )
+            }
             lspProject.getEditors().forEach { wrapper.disconnect(it) }
         }
     }
@@ -164,8 +211,8 @@ fun LspServerInstance.getStatusColor(): Color? {
         MaterialTheme.colorScheme.error
     } else if (
         status == LspConnectionStatus.STARTING ||
-            status == LspConnectionStatus.RESTARTING ||
-            status == LspConnectionStatus.STOPPING
+        status == LspConnectionStatus.RESTARTING ||
+        status == LspConnectionStatus.STOPPING
     ) {
         MaterialTheme.colorScheme.yellowStatus
     } else if (status == LspConnectionStatus.RUNNING) {
@@ -183,7 +230,11 @@ fun LspServerInstance.getStatusText(): String {
         status == LspConnectionStatus.RESTARTING -> stringResource(strings.status_restarting)
         status == LspConnectionStatus.RUNNING -> stringResource(strings.status_running)
         status == LspConnectionStatus.STOPPING -> stringResource(strings.status_stopping)
-        DefinitionPrevention.isServerPrevented(lspProject, server) -> stringResource(strings.status_not_running_forced)
+        DefinitionPrevention.isServerPrevented(
+            lspProject,
+            server
+        ) -> stringResource(strings.status_not_running_forced)
+
         else -> stringResource(strings.status_not_running)
     }
 }
@@ -199,11 +250,13 @@ fun LspServerInstance.StatusIcon() {
                 modifier = Modifier.size(32.dp),
             )
         }
+
         status == LspConnectionStatus.STARTING ||
-            status == LspConnectionStatus.RESTARTING ||
-            status == LspConnectionStatus.STOPPING -> {
+                status == LspConnectionStatus.RESTARTING ||
+                status == LspConnectionStatus.STOPPING -> {
             CircularProgressIndicator(modifier = Modifier.size(24.dp))
         }
+
         status == LspConnectionStatus.RUNNING -> {
             Icon(
                 imageVector = Icons.Outlined.CheckCircle,
@@ -212,6 +265,7 @@ fun LspServerInstance.StatusIcon() {
                 modifier = Modifier.size(32.dp),
             )
         }
+
         status == LspConnectionStatus.NOT_RUNNING -> {}
     }
 }

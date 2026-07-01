@@ -36,7 +36,8 @@ object UpdateManager {
     fun inspect() =
         with(application!!) {
             val lastVersionCode = Settings.last_version_code
-            val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
+            val currentVersionCode =
+                PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
 
             if (lastVersionCode != currentVersionCode) {
                 // App is updated -> Migrate existing files
@@ -52,7 +53,7 @@ object UpdateManager {
                     val rootfs =
                         sandboxDir().listFiles()?.filter {
                             it.absolutePath != sandboxHomeDir().absolutePath &&
-                                it.absolutePath != sandboxDir().child("tmp").absolutePath
+                                    it.absolutePath != sandboxDir().child("tmp").absolutePath
                         } ?: emptyList()
 
                     if (rootfs.isNotEmpty()) {
@@ -70,14 +71,21 @@ object UpdateManager {
 
                 if (lastVersionCode <= 73) {
                     runCatching {
-                        val filesToCopy = application!!.cacheDir.listFiles { it.isFile && it.extension.isEmpty() }
-                        filesToCopy?.forEach { it.copyTo(application!!.filesDir.child(it.name), overwrite = true) }
+                        val filesToCopy =
+                            application!!.cacheDir.listFiles { it.isFile && it.extension.isEmpty() }
+                        filesToCopy?.forEach {
+                            it.copyTo(
+                                application!!.filesDir.child(it.name),
+                                overwrite = true
+                            )
+                        }
                     }
                 }
 
                 if (lastVersionCode <= 76) {
                     runCatching {
-                        val filesToCopy = application!!.filesDir.listFiles { it.isFile && it.extension.isEmpty() }
+                        val filesToCopy =
+                            application!!.filesDir.listFiles { it.isFile && it.extension.isEmpty() }
                         filesToCopy?.forEach { it.delete() }
                     }
                 }
@@ -132,7 +140,8 @@ object UpdateManager {
                         Preference.setBoolean("strict_mode", oldStrictMode)
                     }
 
-                    val oldTerminalVirusNotice = Preference.getBoolean("terminal-virus-notice", false)
+                    val oldTerminalVirusNotice =
+                        Preference.getBoolean("terminal-virus-notice", false)
                     Preference.removeKey("terminal-virus-notice")
                     if (oldTerminalVirusNotice) {
                         Preference.setBoolean("terminal_virus_notice", true)
@@ -169,7 +178,8 @@ object UpdateManager {
                         Preference.setString("current_lang", oldCurrentLang)
                     }
 
-                    val oldExtraKeys = Preference.getString("extra_keys", DEFAULT_EXTRA_KEYS_SYMBOLS)
+                    val oldExtraKeys =
+                        Preference.getString("extra_keys", DEFAULT_EXTRA_KEYS_SYMBOLS)
                     Preference.removeKey("extra_keys")
                     if (oldExtraKeys != DEFAULT_EXTRA_KEYS_SYMBOLS) {
                         Preference.setString("extra_keys_symbols", oldExtraKeys)
@@ -179,8 +189,10 @@ object UpdateManager {
                 if (lastVersionCode <= 81) {
                     GlobalScope.launch {
                         runCatching {
-                            application!!.filesDir.child("projects").toFileWrapper().renameTo("drawerTabs")
-                            application!!.filesDir.child("currentTab").toFileWrapper().renameTo("currentDrawerTab")
+                            application!!.filesDir.child("projects").toFileWrapper()
+                                .renameTo("drawerTabs")
+                            application!!.filesDir.child("currentTab").toFileWrapper()
+                                .renameTo("currentDrawerTab")
                             application!!
                                 .filesDir
                                 .child("expanded_filetree_nodes")
@@ -192,6 +204,21 @@ object UpdateManager {
 
                 if (lastVersionCode <= 85) {
                     LspPersistence.migrate()
+                }
+
+                if (lastVersionCode <= 94L) {
+                    runCatching {
+                        val legacySeccomp = Preference.getBoolean("seccomp", false)
+
+                        val newValue = if (legacySeccomp) {
+                            "yes"
+                        } else {
+                            "unspecified"
+                        }
+
+                        Preference.setString("seccomp_mode", newValue)
+                        Preference.removeKey("seccomp")
+                    }
                 }
 
                 deleteCommonFiles()

@@ -28,7 +28,8 @@ import com.rk.components.EditorSettingsItem
 import com.rk.components.NextScreenCard
 import com.rk.components.SettingsItem
 import com.rk.components.SingleInputDialog
-import com.rk.components.ValueSlider
+import com.rk.components.SmoothValueSlider
+import com.rk.components.SteppedValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -233,13 +234,12 @@ fun SettingsEditorScreen(navController: NavController) {
                 route = SettingsRoutes.EditorFontScreen,
             )
 
-            ValueSlider(
+            SmoothValueSlider(
                 label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
                 default = Settings.editor_text_size,
                 min = 6,
                 max = 50,
-                useSteps = false,
             ) {
                 Settings.editor_text_size = it
                 scope.launch { refreshEditorSettings() }
@@ -284,7 +284,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
             )
 
-            ValueSlider(
+            SteppedValueSlider(
                 label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
                 default = Settings.tab_size,

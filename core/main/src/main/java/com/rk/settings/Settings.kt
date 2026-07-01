@@ -42,7 +42,11 @@ object Settings {
     var word_wrap by CachedPreference("word_wrap", false)
     var restore_sessions by CachedPreference("restore_sessions", true)
     var cursor_animation by CachedPreference("cursor_animation", true)
-    var show_extra_keys by CachedPreference("show_extra_keys", hasHardwareKeyboard(application!!).not())
+    var show_extra_keys by
+        CachedPreference(
+            "show_extra_keys",
+            hasHardwareKeyboard(application!!).not(),
+        )
     var keep_drawer_locked by CachedPreference("drawer_lock", false)
     var show_line_numbers by CachedPreference("show_line_number", true)
     var render_whitespace by CachedPreference("render_whitespace", false)
@@ -59,7 +63,11 @@ object Settings {
     var hide_soft_keyboard_if_hardware by CachedPreference("always_show_soft_keyboard", true)
     var ignore_storage_permission by CachedPreference("ignore_storage_permission", false)
     var github by CachedPreference("github", true)
-    var has_shown_private_data_dir_warning by CachedPreference("has_shown_private_data_dir_warning", false)
+    var has_shown_private_data_dir_warning by
+        CachedPreference(
+            "has_shown_private_data_dir_warning",
+            false,
+        )
     var has_shown_terminal_dir_warning by CachedPreference("has_shown_terminal_dir_warning", false)
     var anr_watchdog by CachedPreference("anr", BuildConfig.DEBUG)
     var strict_mode by CachedPreference("strict_mode", BuildConfig.DEBUG)
@@ -101,15 +109,20 @@ object Settings {
     var auto_closing_bracket by CachedPreference("auto_closing_bracket", true)
     var confirm_exit by CachedPreference("confirm_exit", true)
     var terminal_clipboard_keybindings by CachedPreference("terminal_clipboard_keybindings", true)
+    var record_rpc by CachedPreference("record_rpc", BuildConfig.DEBUG)
 
     // Int settings
     var tab_size by CachedPreference("tab_size", 4)
     var editor_text_size by CachedPreference("text_size", 14)
-    var theme_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+    var theme_mode by
+        CachedPreference(
+            "default_night_mode",
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM,
+        )
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
-    var terminal_scrollback_buffer by
-        CachedPreference("terminal_scrollback_buffer", 2000)
+    var terminal_scrollback_buffer by CachedPreference("terminal_scrollback_buffer", 5000)
     var auto_save_delay by CachedPreference("auto_save_delay", 400L)
+    var lsp_log_limit by CachedPreference("lsp_log_limit", 5000)
 
     var user_declined_value by CachedPreference("user_declined_value", false)
     var user_said_maybe_later by CachedPreference("user_said_maybe_later", false)
@@ -154,23 +167,11 @@ object Settings {
     var line_spacing by CachedPreference("line_spacing", 1f)
 
     var last_used_command by CachedPreference("last_used_command", "")
-    var action_items by CachedPreference("action_items", ToolbarConfiguration.DEFAULT_EDITOR_TOOLBAR_COMMANDS)
-
-    init {
-        if (Preference.getAll().containsKey("seccomp")) {
-            try {
-                val legacySeccomp = Preference.getBoolean("seccomp", false)
-                if (legacySeccomp) {
-                    Preference.setString("seccomp_mode", "yes")
-                } else {
-                    Preference.setString("seccomp_mode", "unspecified")
-                }
-                Preference.removeKey("seccomp")
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
+    var action_items by
+        CachedPreference(
+            "action_items",
+            ToolbarConfiguration.DEFAULT_EDITOR_TOOLBAR_COMMANDS,
+        )
 }
 
 object Preference {
@@ -294,7 +295,15 @@ object Preference {
     fun setBoolean(key: String, value: Boolean) {
         notifyDelegate(key, value)
         boolCache[key] = WeakReference(value)
-        runCatching { sharedPreferences.edit { putBoolean(key, value) } }.onFailure { it.printStackTrace() }
+        runCatching {
+            sharedPreferences.edit {
+                putBoolean(
+                    key,
+                    value,
+                )
+            }
+        }
+            .onFailure { it.printStackTrace() }
     }
 
     fun getString(key: String, default: String): String {
@@ -316,7 +325,15 @@ object Preference {
     fun setString(key: String, value: String?) {
         notifyDelegate(key, value)
         stringCache[key] = WeakReference(value)
-        runCatching { sharedPreferences.edit { putString(key, value) } }.onFailure { it.printStackTrace() }
+        runCatching {
+            sharedPreferences.edit {
+                putString(
+                    key,
+                    value,
+                )
+            }
+        }
+            .onFailure { it.printStackTrace() }
     }
 
     fun getInt(key: String, default: Int): Int {
@@ -338,7 +355,15 @@ object Preference {
     fun setInt(key: String, value: Int) {
         notifyDelegate(key, value)
         intCache[key] = WeakReference(value)
-        runCatching { sharedPreferences.edit { putInt(key, value) } }.onFailure { it.printStackTrace() }
+        runCatching {
+            sharedPreferences.edit {
+                putInt(
+                    key,
+                    value,
+                )
+            }
+        }
+            .onFailure { it.printStackTrace() }
     }
 
     fun getLong(key: String, default: Long): Long {
@@ -360,7 +385,15 @@ object Preference {
     fun setLong(key: String, value: Long) {
         notifyDelegate(key, value)
         longCache[key] = WeakReference(value)
-        runCatching { sharedPreferences.edit { putLong(key, value) } }.onFailure { it.printStackTrace() }
+        runCatching {
+            sharedPreferences.edit {
+                putLong(
+                    key,
+                    value,
+                )
+            }
+        }
+            .onFailure { it.printStackTrace() }
     }
 
     fun getFloat(key: String, default: Float): Float {
@@ -382,7 +415,15 @@ object Preference {
     fun setFloat(key: String, value: Float) {
         notifyDelegate(key, value)
         floatCache[key] = WeakReference(value)
-        runCatching { sharedPreferences.edit { putFloat(key, value) } }.onFailure { it.printStackTrace() }
+        runCatching {
+            sharedPreferences.edit {
+                putFloat(
+                    key,
+                    value,
+                )
+            }
+        }
+            .onFailure { it.printStackTrace() }
     }
 }
 
@@ -423,4 +464,5 @@ class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWritePrope
     }
 }
 
-private const val DEFAULT_TERMINAL_EXTRA_KEYS = "[\n  [\n    \"ESC\",\n    {\n      \"key\": \"/\",\n      \"popup\": \"\\\\\"\n    },\n    {\n      \"key\": \"-\",\n      \"popup\": \"|\"\n    },\n    \"HOME\",\n    \"UP\",\n    \"END\",\n    \"PGUP\"\n  ],\n  [\n    \"TAB\",\n    \"CTRL\",\n    \"ALT\",\n    \"LEFT\",\n    \"DOWN\",\n    \"RIGHT\",\n    \"PGDN\"\n  ]\n]"
+private const val DEFAULT_TERMINAL_EXTRA_KEYS =
+    "[\n  [\n    \"ESC\",\n    {\n      \"key\": \"/\",\n      \"popup\": \"\\\\\"\n    },\n    {\n      \"key\": \"-\",\n      \"popup\": \"|\"\n    },\n    \"HOME\",\n    \"UP\",\n    \"END\",\n    \"PGUP\"\n  ],\n  [\n    \"TAB\",\n    \"CTRL\",\n    \"ALT\",\n    \"LEFT\",\n    \"DOWN\",\n    \"RIGHT\",\n    \"PGDN\"\n  ]\n]"

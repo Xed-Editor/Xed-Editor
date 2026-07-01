@@ -5,10 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -30,8 +27,9 @@ import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.settingsNavController
 import com.rk.components.NextScreenCard
+import com.rk.components.RoundedValueSlider
 import com.rk.components.SettingsItem
-import com.rk.components.ValueSlider
+import com.rk.components.SteppedValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -105,6 +103,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
 
             if (showSeccompDialog) {
                 var tempSeccompMode by remember { mutableStateOf(seccompMode) }
+                // TODO: Extract to reusable component
                 AlertDialog(
                     onDismissRequest = {
                         showSeccompDialog = false
@@ -113,17 +112,25 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                     text = {
                         Column {
                             listOf(
-                                "unspecified" to strings.seccomp_unspecified,
-                                "no" to strings.seccomp_no_seccomp,
-                                "yes" to strings.seccomp_seccomp
-                            ).forEach { (mode, stringRes) ->
-                                PreferenceTemplate(
-                                    modifier =
-                                        Modifier.clip(MaterialTheme.shapes.large).clickable { tempSeccompMode = mode },
-                                    title = { Text(stringResource(stringRes)) },
-                                    startWidget = { RadioButton(selected = tempSeccompMode == mode, onClick = null) },
+                                    "unspecified" to strings.seccomp_unspecified,
+                                    "no" to strings.seccomp_no_seccomp,
+                                    "yes" to strings.seccomp_seccomp,
                                 )
-                            }
+                                .forEach { (mode, stringRes) ->
+                                    PreferenceTemplate(
+                                        modifier =
+                                            Modifier.clip(MaterialTheme.shapes.large).clickable {
+                                                tempSeccompMode = mode
+                                            },
+                                        title = { Text(stringResource(stringRes)) },
+                                        startWidget = {
+                                            RadioButton(
+                                                selected = tempSeccompMode == mode,
+                                                onClick = null,
+                                            )
+                                        },
+                                    )
+                                }
                         }
                     },
                     confirmButton = {
@@ -163,7 +170,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
         }
 
         PreferenceGroup(heading = stringResource(strings.appearance)) {
-            ValueSlider(
+            SteppedValueSlider(
                 label = stringResource(strings.text_size),
                 min = 10,
                 max = 20,
@@ -204,7 +211,12 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                                 modifier =
                                     Modifier.clip(MaterialTheme.shapes.large).clickable { cursorStyleValue = it },
                                 title = { Text(stringResource(it.stringRes)) },
-                                startWidget = { RadioButton(selected = cursorStyleValue == it, onClick = null) },
+                                startWidget = {
+                                    RadioButton(
+                                        selected = cursorStyleValue == it,
+                                        onClick = null,
+                                    )
+                                },
                             )
                         }
                     }
@@ -249,7 +261,9 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
 
                         try {
                             fileObject.getInputStream().use { inputStream ->
-                                FileOutputStream(tempFile).use { outputStream -> inputStream.copyTo(outputStream) }
+                                FileOutputStream(tempFile).use { outputStream ->
+                                    inputStream.copyTo(outputStream)
+                                }
                             }
 
                             sandboxDir().deleteRecursively()
@@ -408,13 +422,13 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 sideEffect = { Settings.terminal_clipboard_keybindings = it },
             )
 
-            ValueSlider(
+            RoundedValueSlider(
                 label = stringResource(strings.scrollback_buffer),
                 description = stringResource(strings.scrollback_buffer_desc),
                 min = TerminalEmulator.TERMINAL_TRANSCRIPT_ROWS_MIN,
                 max = TerminalEmulator.TERMINAL_TRANSCRIPT_ROWS_MAX,
                 default = Settings.terminal_scrollback_buffer,
-                useSteps = false,
+                stepSize = 5_000,
             ) {
                 Settings.terminal_scrollback_buffer = it
                 toast(strings.restart_required)

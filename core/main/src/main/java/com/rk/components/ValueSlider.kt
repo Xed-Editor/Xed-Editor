@@ -19,16 +19,109 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun ValueSlider(
+fun SmoothValueSlider(
     label: String,
     description: String? = null,
     singleLineDescription: Boolean = false,
     min: Int,
     max: Int,
     default: Int,
-    useSteps: Boolean = true,
+    debounce: Long = 300,
+    onValueChanged: (Int) -> Unit,
+) =
+    ValueSliderImpl(
+        label = label,
+        description = description,
+        singleLineDescription = singleLineDescription,
+        min = min,
+        max = max,
+        default = default,
+        steps = 0,
+        valueMapper = { it.toInt() },
+        debounce = debounce,
+        onValueChanged = onValueChanged,
+    )
+
+@Composable
+fun SteppedValueSlider(
+    label: String,
+    description: String? = null,
+    singleLineDescription: Boolean = false,
+    min: Int,
+    max: Int,
+    default: Int,
+    stepSize: Int = 1,
+    debounce: Long = 300,
+    onValueChanged: (Int) -> Unit,
+) =
+    ValueSliderImpl(
+        label = label,
+        description = description,
+        singleLineDescription = singleLineDescription,
+        min = min,
+        max = max,
+        default = default,
+        steps = ((max - min) / stepSize).coerceAtLeast(1) - 1,
+        valueMapper = { it.toInt() },
+        debounce = debounce,
+        onValueChanged = onValueChanged,
+    )
+
+@Composable
+fun RoundedValueSlider(
+    label: String,
+    description: String? = null,
+    singleLineDescription: Boolean = false,
+    min: Int,
+    max: Int,
+    default: Int,
+    stepSize: Int,
+    debounce: Long = 300,
+    onValueChanged: (Int) -> Unit,
+) {
+    val sliderMin = roundedSliderMin(min)
+
+    ValueSliderImpl(
+        label = label,
+        description = description,
+        singleLineDescription = singleLineDescription,
+        min = sliderMin,
+        max = max,
+        default = default.coerceAtLeast(min),
+        steps = ((max - sliderMin) / stepSize).coerceAtLeast(1) - 1,
+        valueMapper = { value ->
+            value.toInt().coerceAtLeast(min)
+        },
+        debounce = debounce,
+        onValueChanged = onValueChanged,
+    )
+}
+
+private fun roundedSliderMin(min: Int): Int {
+    if (min <= 0) return 0
+
+    var magnitude = 1
+    while (magnitude <= min / 10) {
+        magnitude *= 10
+    }
+
+    val rounded = (min / magnitude) * magnitude
+    return if (rounded == magnitude) 0 else rounded
+}
+
+@Composable
+private fun ValueSliderImpl(
+    label: String,
+    description: String? = null,
+    singleLineDescription: Boolean = false,
+    min: Int,
+    max: Int,
+    default: Int,
+    steps: Int,
+    valueMapper: (Float) -> Int,
     debounce: Long = 300,
     onValueChanged: (Int) -> Unit,
 ) {
@@ -58,15 +151,15 @@ fun ValueSlider(
             Slider(
                 value = sliderPosition.toFloat(),
                 onValueChange = {
-                    sliderPosition = it.toInt()
+                    sliderPosition = valueMapper(it)
+
                     job?.cancel()
-                    job =
-                        scope.launch {
-                            delay(debounce)
-                            onValueChanged.invoke(it.toInt())
-                        }
+                    job = scope.launch {
+                        delay(debounce.milliseconds)
+                        onValueChanged(sliderPosition)
+                    }
                 },
-                steps = if (useSteps) max - min - 1 else 0,
+                steps = steps,
                 valueRange = min.toFloat()..max.toFloat(),
             )
         }

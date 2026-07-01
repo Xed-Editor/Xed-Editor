@@ -2,13 +2,15 @@ package com.rk.lsp
 
 import android.util.Log
 import com.rk.SandboxedProcessRegistry
-import java.io.InputStream
-import java.io.OutputStream
+import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.io.InputStream
+import java.io.OutputStream
 
 class ProcessConnection(private val cmd: Array<String>, instance: LspServerInstance) :
     BaseLspConnectionProvider(instance) {
@@ -31,20 +33,21 @@ class ProcessConnection(private val cmd: Array<String>, instance: LspServerInsta
     override fun start() {
         if (process != null) return
         scope = CoroutineScope(Dispatchers.IO)
-        val provider = SandboxedProcessRegistry.provider ?: throw IllegalStateException("PRoot Sandbox is not registered")
+        val provider = SandboxedProcessRegistry.provider
+            ?: throw IllegalStateException("PRoot Sandbox is not registered")
         runBlocking { process = provider(cmd.toList(), null, listOf()) }
 
         loggingInput =
             LoggingInputStream(process!!.inputStream) { json ->
                 Log.d("ProcessConnection", "[stdout] $json")
-                if (com.rk.settings.Preference.getBoolean("debug_mode", com.rk.xededitor.BuildConfig.DEBUG)) {
+                if (InbuiltFeatures.debugMode.state.value && Settings.record_rpc) {
                     instance.addLog(LspLogEntry(MessageSource.RPC, null, "→ $json"))
                 }
             }
         loggingOutput =
             LoggingOutputStream(process!!.outputStream) { json ->
                 Log.d("ProcessConnection", "[stdin] $json")
-                if (com.rk.settings.Preference.getBoolean("debug_mode", com.rk.xededitor.BuildConfig.DEBUG)) {
+                if (InbuiltFeatures.debugMode.state.value && Settings.record_rpc) {
                     instance.addLog(LspLogEntry(MessageSource.RPC, null, "← $json"))
                 }
             }
