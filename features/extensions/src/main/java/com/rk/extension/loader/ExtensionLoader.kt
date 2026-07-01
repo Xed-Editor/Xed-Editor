@@ -15,13 +15,13 @@ import com.rk.file.copyToTempDir
 import com.rk.utils.application
 import com.rk.utils.isMainThread
 import dalvik.system.PathClassLoader
-import java.lang.reflect.InvocationTargetException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.reflect.InvocationTargetException
 
 /**
  * Loads a locally installed extension.
@@ -46,26 +46,19 @@ fun LocalExtension.load(
     }
 
     return runCatching {
-        // 1. Verify compatibility with the current app version
         verifyCompatibility(application)
 
-        // 2. Create the class loader to load the extension's code
         val classLoader = createClassLoader(application)
-
-        // 3. Load the extension's main class and verify it implements ExtensionAPI
         val mainClass = loadMainClass(classLoader)
 
-        // 4. Set up the coroutine scope and instantiate the API class
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineName("Extension: $id"))
         val instance = instantiateAPI(mainClass, application, scope)
 
-        // 5. Invoke lifecycle callback methods
         if (initialInstallation) {
             instance.onInstalled()
         }
         instance.onExtensionLoaded()
 
-        // 6. Cache the loaded extension in the manager
         extensionManager.loadedExtensions[this] = LoadedExtension(instance, scope)
         instance
     }

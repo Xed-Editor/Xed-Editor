@@ -126,7 +126,7 @@ fun ExtensionScreen(navController: NavController) {
 
     var selectedCategory by remember { mutableStateOf(StoreCategory.EXTENSIONS) }
 
-    var currentSortOption by remember { mutableStateOf(ExtensionSortOptions.NAME) }
+    var currentSortOption by remember { mutableStateOf(ExtensionSortOptions.DOWNLOAD_COUNT) }
     var currentFilterOption by remember { mutableStateOf(ExtensionFilterOptions.ALL) }
     val searchQuery = rememberTextFieldState("")
 
@@ -527,8 +527,8 @@ fun ExtensionScreen(navController: NavController) {
                                             val themeConfig = gson.fromJson(manifestJsonString, ThemeConfig::class.java)
                                             DefaultScope.launch(Dispatchers.IO) {
                                                 runCatching {
-                                                        themeConfig.installTheme()
-                                                    }
+                                                    themeConfig.installTheme()
+                                                }
                                                     .onSuccess {
                                                         withContext(Dispatchers.Main) {
                                                             toast(strings.installed)

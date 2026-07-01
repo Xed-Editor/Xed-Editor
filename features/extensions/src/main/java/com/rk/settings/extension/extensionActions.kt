@@ -205,7 +205,7 @@ fun runExtensionInstallAction(
                                 )
                             }
                                 ?: run {
-                                    errorDialog(activity, msg = errorMsg)
+                                    errorDialog(null, msg = errorMsg)
                                 }
                         }
                     }
@@ -389,8 +389,8 @@ fun runIconPackInstallAction(
             if (downloadSuccess) {
                 showDownloadNotification(context, id, name, 1f)
                 runCatching {
-                        com.rk.App.Companion.iconPackManager.installIconPack(tempFile)
-                    }
+                    com.rk.App.Companion.iconPackManager.installIconPack(tempFile)
+                }
                     .onSuccess {
                         success = true
                     }
@@ -428,59 +428,59 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
 
     scope.launch(Dispatchers.IO) {
         runCatching {
-                if (uri == null) return@runCatching
+            if (uri == null) return@runCatching
 
-                val fileObject = uri.toFileObject(expectedIsFile = true)
-                val exists = fileObject.exists()
-                val canRead = fileObject.canRead()
-                val isZip = fileObject.getName().endsWith(".zip")
+            val fileObject = uri.toFileObject(expectedIsFile = true)
+            val exists = fileObject.exists()
+            val canRead = fileObject.canRead()
+            val isZip = fileObject.getName().endsWith(".zip")
 
-                if (exists && canRead && isZip) {
-                    withContext(Dispatchers.Main) {
-                        loading = LoadingPopup(activity).show()
-                        loading.setMessage(strings.installing.getString())
-                    }
+            if (exists && canRead && isZip) {
+                withContext(Dispatchers.Main) {
+                    loading = LoadingPopup(activity).show()
+                    loading.setMessage(strings.installing.getString())
+                }
 
-                    val result = extensionManager.installExtensionFromZip(fileObject)
+                val result = extensionManager.installExtensionFromZip(fileObject)
 
-                    if (result is InstallResult.Success) {
-                        extensionManager.setExtensionCrashed(result.extension.id, false)
-                        val initialInstallation = !result.performedUpdate
-                        result.extension.load(application!!, initialInstallation).onFailure { error ->
-                            extensionManager.setExtensionCrashed(result.extension.id, true)
-                            withContext(Dispatchers.Main) {
-                                activity?.let {
-                                    CrashActivity.start(
-                                        context = it,
-                                        extensionId = result.extension.id,
-                                        extensionName = result.extension.name,
-                                        extensionVersion = result.extension.version,
-                                        extensionAuthor = result.extension.author.toString(),
-                                        repository = result.extension.repository,
-                                        error = error,
-                                    )
-                                }
-                                    ?: run {
-                                        errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
-                                    }
+                if (result is InstallResult.Success) {
+                    extensionManager.setExtensionCrashed(result.extension.id, false)
+                    val initialInstallation = !result.performedUpdate
+                    result.extension.load(application!!, initialInstallation).onFailure { error ->
+                        extensionManager.setExtensionCrashed(result.extension.id, true)
+                        withContext(Dispatchers.Main) {
+                            activity?.let {
+                                CrashActivity.start(
+                                    context = it,
+                                    extensionId = result.extension.id,
+                                    extensionName = result.extension.name,
+                                    extensionVersion = result.extension.version,
+                                    extensionAuthor = result.extension.author.toString(),
+                                    repository = result.extension.repository,
+                                    error = error,
+                                )
                             }
+                                ?: run {
+                                    errorDialog(activity, msg = error.message ?: strings.unknown_error.getString())
+                                }
                         }
                     }
+                }
 
-                    withContext(Dispatchers.Main) {
-                        handleInstallResult(result, activity)
-                        loading?.hide()
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        errorDialog(
-                            activity,
-                            msg =
-                                "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
-                        )
-                    }
+                withContext(Dispatchers.Main) {
+                    handleInstallResult(result, activity)
+                    loading?.hide()
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    errorDialog(
+                        activity,
+                        msg =
+                            "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
+                    )
                 }
             }
+        }
             .onFailure { error ->
                 withContext(Dispatchers.Main) {
                     loading?.hide()
