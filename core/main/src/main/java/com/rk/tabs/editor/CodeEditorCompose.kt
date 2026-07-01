@@ -41,7 +41,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.FeatureRegistry
 import com.rk.utils.logInfo
 import com.rk.utils.logWarn
 import com.rk.utils.toast
@@ -267,7 +267,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
             return@launch
         }
 
-        if (!InbuiltFeatures.terminal.state.value) {
+        if (!FeatureRegistry.isEnabled("feature_terminal")) {
             logWarn("Terminal is not enabled. Skipping language server connection.")
             return@launch
         }

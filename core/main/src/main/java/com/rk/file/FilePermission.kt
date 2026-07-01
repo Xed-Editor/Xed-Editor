@@ -14,9 +14,12 @@ import androidx.core.net.toUri
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.utils.application
 import com.rk.utils.dialogRes
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 
 object FilePermission {
@@ -42,9 +45,9 @@ object FilePermission {
 
     private var dialogRef = WeakReference<AlertDialog?>(null)
 
-    fun verifyStoragePermission(activity: Activity) {
+    suspend fun verifyStoragePermission(activity: Activity) = withContext(Dispatchers.Main) {
         if (isRequesting && activeActivity.get() == activity) {
-            return
+            return@withContext
         }
         activeActivity = WeakReference(activity)
 
@@ -60,7 +63,7 @@ object FilePermission {
             }
         }
         if (Settings.ignore_storage_permission) {
-            return
+            return@withContext
         }
         var shouldAsk = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -77,6 +80,24 @@ object FilePermission {
                 shouldAsk = true
             }
         }
+
+        if (shouldAsk && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
+            withContext(Dispatchers.Default){
+                val app = application ?: return@withContext
+                val pm = app.packageManager
+
+                val pkgInfo = pm.getPackageInfo(
+                    app.packageName,
+                    PackageManager.GET_PERMISSIONS
+                )
+
+                shouldAsk =
+                    pkgInfo.requestedPermissions?.any {
+                        it == android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                    } ?: false
+            }
+        }
+
         if (shouldAsk) {
             isRequesting = true
             dialogRes(

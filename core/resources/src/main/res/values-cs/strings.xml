@@ -682,4 +682,5 @@
     <string name="no_icon_packs">Žádné sady ikon nenalezeny.</string>
     <string name="search_themes">Hledat téma</string>
     <string name="search_icon_packs">Hledat sady ikon</string>
+    <string name="vcs_status">Stav v VCS</string>
 </resources>

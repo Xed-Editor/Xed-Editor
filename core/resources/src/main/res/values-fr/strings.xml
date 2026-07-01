@@ -694,4 +694,5 @@
     <string name="search_themes">Rechercher des thèmes</string>
     <string name="search_icon_packs">Rechercher des lots d\'icônes</string>
     <string name="extension_warning_msg">Les extensions peuvent exécuter du code quelconque et être potentiellement malveillantes. N\'installez des extensions que si vous faites confiance à leur développeur et si vous avez vérifié leur code source.</string>
+    <string name="vcs_status">Statut VCS</string>
 </resources>

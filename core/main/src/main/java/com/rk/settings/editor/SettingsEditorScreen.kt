@@ -37,7 +37,7 @@ import com.rk.editor.KeywordManager
 import com.rk.filetree.SortMode
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.FeatureRegistry
 import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.launch
 
@@ -58,7 +58,7 @@ fun SettingsEditorScreen(navController: NavController) {
         var showSortingModeDialog by remember { mutableStateOf(false) }
         var sortingModeValue by remember { mutableIntStateOf(Settings.sort_mode) }
 
-        if (InbuiltFeatures.terminal.state.value) {
+        if (FeatureRegistry.isEnabled("feature_terminal")) {
             PreferenceGroup(heading = stringResource(strings.language_server)) {
                 NextScreenCard(
                     navController = navController,

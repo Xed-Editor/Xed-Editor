@@ -44,7 +44,7 @@ import com.rk.file.toFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.FeatureRegistry
 import com.rk.terminal.terminalView
 import com.rk.utils.LoadingPopup
 import com.rk.utils.dialogRes
@@ -81,7 +81,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
         val activity = LocalActivity.current as? AppCompatActivity
 
         PreferenceGroup(heading = stringResource(strings.advanced)) {
-            if (InbuiltFeatures.debugMode.state.value) {
+            if (FeatureRegistry.isEnabled("debug_mode")) {
                 SettingsItem(
                     label = stringResource(strings.failsafe_mode),
                     description = stringResource(strings.failsafe_mode_desc),

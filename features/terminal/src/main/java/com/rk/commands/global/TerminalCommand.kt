@@ -10,7 +10,7 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.app.InbuiltFeatures
+import com.rk.feature.FeatureRegistry
 
 class TerminalCommand : GlobalCommand() {
     override val id: String = "global.terminal"
@@ -24,7 +24,7 @@ class TerminalCommand : GlobalCommand() {
         activity.startActivity(intent)
     }
 
-    override fun isSupported(): Boolean = InbuiltFeatures.terminal.state.value
+    override fun isSupported(): Boolean = FeatureRegistry.isEnabled("feature_terminal")
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.terminal)
 

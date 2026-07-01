@@ -3,7 +3,7 @@
     <string name="unsupported_content">Innehållet stöds ej</string>
     <string name="restart_required">Omstart krävs</string>
     <string name="save">Spara</string>
-    <string name="open_directory">Öppna katalog</string>
+    <string name="open_directory">Öppna en katalog</string>
     <string name="new_file">Ny fil</string>
     <string name="wait">Vänligen vänta…</string>
     <string name="report_issue">Rapportera problem</string>
@@ -127,4 +127,8 @@
     <string name="file_unsaved">Fil ej sparad</string>
     <string name="ask_unsaved">Är du säker på att du vill slänga utkastet?</string>
     <string name="open_as_project">Öppna som projekt</string>
+    <string name="ask_deletion_many">Är du säker på att du vill radera %d filer permanent?</string>
+    <string name="clone_repo_desc">Klona fjärrförråd</string>
+    <string name="repo_url">Förrådets URL</string>
+    <string name="branch">Gren</string>
 </resources>

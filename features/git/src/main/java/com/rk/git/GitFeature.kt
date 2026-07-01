@@ -27,6 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.MaterialTheme
 import com.rk.components.DialogRegistry
+import com.rk.feature.FeatureRegistry
+import com.rk.feature.FeatureToggle
 import com.rk.theme.vcsAdded
 import com.rk.theme.vcsModified
 import com.rk.theme.vcsDeleted
@@ -37,7 +39,15 @@ import java.lang.ref.WeakReference
 var gitViewModel = WeakReference<GitViewModel?>(null)
 
 class GitFeature : Feature {
+    override val toggle = FeatureToggle(
+        nameRes = strings.git,
+        key = "enable_git",
+        default = true,
+        iconRes = drawables.git
+    )
+
     override fun init(application: Application) {
+
         // Register Git settings category
         SettingsRegistry.registerCategory(
             SettingsCategory(
@@ -59,7 +69,7 @@ class GitFeature : Feature {
         FileDecorationRegistry.provider = object : FileDecorationProvider {
             @Composable
             override fun getDecoration(file: FileObject): FileDecoration? {
-                if (!com.rk.settings.app.InbuiltFeatures.git.state.value || !com.rk.settings.Settings.git_colorize_names) return null
+                if (!FeatureRegistry.isEnabled("enable_git") || !com.rk.settings.Settings.git_colorize_names) return null
                 val changeType = gitViewModel.get()?.getChangeType(file.getAbsolutePath()) ?: return null
                 val color = when (changeType) {
                     ChangeType.ADDED,
@@ -118,7 +128,7 @@ class GitFeature : Feature {
 
         // Register Git Clone Overlay and Add Project Sheet action
         var showCloneDialog by mutableStateOf(false)
-        if (com.rk.settings.app.InbuiltFeatures.git.state.value) {
+        if (FeatureRegistry.isEnabled("enable_git")) {
             AddProjectRegistry.options.add(
                 AddProjectOption(
                     icon = Icon.ResourceIcon(drawables.git),

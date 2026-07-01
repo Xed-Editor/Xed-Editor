@@ -21,7 +21,6 @@ import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
