@@ -135,7 +135,7 @@ class LspConnector(
                 return@withContext
             }
 
-            editorTab.editorState.isConnectingLsp = true
+            editorTab.registerTask()
 
             val projectPath = projectFile.getAbsolutePath()
             val fileExt = fileObject.getExtension()
@@ -170,7 +170,7 @@ class LspConnector(
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
-                editorTab.editorState.isConnectingLsp = false
+                editorTab.unregisterTask()
 
                 val failedConnections = servers.filter { server ->
                     server.instances.any { instance ->

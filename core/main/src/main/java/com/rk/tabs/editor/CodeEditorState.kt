@@ -13,10 +13,10 @@ import com.rk.search.CodeItem
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.TextRange
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Mutex
 import org.ec4j.core.ResourceProperties
+import java.lang.ref.WeakReference
 
 data class CodeEditorState(val initialContent: Content? = null) {
     var editor: WeakReference<Editor?> = WeakReference(null)
@@ -57,7 +57,6 @@ data class CodeEditorState(val initialContent: Content? = null) {
 
     var textmateScope by mutableStateOf<String?>(null)
 
-
     var showColorPicker by mutableStateOf<Pair<Color, ColorFormat>?>(null)
     var colorPickerRange by mutableStateOf<TextRange?>(null)
 
@@ -68,7 +67,4 @@ data class CodeEditorState(val initialContent: Content? = null) {
         canUndo = editor.get()?.canUndo() ?: false
         canRedo = editor.get()?.canRedo() ?: false
     }
-
-    var isWrapping by mutableStateOf(false)
-    var isConnectingLsp by mutableStateOf(false)
 }

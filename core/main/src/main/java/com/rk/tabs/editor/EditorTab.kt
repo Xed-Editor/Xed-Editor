@@ -91,6 +91,8 @@ open class EditorTab(
             return file.getAbsolutePath().startsWith(getTempDir().child("temp_editor").absolutePath)
         }
 
+    private var taskCount = 0
+
     private var charset = Charset.forName(Settings.encoding)
     var lspConnector: LspConnector? = null
 
@@ -340,6 +342,30 @@ open class EditorTab(
         MainActivity.instance?.handleSupport()
     }
 
+    @XedExtensionPoint
+    suspend fun withTask(block: suspend () -> Unit) {
+        registerTask()
+        try {
+            block()
+        } finally {
+            unregisterTask()
+        }
+    }
+
+    fun registerTask() {
+        taskCount++
+    }
+
+    fun unregisterTask() {
+        if (taskCount > 0) {
+            taskCount--
+        }
+    }
+
+    fun isTaskInProcess(): Boolean {
+        return taskCount > 0
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
@@ -415,7 +441,7 @@ open class EditorTab(
                         HorizontalDivider()
                     }
 
-                    AnimatedVisibility(visible = editorState.isWrapping || editorState.isConnectingLsp) {
+                    AnimatedVisibility(visible = isTaskInProcess()) {
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                     }
 

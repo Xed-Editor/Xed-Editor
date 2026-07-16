@@ -29,6 +29,7 @@ import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
 import com.rk.editor.LanguageManager
 import com.rk.editor.intelligent.IntelligentFeature
+import com.rk.feature.FeatureRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.lsp.LspConnector
@@ -41,7 +42,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.feature.FeatureRegistry
 import com.rk.utils.logInfo
 import com.rk.utils.logWarn
 import com.rk.utils.toast
@@ -213,7 +213,11 @@ fun Editor.registerXedEvents(
     }
 
     subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
-        editorTab.editorState.isWrapping = event.isLayoutBusy
+        if (event.isLayoutBusy) {
+            editorTab.registerTask()
+        } else {
+            editorTab.unregisterTask()
+        }
     }
 
     subscribeAlways(EditorKeyEvent::class.java) { event ->

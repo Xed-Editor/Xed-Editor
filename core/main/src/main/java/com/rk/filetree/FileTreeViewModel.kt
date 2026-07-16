@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.searchViewModel
 import com.rk.events.Events
 import com.rk.events.FileTreeEvent
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.search.GlobExcluder
 import com.rk.settings.Settings
@@ -195,6 +196,7 @@ class FileTreeViewModel : ViewModel() {
         return selectedFiles[projectRoot] ?: emptyList()
     }
 
+    @XedExtensionPoint
     suspend fun withFileOperation(block: suspend () -> Unit) {
         registerFileOperation()
         try {
@@ -209,7 +211,9 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun unregisterFileOperation() {
-        fileOperationsCount--
+        if (fileOperationsCount > 0) {
+            fileOperationsCount--
+        }
     }
 
     fun isFileOperationInProgress(): Boolean {
