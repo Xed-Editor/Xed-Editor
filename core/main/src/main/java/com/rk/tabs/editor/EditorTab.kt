@@ -81,14 +81,16 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(DelicateCoroutinesApi::class)
 open class EditorTab(
-    override var file: FileObject,
+    override var file: FileObject?,
     var projectRoot: FileObject?,
     val viewModel: MainViewModel,
     val isReadOnly: Boolean = false,
+    private val customTitle: String? = null,
+    val fallbackExtension: String? = null,
 ) : Tab() {
     val isTemp: Boolean
         get() {
-            return file.getAbsolutePath().startsWith(getTempDir().child("temp_editor").absolutePath)
+            return file?.getAbsolutePath()?.startsWith(getTempDir().child("temp_editor").absolutePath) ?: false
         }
 
     private var taskCount = 0
@@ -105,14 +107,18 @@ open class EditorTab(
     val scope = CoroutineScope(Dispatchers.Default)
 
     override var tabTitle: MutableState<String> =
-        mutableStateOf(file.getName()).also {
-            scope.launch(Dispatchers.IO) {
-                val parent = file.getParentFile()
-                if (
-                    viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } && parent != null
-                ) {
-                    val title = "${parent.getName()}/${tabTitle.value}"
-                    withContext(Dispatchers.Main) { tabTitle.value = title }
+        mutableStateOf(customTitle ?: file?.getName() ?: "").also {
+            val file = file
+            if (file != null) {
+                scope.launch(Dispatchers.IO) {
+                    val parent = file.getParentFile()
+                    if (
+                        viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } &&
+                            parent != null
+                    ) {
+                        val title = "${parent.getName()}/${tabTitle.value}"
+                        withContext(Dispatchers.Main) { tabTitle.value = title }
+                    }
                 }
             }
         }
@@ -140,6 +146,12 @@ open class EditorTab(
 
     init {
         scope.launch {
+            val file = file
+            if (file == null) {
+                editorState.contentLoaded.complete(Unit)
+                editorState.editable = !isReadOnly
+                return@launch
+            }
             if (!file.exists() || !file.canRead()) return@launch
 
             projectRoot = projectRoot ?: file.getParentFile()
@@ -226,10 +238,12 @@ open class EditorTab(
         editor?.apply {
             applySettings()
 
-            loadEditorConfig()
-            editorState.editorConfigLoaded?.await()?.let { applySettings(it) }
+            if (file != null) {
+                loadEditorConfig()
+                editorState.editorConfigLoaded?.await()?.let { applySettings(it) }
+            }
 
-            val isTxtFile = file.getName().endsWith(".txt")
+            val isTxtFile = file?.getName()?.endsWith(".txt") ?: (fallbackExtension == "txt")
             if (Settings.word_wrap_text && isTxtFile) {
                 setWordwrap(true, true, true)
             }
@@ -237,7 +251,8 @@ open class EditorTab(
     }
 
     suspend fun loadEditorConfig() {
-        if (!Settings.enable_editorconfig) {
+        val file = file
+        if (!Settings.enable_editorconfig || file == null) {
             editorState.editorConfigLoaded = null
             return
         }
@@ -268,6 +283,7 @@ open class EditorTab(
     }
 
     fun refresh() {
+        val file = file ?: return
         scope.launch(Dispatchers.IO) {
             if (!file.exists() || !file.canRead()) return@launch
 
@@ -287,6 +303,7 @@ open class EditorTab(
     private val saveMutex = Mutex()
 
     private suspend fun write() {
+        val file = file ?: return
         withContext(Dispatchers.IO) {
             runCatching {
                 if (!file.canWrite()) {
@@ -306,6 +323,7 @@ open class EditorTab(
     }
 
     suspend fun quickSave() = saveMutex.withLock {
+        val file = file ?: return@withLock
         if (isTemp) return@withLock
         write()
         searchViewModel.get()?.syncIndex(file)
@@ -313,6 +331,7 @@ open class EditorTab(
     }
 
     suspend fun save() = saveMutex.withLock {
+        val file = file ?: return@withLock
         if (Settings.format_on_save && lspConnector?.isFormattingSupported() == true) {
             formatDocumentSuspend(this@EditorTab)
         }
@@ -321,7 +340,7 @@ open class EditorTab(
             MainActivity.instance?.apply {
                 fileManager.createNewFile(mimeType = "*/*", title = file.getName()) {
                     if (it != null) {
-                        file = it
+                        this@EditorTab.file = it
                         tabTitle.value = it.getName()
                         scope.launch {
                             write()
@@ -448,7 +467,7 @@ open class EditorTab(
                     editorState.notices.forEach { (id, notice) -> notice(id) }
                 }
 
-                val fileExtension = file.getExtension()
+                val fileExtension = file?.getExtension() ?: fallbackExtension ?: "txt"
                 val intelligentFeatures =
                     IntelligentFeatureRegistry.allFeatures.filter { feature ->
                         feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()
@@ -458,7 +477,7 @@ open class EditorTab(
                     modifier = Modifier.weight(1f),
                     intelligentFeatures = intelligentFeatures,
                     onTextChange = {
-                        if (Settings.auto_save && !isTemp) {
+                        if (Settings.auto_save && !isTemp && file != null) {
                             scope.launch(Dispatchers.IO) {
                                 quickSave()
                                 saveMutex.lock()
@@ -469,7 +488,7 @@ open class EditorTab(
                             editorState.isDirty = true
                         }
 
-                        if (file.getName() == ".editorconfig" && Settings.enable_editorconfig) {
+                        if (file?.getName() == ".editorconfig" && Settings.enable_editorconfig) {
                             showNotice(EDITORCONFIG_NOTICE_KEY) { id -> EditorConfigNotice(id) }
                         }
                     },
@@ -540,7 +559,7 @@ open class EditorTab(
     override val showGlobalActions: Boolean = false
 
     override fun hashCode(): Int {
-        return file.hashCode()
+        return file?.hashCode() ?: customTitle?.hashCode() ?: super.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -548,10 +567,16 @@ open class EditorTab(
             return false
         }
 
-        return other.file == file
+        return if (file != null && other.file != null) {
+            other.file == file
+        } else if (file == null && other.file == null) {
+            customTitle == other.customTitle
+        } else {
+            false
+        }
     }
 
     override fun toString(): String {
-        return "[EditorTab] ${file.getAbsolutePath()}"
+        return "[EditorTab] ${file?.getAbsolutePath() ?: customTitle}"
     }
 }

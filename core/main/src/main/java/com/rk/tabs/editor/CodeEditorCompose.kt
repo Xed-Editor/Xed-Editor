@@ -85,7 +85,7 @@ fun EditorTab.CodeEditor(
                     logInfo("New Editor instance")
 
                     editable = editorState.editable
-                    val isTxtFile = file.getName().endsWith(".txt")
+                    val isTxtFile = file?.getName()?.endsWith(".txt") ?: (fallbackExtension == "txt")
                     if (Settings.word_wrap_text && isTxtFile) {
                         setWordwrap(true, true, true)
                     }
@@ -142,7 +142,7 @@ fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, e
 fun Editor.registerXedEvents(
     editorTab: EditorTab,
     intelligentFeatures: List<IntelligentFeature>,
-    file: FileObject,
+    file: FileObject?,
     onTextChange: () -> Unit,
 ) {
     subscribeAlways(InlayHintClickEvent::class.java) { event ->
@@ -173,16 +173,18 @@ fun Editor.registerXedEvents(
         }
     }
 
-    subscribeAlways(PublishDiagnosticsEvent::class.java) { event ->
-        val viewModel = fileTreeViewModel.get()
-        val diagnostics = event.newDiagnosticsEvent
+    if (file != null) {
+        subscribeAlways(PublishDiagnosticsEvent::class.java) { event ->
+            val viewModel = fileTreeViewModel.get()
+            val diagnostics = event.newDiagnosticsEvent
 
-        val highestSeverity = diagnostics.maxOfOrNull { it.severity.toInt() }
+            val highestSeverity = diagnostics.maxOfOrNull { it.severity.toInt() }
 
-        if (highestSeverity != null) {
-            viewModel?.diagnoseNode(file, highestSeverity)
-        } else {
-            viewModel?.undiagnoseNode(file)
+            if (highestSeverity != null) {
+                viewModel?.diagnoseNode(file, highestSeverity)
+            } else {
+                viewModel?.undiagnoseNode(file)
+            }
         }
     }
 

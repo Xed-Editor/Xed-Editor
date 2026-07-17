@@ -12,8 +12,6 @@ import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.launch
 
-// TODO: Show lock icon for readOnly tabs (allow readOnly tabs)
-
 class TabManager {
     private val _tabs = mutableStateListOf<Tab>()
     val tabs: List<Tab>
@@ -28,7 +26,10 @@ class TabManager {
         get() = _tabs.getOrNull(currentTabIndex)
 
     fun addTab(tab: Tab, switchToTab: Boolean, checkDuplicate: Boolean = true) {
-        val duplicateIndex = if (checkDuplicate) _tabs.indexOfFirst { it.file == tab.file } else -1
+        val duplicateIndex =
+            if (checkDuplicate && tab.file != null) {
+                _tabs.indexOfFirst { it.file == tab.file }
+            } else -1
 
         if (duplicateIndex != -1) {
             if (switchToTab) setCurrentTab(duplicateIndex)

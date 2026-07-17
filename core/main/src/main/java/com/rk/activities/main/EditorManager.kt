@@ -16,18 +16,33 @@ import kotlinx.coroutines.withContext
 
 class EditorManager(private val viewModel: MainViewModel) {
 
-    fun createEditorTab(file: FileObject, projectRoot: FileObject? = null, isReadOnly: Boolean = false): EditorTab {
-        return EditorTab(file = file, projectRoot = projectRoot, viewModel = viewModel, isReadOnly = isReadOnly)
+    fun createEditorTab(
+        file: FileObject?,
+        projectRoot: FileObject? = null,
+        isReadOnly: Boolean = false,
+        customTitle: String? = null,
+        fallbackExtension: String? = null,
+    ): EditorTab {
+        return EditorTab(
+            file = file,
+            projectRoot = projectRoot,
+            viewModel = viewModel,
+            isReadOnly = isReadOnly,
+            customTitle = customTitle,
+            fallbackExtension = fallbackExtension,
+        )
     }
 
     fun addEditorTab(
-        file: FileObject,
+        file: FileObject?,
         projectRoot: FileObject? = null,
         switchToTab: Boolean = true,
         checkDuplicate: Boolean = true,
         isReadOnly: Boolean = false,
+        customTitle: String? = null,
+        fallbackExtension: String? = null,
     ) {
-        val editorTab = createEditorTab(file, projectRoot, isReadOnly)
+        val editorTab = createEditorTab(file, projectRoot, isReadOnly, customTitle, fallbackExtension)
         viewModel.tabManager.addTab(editorTab, switchToTab, checkDuplicate)
     }
 
@@ -64,9 +79,10 @@ class EditorManager(private val viewModel: MainViewModel) {
         switchToTab: Boolean = true,
         checkDuplicate: Boolean = true,
         isReadOnly: Boolean = false,
+        customTitle: String? = null,
     ) {
         val function = suspend {
-            val tab = TabRegistry.getTab(fileObject, projectRoot, viewModel, isReadOnly)
+            val tab = TabRegistry.getTab(fileObject, projectRoot, viewModel, isReadOnly, customTitle)
             withContext(Dispatchers.Main) { viewModel.tabManager.addTab(tab, switchToTab, checkDuplicate) }
         }
 
@@ -79,6 +95,20 @@ class EditorManager(private val viewModel: MainViewModel) {
             )
         } else {
             function.invoke()
+        }
+    }
+
+    fun addPreviewTab(title: String, content: String, extension: String = "txt", isReadOnly: Boolean = true) {
+        val editorTab =
+            createEditorTab(file = null, customTitle = title, fallbackExtension = extension, isReadOnly = isReadOnly)
+        viewModel.tabManager.addTab(editorTab, switchToTab = true)
+        viewModel.viewModelScope.launch {
+            editorTab.editorState.contentRendered
+                .await() // TODO: Check if correct property and add initial content param to EditorTab() constructor
+            withContext(Dispatchers.Main) {
+                editorTab.editorState.editor.get()?.setText(content)
+                editorTab.editorState.isDirty = false
+            }
         }
     }
 }
