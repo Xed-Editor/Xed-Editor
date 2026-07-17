@@ -695,4 +695,13 @@
     <string name="update_date">Tanggal pembaruan</string>
     <string name="enable_logcat">Aktifkan Logcat</string>
     <string name="enable_logcat_desc">Jalankan logcat dan tampilkan log di layar log</string>
+    <string name="logcat_running">Logcat sedang berjalan</string>
+    <string name="logcat_running_desc">Logcat sedang menampilkan log di layar log.</string>
+    <string name="unsupported_architecture">Ekstensi ini tidak didukung pada arsitektur perangkat Anda.</string>
+    <string name="view">Lihat</string>
+    <string name="ext_recommendations_msg">Anda mungkin juga tertarik dengan ekstensi-ekstensi yang direkomendasikan ini.</string>
+    <string name="missing_dependencies">Dependensi yang hilang</string>
+    <string name="recommendations">Rekomendasi</string>
+    <string name="dependencies_description">Ekstensi-ekstensi berikut ini diperlukan agar ekstensi ini dapat berfungsi.</string>
+    <string name="recommendations_description">Ekstensi-ekstensi berikut ini disarankan untuk diinstal bersamaan dengan ekstensi ini.</string>
 </resources>
