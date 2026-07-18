@@ -694,7 +694,7 @@
     <string name="lsp_log_limit_desc">Catatan yang lebih lama akan dihapus secara otomatis saat batas tercapai untuk menghindari penggunaan memori yang tinggi</string>
     <string name="update_date">Tanggal pembaruan</string>
     <string name="enable_logcat">Aktifkan Logcat</string>
-    <string name="enable_logcat_desc">Jalankan logcat dan tampilkan log di layar log</string>
+    <string name="enable_logcat_desc">Jalankan Logcat dan tampilkan log di layar log</string>
     <string name="logcat_running">Logcat sedang berjalan</string>
     <string name="logcat_running_desc">Logcat sedang menampilkan log di layar log.</string>
     <string name="unsupported_architecture">Ekstensi ini tidak didukung pada arsitektur perangkat Anda.</string>
