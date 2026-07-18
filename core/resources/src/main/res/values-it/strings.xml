@@ -703,4 +703,13 @@
     <string name="update_date">Aggiorna data</string>
     <string name="enable_logcat">Abilita logcat</string>
     <string name="enable_logcat_desc">Esegui logcat e stampa i log nella schermata dei log</string>
+    <string name="logcat_running">Logcat in esecuzione</string>
+    <string name="logcat_running_desc">Il logcat sta stampando i log nella schermata dei log.</string>
+    <string name="unsupported_architecture">Questa estensione non è supportata dall\'architettura del tuo dispositivo.</string>
+    <string name="view">Visualizza</string>
+    <string name="ext_recommendations_msg">Potrebbero interessarti anche queste estensioni consigliate.</string>
+    <string name="missing_dependencies">Dipendenze mancanti</string>
+    <string name="recommendations">Consigliate</string>
+    <string name="dependencies_description">Le seguenti estensioni sono necessarie per il funzionamento di questa estensione.</string>
+    <string name="recommendations_description">Le seguenti estensioni sono consigliate da installare insieme a questa estensione.</string>
 </resources>
