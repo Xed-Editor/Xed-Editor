@@ -694,4 +694,15 @@
     <string name="lsp_log_limit">LSP 日志存储上限</string>
     <string name="lsp_log_limit_desc">为避免高内存占用，旧日志将在超限时被自动删除</string>
     <string name="update_date">更新日期</string>
+    <string name="enable_logcat">启用 Logcat</string>
+    <string name="enable_logcat_desc">运行 Logcat 并输出日志到画面上</string>
+    <string name="logcat_running">正在运行 Logcat</string>
+    <string name="logcat_running_desc">Logcat 正在输出日志到画面上。</string>
+    <string name="unsupported_architecture">当前扩展不支持你的设备架构。</string>
+    <string name="view">查看</string>
+    <string name="ext_recommendations_msg">你可能对这些被推荐的扩展感兴趣。</string>
+    <string name="missing_dependencies">缺少依赖项</string>
+    <string name="recommendations">推荐</string>
+    <string name="dependencies_description">当前扩展需要以下扩展才能工作。</string>
+    <string name="recommendations_description">以下扩展被推荐与当前扩展一起安装。</string>
 </resources>
