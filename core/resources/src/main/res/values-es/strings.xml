@@ -702,5 +702,14 @@
     <string name="lsp_log_limit_desc">Bitácoras más anteriores son auto-eliminadas cuando se alcanza al límite para evitar exceso de uso de memoria</string>
     <string name="update_date">Actualizar fecha</string>
     <string name="enable_logcat">Habilitar logcar</string>
-    <string name="enable_logcat_desc">Ejecutar logcat y escribir bitácoras en la pantalla de bitácora</string>
+    <string name="enable_logcat_desc">Ejecutar Logcat y escribir bitácoras en la pantalla de bitácora</string>
+    <string name="logcat_running">Logcat ejecutándose</string>
+    <string name="logcat_running_desc">Logcat está escribiendo bitácoras para la pantalla de bitácora.</string>
+    <string name="unsupported_architecture">Esta extensión no está admitida en su arquitectura del dispositivo.</string>
+    <string name="view">Vista</string>
+    <string name="ext_recommendations_msg">Además puede estar interesado en estas extensiones recomendadas.</string>
+    <string name="missing_dependencies">Dependencias ausentes</string>
+    <string name="recommendations">Recomendaciones</string>
+    <string name="dependencies_description">Las siguientes extensiones son requeridas para que esta extensión funcione.</string>
+    <string name="recommendations_description">Las extensiones a continuación están recomendadas para instalar a lo largo de esta extensión.</string>
 </resources>
