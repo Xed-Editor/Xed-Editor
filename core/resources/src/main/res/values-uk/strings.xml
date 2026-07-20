@@ -705,4 +705,5 @@
     <string name="recommendations">Рекомендації</string>
     <string name="dependencies_description">Щоб дане розширення працювало, необхідні наступні розширення.</string>
     <string name="recommendations_description">На додачу до цього розширення рекомендується встановити наступні розширення.</string>
+    <string name="view">Переглянути</string>
 </resources>
