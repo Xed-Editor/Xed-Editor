@@ -15,12 +15,12 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.Runner
+import com.rk.runner.FileRunner
 import com.rk.terminal.setupAssetFile
 import com.rk.utils.dialogRes
 import kotlinx.coroutines.launch
 
-object UniversalRunner : Runner() {
+object UniversalRunner : FileRunner() {
 
     override val id = "universal"
     override val label = strings.universal_runner.getString()

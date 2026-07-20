@@ -707,4 +707,5 @@
     <string name="recommendations">Recommendations</string>
     <string name="dependencies_description">The following extensions are required for this extension to work.</string>
     <string name="recommendations_description">The following extensions are recommended to install alongside this extension.</string>
+    <string name="project_runner">Project runner</string>
 </resources>

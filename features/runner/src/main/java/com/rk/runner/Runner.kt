@@ -14,10 +14,6 @@ abstract class Runner {
 
     abstract fun getIcon(context: Context): Icon?
 
-    abstract fun matcher(fileObject: FileObject): Boolean
-
-    abstract suspend fun run(activity: Activity, fileObject: FileObject)
-
     abstract suspend fun isRunning(): Boolean
 
     abstract suspend fun stop()
@@ -29,4 +25,16 @@ abstract class Runner {
     fun setEnabled(enabled: Boolean) {
         Preference.setBoolean("runner_$id", enabled)
     }
+}
+
+abstract class FileRunner : Runner() {
+    abstract fun matcher(fileObject: FileObject): Boolean
+
+    abstract suspend fun run(activity: Activity, fileObject: FileObject)
+}
+
+abstract class ProjectRunner : Runner() {
+    abstract fun matcher(projectRoot: FileObject): Boolean
+
+    abstract suspend fun run(activity: Activity, projectRoot: FileObject)
 }

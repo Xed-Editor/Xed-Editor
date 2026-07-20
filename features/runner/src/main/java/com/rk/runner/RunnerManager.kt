@@ -8,6 +8,7 @@ import com.rk.events.Events
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.icons.Icon
+import com.rk.runner.runners.XedProjectRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkdownRunner
 import com.rk.utils.errorDialog
@@ -20,7 +21,7 @@ object RunnerManager {
     val extensionRunners: List<Runner>
         get() = _extensionRunners.toList()
 
-    val builtinRunners = listOf(HtmlRunner, MarkdownRunner)
+    val builtinRunners = listOf(HtmlRunner, MarkdownRunner, XedProjectRunner)
 
     @XedExtensionPoint
     fun registerRunner(runner: Runner) {
@@ -34,25 +35,38 @@ object RunnerManager {
         _extensionRunners.remove(runner)
     }
 
-    fun isRunnable(fileObject: FileObject): Boolean {
-        return getAvailableRunners(fileObject).isNotEmpty()
+    fun isRunnable(fileObject: FileObject, projectRoot: FileObject?): Boolean {
+        return getAvailableRunners(fileObject, projectRoot).isNotEmpty()
     }
 
-    fun getAvailableRunners(fileObject: FileObject): List<Runner> {
+    fun getAvailableRunners(fileObject: FileObject, projectRoot: FileObject?): List<Runner> {
         val result = mutableListOf<Runner>()
 
         val runners = builtinRunners + extensionRunners + ShellBasedRunners.runners
-        runners.forEach {
-            if (it.isEnabled() && it.matcher(fileObject)) {
-                result.add(it)
+        runners.forEach { runner ->
+            if (runner.isEnabled()) {
+                when (runner) {
+                    is FileRunner if runner.matcher(fileObject) -> {
+                        result.add(runner)
+                    }
+
+                    is ProjectRunner if projectRoot != null && runner.matcher(projectRoot) -> {
+                        result.add(runner)
+                    }
+                }
             }
         }
 
         return result
     }
 
-    fun run(activity: Activity, fileObject: FileObject, onMultipleRunners: (List<RunnableOption>) -> Unit) {
-        val availableRunners = getAvailableRunners(fileObject)
+    fun run(
+        activity: Activity,
+        fileObject: FileObject,
+        projectRoot: FileObject?,
+        onMultipleRunners: (List<RunnableOption>) -> Unit,
+    ) {
+        val availableRunners = getAvailableRunners(fileObject, projectRoot)
 
         if (availableRunners.isEmpty()) {
             errorDialog(activity, msg = "No runners available")
@@ -61,8 +75,13 @@ object RunnerManager {
 
         if (availableRunners.size == 1) {
             DefaultScope.launch {
-                availableRunners.first().run(activity, fileObject)
-                Events.publish(RunnerEvent.RunnerRun(availableRunners.first()))
+                val runner = availableRunners.first()
+                if (runner is FileRunner) {
+                    runner.run(activity, fileObject)
+                } else if (runner is ProjectRunner && projectRoot != null) {
+                    runner.run(activity, projectRoot)
+                }
+                Events.publish(RunnerEvent.RunnerRun(runner))
             }
         } else {
             val options = availableRunners.map { runner ->
@@ -73,7 +92,11 @@ object RunnerManager {
 
                     override fun run(activity: Activity) {
                         DefaultScope.launch {
-                            runner.run(activity, fileObject)
+                            if (runner is FileRunner) {
+                                runner.run(activity, fileObject)
+                            } else if (runner is ProjectRunner && projectRoot != null) {
+                                runner.run(activity, projectRoot)
+                            }
                             Events.publish(RunnerEvent.RunnerRun(runner))
                         }
                     }

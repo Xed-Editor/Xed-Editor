@@ -13,13 +13,13 @@ import com.rk.icons.Icon
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.Runner
+import com.rk.runner.FileRunner
 import com.rk.runner.runners.web.HttpServer
 import com.rk.settings.Settings
 import com.rk.utils.toast
 import java.net.BindException
 
-object HtmlRunner : Runner() {
+object HtmlRunner : FileRunner() {
 
     var httpServer: HttpServer? = null
 

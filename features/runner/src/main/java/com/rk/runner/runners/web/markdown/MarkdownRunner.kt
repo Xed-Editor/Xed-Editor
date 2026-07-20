@@ -8,14 +8,14 @@ import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.Runner
+import com.rk.runner.FileRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import java.lang.ref.WeakReference
 
 var mdViewerRef = WeakReference<MDViewer?>(null)
 var toPreviewFile: FileObject? = null
 
-object MarkdownRunner : Runner() {
+object MarkdownRunner : FileRunner() {
 
     override val id = "markdown_preview"
     override val label = strings.markdown_preview.getString()
