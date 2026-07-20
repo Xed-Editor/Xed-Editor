@@ -49,7 +49,7 @@
       "languageConfiguration": "textmate/text/language-configuration.json"
     },
     {
-      "grammar": "textmate/kotlin/syntaxes/Kotlin.tmLanguage",
+      "grammar": "textmate/kotlin/syntaxes/kotlin.tmLanguage.json",
       "name": "kotlin",
       "scopeName": "source.kotlin",
       "languageConfiguration": "textmate/kotlin/language-configuration.json"

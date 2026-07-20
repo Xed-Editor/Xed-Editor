@@ -15,12 +15,12 @@ class RenameSymbolCommand : LspCommand() {
 
     override fun getLabel(): String = strings.rename_symbol.getString()
 
-    override fun action(lspActionContext: LspActionContext) {
-        renameSymbol(DefaultScope, lspActionContext.editorTab)
+    override fun action(context: LspActionContext) {
+        renameSymbol(DefaultScope, context.editorTab)
     }
 
-    override fun isSupported(lspNonActionContext: LspNonActionContext): Boolean {
-        return lspNonActionContext.lspConnector.isRenameSymbolSupported()
+    override fun isSupported(context: LspNonActionContext): Boolean {
+        return context.lspConnector.isRenameSymbolSupported()
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.manage_search)

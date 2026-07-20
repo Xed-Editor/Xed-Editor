@@ -14,8 +14,8 @@ class ToggleWordWrapCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.toggle_word_wrap.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        val editor = editorActionContext.editor
+    override fun action(context: EditorActionContext) {
+        val editor = context.editor
         editor.setWordwrap(!editor.isWordwrap, true, true)
     }
 

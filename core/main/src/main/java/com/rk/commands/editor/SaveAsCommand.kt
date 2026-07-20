@@ -10,20 +10,21 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-class CutCommand : EditorCommand() {
-    override val id: String = "editor.cut"
+class SaveAsCommand : EditorCommand() {
+    override val id: String = "editor.save_as"
 
-    override fun getLabel(): String = strings.cut.getString()
+    override fun getLabel(): String = strings.save_as.getString()
 
     override fun action(context: EditorActionContext) {
-        context.editor.cutText()
+        context.editorTab.saveAs()
     }
 
     override fun isEnabled(context: EditorNonActionContext): Boolean {
-        return context.editorTab.editorState.editable
+        return !context.editorTab.isReadOnly
     }
 
-    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.cut)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.save)
 
-    override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_X, ctrl = true)
+    override val defaultKeybinds: KeyCombination =
+        KeyCombination(keyCode = KeyEvent.KEYCODE_S, ctrl = true, shift = true)
 }

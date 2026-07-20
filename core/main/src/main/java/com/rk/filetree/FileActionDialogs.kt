@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.drawerStateRef
+import com.rk.activities.main.filterWithFiles
 import com.rk.components.PropertiesDialog
 import com.rk.components.SingleInputDialog
 import com.rk.drawer.DrawerViewModel
@@ -23,7 +24,6 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.tabs.editor.EditorTab
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
 import kotlinx.coroutines.CoroutineScope
@@ -57,9 +57,10 @@ fun FileActionDialogs(
                 val newName = viewModel.renameValue
                 scope.launch {
                     val oldPath = file.getAbsolutePath()
+                    val mainViewModel = MainActivity.instance?.viewModel
                     val tabsToRename =
-                        MainActivity.instance?.viewModel?.tabs?.filterIsInstance<EditorTab>()?.filter {
-                            it.file.getAbsolutePath() == oldPath
+                        mainViewModel?.editorTabs?.filterWithFiles { _, file ->
+                            file.getAbsolutePath() == oldPath
                         } ?: emptyList()
 
                     val success = file.renameTo(newName)
@@ -74,7 +75,7 @@ fun FileActionDialogs(
                     viewModel.updateCache(parentFile)
 
                     tabsToRename.forEach {
-                        it.tabTitle.value = newName
+                        it.tabTitle = newName
                         it.file = parentFile.getChildForName(newName)
                     }
                 }
@@ -155,45 +156,45 @@ fun FileActionDialogs(
             onConfirm = {
                 scope.launch {
                     runCatching {
-                            if (!file.canWrite()) {
-                                toast(strings.permission_denied)
-                                return@launch
-                            }
-                            if (!file.hasChild(viewModel.createValue)) {
-                                val newChild = file.createChild(viewModel.isCreateFile, viewModel.createValue)
+                        if (!file.canWrite()) {
+                            toast(strings.permission_denied)
+                            return@launch
+                        }
+                        if (!file.hasChild(viewModel.createValue)) {
+                            val newChild = file.createChild(viewModel.isCreateFile, viewModel.createValue)
 
-                                if (newChild == null) {
-                                    if (viewModel.isCreateFile) {
-                                        toast(strings.file_creation_failed)
-                                    } else {
-                                        toast(strings.folder_creation_failed)
-                                    }
+                            if (newChild == null) {
+                                if (viewModel.isCreateFile) {
+                                    toast(strings.file_creation_failed)
                                 } else {
-                                    Events.publish(FileEvent.Created(newChild))
-                                }
-
-                                if (viewModel.isCreateFile && newChild != null && Settings.auto_open_new_files) {
-                                    MainActivity.instance
-                                        ?.viewModel
-                                        ?.editorManager
-                                        ?.openFile(
-                                            newChild,
-                                            projectRoot = root,
-                                            checkDuplicate = true,
-                                            switchToTab = true,
-                                        )
-                                    drawerStateRef.get()?.close()
+                                    toast(strings.folder_creation_failed)
                                 }
                             } else {
-                                val msg =
-                                    if (viewModel.isCreateFile) strings.file_already_exists
-                                    else strings.folder_already_exists
-                                toast(msg.getFilledString(viewModel.createValue))
+                                Events.publish(FileEvent.Created(newChild))
                             }
 
-                            viewModel.updateCache(file)
-                            viewModel.createValue = ""
+                            if (viewModel.isCreateFile && newChild != null && Settings.auto_open_new_files) {
+                                MainActivity.instance
+                                    ?.viewModel
+                                    ?.editorManager
+                                    ?.openFile(
+                                        newChild,
+                                        projectRoot = root,
+                                        checkDuplicate = true,
+                                        switchToTab = true,
+                                    )
+                                drawerStateRef.get()?.close()
+                            }
+                        } else {
+                            val msg =
+                                if (viewModel.isCreateFile) strings.file_already_exists
+                                else strings.folder_already_exists
+                            toast(msg.getFilledString(viewModel.createValue))
                         }
+
+                        viewModel.updateCache(file)
+                        viewModel.createValue = ""
+                    }
                         .onFailure { errorDialog(throwable = it) }
                 }
             },

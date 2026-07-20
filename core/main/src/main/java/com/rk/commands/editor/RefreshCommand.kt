@@ -20,11 +20,11 @@ class RefreshCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.refresh.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        val currentTab = editorActionContext.editorTab
+    override fun action(context: EditorActionContext) {
+        val currentTab = context.editorTab
         if (currentTab.editorState.isDirty) {
             dialogRes(
-                activity = editorActionContext.currentActivity,
+                activity = context.currentActivity,
                 title = strings.attention.getString(),
                 msg = strings.ask_refresh.getString(),
                 okRes = strings.refresh,

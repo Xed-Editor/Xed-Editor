@@ -14,7 +14,7 @@ class CommandPaletteCommand : GlobalCommand() {
 
     override fun getLabel(): String = strings.command_palette.getString()
 
-    override fun action(actionContext: ActionContext) {
+    override fun action(context: ActionContext) {
         commandContext.mainViewModel.showCommandPalette()
     }
 

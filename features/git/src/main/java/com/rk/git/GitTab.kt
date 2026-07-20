@@ -31,7 +31,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import com.rk.components.XedDropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,7 +62,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.fileTreeViewModel
+import com.rk.activities.main.filesByTab
 import com.rk.components.SingleInputDialog
+import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
 import com.rk.drawer.DrawerTab
@@ -75,7 +76,6 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.tabs.editor.EditorTab
 import com.rk.theme.gitAdded
 import com.rk.theme.gitConflicted
 import com.rk.theme.gitDeleted
@@ -201,9 +201,11 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         onClick = {
                             scope.launch {
                                 viewModel.pull().join()
-                                MainActivity.instance!!.viewModel.tabs.filterIsInstance<EditorTab>().forEach {
-                                    if (findGitRoot(it.file.getAbsolutePath()) != null) {
-                                        it.refresh()
+
+                                val mainViewModel = MainActivity.instance?.viewModel ?: return@launch
+                                mainViewModel.editorTabs.filesByTab().forEach { (tab, file) ->
+                                    findGitRoot(file.getAbsolutePath())?.let {
+                                        tab.refresh()
                                     }
                                 }
                             }

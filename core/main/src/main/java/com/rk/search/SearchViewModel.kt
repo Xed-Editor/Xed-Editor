@@ -816,8 +816,8 @@ class SearchViewModel : ViewModel() {
                         Settings.always_index_projects,
                     )
 
-                val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
-                val openPaths = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
+                val openedEditorTabs = mainViewModel.tabs.filterIsInstance<EditorTab>()
+                val openPaths = openedEditorTabs.mapNotNull { it.file?.getAbsolutePath() }.toSet()
 
                 // Emit results from open editor tabs first
                 scanOpenTabs(openedEditorTabs, context, mainViewModel, projectRoot)
@@ -871,7 +871,8 @@ class SearchViewModel : ViewModel() {
         projectRoot: FileObject,
     ) {
         for (tab in openedEditorTabs) {
-            val fileExt = tab.file.getExtension()
+            val file = tab.file ?: continue
+            val fileExt = file.getExtension()
             if (!matchesFileMask(fileExt)) continue
 
             val editor = tab.editorState.editor.get()
@@ -892,7 +893,7 @@ class SearchViewModel : ViewModel() {
                                 text = line,
                                 charIndex = index,
                                 query = codeSearchQuery,
-                                file = tab.file,
+                                file = file,
                                 projectRoot = projectRoot,
                                 lineIndex = lineIndex,
                                 isOpen = true,

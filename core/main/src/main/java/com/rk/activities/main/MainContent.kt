@@ -14,7 +14,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
-import com.rk.components.XedDropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LeadingIconTab
@@ -49,6 +48,7 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
+import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.addIf
 import com.rk.drawer.DrawerViewModel
 import com.rk.editor.preloadSelectionColor
@@ -235,7 +235,7 @@ private fun TabItem(
     var calculatedTabWidth by
         remember(
             tabState,
-            tabState.tabTitle.value,
+            tabState.tabTitle,
             tabState is EditorTab && tabState.editorState.isDirty,
             tabState is EditorTab && tabState.editorState.editable,
             Settings.show_tab_icons,
@@ -259,7 +259,7 @@ private fun TabItem(
                 fileTreeViewModel = fileTreeViewModel,
                 index = index,
                 calculatedTabWidth = calculatedTabWidth,
-                tabState = tabState,
+                tab = tabState,
                 onCloseThis = onCloseThis,
                 onCloseOthers = onCloseOthers,
                 onCloseAll = onCloseAll,
@@ -274,7 +274,7 @@ private fun TabItem(
             fileTreeViewModel = fileTreeViewModel,
             index = index,
             calculatedTabWidth = calculatedTabWidth,
-            tabState = tabState,
+            tab = tabState,
             onCloseThis = onCloseThis,
             onCloseOthers = onCloseOthers,
             onCloseAll = onCloseAll,
@@ -289,7 +289,7 @@ private fun TabItemContent(
     fileTreeViewModel: FileTreeViewModel,
     index: Int,
     calculatedTabWidth: Int?,
-    tabState: Tab,
+    tab: Tab,
     onCloseThis: (Int) -> Unit,
     onCloseOthers: (Int) -> Unit,
     onCloseAll: (Int) -> Unit,
@@ -313,7 +313,7 @@ private fun TabItemContent(
             }
             .let { if (isDraggableContent) it.background(backgroundColor.copy(alpha = 0.4f)) else it }
             .let {
-                if (tabState is EditorTab && !tabState.editorState.editable)
+                if (tab is EditorTab && !tab.editorState.editable)
                     it.background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f))
                 else it
             }
@@ -326,10 +326,10 @@ private fun TabItemContent(
         }
     }
 
-    val underlineColor = getUnderlineColor(context, fileTreeViewModel, tabState.file)
+    val underlineColor = getUnderlineColor(context, fileTreeViewModel, tab.file)
     val tabText: @Composable () -> Unit = {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            if (tabState is EditorTab && !tabState.editorState.editable) {
+            if (tab is EditorTab && !tab.editorState.editable) {
                 Icon(
                     painter = painterResource(drawables.lock),
                     contentDescription = null,
@@ -337,13 +337,17 @@ private fun TabItemContent(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+
+            if (tab is EditorTab && tab.editorState.isDirty) {
+                Icon(
+                    painter = painterResource(drawables.circle),
+                    contentDescription = null,
+                    modifier = Modifier.size(12.dp).padding(end = 4.dp),
+                )
+            }
+
             Text(
-                text =
-                    if (tabState is EditorTab && tabState.editorState.isDirty) {
-                        "*${tabState.tabTitle.value}"
-                    } else {
-                        tabState.tabTitle.value
-                    },
+                text = tab.tabTitle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
@@ -372,7 +376,7 @@ private fun TabItemContent(
                     onCloseAll(index)
                 },
             )
-            tabState.file?.let {
+            tab.file?.let {
                 val fileExists by produceState(false) { value = it.exists() }
                 XedDropdownMenuItem(
                     text = { Text(stringResource(strings.file_actions)) },
@@ -391,9 +395,9 @@ private fun TabItemContent(
             }
         }
 
-        tabState.file?.let {
+        tab.file?.let {
             DropdownMenu(expanded = showFileActionMenu, onDismissRequest = { showFileActionMenu = false }) {
-                val root = (tabState as? EditorTab)?.projectRoot
+                val root = (tab as? EditorTab)?.projectRoot
                 val actions = remember(it) { FileActionProvider.getActions(it, root) }
 
                 actions.forEach { action ->
@@ -431,16 +435,17 @@ private fun TabItemContent(
         }
     }
 
-    val fileColor = getFileColor(tabState.file)
+    val fileColor = getFileColor(tab.file)
     val activeColor = fileColor ?: MaterialTheme.colorScheme.primary
     val inactiveColor = fileColor ?: MaterialTheme.colorScheme.onSurfaceVariant
 
-    if (showIcon && tabState.file != null) {
+    val file = tab.file
+    if (showIcon && file != null) {
         LeadingIconTab(
             modifier = tabModifier,
             selected = isSelected,
             onClick = onClick,
-            icon = { FileIcon(file = tabState.file!!, iconTint = LocalContentColor.current) },
+            icon = { FileIcon(file = file, iconTint = LocalContentColor.current) },
             text = tabText,
             selectedContentColor = activeColor,
             unselectedContentColor = inactiveColor,

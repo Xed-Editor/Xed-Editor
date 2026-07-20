@@ -18,9 +18,9 @@ class DocumentationCommand : GlobalCommand() {
 
     override fun getIcon(): Icon = Icon.VectorIcon(XedIcons.Menu_book)
 
-    override fun action(actionContext: ActionContext) {
+    override fun action(context: ActionContext) {
         val url = "https://xed-editor.github.io/Xed-Docs/"
-        actionContext.currentActivity.openUrl(url)
+        context.currentActivity.openUrl(url)
     }
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_F1)

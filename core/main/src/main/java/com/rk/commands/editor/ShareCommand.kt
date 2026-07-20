@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
 import com.rk.DefaultScope
-import com.rk.commands.EditorActionContext
-import com.rk.commands.EditorCommand
+import com.rk.commands.EditorFileActionContext
+import com.rk.commands.EditorFileCommand
 import com.rk.file.FileWrapper
 import com.rk.icons.Icon
 import com.rk.resources.drawables
@@ -14,14 +14,14 @@ import com.rk.resources.strings
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
-class ShareCommand : EditorCommand() {
+class ShareCommand : EditorFileCommand() {
     override val id: String = "editor.share"
 
     override fun getLabel(): String = strings.share.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        val activity = editorActionContext.currentActivity
-        val file = editorActionContext.editorTab.file
+    override fun action(context: EditorFileActionContext) {
+        val activity = context.currentActivity
+        val file = context.file
 
         DefaultScope.launch {
             if (file.getAbsolutePath().contains(activity.filesDir.parentFile!!.absolutePath)) {

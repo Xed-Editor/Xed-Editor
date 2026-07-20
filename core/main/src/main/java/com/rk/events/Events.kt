@@ -143,7 +143,7 @@ sealed interface EditorTabEvent : Event {
     data class Refreshed(val tab: EditorTab) : EditorTabEvent
 
     /** Event triggered when the content of an editor tab is saved. */
-    data class Saved(val tab: EditorTab, val quickSave: Boolean) : EditorTabEvent
+    data class Saved(val tab: EditorTab, val file: FileObject, val quickSave: Boolean) : EditorTabEvent
 
     /** Event triggered when an editor tab is opened. */
     data class Opened(val tab: EditorTab) : EditorTabEvent

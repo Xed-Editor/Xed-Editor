@@ -15,17 +15,17 @@ class GoToReferencesCommand : LspCommand() {
 
     override fun getLabel(): String = strings.go_to_references.getString()
 
-    override fun action(lspActionContext: LspActionContext) {
+    override fun action(context: LspActionContext) {
         goToReferences(
             scope = DefaultScope,
-            context = lspActionContext.currentActivity,
+            context = context.currentActivity,
             viewModel = commandContext.mainViewModel,
-            editorTab = lspActionContext.editorTab,
+            editorTab = context.editorTab,
         )
     }
 
-    override fun isSupported(lspNonActionContext: LspNonActionContext): Boolean {
-        return lspNonActionContext.lspConnector.isGoToReferencesSupported()
+    override fun isSupported(context: LspNonActionContext): Boolean {
+        return context.lspConnector.isGoToReferencesSupported()
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.manage_search)

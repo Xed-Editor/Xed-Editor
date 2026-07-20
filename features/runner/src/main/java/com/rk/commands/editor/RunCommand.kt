@@ -2,9 +2,9 @@ package com.rk.commands.editor
 
 import android.view.KeyEvent
 import com.rk.commands.CommandProvider
-import com.rk.commands.EditorActionContext
-import com.rk.commands.EditorCommand
-import com.rk.commands.EditorNonActionContext
+import com.rk.commands.EditorFileActionContext
+import com.rk.commands.EditorFileCommand
+import com.rk.commands.EditorFileNonActionContext
 import com.rk.commands.KeyCombination
 import com.rk.icons.Icon
 import com.rk.resources.drawables
@@ -16,19 +16,18 @@ import com.rk.settings.Settings
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 @OptIn(DelicateCoroutinesApi::class)
-class RunCommand : EditorCommand() {
+class RunCommand : EditorFileCommand() {
     override val id: String = "editor.run"
 
     override fun getLabel(): String = strings.run.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        val editorTab = editorActionContext.editorTab
-        val activity = editorActionContext.currentActivity
-        CommandProvider.SaveCommand.action(editorActionContext)
+    override fun action(context: EditorFileActionContext) {
+        val activity = context.currentActivity
+        CommandProvider.SaveCommand.action(context)
         Settings.runs += 1
         RunnerManager.run(
             activity = activity,
-            fileObject = editorTab.file,
+            fileObject = context.file,
             onMultipleRunners = {
                 RunnerUI.runnersToShow = it
                 RunnerUI.showRunnerDialog = true
@@ -36,8 +35,8 @@ class RunCommand : EditorCommand() {
         )
     }
 
-    override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean {
-        return RunnerManager.isRunnable(editorNonActionContext.editorTab.file)
+    override fun isSupported(context: EditorFileNonActionContext): Boolean {
+        return RunnerManager.isRunnable(context.file)
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.run)

@@ -44,7 +44,7 @@ class EmulateKeyCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.emulate_editor_key.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {}
+    override fun action(context: EditorActionContext) {}
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.keyboard)
 
@@ -89,10 +89,10 @@ class EmulateKeyCommand : EditorCommand() {
 
                 override fun getLabel(): String = keyDisplayName
 
-                override fun action(editorActionContext: EditorActionContext) {
+                override fun action(context: EditorActionContext) {
                     val action = if (!isOn()) KeyEvent.ACTION_DOWN else KeyEvent.ACTION_UP
                     val keyEvent = KeyEvent(action, metaEvent.keyCode)
-                    editorActionContext.editor.dispatchKeyEvent(keyEvent)
+                    context.editor.dispatchKeyEvent(keyEvent)
 
                     metaEvent.action()
                 }
@@ -121,9 +121,9 @@ class EmulateKeyCommand : EditorCommand() {
 
                     override fun getLabel(): String = keyDisplayName
 
-                    override fun action(editorActionContext: EditorActionContext) {
+                    override fun action(context: EditorActionContext) {
                         val keyEvent = KeyEvent(0, 0, KeyEvent.ACTION_DOWN, keyCode, 0, modifierState.toMetaState())
-                        editorActionContext.editor.dispatchKeyEvent(keyEvent)
+                        context.editor.dispatchKeyEvent(keyEvent)
                     }
 
                     override fun getIcon(): Icon = keyIcon

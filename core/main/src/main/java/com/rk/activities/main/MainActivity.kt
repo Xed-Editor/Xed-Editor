@@ -27,7 +27,6 @@ import com.rk.resources.getFilledString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.support.handleSupport
-import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
@@ -81,10 +80,11 @@ class MainActivity : AppCompatActivity() {
             val lspConfigChanges = LspRegistry.getConfigurationChanges(this@MainActivity)
             if (lspConfigChanges.isNotEmpty()) {
                 val affectedExtensions = lspConfigChanges.flatMap { it.supportedExtensions }
-                viewModel.tabs
-                    .filterIsInstance<EditorTab>()
-                    .filter { affectedExtensions.contains(it.file.getExtension()) }
-                    .forEach { tab -> tab.applyHighlightingAndConnectLSP() }
+                viewModel.editorTabs
+                    .filterWithFiles { _, file ->
+                        affectedExtensions.contains(file.getExtension())
+                    }
+                    .forEach { it.applyHighlightingAndConnectLSP() }
             }
 
             delay(1000.milliseconds)

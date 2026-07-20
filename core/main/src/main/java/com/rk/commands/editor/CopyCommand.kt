@@ -14,8 +14,8 @@ class CopyCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.copy.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editor.copyText()
+    override fun action(context: EditorActionContext) {
+        context.editor.copyText()
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.copy)

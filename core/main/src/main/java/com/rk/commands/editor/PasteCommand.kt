@@ -15,12 +15,12 @@ class PasteCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.paste.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editor.pasteText()
+    override fun action(context: EditorActionContext) {
+        context.editor.pasteText()
     }
 
-    override fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean {
-        return editorNonActionContext.editorTab.editorState.editable
+    override fun isEnabled(context: EditorNonActionContext): Boolean {
+        return context.editorTab.editorState.editable
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.paste)

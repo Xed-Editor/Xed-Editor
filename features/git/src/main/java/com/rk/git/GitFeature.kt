@@ -95,7 +95,7 @@ class GitFeature : Feature {
         }
 
         Events.subscribe<EditorTabEvent.Saved> { event ->
-            gitViewModel.get()?.syncChanges(event.tab.file.getAbsolutePath())
+            gitViewModel.get()?.syncChanges(event.file.getAbsolutePath())
         }
 
         // Register Git Clone Overlay and Add Project Sheet action
