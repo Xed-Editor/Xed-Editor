@@ -4,8 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
 import com.rk.tabs.base.Tab
 import com.rk.tabs.base.TabRegistry
-import kotlinx.coroutines.launch
 import java.io.Serializable
+import kotlinx.coroutines.launch
 
 sealed interface TabState : Serializable {
     suspend fun toTab(): Tab?
@@ -20,12 +20,14 @@ data class EditorTabState(
     val unsavedContent: String?,
     val isReadOnly: Boolean = false,
     val customTitle: String? = null,
+    val fallbackExtension: String = "txt",
 ) : TabState {
     override suspend fun toTab(): Tab? {
         if (fileObject != null && !fileObject.exists() && !fileObject.canRead()) return null
 
         MainActivity.instance!!.viewModel.apply {
-            val editorTab = editorManager.createEditorTab(fileObject, projectRoot, isReadOnly, customTitle)
+            val editorTab =
+                editorManager.createEditorTab(fileObject, projectRoot, isReadOnly, customTitle, fallbackExtension)
 
             viewModelScope.launch {
                 editorTab.editorState.contentRendered.await()

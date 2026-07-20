@@ -17,10 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
@@ -84,7 +84,7 @@ open class EditorTab(
     val viewModel: MainViewModel,
     isReadOnly: Boolean = false,
     private val customTitle: String? = null,
-    val fallbackExtension: String? = null,
+    val fallbackExtension: String = "txt",
 ) : Tab() {
 
     var isReadOnly: Boolean = isReadOnly
@@ -106,22 +106,7 @@ open class EditorTab(
 
     val scope = CoroutineScope(Dispatchers.Default)
 
-    override var tabTitle: MutableState<String> =
-        mutableStateOf(customTitle ?: file?.getName() ?: strings.temp_file.getString()).also {
-            val file = file
-            if (file != null) {
-                scope.launch(Dispatchers.IO) {
-                    val parent = file.getParentFile()
-                    if (
-                        viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } &&
-                            parent != null
-                    ) {
-                        val title = "${parent.getName()}/${tabTitle.value}"
-                        withContext(Dispatchers.Main) { tabTitle.value = title }
-                    }
-                }
-            }
-        }
+    override var tabTitle by mutableStateOf(customTitle ?: file?.getName() ?: strings.temp_file.getString())
 
     val editorState by mutableStateOf(CodeEditorState())
 
@@ -150,7 +135,19 @@ open class EditorTab(
             if (file == null) {
                 editorState.contentLoaded.complete(Unit)
                 editorState.editable = !isReadOnly
+                editorState.textmateScope = FileTypeManager.fromExtension(fallbackExtension).textmateScope
                 return@launch
+            }
+
+            scope.launch(Dispatchers.IO) {
+                val parent = file.getParentFile()
+                val titleAlreadyExists = viewModel.tabs.any { it.tabTitle == tabTitle && it != this@EditorTab }
+
+                if (titleAlreadyExists && parent != null) {
+                    withContext(Dispatchers.Main) {
+                        tabTitle = "${parent.getName()}/$tabTitle"
+                    }
+                }
             }
 
             if (!file.exists() || !file.canRead()) return@launch
@@ -315,8 +312,9 @@ open class EditorTab(
                     return@withContext
                 }
 
-                val content = editorState.content.toString()
-                val normalizedContent = editorState.editor.get()!!.lineEnding.applyOn(content)
+                val editor = editorState.editor.get() ?: return@runCatching
+                val content = editor.text.toString()
+                val normalizedContent = editor.lineEnding.applyOn(content)
                 file.writeText(normalizedContent, charset)
 
                 editorState.isDirty = false
@@ -338,12 +336,17 @@ open class EditorTab(
     }
 
     fun saveAs() {
+        val file = file
+        val extension = FileTypeManager.fromScope(editorState.textmateScope).extensions.firstOrNull() ?: "txt"
+        val defaultName = file?.getName() ?: "$tabTitle.$extension"
+
         MainActivity.instance?.apply {
-            fileManager.createNewFile(mimeType = "*/*", title = file?.getName() ?: "untitled.txt") {
+            fileManager.createNewFile(mimeType = "*/*", title = defaultName) {
                 if (it != null) {
-                    file = it
-                    tabTitle.value = it.getName()
+                    this@EditorTab.file = it
+                    tabTitle = it.getName()
                     editorState.textmateScope = FileTypeManager.fromFileName(it.getName()).textmateScope
+
                     scope.launch {
                         write()
                         searchViewModel.get()?.syncIndex(it)
@@ -360,11 +363,11 @@ open class EditorTab(
             formatDocumentSuspend(this@EditorTab)
         }
 
-        val file = file ?: return@withLock
         if (isTemp) {
             withContext(Dispatchers.Main) { saveAs() }
             return@withLock
         }
+        val file = file ?: return@withLock
 
         write()
 
@@ -515,7 +518,7 @@ open class EditorTab(
                     editorState.notices.forEach { (id, notice) -> notice(id) }
                 }
 
-                val fileExtension = file?.getExtension() ?: fallbackExtension ?: "txt"
+                val fileExtension = file?.getExtension() ?: fallbackExtension
                 val intelligentFeatures =
                     IntelligentFeatureRegistry.allFeatures.filter { feature ->
                         feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()
@@ -596,6 +599,8 @@ open class EditorTab(
             scrollY = editor.scrollY,
             unsavedContent = if (editorState.isDirty) editor.text.toString() else null,
             isReadOnly = isReadOnly,
+            customTitle = customTitle,
+            fallbackExtension = fallbackExtension,
         )
     }
 

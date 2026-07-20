@@ -24,7 +24,7 @@ class EditorManager(private val viewModel: MainViewModel) {
         projectRoot: FileObject? = null,
         isReadOnly: Boolean = false,
         customTitle: String? = null,
-        fallbackExtension: String? = null,
+        fallbackExtension: String = "txt",
     ): EditorTab {
         return EditorTab(
             file = file,
@@ -43,7 +43,7 @@ class EditorManager(private val viewModel: MainViewModel) {
         checkDuplicate: Boolean = true,
         isReadOnly: Boolean = false,
         customTitle: String? = null,
-        fallbackExtension: String? = null,
+        fallbackExtension: String = "txt",
     ) {
         val editorTab = createEditorTab(file, projectRoot, isReadOnly, customTitle, fallbackExtension)
         viewModel.tabManager.addTab(editorTab, switchToTab, checkDuplicate)

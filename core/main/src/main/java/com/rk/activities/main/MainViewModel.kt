@@ -119,4 +119,13 @@ class MainViewModel : ViewModel() {
             }
         }
     }
+
+    fun getNextUntitledTitle(): String {
+        val titles = tabs.map { it.tabTitle }.toSet()
+        var i = 1
+        while (titles.contains("Untitled-$i")) {
+            i++
+        }
+        return "Untitled-$i"
+    }
 }

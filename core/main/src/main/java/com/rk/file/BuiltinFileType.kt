@@ -156,6 +156,11 @@ object FileTypeManager {
             ?: BuiltinFileType.UNKNOWN
     }
 
+    fun fromScope(scope: String?): FileType {
+        if (scope == null) return BuiltinFileType.UNKNOWN
+        return allTypes().firstOrNull { it.textmateScope == scope } ?: BuiltinFileType.UNKNOWN
+    }
+
     fun knowsExtension(ext: String): Boolean {
         val normalized = ext.lowercase().removePrefix(".")
         return allTypes().any { normalized in it.extensions }
@@ -303,7 +308,7 @@ enum class BuiltinFileType(
         title = "Pascal",
         markdownNames = listOf("pascal"),
     ),
-    ZIG(extensions = listOf("zig","zon"), textmateScope = "source.zig", icon = Icon.ResourceIcon(zig), title = "Zig"),
+    ZIG(extensions = listOf("zig", "zon"), textmateScope = "source.zig", icon = Icon.ResourceIcon(zig), title = "Zig"),
     NIM(extensions = listOf("nim"), textmateScope = "source.nim", icon = Icon.ResourceIcon(nim), title = "Nim"),
     SWIFT(
         extensions = listOf("swift"),
@@ -385,7 +390,7 @@ enum class BuiltinFileType(
         extensions = listOf("nix"),
         textmateScope = "source.nix",
         icon = Icon.ResourceIcon(nix),
-        title = "Nix"
+        title = "Nix",
     ),
 
     // Data Files

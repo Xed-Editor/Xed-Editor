@@ -2,7 +2,6 @@ package com.rk.tabs.base
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rk.activities.main.TabState
 import com.rk.file.FileObject
@@ -18,7 +17,7 @@ abstract class Tab {
     /** Can be null if tab should not be restored. */
     open fun getState(): TabState? = null
 
-    abstract val tabTitle: MutableState<String>
+    abstract val tabTitle: String
 
     open fun onTabRemoved() {}
 

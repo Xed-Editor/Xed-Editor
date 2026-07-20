@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.drawerStateRef
@@ -28,8 +27,6 @@ import com.rk.activities.main.searchViewModel
 import com.rk.commands.ActionContext
 import com.rk.commands.ToolbarConfiguration
 import com.rk.drawer.DrawerViewModel
-import com.rk.file.child
-import com.rk.file.createFileIfNot
 import com.rk.file.toFileObject
 import com.rk.filetree.FileTreeTab
 import com.rk.icons.CreateNewFile
@@ -41,8 +38,6 @@ import com.rk.search.CodeSearchDialog
 import com.rk.search.FileSearchDialog
 import com.rk.utils.application
 import com.rk.utils.errorDialog
-import com.rk.utils.getTempDir
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 var addDialog by mutableStateOf(false)
@@ -54,7 +49,6 @@ var codeSearchDialog by mutableStateOf(false)
 fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
-    var tempFileNameDialog by remember { mutableStateOf(false) }
 
     val commands by remember { derivedStateOf { ToolbarConfiguration.globalCommands } }
 
@@ -113,9 +107,11 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
         ModalBottomSheet(onDismissRequest = { addDialog = false }) {
             Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
                 AddDialogItem(resId = drawables.file, title = stringResource(strings.temp_file)) {
+                    addDialog = false
+
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
-                    intent.setType("application/octet-stream")
+                    intent.type = "application/octet-stream"
                     intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
 
                     val activities =
@@ -123,18 +119,18 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
 
                     if (activities.isEmpty()) {
                         errorDialog(strings.unsupported_feature)
-                    } else {
-                        tempFileNameDialog = true
+                        return@AddDialogItem
                     }
 
-                    addDialog = false
+                    val title = viewModel.getNextUntitledTitle()
+                    viewModel.editorManager.addEditorTab(file = null, customTitle = title)
                 }
 
                 AddDialogItem(icon = XedIcons.CreateNewFile, title = stringResource(strings.new_file)) {
                     addDialog = false
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
-                    intent.setType("application/octet-stream")
+                    intent.type = "application/octet-stream"
                     intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
 
                     val activities =
@@ -178,53 +174,5 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
                 }
             }
         }
-    }
-
-    if (tempFileNameDialog) {
-        fun getUniqueFileName(baseName: String): String {
-            val tempDir = getTempDir().child("temp_editor")
-            val extension = baseName.substringAfterLast('.', "")
-            val nameWithoutExt = baseName.substringBeforeLast('.', baseName)
-
-            // Check if base name is available
-            if (!tempDir.child(baseName).exists()) {
-                return baseName
-            }
-
-            // Find next available number
-            var counter = 1
-            var uniqueName: String
-            do {
-                uniqueName =
-                    if (extension.isNotEmpty()) {
-                        "${nameWithoutExt}${counter}.${extension}"
-                    } else {
-                        "${nameWithoutExt}${counter}"
-                    }
-                counter++
-            } while (tempDir.child(uniqueName).exists())
-
-            return uniqueName
-        }
-        var fileName by remember { mutableStateOf("untitled.txt") }
-        val uniqueName = getUniqueFileName(fileName)
-        fileName = uniqueName
-
-        SingleInputDialog(
-            title = stringResource(strings.temp_file),
-            inputValue = fileName,
-            onInputValueChange = { fileName = it },
-            onConfirm = {
-                DefaultScope.launch(Dispatchers.IO) {
-                    tempFileNameDialog = false
-                    tempFile.createFileIfNot()
-                    viewModel.editorManager.openFile(tempFile, projectRoot = null, switchToTab = true)
-                }
-            },
-            onDismiss = { tempFileNameDialog = false },
-            singleLineMode = true,
-            confirmText = stringResource(strings.ok),
-            inputLabel = stringResource(strings.file_name),
-        )
     }
 }
