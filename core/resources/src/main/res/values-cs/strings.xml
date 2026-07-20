@@ -700,4 +700,7 @@
     <string name="enable_logcat_desc">Spustit Logcat a zobrazit ladící informace v prohlížeči protokolů</string>
     <string name="logcat_running">Logcat běží</string>
     <string name="logcat_running_desc">Logcat zobrazuje ladící informace v prohlížeči protokolů.</string>
+    <string name="file_mask">Vzorec jména souborů</string>
+    <string name="file_mask_hint">Vzorec jména souborů (např. .js, .ts)</string>
+    <string name="pending">Čekání</string>
 </resources>
