@@ -50,6 +50,8 @@ fun getDefaultBindings(): List<Binding> {
         bind(sandboxHomeDir().absolutePath, "/home")
         bind("/sdcard")
         bind("/storage")
+        bind("/storage/emulated","/storage/emulated")
+        bind("/storage/emulated/0","/storage/emulated/0")
         bind("/data")
         bind(application!!.filesDir.parentFile!!.absolutePath)
         bind("/dev")
