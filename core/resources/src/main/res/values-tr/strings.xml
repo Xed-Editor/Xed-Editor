@@ -699,4 +699,13 @@
     <string name="update_date">Güncelleme tarihi</string>
     <string name="enable_logcat">Logcat\'i Etkinleştir</string>
     <string name="enable_logcat_desc">Logcat\'i çalıştır ve günlükleri günlükler ekranında yazdır</string>
+    <string name="logcat_running">Logcat çalışıyor</string>
+    <string name="logcat_running_desc">Logcat, logları loglar ekranına yazdırıyor.</string>
+    <string name="unsupported_architecture">Bu uzantı cihaz mimarinizde desteklenmiyor.</string>
+    <string name="view">Görüntüleme</string>
+    <string name="ext_recommendations_msg">Bu önerilen eklentiler de ilginizi çekebilir.</string>
+    <string name="missing_dependencies">Eksik bağımlılıklar</string>
+    <string name="recommendations">Öneriler</string>
+    <string name="dependencies_description">Bu eklentinin çalışması için aşağıdaki eklentiler gereklidir.</string>
+    <string name="recommendations_description">Bu eklentinin yanı sıra aşağıdaki eklentilerin de kurulması önerilir.</string>
 </resources>

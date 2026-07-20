@@ -554,7 +554,7 @@
     <string name="scrollback_buffer_desc">Кількість рядків, які термінал тримає в пам\'яті як історію</string>
     <string name="uninstall_ext_dialog_desc">Ви впевнені, що хочете видалити розширення \'%s\'?</string>
     <string name="push_dialog_message_commits">Ви збираєтеся опублікувати %1$d комітів до \'%2$s\'. Продовжити?</string>
-    <string name="enable_logcat_desc">Запустити logcat і вивести журнали на екран журналів</string>
+    <string name="enable_logcat_desc">Запустити Logcat і вивести журнали на екран журналів</string>
     <string name="terminal_health_desc">Запустити діагностику, щоб знайти проблеми з середовищем термінала</string>
     <string name="terminal_health">Стан термінала</string>
     <string name="underline">Підкреслення</string>
@@ -697,4 +697,13 @@
     <string name="file_mask">Маска файла</string>
     <string name="local">Локальний</string>
     <string name="bar">Перекреслення</string>
+    <string name="logcat_running">Logcat запущено</string>
+    <string name="logcat_running_desc">Logcat виводить журнал на екран.</string>
+    <string name="unsupported_architecture">Це розширення не підтримує архітектуру вашого пристрою.</string>
+    <string name="ext_recommendations_msg">Можливо, вас зацікавлять ось ці запропоновані розширення.</string>
+    <string name="missing_dependencies">Не вистачає залежностей</string>
+    <string name="recommendations">Рекомендації</string>
+    <string name="dependencies_description">Щоб дане розширення працювало, необхідні наступні розширення.</string>
+    <string name="recommendations_description">На додачу до цього розширення рекомендується встановити наступні розширення.</string>
+    <string name="view">Переглянути</string>
 </resources>

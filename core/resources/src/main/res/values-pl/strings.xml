@@ -706,6 +706,15 @@
     <string name="lsp_log_limit">Limit logów LSP</string>
     <string name="lsp_log_limit_desc">Starsze logi są automatycznie usuwane po osiągnięciu limitu, aby uniknąć nadmiernego zużycia pamięci</string>
     <string name="enable_logcat">Włącz rejestrowanie logów</string>
-    <string name="enable_logcat_desc">Włącz rejestrowanie oraz wyświetlanie logów na ekranie</string>
+    <string name="enable_logcat_desc">Uruchom Logcat i wyświetl dzienniki na ekranie dzienników</string>
     <string name="update_date">Zaktualizuj datę</string>
+    <string name="logcat_running">Logcat działa</string>
+    <string name="logcat_running_desc">Logcat wyświetla logi na ekranie logów.</string>
+    <string name="unsupported_architecture">To rozszerzenie nie jest obsługiwane na architekturze Twojego urządzenia.</string>
+    <string name="view">Wyświetl</string>
+    <string name="ext_recommendations_msg">Być może zainteresują Cię również te polecane rozszerzenia.</string>
+    <string name="missing_dependencies">Brakujące zależności</string>
+    <string name="recommendations">Rekomendacje</string>
+    <string name="dependencies_description">Aby to rozszerzenie działało, wymagane są następujące rozszerzenia.</string>
+    <string name="recommendations_description">Zaleca się zainstalowanie wraz z tym rozszerzeniem następujących rozszerzeń.</string>
 </resources>
