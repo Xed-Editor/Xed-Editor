@@ -703,4 +703,13 @@
     <string name="update_date">Date de mise à jour</string>
     <string name="enable_logcat">Activer Logcat</string>
     <string name="enable_logcat_desc">Lance Logcat et affiche le journal dans l\'écran dédié</string>
+    <string name="logcat_running">Logcat en cours d\'exécution</string>
+    <string name="logcat_running_desc">Logcat alimente le journal dans l\'écran dédié.</string>
+    <string name="unsupported_architecture">Cette extension n\'est pas supportée pour l\'architecture de votre appareil.</string>
+    <string name="view">Voir</string>
+    <string name="ext_recommendations_msg">Les extensions recommandées suivantes pourraient également vous intéresser.</string>
+    <string name="missing_dependencies">Dépendances manquantes</string>
+    <string name="recommendations">Recommandations</string>
+    <string name="dependencies_description">Les extensions suivantes sont nécessaires pour que cette extension fonctionne.</string>
+    <string name="recommendations_description">Les extensions suivantes sont recommandées en complément de cette extension.</string>
 </resources>
