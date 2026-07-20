@@ -1,6 +1,7 @@
 package com.rk.commands.global
 
 import android.view.KeyEvent
+import com.rk.DefaultScope
 import com.rk.commands.ActionContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
@@ -8,9 +9,8 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.tabs.editor.EditorTab
+import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class SaveAllCommand : GlobalCommand() {
@@ -19,13 +19,13 @@ class SaveAllCommand : GlobalCommand() {
     override fun getLabel(): String = strings.save_all.getString()
 
     override fun action(context: ActionContext) {
-        commandContext.mainViewModel.tabs.filterIsInstance<EditorTab>().forEach {
-            GlobalScope.launch(Dispatchers.IO) { it.save() }
+        commandContext.mainViewModel.editorTabs.forEach {
+            DefaultScope.launch(Dispatchers.IO) { it.save() }
         }
     }
 
     override fun isEnabled(): Boolean {
-        return commandContext.mainViewModel.tabs.isNotEmpty()
+        return commandContext.mainViewModel.editorTabs.any { it.editorState.isDirty } || Settings.auto_save
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.save)

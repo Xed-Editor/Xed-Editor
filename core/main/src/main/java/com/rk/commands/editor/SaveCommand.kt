@@ -10,6 +10,7 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -23,7 +24,7 @@ class SaveCommand : EditorCommand() {
     }
 
     override fun isEnabled(context: EditorNonActionContext): Boolean {
-        return !context.editorTab.isReadOnly
+        return !context.editorTab.isReadOnly && (context.editorTab.editorState.isDirty || Settings.auto_save)
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.save)

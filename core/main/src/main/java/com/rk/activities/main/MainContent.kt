@@ -337,13 +337,17 @@ private fun TabItemContent(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+
+            if (tab is EditorTab && tab.editorState.isDirty) {
+                Icon(
+                    painter = painterResource(drawables.circle),
+                    contentDescription = null,
+                    modifier = Modifier.size(12.dp).padding(end = 4.dp),
+                )
+            }
+
             Text(
-                text =
-                    if (tab is EditorTab && tab.editorState.isDirty) {
-                        "*${tab.tabTitle}"
-                    } else {
-                        tab.tabTitle
-                    },
+                text = tab.tabTitle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },

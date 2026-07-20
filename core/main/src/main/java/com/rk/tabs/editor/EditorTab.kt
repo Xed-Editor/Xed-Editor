@@ -60,6 +60,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -93,6 +94,7 @@ open class EditorTab(
     val isTemp: Boolean
         get() = file == null && !isReadOnly
 
+    private var autoSaveJob: Job? = null
     private var taskCount = 0
 
     private var charset = Charset.forName(Settings.encoding)
@@ -111,6 +113,7 @@ open class EditorTab(
     val editorState by mutableStateOf(CodeEditorState())
 
     override fun onTabRemoved() {
+        autoSaveJob?.cancel()
         scope.cancel()
         editorState.content = null
         editorState.editor.get()?.setText("")
@@ -529,12 +532,12 @@ open class EditorTab(
                     intelligentFeatures = intelligentFeatures,
                     onTextChange = {
                         if (Settings.auto_save && !isTemp && file != null) {
-                            scope.launch(Dispatchers.IO) {
-                                quickSave()
-                                saveMutex.lock()
-                                delay(Settings.auto_save_delay.milliseconds)
-                                saveMutex.unlock()
-                            }
+                            autoSaveJob?.cancel()
+                            autoSaveJob =
+                                scope.launch(Dispatchers.IO) {
+                                    delay(Settings.auto_save_delay.milliseconds)
+                                    quickSave()
+                                }
                         } else {
                             editorState.isDirty = true
                         }
