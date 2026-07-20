@@ -43,9 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.rk.terminal.ROOTFS_ARM
-import com.rk.terminal.ROOTFS_ARM64
-import com.rk.terminal.ROOTFS_X64
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -53,6 +50,9 @@ import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.terminal.NEXT_STAGE
+import com.rk.terminal.ROOTFS_ARM
+import com.rk.terminal.ROOTFS_ARM64
+import com.rk.terminal.ROOTFS_X64
 import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
@@ -108,6 +108,7 @@ class Terminal : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        handleIntent(intent)
     }
 
     override fun onResume() {
@@ -116,14 +117,14 @@ class Terminal : AppCompatActivity() {
     }
 
     fun handleIntent(intent: Intent) {
-        this.intent = intent
+        val pwd = intent.getStringExtra("cwd") ?: return
         val binder = sessionBinder?.get() ?: return
         terminalView.get() ?: return
 
-        val pwd = intent.getStringExtra("cwd")
-        if (pwd == null) {
-            return
-        }
+        // remove the extra so it's not handled again
+        intent.removeExtra("cwd")
+        this.intent = intent
+
         val sessionId = File(pwd).name
 
         lifecycleScope.launch(Dispatchers.Main) {
@@ -131,7 +132,6 @@ class Terminal : AppCompatActivity() {
             val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)
 
             this@Terminal.changeSession(info.id)
-            setIntent(Intent())
         }
     }
 

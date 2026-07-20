@@ -263,6 +263,7 @@ private fun ColumnScope.TerminalView(
                 )
 
                 terminalView = WeakReference(this)
+                terminalActivity.handleIntent(terminalActivity.intent)
                 setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
                 val client = TerminalBackEnd()
 
