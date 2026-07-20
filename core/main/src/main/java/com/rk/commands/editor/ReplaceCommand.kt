@@ -15,9 +15,9 @@ class ReplaceCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.replace.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editorTab.editorState.apply {
-            editorActionContext.editor.getSelectedText()?.let {
+    override fun action(context: EditorActionContext) {
+        context.editorTab.editorState.apply {
+            context.editor.getSelectedText()?.let {
                 searchKeyword = searchKeyword.copy(text = it, selection = TextRange(it.length))
             }
             isSearching = true

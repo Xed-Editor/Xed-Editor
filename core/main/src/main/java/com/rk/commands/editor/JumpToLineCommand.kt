@@ -14,8 +14,11 @@ class JumpToLineCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.jump_to_line.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editorTab.editorState.showJumpToLineDialog = true
+    override fun action(context: EditorActionContext) {
+        context.editorTab.editorState.apply {
+            showJumpToLineDialog = true
+            jumpToLineValue = "${context.editor.cursor.leftLine}:${context.editor.cursor.leftColumn}"
+        }
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.arrow_outward)

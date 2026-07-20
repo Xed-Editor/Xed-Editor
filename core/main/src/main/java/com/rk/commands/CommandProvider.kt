@@ -11,6 +11,7 @@ import com.rk.commands.editor.PasteCommand
 import com.rk.commands.editor.RedoCommand
 import com.rk.commands.editor.RefreshCommand
 import com.rk.commands.editor.ReplaceCommand
+import com.rk.commands.editor.SaveAsCommand
 import com.rk.commands.editor.SaveCommand
 import com.rk.commands.editor.SearchCommand
 import com.rk.commands.editor.SelectAllCommand
@@ -59,6 +60,7 @@ object CommandProvider {
     lateinit var LowerCaseCommand: LowerCaseCommand
     lateinit var UpperCaseCommand: UpperCaseCommand
     lateinit var SaveCommand: SaveCommand
+    lateinit var SaveAsCommand: SaveAsCommand
     lateinit var SaveAllCommand: SaveAllCommand
     lateinit var UndoCommand: UndoCommand
     lateinit var RedoCommand: RedoCommand
@@ -96,6 +98,7 @@ object CommandProvider {
             registerBuiltin(LowerCaseCommand()) { LowerCaseCommand = it }
             registerBuiltin(UpperCaseCommand()) { UpperCaseCommand = it }
             registerBuiltin(SaveCommand()) { SaveCommand = it }
+            registerBuiltin(SaveAsCommand()) { SaveAsCommand = it }
             registerBuiltin(SaveAllCommand()) { SaveAllCommand = it }
             registerBuiltin(UndoCommand()) { UndoCommand = it }
             registerBuiltin(RedoCommand()) { RedoCommand = it }

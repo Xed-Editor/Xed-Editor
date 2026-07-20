@@ -15,17 +15,17 @@ class GoToDefinitionCommand : LspCommand() {
 
     override fun getLabel(): String = strings.go_to_definition.getString()
 
-    override fun action(lspActionContext: LspActionContext) {
+    override fun action(context: LspActionContext) {
         goToDefinition(
             scope = DefaultScope,
-            context = lspActionContext.currentActivity,
+            context = context.currentActivity,
             viewModel = commandContext.mainViewModel,
-            editorTab = lspActionContext.editorTab,
+            editorTab = context.editorTab,
         )
     }
 
-    override fun isSupported(lspNonActionContext: LspNonActionContext): Boolean {
-        return lspNonActionContext.lspConnector.isGoToDefinitionSupported()
+    override fun isSupported(context: LspNonActionContext): Boolean {
+        return context.lspConnector.isGoToDefinitionSupported()
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.jump_to_element)

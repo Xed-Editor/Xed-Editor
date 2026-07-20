@@ -1,7 +1,6 @@
 package com.rk.commands.editor
 
 import android.view.KeyEvent
-import com.rk.DefaultScope
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.commands.EditorNonActionContext
@@ -10,16 +9,14 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-class SaveCommand : EditorCommand() {
-    override val id: String = "editor.save"
+class SaveAsCommand : EditorCommand() {
+    override val id: String = "editor.save_as"
 
-    override fun getLabel(): String = strings.save.getString()
+    override fun getLabel(): String = strings.save_as.getString()
 
     override fun action(context: EditorActionContext) {
-        DefaultScope.launch(Dispatchers.IO) { context.editorTab.save() }
+        context.editorTab.saveAs()
     }
 
     override fun isEnabled(context: EditorNonActionContext): Boolean {
@@ -28,5 +25,6 @@ class SaveCommand : EditorCommand() {
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.save)
 
-    override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_S, ctrl = true)
+    override val defaultKeybinds: KeyCombination =
+        KeyCombination(keyCode = KeyEvent.KEYCODE_S, ctrl = true, shift = true)
 }

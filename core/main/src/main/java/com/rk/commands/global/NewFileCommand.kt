@@ -15,7 +15,7 @@ class NewFileCommand : GlobalCommand() {
 
     override fun getLabel(): String = strings.new_file.getString()
 
-    override fun action(actionContext: ActionContext) {
+    override fun action(context: ActionContext) {
         addDialog = true
     }
 

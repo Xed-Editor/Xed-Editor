@@ -15,14 +15,14 @@ class UndoCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.undo.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        val editor = editorActionContext.editor
+    override fun action(context: EditorActionContext) {
+        val editor = context.editor
         if (editor.canUndo()) editor.undo()
-        editorActionContext.editorTab.editorState.updateUndoRedo()
+        context.editorTab.editorState.updateUndoRedo()
     }
 
-    override fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean {
-        val editorState = editorNonActionContext.editorTab.editorState
+    override fun isEnabled(context: EditorNonActionContext): Boolean {
+        val editorState = context.editorTab.editorState
         return editorState.editable && editorState.canUndo
     }
 

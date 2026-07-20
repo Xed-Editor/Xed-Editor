@@ -2,6 +2,7 @@ package com.rk.commands.editor
 
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
+import com.rk.commands.EditorNonActionContext
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -12,8 +13,8 @@ class SortLinesDescendingCommand : EditorCommand() {
 
     override fun getLabel() = strings.sort_lines_descending.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        val editor = editorActionContext.editor
+    override fun action(context: EditorActionContext) {
+        val editor = context.editor
 
         val cursor = editor.cursor
 
@@ -32,6 +33,10 @@ class SortLinesDescendingCommand : EditorCommand() {
         val descendingLine = lines.sortedDescending().joinToString("\n")
 
         editor.text.replace(startLine, 0, endLine, endLineColumn, descendingLine)
+    }
+
+    override fun isEnabled(context: EditorNonActionContext): Boolean {
+        return context.editorTab.editorState.editable
     }
 
     override fun getIcon() = Icon.ResourceIcon(drawables.sort_by_alphabet)

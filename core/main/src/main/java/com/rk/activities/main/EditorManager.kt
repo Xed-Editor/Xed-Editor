@@ -16,6 +16,9 @@ import kotlinx.coroutines.withContext
 
 class EditorManager(private val viewModel: MainViewModel) {
 
+    val tabs: List<EditorTab>
+        get() = viewModel.tabs.filterIsInstance<EditorTab>()
+
     fun createEditorTab(
         file: FileObject?,
         projectRoot: FileObject? = null,
@@ -103,8 +106,7 @@ class EditorManager(private val viewModel: MainViewModel) {
             createEditorTab(file = null, customTitle = title, fallbackExtension = extension, isReadOnly = isReadOnly)
         viewModel.tabManager.addTab(editorTab, switchToTab = true)
         viewModel.viewModelScope.launch {
-            editorTab.editorState.contentRendered
-                .await() // TODO: Check if correct property and add initial content param to EditorTab() constructor
+            editorTab.editorState.contentLoaded.await()
             withContext(Dispatchers.Main) {
                 editorTab.editorState.editor.get()?.setText(content)
                 editorTab.editorState.isDirty = false

@@ -15,12 +15,12 @@ class DuplicateLineCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.duplicate_line.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editor.duplicateLine()
+    override fun action(context: EditorActionContext) {
+        context.editor.duplicateLine()
     }
 
-    override fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean {
-        return editorNonActionContext.editorTab.editorState.editable
+    override fun isEnabled(context: EditorNonActionContext): Boolean {
+        return context.editorTab.editorState.editable
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.duplicate_line)

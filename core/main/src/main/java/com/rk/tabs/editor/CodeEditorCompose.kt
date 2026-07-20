@@ -32,6 +32,7 @@ import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
+import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.LspConnector
 import com.rk.lsp.LspRegistry
 import com.rk.lsp.LspServer
@@ -263,101 +264,118 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
         val editorConfigProps = editorState.editorConfigLoaded?.await()
         editorConfigProps?.let { withContext(Dispatchers.Main) { editor.applySettings(it) } }
 
-        val activity = editor.context as? Activity ?: return@launch
-        val extension = getExtensionServers(activity)
-        val external = getExternalServers()
-        var servers = extension + external
-        if (!FeatureRegistry.isEnabled("feature_terminal")) {
-            servers = servers.filter { it.getConnectionConfig() !is com.rk.lsp.LspConnectionConfig.Process }
+        file?.let {
+            editor.connectLsp(this@applyHighlightingAndConnectLSP, it, this)
         }
-        if (servers.isEmpty()) return@launch
-
-        // Language servers fail with content URIs
-        if (file !is FileWrapper) {
-            logWarn("File ${file.getName()} is not a file wrapper. Skipping language server connection.")
-            return@launch
-        }
-
-        // Create another language, as created identifiers cannot be modified retroactively
-        val wrapperLanguage =
-            editorState.textmateScope
-                ?.let { LanguageManager.createLanguage(textmateScope = it, createIdentifiers = false) }
-                ?.apply {
-                    editor.getTextMateLanguage()?.let {
-                        useTab(it.useTab())
-                        tabSize = it.tabSize
-                    }
-                }
-
-        val projectFile =
-            projectRoot
-                ?: run {
-                    logWarn("File ${file.getName()} has no suitable project root. Skipping language server connection.")
-                    return@launch
-                }
-
-        lspConnector =
-            LspConnector(
-                projectFile = projectFile,
-                fileObject = file,
-                codeEditor = editor,
-                editorTab = this@applyHighlightingAndConnectLSP,
-                servers = servers,
-            )
-
-        logInfo("Trying to connect language servers...")
-        lspConnector?.connect(wrapperLanguage)
-        logInfo("isConnected : ${lspConnector?.isConnected() ?: false}")
     }
 }
 
-private fun EditorTab.promptLspInstall(activity: Activity, server: LspServer) {
+private suspend fun Editor.connectLsp(
+    tab: EditorTab,
+    file: FileObject,
+    scope: CoroutineScope,
+) {
+    val activity = context as? Activity ?: return
+
+    val extension = file.getExtensionServers(activity, scope)
+    val external = file.getExternalServers()
+    var servers =
+        (extension + external).ifEmpty {
+            return
+        }
+
+    if (!FeatureRegistry.isEnabled("feature_terminal")) {
+        servers = servers.filter { it.getConnectionConfig() !is LspConnectionConfig.Process }
+    }
+
+    // Language servers fail with content URIs
+    if (file !is FileWrapper) {
+        logWarn("File ${file.getName()} is not a file wrapper. Skipping language server connection.")
+        return
+    }
+
+    // Create another language, as created identifiers cannot be modified retroactively
+    val wrapperLanguage =
+        tab.editorState.textmateScope
+            ?.let { LanguageManager.createLanguage(textmateScope = it, createIdentifiers = false) }
+            ?.apply {
+                getTextMateLanguage()?.let {
+                    useTab(it.useTab())
+                    tabSize = it.tabSize
+                }
+            }
+
+    val projectFile =
+        tab.projectRoot
+            ?: run {
+                logWarn("File ${file.getName()} has no suitable project root. Skipping language server connection.")
+                return
+            }
+
+    tab.lspConnector =
+        LspConnector(
+            projectFile = projectFile,
+            fileObject = file,
+            codeEditor = this,
+            editorTab = tab,
+            servers = servers,
+        )
+
+    logInfo("Trying to connect language servers...")
+    tab.lspConnector?.connect(wrapperLanguage)
+    logInfo("isConnected : ${tab.lspConnector?.isConnected() ?: false}")
+}
+
+private fun LspServer.promptLspInstall(activity: Activity, scope: CoroutineScope) {
     scope.launch {
         val snackbarHost = snackbarHostStateRef.get() ?: return@launch
         val result =
             snackbarHost.showSnackbar(
-                message = strings.ask_lsp_install.getFilledString(server.languageName, activity),
+                message = strings.ask_lsp_install.getFilledString(languageName, activity),
                 actionLabel = strings.install.getString(),
                 withDismissAction = true,
                 duration = SnackbarDuration.Short,
             )
         if (result == SnackbarResult.ActionPerformed) {
-            Preference.removeKey("lsp_install_reject_count_${server.id}")
-            server.install(activity)
+            Preference.removeKey("lsp_install_reject_count_${id}")
+            install(activity)
         } else if (result == SnackbarResult.Dismissed) {
-            val rejectCount = Preference.getInt("lsp_install_reject_count_${server.id}", 0)
-            Preference.setInt("lsp_install_reject_count_${server.id}", rejectCount + 1)
+            val rejectCount = Preference.getInt("lsp_install_reject_count_${id}", 0)
+            Preference.setInt("lsp_install_reject_count_${id}", rejectCount + 1)
         }
     }
 }
 
-private fun EditorTab.promptLspUpdate(activity: Activity, server: LspServer) {
+private fun LspServer.promptLspUpdate(activity: Activity, scope: CoroutineScope) {
     scope.launch {
         val snackbarHost = snackbarHostStateRef.get() ?: return@launch
         val result =
             snackbarHost.showSnackbar(
-                message = strings.ask_lsp_update.getFilledString(server.languageName, activity),
+                message = strings.ask_lsp_update.getFilledString(languageName, activity),
                 actionLabel = strings.update.getString(),
                 duration = SnackbarDuration.Long,
             )
         if (result == SnackbarResult.ActionPerformed) {
-            server.update(activity)
+            update(activity)
         }
     }
 }
 
-private suspend fun EditorTab.getExtensionServers(activity: Activity): List<LspServer> {
-    val servers = LspRegistry.extensionServers.filter { server -> server.isSupported(file) }
-    return findActiveLspServers(servers, activity)
+private suspend fun FileObject.getExtensionServers(
+    activity: Activity,
+    scope: CoroutineScope,
+): List<LspServer> {
+    val servers = LspRegistry.extensionServers.filter { server -> server.isSupported(this) }
+    return servers.filterActiveLspServers(activity, scope)
 }
 
-private suspend fun EditorTab.findActiveLspServers(
-    servers: List<LspServer>,
+private suspend fun List<LspServer>.filterActiveLspServers(
     activity: Activity,
+    scope: CoroutineScope,
 ): MutableList<LspServer> {
     val matchedServers = mutableListOf<LspServer>()
 
-    servers.forEach { server ->
+    this.forEach { server ->
         if (!Preference.getBoolean("lsp_${server.id}", true)) {
             return@forEach
         }
@@ -367,14 +385,14 @@ private suspend fun EditorTab.findActiveLspServers(
             if (Preference.getInt("lsp_install_reject_count_${server.id}", 0) >= 3) {
                 return@forEach
             }
-            promptLspInstall(activity, server)
+            server.promptLspInstall(activity, scope)
             return@forEach
         }
 
         scope.launch(Dispatchers.IO) {
             if (server.isUpdatable(activity)) {
                 logInfo("Server ${server.id} has updates available")
-                promptLspUpdate(activity, server)
+                server.promptLspUpdate(activity, scope)
             }
         }
 
@@ -385,6 +403,6 @@ private suspend fun EditorTab.findActiveLspServers(
     return matchedServers
 }
 
-private fun EditorTab.getExternalServers(): List<LspServer> {
-    return LspRegistry.externalServers.filter { server -> server.isSupported(file) }
+private fun FileObject.getExternalServers(): List<LspServer> {
+    return LspRegistry.externalServers.filter { server -> server.isSupported(this) }
 }

@@ -25,13 +25,13 @@ import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import io.github.rosemoe.sora.lsp.events.format.rangeFormatting
 import io.github.rosemoe.sora.widget.component.TextActionItem
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.FormattingOptions
 import org.eclipse.lsp4j.Range
+import java.io.File
 
 /**
  * Workaround helper that fixes the URI path coming from LSP if they point to `/home`.
@@ -63,70 +63,70 @@ suspend fun EditorManager.jumpToPosition(file: FileObject, projectRoot: FileObje
 fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.lspConnector!!
-                val editorState = editorTab.editorState
-                val editor = editorState.editor.get()!!
+            val baseLspConnector = editorTab.lspConnector!!
+            val editorState = editorTab.editorState
+            val editor = editorState.editor.get()!!
 
-                val eitherDefinitions = baseLspConnector.requestDefinition(editor)
-                val definitions = if (eitherDefinitions.isLeft) eitherDefinitions.left else eitherDefinitions.right
+            val eitherDefinitions = baseLspConnector.requestDefinition(editor)
+            val definitions = if (eitherDefinitions.isLeft) eitherDefinitions.left else eitherDefinitions.right
 
-                if (definitions.isEmpty()) {
-                    toast(strings.no_definitions_found)
-                    return@launch
-                }
-
-                // If only one definition exists, immediately view definition
-                if (definitions.size == 1) {
-                    val range =
-                        if (eitherDefinitions.isLeft) eitherDefinitions.left[0].range
-                        else eitherDefinitions.right[0].targetSelectionRange
-                    var uriString =
-                        if (eitherDefinitions.isLeft) eitherDefinitions.left[0].uri
-                        else eitherDefinitions.right[0].targetUri
-                    uriString = fixHomeLocation(context, uriString)
-
-                    val uri = uriString.toUri()
-                    val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
-
-                    scope.launch { viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range) }
-                    return@launch
-                }
-
-                // If multiple definitions exist, ask user which one to view
-                withContext(Dispatchers.Main) {
-                    val snippetBuilder = SnippetBuilder(context)
-                    editorState.findingsItems =
-                        List(definitions.size) { index ->
-                            val range =
-                                if (eitherDefinitions.isLeft) eitherDefinitions.left[index].range
-                                else eitherDefinitions.right[index].targetSelectionRange
-                            var uriString =
-                                if (eitherDefinitions.isLeft) eitherDefinitions.left[index].uri
-                                else eitherDefinitions.right[index].targetUri
-                            uriString = fixHomeLocation(context, uriString)
-
-                            val uri = uriString.toUri()
-                            val targetFile =
-                                if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
-
-                            val snippetResult = snippetBuilder.generateLspSnippet(viewModel, targetFile, range)
-                            CodeItem(
-                                snippet = snippetResult,
-                                file = targetFile,
-                                line = range.start.line,
-                                column = range.start.character,
-                                onClick = {
-                                    scope.launch {
-                                        viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range)
-                                    }
-                                },
-                            )
-                        }
-                }
-                editorState.findingsTitle = strings.go_to_definition.getString()
-                editorState.findingsDescription = strings.go_to_definition_desc.getString()
-                editorState.showFindingsDialog = true
+            if (definitions.isEmpty()) {
+                toast(strings.no_definitions_found)
+                return@launch
             }
+
+            // If only one definition exists, immediately view definition
+            if (definitions.size == 1) {
+                val range =
+                    if (eitherDefinitions.isLeft) eitherDefinitions.left[0].range
+                    else eitherDefinitions.right[0].targetSelectionRange
+                var uriString =
+                    if (eitherDefinitions.isLeft) eitherDefinitions.left[0].uri
+                    else eitherDefinitions.right[0].targetUri
+                uriString = fixHomeLocation(context, uriString)
+
+                val uri = uriString.toUri()
+                val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
+
+                scope.launch { viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range) }
+                return@launch
+            }
+
+            // If multiple definitions exist, ask user which one to view
+            withContext(Dispatchers.Main) {
+                val snippetBuilder = SnippetBuilder(context)
+                editorState.findingsItems =
+                    List(definitions.size) { index ->
+                        val range =
+                            if (eitherDefinitions.isLeft) eitherDefinitions.left[index].range
+                            else eitherDefinitions.right[index].targetSelectionRange
+                        var uriString =
+                            if (eitherDefinitions.isLeft) eitherDefinitions.left[index].uri
+                            else eitherDefinitions.right[index].targetUri
+                        uriString = fixHomeLocation(context, uriString)
+
+                        val uri = uriString.toUri()
+                        val targetFile =
+                            if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
+
+                        val snippetResult = snippetBuilder.generateLspSnippet(viewModel, targetFile, range)
+                        CodeItem(
+                            snippet = snippetResult,
+                            file = targetFile,
+                            line = range.start.line,
+                            column = range.start.character,
+                            onClick = {
+                                scope.launch {
+                                    viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range)
+                                }
+                            },
+                        )
+                    }
+            }
+            editorState.findingsTitle = strings.go_to_definition.getString()
+            editorState.findingsDescription = strings.go_to_definition_desc.getString()
+            editorState.showFindingsDialog = true
+        }
             .onFailure {
                 it.printStackTrace()
                 toast(strings.find_definitions_error)
@@ -137,61 +137,59 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
 fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.lspConnector!!
-                val editorState = editorTab.editorState
-                val editor = editorState.editor.get()!!
+            val baseLspConnector = editorTab.lspConnector!!
+            val editorState = editorTab.editorState
+            val editor = editorState.editor.get()!!
 
-                val references = baseLspConnector.requestReferences(editor)
+            val references = baseLspConnector.requestReferences(editor)
 
-                if (references.isEmpty()) {
-                    toast(strings.no_references_found)
-                    return@launch
-                }
+            if (references.isEmpty()) {
+                toast(strings.no_references_found)
+                return@launch
+            }
 
-                // If only one reference exists, immediately view reference
-                if (references.size == 1) {
-                    val range = references[0]!!.range
-                    var uriString = references[0]!!.uri
+            // If only one reference exists, immediately view reference
+            if (references.size == 1) {
+                val range = references[0]!!.range
+                var uriString = references[0]!!.uri
+                uriString = fixHomeLocation(context, uriString)
+
+                val uri = uriString.toUri()
+                val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
+
+                scope.launch { viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range) }
+                return@launch
+            }
+
+            // If multiple references exist, ask user which one to view
+            withContext(Dispatchers.Main) {
+                val snippetBuilder = SnippetBuilder(context)
+                editorState.findingsItems = references.mapNotNull { reference ->
+                    val range = reference?.range ?: return@mapNotNull null
+                    var uriString = reference.uri
                     uriString = fixHomeLocation(context, uriString)
 
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
-                    scope.launch { viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range) }
-                    return@launch
+                    val snippetResult = snippetBuilder.generateLspSnippet(viewModel, targetFile, range)
+                    CodeItem(
+                        snippet = snippetResult,
+                        file = targetFile,
+                        line = range.start.line,
+                        column = range.start.character,
+                        onClick = {
+                            scope.launch {
+                                viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range)
+                            }
+                        },
+                    )
                 }
-
-                // If multiple references exist, ask user which one to view
-                withContext(Dispatchers.Main) {
-                    val snippetBuilder = SnippetBuilder(context)
-                    editorState.findingsItems =
-                        references.mapNotNull { reference ->
-                            val range = reference?.range ?: return@mapNotNull null
-                            var uriString = reference.uri
-                            uriString = fixHomeLocation(context, uriString)
-
-                            val uri = uriString.toUri()
-                            val targetFile =
-                                if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
-
-                            val snippetResult = snippetBuilder.generateLspSnippet(viewModel, targetFile, range)
-                            CodeItem(
-                                snippet = snippetResult,
-                                file = targetFile,
-                                line = range.start.line,
-                                column = range.start.character,
-                                onClick = {
-                                    scope.launch {
-                                        viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range)
-                                    }
-                                },
-                            )
-                        }
-                }
-                editorState.findingsTitle = strings.go_to_references.getString()
-                editorState.findingsDescription = strings.go_to_references_desc.getString()
-                editorState.showFindingsDialog = true
             }
+            editorState.findingsTitle = strings.go_to_references.getString()
+            editorState.findingsDescription = strings.go_to_references_desc.getString()
+            editorState.showFindingsDialog = true
+        }
             .onFailure {
                 it.printStackTrace()
                 toast(strings.find_references_error)
@@ -202,70 +200,70 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
 fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                var currentName = ""
+            var currentName = ""
 
-                val file = editorTab.file
-                val baseLspConnector = editorTab.lspConnector!!
-                val editorState = editorTab.editorState
-                val editor = editorState.editor.get()!!
+            val file = editorTab.file!!
+            val baseLspConnector = editorTab.lspConnector!!
+            val editorState = editorTab.editorState
+            val editor = editorState.editor.get()!!
 
-                if (baseLspConnector.isPrepareRenameSymbolSupported()) {
-                    val prepareRename = baseLspConnector.requestPrepareRenameSymbol(editor)
+            if (baseLspConnector.isPrepareRenameSymbolSupported()) {
+                val prepareRename = baseLspConnector.requestPrepareRenameSymbol(editor)
 
-                    if (prepareRename == null) {
-                        toast(strings.cannot_rename_symbol)
-                        return@launch
-                    }
-
-                    if (prepareRename.isFirst && prepareRename.first!!.start.line == prepareRename.first!!.end.line) {
-                        currentName =
-                            editor.text
-                                .getLineString(prepareRename.first!!.start.line)
-                                .substring(prepareRename.first!!.start.character, prepareRename.first!!.end.character)
-                    }
-
-                    if (prepareRename.isSecond) {
-                        currentName = prepareRename.second!!.placeholder
-                    }
-
-                    if (prepareRename.isThird && editor.cursor.range.start.line == editor.cursor.range.end.line) {
-                        currentName =
-                            editor.text
-                                .getLineString(editor.cursor.range.start.line)
-                                .substring(editor.cursor.range.start.column, editor.cursor.range.end.column)
-                    }
+                if (prepareRename == null) {
+                    toast(strings.cannot_rename_symbol)
+                    return@launch
                 }
 
-                editorState.renameValue = currentName
-                editorState.showRenameDialog = true
-                editorState.renameConfirm = { newName ->
-                    scope.launch(Dispatchers.Default) {
-                        runCatching {
-                                val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
+                if (prepareRename.isFirst && prepareRename.first!!.start.line == prepareRename.first!!.end.line) {
+                    currentName =
+                        editor.text
+                            .getLineString(prepareRename.first!!.start.line)
+                            .substring(prepareRename.first!!.start.character, prepareRename.first!!.end.character)
+                }
 
-                                // TODO: Handle documentChanges too
-                                val changes = workspaceEdit.changes
+                if (prepareRename.isSecond) {
+                    currentName = prepareRename.second!!.placeholder
+                }
 
-                                // Edits only supported in currently opened file
-                                // TODO: Support edits in other files
-                                if (changes.size > 1) {
-                                    toast(strings.rename_symbol_multiple_files)
-                                    return@launch
-                                }
-
-                                val edits = changes[file.toUri().toString()]!!
-                                baseLspConnector.getEventManager()!!.emitAsync(EventType.applyEdits) {
-                                    put("edits", edits)
-                                    put(editor.text)
-                                }
-                            }
-                            .onFailure {
-                                it.printStackTrace()
-                                toast(strings.rename_symbol_error)
-                            }
-                    }
+                if (prepareRename.isThird && editor.cursor.range.start.line == editor.cursor.range.end.line) {
+                    currentName =
+                        editor.text
+                            .getLineString(editor.cursor.range.start.line)
+                            .substring(editor.cursor.range.start.column, editor.cursor.range.end.column)
                 }
             }
+
+            editorState.renameValue = currentName
+            editorState.showRenameDialog = true
+            editorState.renameConfirm = { newName ->
+                scope.launch(Dispatchers.Default) {
+                    runCatching {
+                        val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
+
+                        // TODO: Handle documentChanges too
+                        val changes = workspaceEdit.changes
+
+                        // Edits only supported in currently opened file
+                        // TODO: Support edits in other files
+                        if (changes.size > 1) {
+                            toast(strings.rename_symbol_multiple_files)
+                            return@launch
+                        }
+
+                        val edits = changes[file.toUri().toString()]!!
+                        baseLspConnector.getEventManager()!!.emitAsync(EventType.applyEdits) {
+                            put("edits", edits)
+                            put(editor.text)
+                        }
+                    }
+                        .onFailure {
+                            it.printStackTrace()
+                            toast(strings.rename_symbol_error)
+                        }
+                }
+            }
+        }
             .onFailure {
                 it.printStackTrace()
                 toast(strings.rename_symbol_error)
@@ -288,15 +286,15 @@ fun applyFormattingOptions(eventManager: LspEventManager, editorTab: EditorTab) 
  */
 suspend fun formatDocumentSuspend(editorTab: EditorTab) {
     runCatching {
-            val baseLspConnector = editorTab.lspConnector!!
-            val editorState = editorTab.editorState
-            val editor = editorState.editor.get()!!
-            val eventManager = baseLspConnector.getEventManager()!!
+        val baseLspConnector = editorTab.lspConnector!!
+        val editorState = editorTab.editorState
+        val editor = editorState.editor.get()!!
+        val eventManager = baseLspConnector.getEventManager()!!
 
-            applyFormattingOptions(eventManager, editorTab)
+        applyFormattingOptions(eventManager, editorTab)
 
-            eventManager.emitAsync(EventType.fullFormatting, editor.text)
-        }
+        eventManager.emitAsync(EventType.fullFormatting, editor.text)
+    }
         .onFailure {
             it.printStackTrace()
             toast(strings.format_document_error)
@@ -310,18 +308,18 @@ fun formatDocument(scope: CoroutineScope, editorTab: EditorTab) {
 fun formatDocumentRange(scope: CoroutineScope, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.lspConnector!!
-                val editorState = editorTab.editorState
-                val editor = editorState.editor.get()!!
-                val eventManager = baseLspConnector.getEventManager()!!
+            val baseLspConnector = editorTab.lspConnector!!
+            val editorState = editorTab.editorState
+            val editor = editorState.editor.get()!!
+            val eventManager = baseLspConnector.getEventManager()!!
 
-                applyFormattingOptions(eventManager, editorTab)
+            applyFormattingOptions(eventManager, editorTab)
 
-                eventManager.emitAsync(EventType.rangeFormatting) {
-                    put("text", editor.text)
-                    put("range", editor.cursor.range)
-                }
+            eventManager.emitAsync(EventType.rangeFormatting) {
+                put("text", editor.text)
+                put("range", editor.cursor.range)
             }
+        }
             .onFailure {
                 it.printStackTrace()
                 toast(strings.format_selection_error)

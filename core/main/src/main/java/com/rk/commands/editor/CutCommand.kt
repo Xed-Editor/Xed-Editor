@@ -15,12 +15,12 @@ class CutCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.cut.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editor.cutText()
+    override fun action(context: EditorActionContext) {
+        context.editor.cutText()
     }
 
-    override fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean {
-        return editorNonActionContext.editorTab.editorState.editable
+    override fun isEnabled(context: EditorNonActionContext): Boolean {
+        return context.editorTab.editorState.editable
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.cut)

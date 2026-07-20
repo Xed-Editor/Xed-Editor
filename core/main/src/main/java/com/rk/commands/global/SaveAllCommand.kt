@@ -18,7 +18,7 @@ class SaveAllCommand : GlobalCommand() {
 
     override fun getLabel(): String = strings.save_all.getString()
 
-    override fun action(actionContext: ActionContext) {
+    override fun action(context: ActionContext) {
         commandContext.mainViewModel.tabs.filterIsInstance<EditorTab>().forEach {
             GlobalScope.launch(Dispatchers.IO) { it.save() }
         }
@@ -30,6 +30,5 @@ class SaveAllCommand : GlobalCommand() {
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.save)
 
-    override val defaultKeybinds: KeyCombination =
-        KeyCombination(keyCode = KeyEvent.KEYCODE_S, ctrl = true, shift = true)
+    override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_S, ctrl = true, alt = true)
 }

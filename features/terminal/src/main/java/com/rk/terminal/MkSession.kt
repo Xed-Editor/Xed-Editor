@@ -18,8 +18,8 @@ import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
-import java.io.File
 import kotlinx.coroutines.runBlocking
+import java.io.File
 
 object MkSession {
 
@@ -157,33 +157,20 @@ suspend fun getPwd(context: Context): String {
     }
 
     val currentTab = MainActivity.instance?.viewModel?.tabManager?.currentTab
-    if (Settings.project_as_pwd) {
-        currentTab?.let {
-            if (it is EditorTab && it.file is FileWrapper) {
-                val parent = it.file.getParentFile()
-                if (parent != null && parent is FileWrapper) {
-                    return if (Settings.sandbox) {
-                        parent.getAbsolutePath().removePrefix(localDir(context).absolutePath)
-                    } else {
-                        parent.getAbsolutePath()
-                    }
-                }
-            }
-        }
-    } else {
-        currentTab?.let {
-            if (it is EditorTab && it.file is FileWrapper) {
-                val parent = it.file.getParentFile()
-                if (parent != null && parent is FileWrapper) {
-                    return if (Settings.sandbox) {
-                        parent.getAbsolutePath().removePrefix(localDir(context).absolutePath)
-                    } else {
-                        parent.getAbsolutePath()
-                    }
+    val file = currentTab?.file
+    if (Settings.project_as_pwd && file != null) {
+        if (currentTab is EditorTab && file is FileWrapper) {
+            val parent = file.getParentFile()
+            if (parent != null && parent is FileWrapper) {
+                return if (Settings.sandbox) {
+                    parent.getAbsolutePath().removePrefix(localDir(context).absolutePath)
+                } else {
+                    parent.getAbsolutePath()
                 }
             }
         }
     }
+
     return if (Settings.sandbox) {
         "/home"
     } else {

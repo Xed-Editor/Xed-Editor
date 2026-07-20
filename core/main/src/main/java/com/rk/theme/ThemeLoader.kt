@@ -21,13 +21,13 @@ import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.util.Properties
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 suspend fun installFromFile(file: FileObject) {
     loadConfigFromJson(file)?.installTheme()
@@ -190,7 +190,7 @@ private fun JsonElement?.toTokenColorArray(): JsonArray {
                     }
                 convertedArray.add(item)
             }
-            return convertedArray
+            convertedArray
         }
         else -> JsonArray()
     }

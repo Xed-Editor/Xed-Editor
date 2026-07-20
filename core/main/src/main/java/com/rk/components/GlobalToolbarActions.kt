@@ -28,8 +28,6 @@ import com.rk.activities.main.searchViewModel
 import com.rk.commands.ActionContext
 import com.rk.commands.ToolbarConfiguration
 import com.rk.drawer.DrawerViewModel
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.toFileObject
@@ -183,8 +181,6 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     }
 
     if (tempFileNameDialog) {
-        var fileName by remember { mutableStateOf("untitled.txt") }
-
         fun getUniqueFileName(baseName: String): String {
             val tempDir = getTempDir().child("temp_editor")
             val extension = baseName.substringAfterLast('.', "")
@@ -210,16 +206,9 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
 
             return uniqueName
         }
-
-        fun getUniqueTempFile(): FileObject {
-            val uniqueName = getUniqueFileName(fileName)
-            fileName = uniqueName // Update the state with the unique name
-
-            // do not change getTempDir().child("temp_editor") it used for checking in editor tab
-            return FileWrapper(getTempDir().child("temp_editor").child(uniqueName))
-        }
-
-        val tempFile = getUniqueTempFile()
+        var fileName by remember { mutableStateOf("untitled.txt") }
+        val uniqueName = getUniqueFileName(fileName)
+        fileName = uniqueName
 
         SingleInputDialog(
             title = stringResource(strings.temp_file),

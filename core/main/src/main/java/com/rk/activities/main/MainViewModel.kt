@@ -7,12 +7,30 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.commands.Command
+import com.rk.file.FileObject
 import com.rk.settings.Settings
+import com.rk.tabs.base.Tab
+import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+
+fun List<Tab>.filterEditorTabs() = filterIsInstance<EditorTab>()
+
+fun List<EditorTab>.filesByTab(): Map<EditorTab, FileObject> = mapNotNull { tab ->
+    tab.file?.let { file -> tab to file }
+}
+    .toMap()
+
+fun List<EditorTab>.filterWithFiles(predicate: (EditorTab, FileObject) -> Boolean): List<EditorTab> {
+    return filesByTab()
+        .filter { (tab, file) ->
+            predicate(tab, file)
+        }
+        .map { it.key }
+}
 
 class MainViewModel : ViewModel() {
     val tabManager = TabManager()
@@ -26,6 +44,9 @@ class MainViewModel : ViewModel() {
 
     val currentTabIndex
         get() = tabManager.currentTabIndex
+
+    val editorTabs
+        get() = editorManager.tabs
 
     var showTopBar by mutableStateOf(true)
 

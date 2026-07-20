@@ -23,14 +23,14 @@ class ToggleReadOnlyCommand : EditorCommand() {
         }
     }
 
-    override fun action(editorActionContext: EditorActionContext) {
-        val editorState = editorActionContext.editorTab.editorState
-        editorActionContext.editorTab.removeNotice("binary_file")
+    override fun action(context: EditorActionContext) {
+        val editorState = context.editorTab.editorState
+        context.editorTab.removeNotice("binary_file")
         editorState.editable = !editorState.editable
     }
 
-    override fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean {
-        return editorNonActionContext.editorTab.file.canWrite() && !editorNonActionContext.editorTab.isReadOnly
+    override fun isEnabled(context: EditorNonActionContext): Boolean {
+        return !context.editorTab.isReadOnly
     }
 
     override fun getIcon(): Icon {

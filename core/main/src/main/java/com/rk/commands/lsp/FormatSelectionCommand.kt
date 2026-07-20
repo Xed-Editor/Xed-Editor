@@ -15,12 +15,16 @@ class FormatSelectionCommand : LspCommand() {
 
     override fun getLabel(): String = strings.format_selection.getString()
 
-    override fun action(lspActionContext: LspActionContext) {
-        formatDocumentRange(DefaultScope, lspActionContext.editorTab)
+    override fun action(context: LspActionContext) {
+        formatDocumentRange(DefaultScope, context.editorTab)
     }
 
-    override fun isSupported(lspNonActionContext: LspNonActionContext): Boolean {
-        return lspNonActionContext.lspConnector.isRangeFormattingSupported()
+    override fun isEnabled(context: LspNonActionContext): Boolean {
+        return context.editorTab.editorState.editable
+    }
+
+    override fun isSupported(context: LspNonActionContext): Boolean {
+        return context.lspConnector.isRangeFormattingSupported()
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.auto_fix)

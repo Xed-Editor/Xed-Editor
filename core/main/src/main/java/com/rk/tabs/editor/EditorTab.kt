@@ -41,7 +41,6 @@ import com.rk.events.Events
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
-import com.rk.file.child
 import com.rk.lsp.LspConnector
 import com.rk.lsp.formatDocumentSuspend
 import com.rk.resources.drawables
@@ -54,7 +53,6 @@ import com.rk.settings.editor.refreshEditorSettings
 import com.rk.settings.support.handleSupport
 import com.rk.tabs.base.Tab
 import com.rk.utils.errorDialog
-import com.rk.utils.getTempDir
 import com.rk.utils.hasBinaryChars
 import io.github.rosemoe.sora.text.ContentIO
 import kotlinx.coroutines.CompletableDeferred
@@ -84,14 +82,16 @@ open class EditorTab(
     override var file: FileObject?,
     var projectRoot: FileObject?,
     val viewModel: MainViewModel,
-    val isReadOnly: Boolean = false,
+    isReadOnly: Boolean = false,
     private val customTitle: String? = null,
     val fallbackExtension: String? = null,
 ) : Tab() {
+
+    var isReadOnly: Boolean = isReadOnly
+        private set
+
     val isTemp: Boolean
-        get() {
-            return file?.getAbsolutePath()?.startsWith(getTempDir().child("temp_editor").absolutePath) ?: false
-        }
+        get() = file == null && !isReadOnly
 
     private var taskCount = 0
 
@@ -107,7 +107,7 @@ open class EditorTab(
     val scope = CoroutineScope(Dispatchers.Default)
 
     override var tabTitle: MutableState<String> =
-        mutableStateOf(customTitle ?: file?.getName() ?: "").also {
+        mutableStateOf(customTitle ?: file?.getName() ?: strings.temp_file.getString()).also {
             val file = file
             if (file != null) {
                 scope.launch(Dispatchers.IO) {
@@ -152,11 +152,15 @@ open class EditorTab(
                 editorState.editable = !isReadOnly
                 return@launch
             }
+
             if (!file.exists() || !file.canRead()) return@launch
+            if (!file.canWrite()) {
+                this@EditorTab.isReadOnly = true
+            }
 
             projectRoot = projectRoot ?: file.getParentFile()
 
-            editorState.editable = !isReadOnly && !Settings.read_only_default && file.canWrite()
+            editorState.editable = !isReadOnly && !Settings.read_only_default
             if (editorState.textmateScope == null) {
                 editorState.textmateScope = FileTypeManager.fromFileName(file.getName()).textmateScope
             }
@@ -323,39 +327,49 @@ open class EditorTab(
     }
 
     suspend fun quickSave() = saveMutex.withLock {
-        val file = file ?: return@withLock
+        if (isReadOnly) return@withLock
         if (isTemp) return@withLock
+        val file = file ?: return@withLock
+
         write()
+
         searchViewModel.get()?.syncIndex(file)
-        Events.publish(EditorTabEvent.Saved(this, true))
+        Events.publish(EditorTabEvent.Saved(this, file, true))
+    }
+
+    fun saveAs() {
+        MainActivity.instance?.apply {
+            fileManager.createNewFile(mimeType = "*/*", title = file?.getName() ?: "untitled.txt") {
+                if (it != null) {
+                    file = it
+                    tabTitle.value = it.getName()
+                    editorState.textmateScope = FileTypeManager.fromFileName(it.getName()).textmateScope
+                    scope.launch {
+                        write()
+                        searchViewModel.get()?.syncIndex(it)
+                        Events.publish(EditorTabEvent.Saved(this@EditorTab, it, false))
+                    }
+                }
+            }
+        }
     }
 
     suspend fun save() = saveMutex.withLock {
-        val file = file ?: return@withLock
+        if (isReadOnly) return@withLock
         if (Settings.format_on_save && lspConnector?.isFormattingSupported() == true) {
             formatDocumentSuspend(this@EditorTab)
         }
 
+        val file = file ?: return@withLock
         if (isTemp) {
-            MainActivity.instance?.apply {
-                fileManager.createNewFile(mimeType = "*/*", title = file.getName()) {
-                    if (it != null) {
-                        this@EditorTab.file = it
-                        tabTitle.value = it.getName()
-                        scope.launch {
-                            write()
-                            searchViewModel.get()?.syncIndex(file)
-                            Events.publish(EditorTabEvent.Saved(this@EditorTab, false))
-                        }
-                    }
-                }
-            }
+            withContext(Dispatchers.Main) { saveAs() }
             return@withLock
         }
 
         write()
+
         searchViewModel.get()?.syncIndex(file)
-        Events.publish(EditorTabEvent.Saved(this, false))
+        Events.publish(EditorTabEvent.Saved(this, file, false))
 
         Settings.saves += 1
         MainActivity.instance?.handleSupport()
@@ -433,19 +447,53 @@ open class EditorTab(
                         errorMessage = editorState.jumpToLineError,
                         confirmEnabled = editorState.jumpToLineValue.isNotBlank(),
                         onInputValueChange = {
-                            val lastLine = editorState.editor.get()?.lineCount ?: 0
+                            val editor = editorState.editor.get()
+                            val lastLine = editor?.lineCount ?: 0
 
                             editorState.jumpToLineValue = it
                             editorState.jumpToLineError = null
-                            if (editorState.jumpToLineValue.toIntOrNull() == null) {
-                                editorState.jumpToLineError = strings.value_invalid.getString()
-                            } else if (it.toInt() > lastLine) {
-                                editorState.jumpToLineError = strings.value_large.getString()
-                            } else if (it.toInt() < 1) {
-                                editorState.jumpToLineError = strings.value_small.getString()
+
+                            val parts = it.split(":")
+
+                            val line = parts.getOrNull(0)?.toIntOrNull()
+                            val column = parts.getOrNull(1)?.toIntOrNull()
+
+                            when {
+                                line == null -> {
+                                    editorState.jumpToLineError = strings.value_invalid.getString()
+                                }
+
+                                column == null && parts.size > 1 -> {
+                                    editorState.jumpToLineError = strings.value_invalid.getString()
+                                }
+
+                                parts.size > 2 -> {
+                                    editorState.jumpToLineError = strings.value_invalid.getString()
+                                }
+
+                                line > lastLine -> {
+                                    editorState.jumpToLineError = strings.value_large.getString()
+                                }
+
+                                line < 1 -> {
+                                    editorState.jumpToLineError = strings.value_small.getString()
+                                }
+
+                                column != null && column < 1 -> {
+                                    editorState.jumpToLineError = strings.value_small.getString()
+                                }
                             }
                         },
-                        onConfirm = { editorState.editor.get()!!.jumpToLine(editorState.jumpToLineValue.toInt() - 1) },
+                        onConfirm = {
+                            val editor = editorState.editor.get() ?: return@SingleInputDialog
+                            val parts = editorState.jumpToLineValue.split(":")
+
+                            val line = parts[0].toInt() - 1
+                            val maxColumn = editor.text.getLine(line).length - 1
+                            val column = parts.getOrNull(1)?.toInt()?.minus(1)?.coerceIn(0, maxColumn) ?: 0
+
+                            editor.setSelection(line, column)
+                        },
                         onFinish = {
                             editorState.jumpToLineValue = ""
                             editorState.jumpToLineError = null

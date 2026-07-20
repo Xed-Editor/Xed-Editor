@@ -15,7 +15,7 @@ class SearchCodeCommand : GlobalCommand() {
 
     override fun getLabel(): String = strings.search_code.getString()
 
-    override fun action(actionContext: ActionContext) {
+    override fun action(context: ActionContext) {
         codeSearchDialog = true
     }
 

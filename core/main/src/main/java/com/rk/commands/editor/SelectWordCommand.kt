@@ -14,8 +14,8 @@ class SelectWordCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.select_word.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editor.selectCurrentWord()
+    override fun action(context: EditorActionContext) {
+        context.editor.selectCurrentWord()
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.select)

@@ -16,8 +16,8 @@ class SettingsCommand : GlobalCommand() {
 
     override fun getLabel(): String = strings.settings.getString()
 
-    override fun action(actionContext: ActionContext) {
-        val activity = actionContext.currentActivity
+    override fun action(context: ActionContext) {
+        val activity = context.currentActivity
         activity.startActivity(Intent(activity, SettingsActivity::class.java))
     }
 

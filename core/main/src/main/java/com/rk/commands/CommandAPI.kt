@@ -5,6 +5,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.drawer.DrawerViewModel
 import com.rk.editor.Editor
+import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.lsp.LspConnector
 import com.rk.tabs.editor.EditorTab
@@ -20,20 +21,49 @@ data class CommandContext(
         get() = drawerViewModelProvider()
 }
 
-data class ActionContext(val currentActivity: Activity)
+open class ActionContext(open val currentActivity: Activity)
 
-data class EditorActionContext(val currentActivity: Activity, val editorTab: EditorTab, val editor: Editor)
+open class EditorActionContext(
+    override val currentActivity: Activity,
+    open val editorTab: EditorTab,
+    open val editor: Editor,
+) : ActionContext(currentActivity)
 
-data class EditorNonActionContext(val editorTab: EditorTab)
+open class EditorNonActionContext(open val editorTab: EditorTab)
+
+data class EditorFileActionContext(
+    override val currentActivity: Activity,
+    override val editorTab: EditorTab,
+    override val editor: Editor,
+    val file: FileObject,
+) :
+    EditorActionContext(
+        currentActivity,
+        editorTab,
+        editor,
+    )
+
+data class EditorFileNonActionContext(
+    override val editorTab: EditorTab,
+    val file: FileObject,
+) : EditorNonActionContext(editorTab)
 
 data class LspActionContext(
-    val currentActivity: Activity,
-    val editorTab: EditorTab,
-    val editor: Editor,
-    val lspConnector: LspConnector?,
-)
+    override val currentActivity: Activity,
+    override val editorTab: EditorTab,
+    override val editor: Editor,
+    val lspConnector: LspConnector,
+) :
+    EditorActionContext(
+        currentActivity,
+        editorTab,
+        editor,
+    )
 
-data class LspNonActionContext(val editorTab: EditorTab, val lspConnector: LspConnector)
+data class LspNonActionContext(
+    override val editorTab: EditorTab,
+    val lspConnector: LspConnector,
+) : EditorNonActionContext(editorTab)
 
 abstract class Command {
     protected val commandContext =
@@ -48,7 +78,7 @@ abstract class Command {
 
     abstract fun getIcon(): Icon
 
-    abstract fun action(actionContext: ActionContext)
+    abstract fun action(context: ActionContext)
 
     open fun isEnabled(): Boolean = true
 
@@ -64,11 +94,11 @@ abstract class Command {
     open val defaultKeybinds: KeyCombination? = null
 
     /** Executes this command's action, or opens a submenu if [childCommands] are present. */
-    fun performCommand(actionContext: ActionContext) {
+    fun performCommand(context: ActionContext) {
         if (childCommands.isNotEmpty()) {
             commandContext.mainViewModel.showCommandPaletteWithChildren(getChildSearchPlaceholder(), childCommands)
         } else {
-            action(actionContext)
+            action(context)
         }
     }
 
@@ -93,7 +123,7 @@ abstract class Command {
 
             override fun getLabel(): String = label()
 
-            override fun action(actionContext: ActionContext) = action(actionContext)
+            override fun action(context: ActionContext) = action(context)
 
             override fun isEnabled(): Boolean = isEnabled()
 
@@ -131,13 +161,13 @@ interface ToggleableCommand {
 abstract class GlobalCommand : Command()
 
 abstract class EditorCommand : Command() {
-    final override fun action(actionContext: ActionContext) {
+    final override fun action(context: ActionContext) {
         val currentTab = commandContext.mainViewModel.currentTab
         val editor = (currentTab as? EditorTab)?.editorState?.editor?.get() ?: return
-        action(EditorActionContext(actionContext.currentActivity, currentTab, editor))
+        action(EditorActionContext(context.currentActivity, currentTab, editor))
     }
 
-    abstract fun action(editorActionContext: EditorActionContext)
+    abstract fun action(context: EditorActionContext)
 
     final override fun isSupported(): Boolean {
         val currentTab = commandContext.mainViewModel.currentTab
@@ -151,34 +181,61 @@ abstract class EditorCommand : Command() {
         return isEnabled(EditorNonActionContext(currentTab))
     }
 
-    open fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean = true
+    open fun isSupported(context: EditorNonActionContext): Boolean = true
 
-    open fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean = true
+    open fun isEnabled(context: EditorNonActionContext): Boolean = true
+}
+
+abstract class EditorFileCommand : EditorCommand() {
+    final override fun action(context: EditorActionContext) {
+        val currentTab = context.editorTab
+        val editor = context.editor
+        val file = currentTab.file ?: return
+        action(EditorFileActionContext(context.currentActivity, currentTab, editor, file))
+    }
+
+    abstract fun action(context: EditorFileActionContext)
+
+    final override fun isSupported(context: EditorNonActionContext): Boolean {
+        val currentTab = context.editorTab
+        val file = currentTab.file ?: return false
+        return isSupported(EditorFileNonActionContext(currentTab, file))
+    }
+
+    final override fun isEnabled(context: EditorNonActionContext): Boolean {
+        val currentTab = context.editorTab
+        val file = currentTab.file ?: return false
+        return isEnabled(EditorFileNonActionContext(currentTab, file))
+    }
+
+    open fun isSupported(context: EditorFileNonActionContext): Boolean = true
+
+    open fun isEnabled(context: EditorFileNonActionContext): Boolean = true
 }
 
 abstract class LspCommand : EditorCommand() {
-    final override fun action(editorActionContext: EditorActionContext) {
-        val currentTab = editorActionContext.editorTab
-        val editor = editorActionContext.editor
-        val baseLspConnector = currentTab.lspConnector
-        action(LspActionContext(editorActionContext.currentActivity, currentTab, editor, baseLspConnector))
+    final override fun action(context: EditorActionContext) {
+        val currentTab = context.editorTab
+        val editor = context.editor
+        val baseLspConnector = currentTab.lspConnector ?: return
+        action(LspActionContext(context.currentActivity, currentTab, editor, baseLspConnector))
     }
 
-    abstract fun action(lspActionContext: LspActionContext)
+    abstract fun action(context: LspActionContext)
 
-    final override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean {
-        val currentTab = editorNonActionContext.editorTab
+    final override fun isSupported(context: EditorNonActionContext): Boolean {
+        val currentTab = context.editorTab
         val baseLspConnector = currentTab.lspConnector ?: return false
         return isSupported(LspNonActionContext(currentTab, baseLspConnector))
     }
 
-    final override fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean {
-        val currentTab = editorNonActionContext.editorTab
+    final override fun isEnabled(context: EditorNonActionContext): Boolean {
+        val currentTab = context.editorTab
         val baseLspConnector = currentTab.lspConnector ?: return false
         return isEnabled(LspNonActionContext(currentTab, baseLspConnector))
     }
 
-    open fun isSupported(lspNonActionContext: LspNonActionContext): Boolean = true
+    open fun isSupported(context: LspNonActionContext): Boolean = true
 
-    open fun isEnabled(lspNonActionContext: LspNonActionContext): Boolean = true
+    open fun isEnabled(context: LspNonActionContext): Boolean = true
 }

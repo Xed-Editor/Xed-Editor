@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import com.rk.DefaultScope
 import com.rk.TerminalLauncher
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.filterWithFiles
 import com.rk.events.Events
 import com.rk.events.LSPEvent
 import com.rk.file.FileObject
@@ -73,11 +74,10 @@ abstract class LspServer {
     }
 
     fun connectAllSuitableEditors(excludedEditors: List<EditorTab> = emptyList()) {
+        val viewModel = MainActivity.instance!!.viewModel
         val suitableTabs =
-            MainActivity.instance!!.viewModel.run {
-                tabs.filterIsInstance<EditorTab>().filter {
-                    !excludedEditors.contains(it) && this@LspServer.supportedExtensions.contains(it.file.getExtension())
-                }
+            viewModel.editorTabs.filterWithFiles { it, file ->
+                !excludedEditors.contains(it) && this@LspServer.supportedExtensions.contains(file.getExtension())
             }
         suitableTabs.forEach { it.applyHighlightingAndConnectLSP() }
     }

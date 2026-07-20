@@ -14,8 +14,8 @@ class SelectAllCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.select_all.getString()
 
-    override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editor.selectAll()
+    override fun action(context: EditorActionContext) {
+        context.editor.selectAll()
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.select_all)

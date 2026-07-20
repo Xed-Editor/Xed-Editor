@@ -228,6 +228,13 @@
       }
     },
     {
+      "name": "Kotlin Package Names",
+      "scope": "entity.name.package",
+      "settings": {
+        "foreground": "#CCCCCC"
+      }
+    },
+    {
       "name": "Regex Character-class",
       "scope": "regex.character-class",
       "settings": {
