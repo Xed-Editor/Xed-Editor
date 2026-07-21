@@ -8,9 +8,7 @@ export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
 
 source "$LOCAL/bin/utils"
 
-# Update xed cli symlink
-rm $LOCAL/bin/xed 2&> /dev/null
-ln -s $NATIVE_LIB_DIR/libxed_cli.so $LOCAL/bin/xed
+ln -sfn "$NATIVE_LIB_DIR/libxed_cli.so" "$LOCAL/bin/xed"
 
 if [ -f "$LOCAL/.sandbox_degraded" ]; then
     warn "Running in degraded mode. Some features may not work. Please reinstall the terminal"
