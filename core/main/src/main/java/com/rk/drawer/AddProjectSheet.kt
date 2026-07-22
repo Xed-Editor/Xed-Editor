@@ -1,6 +1,7 @@
 package com.rk.drawer
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -9,22 +10,32 @@ import android.os.storage.StorageManager
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.ProjectCreatorActivity
 import com.rk.components.AddDialogItem
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.icons.Icon
+import com.rk.project.ProjectTemplateRegistry
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -44,8 +55,16 @@ fun AddProjectSheet(
 
     val viewModel = activity.drawerViewModel
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.Companion.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(
+            modifier =
+                Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).verticalScroll(rememberScrollState())
+        ) {
+            SectionHeader(stringResource(strings.storage))
+
             AddDialogItem(
                 icon = Icon.ResourceIcon(drawables.file_symlink),
                 title = stringResource(strings.open_directory),
@@ -56,7 +75,6 @@ fun AddProjectSheet(
                 },
             )
 
-            // Open Path option
             val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
             val isManager = is11Plus && Environment.isExternalStorageManager()
             val legacyPermission =
@@ -102,6 +120,48 @@ fun AddProjectSheet(
                 }
             }
 
+            AddProjectRegistry.options
+                .filter { it.category == AddProjectCategory.STORAGE }
+                .forEach { option ->
+                    AddDialogItem(
+                        icon = option.icon,
+                        title = option.title,
+                        description = option.description,
+                        onClick = { option.onClick(onDismiss) },
+                    )
+                }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            SectionHeader(stringResource(strings.create))
+
+            if (ProjectTemplateRegistry.categories.any { it.templates.isNotEmpty() }) {
+                AddDialogItem(
+                    icon = Icon.ResourceIcon(drawables.add),
+                    title = stringResource(strings.new_project),
+                    description = stringResource(strings.new_project_desc),
+                    onClick = {
+                        context.startActivity(Intent(context, ProjectCreatorActivity::class.java))
+                        onDismiss()
+                    },
+                )
+            }
+
+            AddProjectRegistry.options
+                .filter { it.category == AddProjectCategory.CREATE }
+                .forEach { option ->
+                    AddDialogItem(
+                        icon = option.icon,
+                        title = option.title,
+                        description = option.description,
+                        onClick = { option.onClick(onDismiss) },
+                    )
+                }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            SectionHeader(stringResource(strings.other))
+
             if (FeatureRegistry.isEnabled("debug_mode")) {
                 AddDialogItem(
                     icon = Icon.ResourceIcon(drawables.build),
@@ -121,17 +181,26 @@ fun AddProjectSheet(
                 )
             }
 
-            // Custom options from registries
-            AddProjectRegistry.options.forEach { option ->
-                AddDialogItem(
-                    icon = option.icon,
-                    title = option.title,
-                    description = option.description,
-                    onClick = {
-                        option.onClick { onDismiss() }
-                    },
-                )
-            }
+            AddProjectRegistry.options
+                .filter { it.category == AddProjectCategory.OTHER }
+                .forEach { option ->
+                    AddDialogItem(
+                        icon = option.icon,
+                        title = option.title,
+                        description = option.description,
+                        onClick = { option.onClick(onDismiss) },
+                    )
+                }
         }
     }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.semantics { heading() }.padding(vertical = 8.dp, horizontal = 4.dp),
+    )
 }

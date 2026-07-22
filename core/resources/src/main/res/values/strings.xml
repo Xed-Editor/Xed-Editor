@@ -708,4 +708,23 @@
     <string name="dependencies_description">The following extensions are required for this extension to work.</string>
     <string name="recommendations_description">The following extensions are recommended to install alongside this extension.</string>
     <string name="project_runner">Project runner</string>
+    <string name="new_project">New project</string>
+    <string name="new_project_desc">Select a template</string>
+    <string name="template_select">Select a template</string>
+    <string name="project_name">Project name</string>
+    <string name="template_settings">Template settings</string>
+    <string name="template_id">ID</string>
+    <string name="template_min_app_version">Minimum app version</string>
+    <string name="template_apply_tint">Apply tint</string>
+    <string name="template_inherit_base_theme">Inherit base theme</string>
+    <string name="template_main_class">Main class</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="template_creating_project">Creating project…</string>
+    <string name="template_cloning_repository">Cloning repository…</string>
+    <string name="template_cleaning_up_git">Cleaning up Git…</string>
+    <string name="template_applying_settings">Applying settings…</string>
+    <string name="template_create_success">Project \'%s\' created successfully</string>
+    <string name="template_create_failed">Failed to create project: %s</string>
+    <string name="template_size">Expected size: %s</string>
 </resources>

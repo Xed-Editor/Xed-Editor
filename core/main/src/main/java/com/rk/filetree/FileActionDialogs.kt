@@ -19,6 +19,7 @@ import com.rk.events.Events
 import com.rk.events.FileEvent
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
+import com.rk.file.FileValidation
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
@@ -49,7 +50,7 @@ fun FileActionDialogs(
                 viewModel.renameValue = it
                 viewModel.renameError = null
 
-                if (it.contains(Regex("""[\p{Cntrl}/\\<>:"|?*]"""))) {
+                if (it.contains(FileValidation.INVALID_NAME_CHARS)) {
                     viewModel.renameError = context.getString(strings.invalid_characters)
                 }
             },
@@ -147,8 +148,8 @@ fun FileActionDialogs(
                 viewModel.createError = null
 
                 if (
-                    viewModel.isCreateFile && it.contains(Regex("""[\p{Cntrl}/\\<>:"|?*]""")) ||
-                        !viewModel.isCreateFile && it.contains(Regex("""[\p{Cntrl}\\<>:"|?*]|^/"""))
+                    viewModel.isCreateFile && it.contains(FileValidation.INVALID_NAME_CHARS) ||
+                        !viewModel.isCreateFile && it.contains(FileValidation.INVALID_FOLDER_PATH_CHARS)
                 ) {
                     viewModel.createError = context.getString(strings.invalid_characters)
                 }

@@ -12,6 +12,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.DialogProvider
 import com.rk.components.DialogRegistry
+import com.rk.drawer.AddProjectCategory
 import com.rk.drawer.AddProjectOption
 import com.rk.drawer.AddProjectRegistry
 import com.rk.drawer.ServiceTabRegistry
@@ -28,7 +29,12 @@ import com.rk.file.FileObject
 import com.rk.file.FilePropertiesProvider
 import com.rk.file.FilePropertiesRegistry
 import com.rk.file.FileProperty
+import com.rk.git.template.ExtensionTemplate
+import com.rk.git.template.IconPackTemplate
+import com.rk.git.template.ThemeTemplate
 import com.rk.icons.Icon
+import com.rk.project.ProjectCategory
+import com.rk.project.ProjectTemplateRegistry
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -106,6 +112,7 @@ class GitFeature : Feature {
                     icon = Icon.ResourceIcon(drawables.git),
                     title = strings.clone_repo.getString(),
                     description = strings.clone_repo_desc.getString(),
+                    category = AddProjectCategory.CREATE,
                     onClick = { onDismiss ->
                         showCloneDialog = true
                         onDismiss()
@@ -127,6 +134,20 @@ class GitFeature : Feature {
                 }
             }
         )
+
+        // Register Xed project templates
+        val category =
+            ProjectCategory(
+                id = "xed_editor",
+                label = strings.app_name.getString(),
+                icon = Icon.ResourceIcon(drawables.xed_editor),
+            )
+        val templates = listOf(ExtensionTemplate(), ThemeTemplate(), IconPackTemplate())
+
+        ProjectTemplateRegistry.registerCategory(category)
+        templates.forEach { template ->
+            ProjectTemplateRegistry.registerTemplate(category, template)
+        }
     }
 }
 

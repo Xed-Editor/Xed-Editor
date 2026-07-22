@@ -24,10 +24,17 @@ fun interface ServiceTabProvider {
     fun create(owner: ViewModelStoreOwner): DrawerTab
 }
 
+enum class AddProjectCategory {
+    STORAGE,
+    CREATE,
+    OTHER,
+}
+
 data class AddProjectOption(
     val icon: Icon,
     val title: String,
     val description: String,
+    val category: AddProjectCategory = AddProjectCategory.OTHER,
     val onClick: (onDismiss: () -> Unit) -> Unit,
 )
 

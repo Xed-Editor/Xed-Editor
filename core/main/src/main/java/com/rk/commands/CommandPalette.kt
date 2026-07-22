@@ -3,7 +3,6 @@ package com.rk.commands
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
@@ -51,6 +50,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rk.animations.NavigationAnimationTransitions
 import com.rk.components.XedDialog
 import com.rk.components.compose.utils.addIf
 import com.rk.icons.XedIcon
@@ -144,11 +144,11 @@ fun CommandPalette(
                 targetState = childCommands != null,
                 transitionSpec = {
                     if (targetState) {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) togetherWith
-                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left)
+                        NavigationAnimationTransitions.enterTransition togetherWith
+                            NavigationAnimationTransitions.exitTransition
                     } else {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) togetherWith
-                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
+                        NavigationAnimationTransitions.popEnterTransition togetherWith
+                            NavigationAnimationTransitions.popExitTransition
                     }
                 },
             ) { isSubpage ->
