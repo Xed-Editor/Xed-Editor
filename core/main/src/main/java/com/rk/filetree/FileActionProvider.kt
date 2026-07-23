@@ -2,6 +2,7 @@ package com.rk.filetree
 
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
+import com.rk.project.NewProjectAction
 
 object FileActionProvider {
     private val _fileActions =
@@ -10,6 +11,7 @@ object FileActionProvider {
             RefreshAction,
             CreateNewFileAction,
             CreateNewFolderAction,
+            NewProjectAction,
             RenameAction,
             DeleteAction,
             CopyAction,

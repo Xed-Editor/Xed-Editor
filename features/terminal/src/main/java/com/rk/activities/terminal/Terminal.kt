@@ -63,11 +63,6 @@ import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
 import com.rk.utils.toast
-import java.io.File
-import java.lang.ref.WeakReference
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -75,6 +70,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.io.File
+import java.lang.ref.WeakReference
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import java.util.concurrent.TimeUnit
 
 class Terminal : AppCompatActivity() {
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
@@ -117,13 +117,10 @@ class Terminal : AppCompatActivity() {
     }
 
     fun handleIntent(intent: Intent) {
+        this.intent = intent
         val pwd = intent.getStringExtra("cwd") ?: return
         val binder = sessionBinder?.get() ?: return
         terminalView.get() ?: return
-
-        // remove the extra so it's not handled again
-        intent.removeExtra("cwd")
-        this.intent = intent
 
         val sessionId = File(pwd).name
 
@@ -132,6 +129,7 @@ class Terminal : AppCompatActivity() {
             val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)
 
             this@Terminal.changeSession(info.id)
+            setIntent(intent)
         }
     }
 

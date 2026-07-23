@@ -8,6 +8,7 @@ import com.rk.activities.terminal.Terminal
 import com.rk.commands.CommandProvider
 import com.rk.commands.ToolbarConfiguration
 import com.rk.commands.global.TerminalCommand
+import com.rk.drawer.AddProjectCategory
 import com.rk.drawer.AddProjectOption
 import com.rk.drawer.AddProjectRegistry
 import com.rk.exec.pendingCommand
@@ -78,6 +79,7 @@ class TerminalFeature : Feature {
                     icon = Icon.ResourceIcon(drawables.terminal),
                     title = strings.terminal_home.getString(),
                     description = strings.terminal_home_desc.getString(),
+                    category = AddProjectCategory.STORAGE,
                     onClick = { onDismiss ->
                         if (!Settings.has_shown_terminal_dir_warning) {
                             dialogRes(

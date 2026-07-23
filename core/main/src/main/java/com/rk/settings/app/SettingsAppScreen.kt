@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -28,6 +30,7 @@ import com.rk.components.NextScreenCard
 import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.feature.FeatureRegistry
 import com.rk.file.toFileObject
 import com.rk.resources.strings
 import com.rk.settings.Preference
@@ -36,12 +39,11 @@ import com.rk.settings.editor.refreshEditors
 import com.rk.theme.amoled
 import com.rk.theme.currentTheme
 import com.rk.theme.dynamicTheme
+import com.rk.utils.application
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.rk.feature.FeatureRegistry
-import com.rk.utils.application
 
 @Composable
 fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) {
@@ -93,8 +95,6 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 sideEffect = { Settings.confirm_exit = it },
             )
 
-
-
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 var hasManageExternalStorageDeclared by remember { mutableStateOf(false) }
 
@@ -102,10 +102,11 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                     val app = application ?: return@LaunchedEffect
                     val pm = app.packageManager
 
-                    val pkgInfo = pm.getPackageInfo(
-                        app.packageName,
-                        PackageManager.GET_PERMISSIONS
-                    )
+                    val pkgInfo =
+                        pm.getPackageInfo(
+                            app.packageName,
+                            PackageManager.GET_PERMISSIONS,
+                        )
 
                     hasManageExternalStorageDeclared =
                         pkgInfo.requestedPermissions?.any {
@@ -127,8 +128,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         )
                     },
                     sideEffect = {
-                        val intent =
-                            Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                         intent.data = "package:${activity.packageName}".toUri()
                         activity.startActivity(intent)
                     },
@@ -162,7 +162,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                             contentDescription = stringResource(toggle.nameRes),
                             modifier = Modifier.padding(start = 16.dp),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -176,13 +176,13 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 sideEffect = {
                     activity.fileManager.createNewFile(
                         "application/json",
-                        "xed-settings.json"
+                        "xed-settings.json",
                     ) { fileObject ->
                         if (fileObject == null) return@createNewFile
                         scope.launch(Dispatchers.IO) {
                             try {
                                 val json = gson.toJson(Preference.getAll())
-                                fileObject.getOutPutStream(false).use { outputStream ->
+                                fileObject.getOutputStream(false).use { outputStream ->
                                     outputStream.write(json.toByteArray())
                                 }
                                 toast(strings.export_successful)

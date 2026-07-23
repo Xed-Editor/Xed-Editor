@@ -66,7 +66,7 @@ object ShellBasedRunners {
     }
 }
 
-data class ShellBasedRunner(override val label: String, val regex: String) : Runner() {
+data class ShellBasedRunner(override val label: String, val regex: String) : FileRunner() {
 
     override val id = Random.nextInt().toString()
 

@@ -28,6 +28,7 @@ class RunCommand : EditorFileCommand() {
         RunnerManager.run(
             activity = activity,
             fileObject = context.file,
+            projectRoot = context.editorTab.projectRoot,
             onMultipleRunners = {
                 RunnerUI.runnersToShow = it
                 RunnerUI.showRunnerDialog = true
@@ -36,7 +37,7 @@ class RunCommand : EditorFileCommand() {
     }
 
     override fun isSupported(context: EditorFileNonActionContext): Boolean {
-        return RunnerManager.isRunnable(context.file)
+        return RunnerManager.isRunnable(context.file, context.editorTab.projectRoot)
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.run)

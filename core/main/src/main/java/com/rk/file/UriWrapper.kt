@@ -6,6 +6,9 @@ import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.rk.utils.application
 import com.rk.utils.errorDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileNotFoundException
@@ -16,9 +19,6 @@ import java.io.OutputStream
 import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.util.Locale
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 class UriWrapper : FileObject {
     private val uri: String
@@ -124,7 +124,7 @@ class UriWrapper : FileObject {
 
     override suspend fun writeText(text: String) =
         withContext(Dispatchers.IO) {
-            return@withContext getOutPutStream(false).use { outputStream ->
+            return@withContext getOutputStream(false).use { outputStream ->
                 try {
                     outputStream.write(text.toByteArray())
                     outputStream.flush()
@@ -148,7 +148,7 @@ class UriWrapper : FileObject {
         }
     }
 
-    override suspend fun getOutPutStream(append: Boolean): OutputStream =
+    override suspend fun getOutputStream(append: Boolean): OutputStream =
         withContext(Dispatchers.IO) {
             val mode = if (append) "wa" else "wt"
             return@withContext application!!.contentResolver?.openOutputStream(file.uri, mode)
@@ -229,7 +229,7 @@ class UriWrapper : FileObject {
         }
 
         runCatching {
-            runBlocking { getOutPutStream(true).close() }
+            runBlocking { getOutputStream(true).close() }
             return true
         }
 
@@ -289,7 +289,7 @@ class UriWrapper : FileObject {
     override suspend fun writeText(content: String, charset: Charset): Boolean =
         withContext(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
-                getOutPutStream(false).use {
+                getOutputStream(false).use {
                     it.write(content.toByteArray(charset))
                     it.flush()
                 }

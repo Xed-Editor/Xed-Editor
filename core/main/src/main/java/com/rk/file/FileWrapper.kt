@@ -6,6 +6,8 @@ import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import com.rk.resources.strings
 import com.rk.utils.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -14,8 +16,6 @@ import java.io.OutputStream
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.util.Locale
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class FileWrapper(var file: File) : FileObject {
     override suspend fun listFiles(): List<FileObject> =
@@ -98,7 +98,7 @@ class FileWrapper(var file: File) : FileObject {
         return withContext(Dispatchers.IO) { FileInputStream(file).use { block(it) } }
     }
 
-    override suspend fun getOutPutStream(append: Boolean): OutputStream =
+    override suspend fun getOutputStream(append: Boolean): OutputStream =
         withContext(Dispatchers.IO) {
             return@withContext if (append) {
                 FileOutputStream(file, true)
