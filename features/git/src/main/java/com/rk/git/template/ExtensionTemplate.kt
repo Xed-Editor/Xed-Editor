@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,8 +31,11 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
+import com.rk.icons.Error
 import com.rk.icons.Icon
+import com.rk.icons.XedIcons
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.application
 import com.rk.utils.logError
@@ -44,9 +49,47 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
     override val icon = Icon.ResourceIcon(drawables.extension)
     override val size: Long = 30797312
 
-    override val validConfiguration by mutableStateOf(true)
+    override val validConfiguration by derivedStateOf {
+        idError == null &&
+            nameError == null &&
+            minAppVersionError == null &&
+            repositoryError == null &&
+            authorDisplayNameError == null &&
+            authorGithubError == null
+    }
     override val projectName by derivedStateOf { configStates.name }
     override val overrideRemote by derivedStateOf { configStates.repository.takeIf { it != repoUrl } }
+
+    private var idError by mutableStateOf<String?>(null)
+    private var nameError by mutableStateOf<String?>(null)
+    private var minAppVersionError by mutableStateOf<String?>(null)
+    private var repositoryError by mutableStateOf<String?>(null)
+    private var authorDisplayNameError by mutableStateOf<String?>(null)
+    private var authorGithubError by mutableStateOf<String?>(null)
+
+    private fun validateId(value: String): String? {
+        val regex = "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$".toRegex()
+        return if (!regex.matches(value)) strings.invalid_characters.getString() else null
+    }
+
+    private fun validateName(value: String): String? = if (value.isBlank()) strings.name_empty_err.getString() else null
+
+    private fun validateMinAppVersion(value: String): String? =
+        if (value.toIntOrNull() == null) strings.value_invalid.getString() else null
+
+    private fun validateRepository(value: String): String? {
+        val regex = "^https?://.+".toRegex()
+        return if (!regex.matches(value)) strings.invalid_repo_url.getString() else null
+    }
+
+    private fun validateAuthorDisplayName(value: String): String? =
+        if (value.isBlank()) strings.name_empty_err.getString() else null
+
+    private fun validateAuthorGithub(value: String): String? {
+        if (value.isBlank()) return null
+        val regex = "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$".toRegex()
+        return if (!regex.matches(value)) strings.invalid_characters.getString() else null
+    }
 
     private var configStates by mutableStateOf(ConfigStates())
 
@@ -71,19 +114,53 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
             value = configStates.id,
             onValueChange = {
                 configStates.id = it
+                idError = validateId(it)
             },
             label = { Text(stringResource(strings.name)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            isError = idError != null,
+            supportingText =
+                idError?.let {
+                    {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                },
+            trailingIcon =
+                idError?.let {
+                    { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+                },
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = configStates.name,
-            onValueChange = { configStates.name = it },
+            onValueChange = {
+                configStates.name = it
+                nameError = validateName(it)
+            },
             label = { Text(stringResource(strings.name)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            isError = nameError != null,
+            supportingText =
+                nameError?.let {
+                    {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                },
+            trailingIcon =
+                nameError?.let {
+                    { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+                },
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -98,28 +175,67 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
 
         OutlinedTextField(
             value = configStates.minAppVersion,
-            onValueChange = { configStates.minAppVersion = it },
+            onValueChange = {
+                configStates.minAppVersion = it
+                minAppVersionError = validateMinAppVersion(it)
+            },
             label = { Text(stringResource(strings.template_min_app_version)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            isError = minAppVersionError != null,
+            supportingText =
+                minAppVersionError?.let {
+                    {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                },
+            trailingIcon =
+                minAppVersionError?.let {
+                    { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+                },
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = configStates.authorDisplayName,
-                onValueChange = { configStates.authorDisplayName = it },
+                onValueChange = {
+                    configStates.authorDisplayName = it
+                    authorDisplayNameError = validateAuthorDisplayName(it)
+                },
                 label = { Text(stringResource(strings.display_name), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
+                isError = authorDisplayNameError != null,
+                supportingText =
+                    authorDisplayNameError?.let {
+                        {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    },
+                trailingIcon =
+                    authorDisplayNameError?.let {
+                        { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+                    },
             )
 
             Spacer(modifier = Modifier.width(8.dp))
 
             OutlinedTextField(
                 value = configStates.authorGithub,
-                onValueChange = { configStates.authorGithub = it },
+                onValueChange = {
+                    configStates.authorGithub = it
+                    authorGithubError = validateAuthorGithub(it)
+                },
                 label = {
                     Text(stringResource(strings.github_username), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
@@ -131,16 +247,49 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
                     )
                 },
                 singleLine = true,
+                isError = authorGithubError != null,
+                supportingText =
+                    authorGithubError?.let {
+                        {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    },
+                trailingIcon =
+                    authorGithubError?.let {
+                        { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+                    },
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = configStates.repository,
-            onValueChange = { configStates.repository = it },
+            onValueChange = {
+                configStates.repository = it
+                repositoryError = validateRepository(it)
+            },
             label = { Text(stringResource(strings.repository)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            isError = repositoryError != null,
+            supportingText =
+                repositoryError?.let {
+                    {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                },
+            trailingIcon =
+                repositoryError?.let {
+                    { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+                },
         )
     }
 
