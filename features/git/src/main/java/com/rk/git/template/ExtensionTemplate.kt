@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,13 +31,12 @@ import com.rk.file.FileObject
 import com.rk.file.FileOperations
 import com.rk.icons.Icon
 import com.rk.resources.drawables
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.application
 import com.rk.utils.logError
 import org.json.JSONObject
 
-class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/Extension-Template") {
+object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/Extension-Template") {
 
     override val id = "xed_extension"
     override val label = "Extension"
@@ -44,10 +45,12 @@ class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/E
     override val size: Long = 30797312
 
     override val validConfiguration by mutableStateOf(true)
-    override val projectName by derivedStateOf { Configuration.name }
-    override val overrideRemote by derivedStateOf { Configuration.repository.takeIf { it != repoUrl } }
+    override val projectName by derivedStateOf { configStates.name }
+    override val overrideRemote by derivedStateOf { configStates.repository.takeIf { it != repoUrl } }
 
-    private object Configuration {
+    private var configStates by mutableStateOf(ConfigStates())
+
+    private class ConfigStates {
         var id by mutableStateOf("com.rk.demo")
         var name by mutableStateOf("My Extension")
         var description by mutableStateOf("A demo extension template project")
@@ -60,39 +63,43 @@ class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/E
 
     @Composable
     override fun Configuration() {
+        LaunchedEffect(Unit) {
+            configStates = ConfigStates()
+        }
+
         OutlinedTextField(
-            value = Configuration.id,
+            value = configStates.id,
             onValueChange = {
-                Configuration.id = it
+                configStates.id = it
             },
-            label = { Text(strings.template_id.getString()) },
+            label = { Text(stringResource(strings.name)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = Configuration.name,
-            onValueChange = { Configuration.name = it },
-            label = { Text(strings.name.getString()) },
+            value = configStates.name,
+            onValueChange = { configStates.name = it },
+            label = { Text(stringResource(strings.name)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = Configuration.description,
-            onValueChange = { Configuration.description = it },
-            label = { Text(strings.description.getString()) },
+            value = configStates.description,
+            onValueChange = { configStates.description = it },
+            label = { Text(stringResource(strings.description)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = Configuration.minAppVersion,
-            onValueChange = { Configuration.minAppVersion = it },
-            label = { Text(strings.template_min_app_version.getString()) },
+            value = configStates.minAppVersion,
+            onValueChange = { configStates.minAppVersion = it },
+            label = { Text(stringResource(strings.template_min_app_version)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -101,9 +108,9 @@ class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/E
 
         Row(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
-                value = Configuration.authorDisplayName,
-                onValueChange = { Configuration.authorDisplayName = it },
-                label = { Text("Display name", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                value = configStates.authorDisplayName,
+                onValueChange = { configStates.authorDisplayName = it },
+                label = { Text(stringResource(strings.display_name), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
             )
@@ -111,13 +118,15 @@ class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/E
             Spacer(modifier = Modifier.width(8.dp))
 
             OutlinedTextField(
-                value = Configuration.authorGithub,
-                onValueChange = { Configuration.authorGithub = it },
-                label = { Text("GitHub username", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                value = configStates.authorGithub,
+                onValueChange = { configStates.authorGithub = it },
+                label = {
+                    Text(stringResource(strings.github_username), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                },
                 modifier = Modifier.weight(1.25f),
                 leadingIcon = {
                     AuthorIcon(
-                        Configuration.authorGithub,
+                        configStates.authorGithub,
                         Modifier.size(24.dp).offset(x = 4.dp),
                     )
                 },
@@ -127,9 +136,9 @@ class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/E
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = Configuration.repository,
-            onValueChange = { Configuration.repository = it },
-            label = { Text(strings.repository.getString()) },
+            value = configStates.repository,
+            onValueChange = { configStates.repository = it },
+            label = { Text(stringResource(strings.repository)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
         )
@@ -142,17 +151,17 @@ class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/E
             val content = manifestFile.readText() ?: return
             val json = JSONObject(content)
 
-            json.put("id", Configuration.id)
-            json.put("name", Configuration.name)
-            json.put("description", Configuration.description)
-            json.put("repository", Configuration.repository)
-            json.put("mainClass", "${Configuration.id}.Main")
-            json.put("minAppVersion", Configuration.minAppVersion.toIntOrNull() ?: 95)
+            json.put("id", configStates.id)
+            json.put("name", configStates.name)
+            json.put("description", configStates.description)
+            json.put("repository", configStates.repository)
+            json.put("mainClass", "${configStates.id}.Main")
+            json.put("minAppVersion", configStates.minAppVersion.toIntOrNull() ?: 95)
 
             val author = JSONObject()
-            author.put("displayName", Configuration.authorDisplayName)
-            if (Configuration.authorGithub.isNotBlank()) {
-                author.put("github", Configuration.authorGithub)
+            author.put("displayName", configStates.authorDisplayName)
+            if (configStates.authorGithub.isNotBlank()) {
+                author.put("github", configStates.authorGithub)
             }
             json.put("author", author)
 
@@ -168,11 +177,11 @@ class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/E
                 content
                     .replace(
                         Regex("""namespace\s*=\s*"[^"]+""""),
-                        """namespace = "${Configuration.id}"""",
+                        """namespace = "${configStates.id}"""",
                     )
                     .replace(
                         Regex("""applicationId\s*=\s*"[^"]+""""),
-                        """applicationId = "${Configuration.id}"""",
+                        """applicationId = "${configStates.id}"""",
                     )
 
             buildFile.writeText(updatedContent)
@@ -186,7 +195,7 @@ class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/E
             val updatedContent =
                 content.replace(
                     Regex("""rootProject.name\s*=\s*"[^"]+""""),
-                    """rootProject.name = "${Configuration.name}"""",
+                    """rootProject.name = "${configStates.name}"""",
                 )
 
             settingsFile.writeText(updatedContent)
@@ -202,15 +211,15 @@ class ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/E
         val updatedContent =
             content.replace(
                 "package com.rk.demo",
-                "package ${Configuration.id}",
+                "package ${configStates.id}",
             )
 
         mainFile.writeText(updatedContent)
 
         // Update folder structure
-        if (Configuration.id != "com.rk.demo") {
+        if (configStates.id != "com.rk.demo") {
             runCatching {
-                val newPackagePath = "app/src/main/java/${Configuration.id.replace(".", "/")}"
+                val newPackagePath = "app/src/main/java/${configStates.id.replace(".", "/")}"
                 val newDir = projectDir.getChildForName(newPackagePath)
 
                 newDir.mkdirs()

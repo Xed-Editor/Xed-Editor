@@ -58,7 +58,6 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -79,9 +78,13 @@ import com.rk.project.ProjectTemplate
 import com.rk.project.ProjectTemplateRegistry
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getFilledString
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
 import com.rk.utils.formatFileSize
+import com.rk.utils.logError
+import com.rk.utils.toast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 private enum class ProjectCreatorPage {
@@ -125,8 +128,55 @@ class ProjectCreatorActivity : ComponentActivity() {
         var selectedTemplate by remember { mutableStateOf<ProjectTemplate?>(null) }
 
         var isCreating by remember { mutableStateOf(false) }
-        var creationProgress by remember { mutableFloatStateOf(0f) }
+        var creationProgress by remember { mutableStateOf<Float?>(null) }
         var creationStatus by remember { mutableStateOf("") }
+
+        val scope = rememberCoroutineScope()
+
+        val createProject: (FileObject) -> Unit = { folder ->
+            selectedTemplate?.let { template ->
+                isCreating = true
+                scope.launch(Dispatchers.IO) {
+                    runCatching {
+                        template.createProject(
+                            this@ProjectCreatorActivity,
+                            folder,
+                            onProgress = { progress, status ->
+                                creationProgress = progress
+                                creationStatus = status
+                            },
+                            onComplete = { project ->
+                                isCreating = false
+                                runOnUiThread {
+                                    toast(
+                                        strings.template_create_success.getFilledString(
+                                            selectedTemplate?.label,
+                                            context = this@ProjectCreatorActivity,
+                                        )
+                                    )
+                                    if (project != null) {
+                                        MainActivity.instance?.drawerViewModel?.addFileTreeTab(project, true)
+                                        finish()
+                                    }
+                                }
+                            },
+                        )
+                    }
+                        .onFailure { e ->
+                            logError(e)
+                            runOnUiThread {
+                                toast(
+                                    strings.template_create_failed.getFilledString(
+                                        e.message ?: strings.unknown_error.getString(this@ProjectCreatorActivity),
+                                        context = this@ProjectCreatorActivity,
+                                    )
+                                )
+                            }
+                            isCreating = false
+                        }
+                }
+            }
+        }
 
         val openFolder =
             rememberLauncherForActivityResult(
@@ -141,44 +191,24 @@ class ProjectCreatorActivity : ComponentActivity() {
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                     )
                     val folder = uri.toFileObject(expectedIsFile = false)
-                    selectedTemplate?.let { template ->
-                        isCreating = true
-                        template.createProject(
-                            this,
-                            folder,
-                            onProgress = { progress, status ->
-                                creationProgress = progress
-                                creationStatus = status
-                            },
-                            onComplete = { project ->
-                                isCreating = false
-                                runOnUiThread {
-                                    strings.template_create_success.getFilledString(
-                                        this@ProjectCreatorActivity,
-                                        selectedTemplate?.label,
-                                    )
-                                    if (project != null) {
-                                        MainActivity.instance?.drawerViewModel?.addFileTreeTab(project, true)
-                                        finish()
-                                    }
-                                }
-                            },
-                        )
-                    }
+                    createProject(folder)
                 },
             )
 
         if (isCreating) {
             AlertDialog(
                 onDismissRequest = {},
-                title = { Text(stringResource(strings.wait)) },
+                title = { Text(stringResource(strings.creating_project)) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Text(
                             text = creationStatus,
                             style = MaterialTheme.typography.bodyMedium,
                         )
-                        LinearProgressIndicator(progress = { creationProgress })
+
+                        creationProgress?.let {
+                            LinearProgressIndicator(progress = { it })
+                        } ?: LinearProgressIndicator()
                     }
                 },
                 confirmButton = {},
@@ -233,30 +263,7 @@ class ProjectCreatorActivity : ComponentActivity() {
                         Button(
                             onClick = {
                                 if (parentFolder != null) {
-                                    isCreating = true
-                                    selectedTemplate?.createProject(
-                                        this@ProjectCreatorActivity,
-                                        parentFolder,
-                                        onProgress = { progress, status ->
-                                            creationProgress = progress
-                                            creationStatus = status
-                                        },
-                                        onComplete = { project ->
-                                            isCreating = false
-                                            runOnUiThread {
-                                                strings.template_create_success.getFilledString(
-                                                    this@ProjectCreatorActivity,
-                                                    selectedTemplate?.label,
-                                                )
-                                                if (project != null) {
-                                                    MainActivity.instance
-                                                        ?.drawerViewModel
-                                                        ?.addFileTreeTab(project, true)
-                                                    finish()
-                                                }
-                                            }
-                                        },
-                                    )
+                                    createProject(parentFolder)
                                 } else {
                                     openFolder.launch(null)
                                 }

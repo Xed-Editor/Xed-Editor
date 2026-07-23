@@ -142,7 +142,7 @@ class GitFeature : Feature {
                 label = strings.app_name.getString(),
                 icon = Icon.ResourceIcon(drawables.xed_editor),
             )
-        val templates = listOf(ExtensionTemplate(), ThemeTemplate(), IconPackTemplate())
+        val templates = listOf(ExtensionTemplate, ThemeTemplate, IconPackTemplate)
 
         ProjectTemplateRegistry.registerCategory(category)
         templates.forEach { template ->

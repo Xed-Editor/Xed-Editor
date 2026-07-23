@@ -16,10 +16,10 @@ interface ProjectTemplate {
     val size: Long?
     val validConfiguration: Boolean
 
-    fun createProject(
+    suspend fun createProject(
         activity: Activity,
         parentFolder: FileObject,
-        onProgress: (Float, String) -> Unit,
+        onProgress: (Float?, String) -> Unit,
         onComplete: (FileObject?) -> Unit,
     )
 
