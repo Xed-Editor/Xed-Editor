@@ -28,8 +28,9 @@ object DrawerPersistence {
             file.writeObject(serializableList)
 
             val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
-            if (viewModel.currentDrawerTab != null) {
-                currentTabFile.writeObject(viewModel.currentDrawerTab!!)
+            val currentTab = viewModel.currentDrawerTab
+            if (currentTab != null) {
+                currentTabFile.writeObject(currentTab)
             } else {
                 currentTabFile.delete()
             }
