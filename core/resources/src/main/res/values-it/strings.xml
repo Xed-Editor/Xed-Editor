@@ -693,8 +693,6 @@
     <string name="extension_warning_msg">Le estensioni possono eseguire codice arbitrario ed essere potenzialmente dannose. Installa le estensioni solo se ti fidi dello sviluppatore e se ha verificato il codice sorgente dell\'estensione.</string>
     <string name="no_themes">Nessun tema trovato.</string>
     <string name="supported">Supportato</string>
-    <string name="crashed">Interrotto</string>
-    <string name="vcs_status">Stato VCS</string>
     <string name="publish_date">Data di pubblicazione</string>
     <string name="record_rpc_traffic">Registra traffico RPC</string>
     <string name="record_rpc_traffic_desc">Registra le comunicazioni RPC dei language server per debug</string>

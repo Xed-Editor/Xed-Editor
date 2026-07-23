@@ -78,7 +78,7 @@ import com.rk.project.ProjectCategory
 import com.rk.project.ProjectTemplate
 import com.rk.project.ProjectTemplateRegistry
 import com.rk.resources.fillPlaceholders
-import com.rk.resources.getString
+import com.rk.resources.getFilledString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
 import com.rk.utils.formatFileSize
@@ -150,9 +150,18 @@ class ProjectCreatorActivity : ComponentActivity() {
                                 creationProgress = progress
                                 creationStatus = status
                             },
-                            onComplete = {
+                            onComplete = { project ->
                                 isCreating = false
-                                if (it != null) finish()
+                                runOnUiThread {
+                                    strings.template_create_success.getFilledString(
+                                        this@ProjectCreatorActivity,
+                                        selectedTemplate?.label,
+                                    )
+                                    if (project != null) {
+                                        MainActivity.instance?.drawerViewModel?.addFileTreeTab(project, true)
+                                        finish()
+                                    }
+                                }
                             },
                         )
                     }
@@ -162,15 +171,14 @@ class ProjectCreatorActivity : ComponentActivity() {
         if (isCreating) {
             AlertDialog(
                 onDismissRequest = {},
-                title = { Text(strings.wait.getString()) },
+                title = { Text(stringResource(strings.wait)) },
                 text = {
-                    Column {
-                        Text(creationStatus)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        LinearProgressIndicator(
-                            progress = { creationProgress },
-                            modifier = Modifier.fillMaxWidth(),
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            text = creationStatus,
+                            style = MaterialTheme.typography.bodyMedium,
                         )
+                        LinearProgressIndicator(progress = { creationProgress })
                     }
                 },
                 confirmButton = {},
@@ -233,16 +241,27 @@ class ProjectCreatorActivity : ComponentActivity() {
                                             creationProgress = progress
                                             creationStatus = status
                                         },
-                                        onComplete = {
+                                        onComplete = { project ->
                                             isCreating = false
-                                            if (it != null) finish()
+                                            runOnUiThread {
+                                                strings.template_create_success.getFilledString(
+                                                    this@ProjectCreatorActivity,
+                                                    selectedTemplate?.label,
+                                                )
+                                                if (project != null) {
+                                                    MainActivity.instance
+                                                        ?.drawerViewModel
+                                                        ?.addFileTreeTab(project, true)
+                                                    finish()
+                                                }
+                                            }
                                         },
                                     )
                                 } else {
                                     openFolder.launch(null)
                                 }
                             },
-                            enabled = selectedTemplate?.validConfiguration ?: false,
+                            enabled = (selectedTemplate?.validConfiguration ?: false) && !isCreating,
                         ) {
                             Text(stringResource(strings.create))
                         }

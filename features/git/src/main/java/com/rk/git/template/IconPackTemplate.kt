@@ -14,10 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,52 +39,41 @@ class IconPackTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/Ic
     override val size: Long = 18432
 
     override val validConfiguration by mutableStateOf(true)
-    override var settings = emptyMap<String, Any>()
+    override val projectName by derivedStateOf { Configuration.name }
+
+    private object Configuration {
+        var id by mutableStateOf("my-icons")
+        var name by mutableStateOf("My Icon Pack")
+        var minAppVersion by mutableStateOf("87")
+        var applyTint by mutableStateOf(false)
+    }
 
     @Composable
     override fun Configuration() {
-        var id by remember { mutableStateOf("my-icons") }
-        var name by remember { mutableStateOf("My Icon Pack") }
-        var minAppVersion by remember { mutableStateOf("87") }
-        var applyTint by remember { mutableStateOf(false) }
-
-        SideEffect {
-            settings =
-                mapOf(
-                    "id" to id,
-                    "name" to name,
-                    "minAppVersion" to minAppVersion,
-                    "applyTint" to applyTint,
-                )
-        }
-
         OutlinedTextField(
-            value = id,
-            onValueChange = { id = it },
+            value = Configuration.id,
+            onValueChange = { Configuration.id = it },
             label = { Text(strings.template_id.getString()) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            shape = RoundedCornerShape(12.dp),
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
+            value = Configuration.name,
+            onValueChange = { Configuration.name = it },
             label = { Text(strings.name.getString()) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            shape = RoundedCornerShape(12.dp),
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = minAppVersion,
-            onValueChange = { minAppVersion = it },
+            value = Configuration.minAppVersion,
+            onValueChange = { Configuration.minAppVersion = it },
             label = { Text(strings.template_min_app_version.getString()) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -94,12 +82,12 @@ class IconPackTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/Ic
             modifier =
                 Modifier.fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable { applyTint = !applyTint }
+                    .clickable { Configuration.applyTint = !Configuration.applyTint }
                     .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
-                checked = applyTint,
+                checked = Configuration.applyTint,
                 onCheckedChange = null,
             )
 
@@ -114,11 +102,13 @@ class IconPackTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/Ic
         if (manifestFile.exists()) {
             val content = manifestFile.readText() ?: return
             val json = JSONObject(content)
-            json.put("id", settings["id"])
-            json.put("name", settings["name"])
-            json.put("minAppVersion", (settings["minAppVersion"] as String).toIntOrNull() ?: 87)
-            json.put("applyTint", settings["applyTint"])
-            manifestFile.writeText(json.toString(4))
+
+            json.put("id", Configuration.id)
+            json.put("name", Configuration.name)
+            json.put("minAppVersion", Configuration.minAppVersion.toIntOrNull() ?: 87)
+            json.put("applyTint", Configuration.applyTint)
+
+            manifestFile.writeText(json.toString(2))
         }
     }
 }

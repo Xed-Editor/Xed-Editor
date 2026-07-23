@@ -74,7 +74,7 @@ inline fun toast(@StringRes resId: Int) {
 }
 
 suspend fun FileObject.writeObject(obj: Any) =
-    withContext(Dispatchers.IO) { ObjectOutputStream(getOutPutStream(false)).use { oos -> oos.writeObject(obj) } }
+    withContext(Dispatchers.IO) { ObjectOutputStream(getOutputStream(false)).use { oos -> oos.writeObject(obj) } }
 
 suspend fun FileObject.readObject(): Any? =
     withContext(Dispatchers.IO) {

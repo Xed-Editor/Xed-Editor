@@ -3,13 +3,13 @@ package com.rk.file
 import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.Charset
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class NetWrapper(private val url: URL) : FileObject {
     private fun openConnection(): HttpURLConnection {
@@ -72,7 +72,7 @@ class NetWrapper(private val url: URL) : FileObject {
         return withContext(Dispatchers.IO) { url.openStream().use { block(it) } }
     }
 
-    override suspend fun getOutPutStream(append: Boolean): OutputStream {
+    override suspend fun getOutputStream(append: Boolean): OutputStream {
         throw UnsupportedOperationException("URL is read-only")
     }
 

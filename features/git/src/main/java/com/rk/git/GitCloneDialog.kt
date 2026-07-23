@@ -138,30 +138,7 @@ fun GitCloneDialog(
         )
 
     if (showCloneProgressDialog) {
-        AlertDialog(
-            title = { Text(stringResource(strings.cloning)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text(
-                        text = "$progressMessage ($progress/$maxProgress)",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    LinearProgressIndicator(
-                        progress = { if (maxProgress > 0) progress.toFloat() / maxProgress else 0f }
-                    )
-                }
-            },
-            onDismissRequest = {},
-            confirmButton = {},
-            dismissButton = {
-                TextButton({
-                    monitor.cancel()
-                    onDismiss()
-                }) {
-                    Text(stringResource(strings.cancel))
-                }
-            },
-        )
+        GitCloneProgressDialog(progressMessage, progress, maxProgress, monitor, onDismiss)
     } else {
         DoubleInputDialog(
             title = stringResource(strings.clone_repo),
@@ -193,4 +170,36 @@ fun GitCloneDialog(
             confirmEnabled = repoURLError == null && repoBranchError == null && repoURL.isNotBlank(),
         )
     }
+}
+
+@Composable
+private fun GitCloneProgressDialog(
+    progressMessage: String,
+    progress: Int,
+    maxProgress: Int,
+    monitor: ProgressCoordinator,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        title = { Text(stringResource(strings.cloning)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(
+                    text = "$progressMessage ($progress/$maxProgress)",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                LinearProgressIndicator(progress = { if (maxProgress > 0) progress.toFloat() / maxProgress else 0f })
+            }
+        },
+        onDismissRequest = {},
+        confirmButton = {},
+        dismissButton = {
+            TextButton({
+                monitor.cancel()
+                onDismiss()
+            }) {
+                Text(stringResource(strings.cancel))
+            }
+        },
+    )
 }

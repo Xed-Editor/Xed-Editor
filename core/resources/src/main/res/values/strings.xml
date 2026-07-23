@@ -727,4 +727,5 @@
     <string name="template_create_success">Project \'%s\' created successfully</string>
     <string name="template_create_failed">Failed to create project: %s</string>
     <string name="template_size">Expected size: %s</string>
+    <string name="description">Description</string>
 </resources>

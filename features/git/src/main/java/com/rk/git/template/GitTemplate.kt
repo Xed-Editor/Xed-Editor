@@ -1,7 +1,6 @@
 package com.rk.git.template
 
 import android.app.Activity
-import com.rk.activities.main.MainActivity
 import com.rk.file.FileObject
 import com.rk.project.ProjectTemplate
 import com.rk.resources.getFilledString
@@ -11,11 +10,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ProgressMonitor
 import java.io.File
 
-abstract class GitTemplate(private val repoUrl: String) : ProjectTemplate {
+abstract class GitTemplate(protected val repoUrl: String) : ProjectTemplate {
 
-    abstract val settings: Map<String, Any>
+    abstract val projectName: String
+    open val overrideRemote: String? = null
 
     override fun createProject(
         activity: Activity,
@@ -23,28 +24,50 @@ abstract class GitTemplate(private val repoUrl: String) : ProjectTemplate {
         onProgress: (Float, String) -> Unit,
         onComplete: (FileObject?) -> Unit,
     ) {
+        val monitor =
+            object : ProgressMonitor {
+                private var cancelled = false
+
+                private var progress = 0f
+                private var statusMessage = strings.cloning.getString()
+
+                override fun start(totalTasks: Int) {}
+
+                override fun beginTask(title: String?, totalWork: Int) {
+                    val message = title ?: strings.cloning.getString()
+                    progress = 0f
+                    statusMessage = "$message ($progress/$totalWork)"
+                    onProgress(progress, statusMessage)
+                }
+
+                override fun update(completed: Int) {
+                    progress += completed
+                    onProgress(progress, statusMessage)
+                }
+
+                override fun endTask() {}
+
+                override fun isCancelled(): Boolean = cancelled || Thread.currentThread().isInterrupted
+            }
+
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
-                onProgress(0.1f, strings.template_cloning_repository.getString(activity))
+                onProgress(0f, strings.cloning.getString(activity))
 
-                val name = settings["name"] as String
                 val projectDir =
-                    parentFolder.createChild(false, name) ?: throw Exception("Failed to create project directory")
+                    parentFolder.createChild(false, projectName)
+                        ?: throw Exception("Failed to create project directory")
 
                 val localDir = File(projectDir.getAbsolutePath())
 
-                Git.cloneRepository().setURI(repoUrl).setDirectory(localDir).call()
+                Git.cloneRepository().setURI(repoUrl).setDirectory(localDir).setProgressMonitor(monitor).call().close()
 
-                onProgress(0.7f, strings.template_cleaning_up_git.getString(activity))
+                onProgress(0f, strings.template_cleaning_up_git.getString(activity))
                 File(localDir, ".git").deleteRecursively()
 
-                onProgress(0.8f, strings.template_applying_settings.getString(activity))
+                onProgress(0f, strings.template_applying_settings.getString(activity))
                 afterClone(projectDir)
 
-                activity.runOnUiThread {
-                    strings.template_create_success.getFilledString(activity, label)
-                    MainActivity.instance?.drawerViewModel?.addFileTreeTab(projectDir, true)
-                }
                 onComplete(projectDir)
             }
                 .onFailure {
