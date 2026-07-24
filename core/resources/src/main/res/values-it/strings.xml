@@ -710,4 +710,21 @@
     <string name="recommendations">Consigliate</string>
     <string name="dependencies_description">Le seguenti estensioni sono necessarie per il funzionamento di questa estensione.</string>
     <string name="recommendations_description">Le seguenti estensioni sono consigliate da installare insieme a questa estensione.</string>
+    <string name="new_project">Nuovo progetto</string>
+    <string name="new_project_desc">Seleziona un modello</string>
+    <string name="template_settings">Impostazioni modello</string>
+    <string name="template_id">ID</string>
+    <string name="template_min_app_version">Versione app minima</string>
+    <string name="template_apply_tint">Applica tinta</string>
+    <string name="template_inherit_base_theme">Eredita tema di base</string>
+    <string name="back">Indietro</string>
+    <string name="creating_project">Creazione progetto…</string>
+    <string name="template_cleaning_up_git">Pulizia Git…</string>
+    <string name="template_applying_settings">Applicazione impostazioni…</string>
+    <string name="template_create_success">Progetto \'%s\' creato correttamente</string>
+    <string name="template_create_failed">Impossibile creare il progetto: %s</string>
+    <string name="template_size">Dimensione stimata: %s</string>
+    <string name="description">Descrizione</string>
+    <string name="display_name">Nome visualizzato</string>
+    <string name="github_username">Nome utente GitHub</string>
 </resources>
