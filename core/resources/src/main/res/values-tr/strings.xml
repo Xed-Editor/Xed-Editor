@@ -708,4 +708,22 @@
     <string name="recommendations">Öneriler</string>
     <string name="dependencies_description">Bu eklentinin çalışması için aşağıdaki eklentiler gereklidir.</string>
     <string name="recommendations_description">Bu eklentinin yanı sıra aşağıdaki eklentilerin de kurulması önerilir.</string>
+    <string name="project_runner">Proje çalıştırıcısı</string>
+    <string name="new_project">Yeni proje</string>
+    <string name="new_project_desc">Şablon seçin</string>
+    <string name="template_settings">Şablon ayarları</string>
+    <string name="template_id">Kimlik</string>
+    <string name="template_min_app_version">Minimum uygulama sürümü</string>
+    <string name="template_apply_tint">Ton uygula</string>
+    <string name="template_inherit_base_theme">Temel temayı devral</string>
+    <string name="back">Geri</string>
+    <string name="creating_project">Proje oluşturuluyor…</string>
+    <string name="template_cleaning_up_git">Git temizleniyor…</string>
+    <string name="template_applying_settings">Ayarlar uygulanıyor…</string>
+    <string name="template_create_success">Proje \'%s\' başarıyla oluşturuldu</string>
+    <string name="template_create_failed">Proje oluşturulamadı: %s</string>
+    <string name="template_size">Beklenen boyut: %s</string>
+    <string name="description">Açıklama</string>
+    <string name="display_name">Görünen ad</string>
+    <string name="github_username">GitHub kullanıcı adı</string>
 </resources>
