@@ -2,7 +2,9 @@ package com.rk.components
 
 import androidx.compose.runtime.Composable
 
-data class DialogProvider(val content: @Composable () -> Unit)
+fun interface DialogProvider {
+    @Composable fun Content()
+}
 
 object DialogRegistry {
 
@@ -18,6 +20,6 @@ object DialogRegistry {
 
     @Composable
     fun getDialogs(): List<@Composable () -> Unit> {
-        return providers.map { { it.content() } }
+        return providers.map { { it.Content() } }
     }
 }

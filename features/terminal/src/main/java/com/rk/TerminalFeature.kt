@@ -13,6 +13,7 @@ import com.rk.drawer.AddProjectOption
 import com.rk.drawer.AddProjectRegistry
 import com.rk.exec.pendingCommand
 import com.rk.exec.ubuntuProcess
+import com.rk.extension.api.DynamicRoute
 import com.rk.feature.Feature
 import com.rk.feature.FeatureRegistry
 import com.rk.feature.FeatureToggle
@@ -27,10 +28,8 @@ import com.rk.icons.Icon
 import com.rk.lsp.LspRegistry
 import com.rk.lsp.servers.Bash
 import com.rk.lsp.servers.CSS
-import com.rk.lsp.servers.ESLint
 import com.rk.lsp.servers.Emmet
 import com.rk.lsp.servers.HTML
-import com.rk.lsp.servers.Markdown
 import com.rk.lsp.servers.TypeScript
 import com.rk.lsp.servers.XML
 import com.rk.resources.drawables
@@ -41,7 +40,6 @@ import com.rk.runner.runners.UniversalRunner
 import com.rk.settings.Settings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
-import com.rk.settings.SettingsRoute
 import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.terminal.TerminalCheckScreen
@@ -103,27 +101,27 @@ class TerminalFeature : Feature {
 
         // Register settings routes
         SettingsRegistry.registerRoute(
-            SettingsRoute(SettingsRoutes.TerminalSettings.route) { _, _ ->
+            DynamicRoute(SettingsRoutes.TerminalSettings.route) { _, _ ->
                 SettingsTerminalScreen()
             }
         )
         SettingsRegistry.registerRoute(
-            SettingsRoute(SettingsRoutes.TerminalExtraKeys.route) { _, _ ->
+            DynamicRoute(SettingsRoutes.TerminalExtraKeys.route) { _, _ ->
                 TerminalExtraKeys()
             }
         )
         SettingsRegistry.registerRoute(
-            SettingsRoute(SettingsRoutes.TerminalCheck.route) { _, _ ->
+            DynamicRoute(SettingsRoutes.TerminalCheck.route) { _, _ ->
                 TerminalCheckScreen()
             }
         )
         SettingsRegistry.registerRoute(
-            SettingsRoute(SettingsRoutes.TerminalFontScreen.route) { _, _ ->
+            DynamicRoute(SettingsRoutes.TerminalFontScreen.route) { _, _ ->
                 TerminalFontScreen()
             }
         )
         // Register UniversalRunner dynamically
-        RunnerManager.registerRunner(UniversalRunner)
+        RunnerManager.addBuiltInRunner(UniversalRunner)
 
         // Register TerminalLauncher handler
         TerminalLauncher.handler = { activity, sandbox, exe, args, id, terminatePreviousSession, workingDir, env ->
@@ -157,14 +155,7 @@ class TerminalFeature : Feature {
         ToolbarConfiguration.addGlobalToolbarCommand(TerminalCommand, index = 1)
 
         // Register built-in LSP servers
-        LspRegistry.registerServer(Bash)
-        LspRegistry.registerServer(CSS)
-        LspRegistry.registerServer(ESLint)
-        LspRegistry.registerServer(Emmet)
-        LspRegistry.registerServer(HTML)
-        LspRegistry.registerServer(Markdown)
-        LspRegistry.registerServer(TypeScript)
-        LspRegistry.registerServer(XML)
+        LspRegistry.addBuiltInServers(HTML, Emmet, CSS, TypeScript, Bash, XML)
     }
 }
 

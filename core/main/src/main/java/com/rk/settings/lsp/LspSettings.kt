@@ -99,6 +99,15 @@ fun LspSettings(navController: NavController) {
     }
 
     @Composable
+    fun BuiltInServersSection(builtInServers: List<LspServer>) {
+        PreferenceGroup(heading = stringResource(strings.built_in)) {
+            builtInServers.forEach { server ->
+                key(server.id) { LspServerItem(context, scope, server, navController, refreshKey) }
+            }
+        }
+    }
+
+    @Composable
     fun ExternalServersSection() {
         PreferenceGroup(heading = stringResource(strings.external)) {
             LspRegistry.externalServers.forEachIndexed { index, server ->
@@ -159,10 +168,19 @@ fun LspSettings(navController: NavController) {
             text = stringResource(strings.info_lsp),
         )
 
-        val extensionServers = LspRegistry.extensionServers
-        if (extensionServers.isNotEmpty()) ExtensionServersSection(extensionServers)
+        val builtInServers = LspRegistry.builtInServers
+        if (builtInServers.isNotEmpty()) {
+            BuiltInServersSection(builtInServers)
+        }
 
-        if (LspRegistry.externalServers.isNotEmpty()) ExternalServersSection()
+        val extensionServers = LspRegistry.extensionServers
+        if (extensionServers.isNotEmpty()) {
+            ExtensionServersSection(extensionServers)
+        }
+
+        if (LspRegistry.externalServers.isNotEmpty()) {
+            ExternalServersSection()
+        }
 
         Spacer(modifier = Modifier.height(60.dp))
 
@@ -363,24 +381,24 @@ private fun ExternalLSPDialog(onDismiss: () -> Unit, onConfirm: (LspServer, Int)
             TextButton(
                 onClick = {
                     runCatching {
-                            var server: LspServer? = null
-                            server =
-                                when (selected) {
-                                    LspType.SOCKET ->
-                                        ExternalSocketServer(
-                                            host = dialogState.lspHost,
-                                            port = dialogState.lspPort.toInt(),
-                                            supportedExtensions = parseExtensions(dialogState.lspExtensions),
-                                        )
+                        var server: LspServer? = null
+                        server =
+                            when (selected) {
+                                LspType.SOCKET ->
+                                    ExternalSocketServer(
+                                        host = dialogState.lspHost,
+                                        port = dialogState.lspPort.toInt(),
+                                        supportedExtensions = parseExtensions(dialogState.lspExtensions),
+                                    )
 
-                                    LspType.PROCESS ->
-                                        ExternalProcessServer(
-                                            command = dialogState.lspCommand,
-                                            supportedExtensions = parseExtensions(dialogState.lspExtensions),
-                                        )
-                                }
-                            onConfirm(server, editingIndex ?: -1)
-                        }
+                                LspType.PROCESS ->
+                                    ExternalProcessServer(
+                                        command = dialogState.lspCommand,
+                                        supportedExtensions = parseExtensions(dialogState.lspExtensions),
+                                    )
+                            }
+                        onConfirm(server, editingIndex ?: -1)
+                    }
                         .onFailure { toast(it.message) }
 
                     onDismiss()

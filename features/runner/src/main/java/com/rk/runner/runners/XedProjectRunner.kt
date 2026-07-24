@@ -16,6 +16,8 @@ object XedProjectRunner : ProjectRunner() {
     override val id: String = "xed_project_runner"
     override val label: String = strings.project_runner.getString()
 
+    override val description = strings.project_runner_desc.getString()
+
     override fun getIcon(context: Context): Icon {
         return Icon.ResourceIcon(drawables.run)
     }

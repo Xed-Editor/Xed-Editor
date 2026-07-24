@@ -10,7 +10,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModelProvider
 import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsRoutes
-import com.rk.components.DialogProvider
 import com.rk.components.DialogRegistry
 import com.rk.drawer.AddProjectCategory
 import com.rk.drawer.AddProjectOption
@@ -19,6 +18,7 @@ import com.rk.drawer.ServiceTabRegistry
 import com.rk.events.EditorTabEvent
 import com.rk.events.Events
 import com.rk.events.FileTreeEvent
+import com.rk.extension.api.DynamicRoute
 import com.rk.feature.Feature
 import com.rk.feature.FeatureRegistry
 import com.rk.feature.FeatureToggle
@@ -41,7 +41,6 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
-import com.rk.settings.SettingsRoute
 import com.rk.settings.git.GitSettings
 import com.rk.theme.gitAdded
 import com.rk.theme.gitConflicted
@@ -74,7 +73,7 @@ class GitFeature : Feature {
 
         // Register Git settings route
         SettingsRegistry.registerRoute(
-            SettingsRoute(SettingsRoutes.Git.route) { _, _ ->
+            DynamicRoute(SettingsRoutes.Git.route) { _, _ ->
                 GitSettings()
             }
         )
@@ -121,19 +120,17 @@ class GitFeature : Feature {
             AddProjectRegistry.register(option)
         }
 
-        DialogRegistry.register(
-            DialogProvider {
-                if (showCloneDialog) {
-                    GitCloneDialog(
-                        onDismiss = { showCloneDialog = false },
-                        onCloneComplete = { destination ->
-                            // Add file tree tab on success
-                            MainActivity.instance?.drawerViewModel?.addFileTreeTab(destination)
-                        },
-                    )
-                }
+        DialogRegistry.register {
+            if (showCloneDialog) {
+                GitCloneDialog(
+                    onDismiss = { showCloneDialog = false },
+                    onCloneComplete = { destination ->
+                        // Add file tree tab on success
+                        MainActivity.instance?.drawerViewModel?.addFileTreeTab(destination)
+                    },
+                )
             }
-        )
+        }
 
         // Register Xed project templates
         val category =
