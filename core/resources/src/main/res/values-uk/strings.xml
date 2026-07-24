@@ -706,4 +706,21 @@
     <string name="dependencies_description">Щоб дане розширення працювало, необхідні наступні розширення.</string>
     <string name="recommendations_description">На додачу до цього розширення рекомендується встановити наступні розширення.</string>
     <string name="view">Переглянути</string>
+    <string name="new_project">Створити проєкт</string>
+    <string name="new_project_desc">Виберіть шаблон</string>
+    <string name="template_settings">Налаштування шаблону</string>
+    <string name="template_min_app_version">Мінімальна версія застосунка</string>
+    <string name="template_apply_tint">Висвітлити</string>
+    <string name="template_inherit_base_theme">Успадкувати основну тему</string>
+    <string name="back">Назад</string>
+    <string name="creating_project">Проєкт створюється…</string>
+    <string name="template_cleaning_up_git">Очищується Git…</string>
+    <string name="template_applying_settings">Застосовуємо налаштування…</string>
+    <string name="template_create_success">Проєкт \'%s\' успішно створено</string>
+    <string name="template_create_failed">Не вдалося створити проєкт: %s</string>
+    <string name="template_size">Очікуваний розмір: %s</string>
+    <string name="description">Опис</string>
+    <string name="display_name">Видиме ім\'я</string>
+    <string name="github_username">Ім\'я користувача GitHub</string>
+    <string name="project_runner">Запускач проєкту</string>
 </resources>
