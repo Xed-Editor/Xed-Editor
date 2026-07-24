@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -126,8 +127,20 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     @OptIn(ExperimentalMaterial3Api::class)
     private fun SearchSheet(onDismiss: () -> Unit, enableIndexing: Boolean, toggleIndexing: (Boolean) -> Unit) {
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        val sheetState = rememberModalBottomSheetState()
 
-        ModalBottomSheet(onDismissRequest = onDismiss) {
+        // Wait for the sheet's own hide animation to finish before opening the search dialog,
+        // otherwise the two overlays fight for window focus and the IME flashes and closes.
+        fun dismissThen(action: () -> Unit) {
+            scope.launch {
+                sheetState.hide()
+                onDismiss()
+                action()
+            }
+        }
+
+        ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
             Column(
                 modifier =
                     Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
@@ -217,19 +230,13 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                 AddDialogItem(
                     icon = Icons.Outlined.Search,
                     title = stringResource(strings.search_file_folder),
-                    onClick = {
-                        onDismiss()
-                        fileSearchDialog = true
-                    },
+                    onClick = { dismissThen { fileSearchDialog = true } },
                 )
 
                 AddDialogItem(
                     icon = Icons.Outlined.Search,
                     title = stringResource(strings.search_code),
-                    onClick = {
-                        onDismiss()
-                        codeSearchDialog = true
-                    },
+                    onClick = { dismissThen { codeSearchDialog = true } },
                 )
             }
         }
