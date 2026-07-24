@@ -704,4 +704,22 @@
     <string name="recommendations">Rekomendasi</string>
     <string name="dependencies_description">Ekstensi-ekstensi berikut ini diperlukan agar ekstensi ini dapat berfungsi.</string>
     <string name="recommendations_description">Ekstensi-ekstensi berikut ini disarankan untuk diinstal bersamaan dengan ekstensi ini.</string>
+    <string name="project_runner">Pelaksana proyek</string>
+    <string name="new_project">Proyek baru</string>
+    <string name="new_project_desc">Pilih template</string>
+    <string name="template_settings">Pengaturan template</string>
+    <string name="template_id">ID</string>
+    <string name="template_min_app_version">Minimum versi aplikasi</string>
+    <string name="template_apply_tint">Terapkan warna</string>
+    <string name="template_inherit_base_theme">Bawa tema dasar</string>
+    <string name="back">Kembali</string>
+    <string name="creating_project">Membuat proyek…</string>
+    <string name="template_cleaning_up_git">Membersihkan Git…</string>
+    <string name="template_applying_settings">Menerapkan pengaturan…</string>
+    <string name="template_create_success">Proyek \'%s\' berhasil dibuat</string>
+    <string name="template_create_failed">Gagal membuat proyek: %s</string>
+    <string name="template_size">Ukuran yang diperkirakan: %s</string>
+    <string name="description">Deskripsi</string>
+    <string name="display_name">Tampilkan nama</string>
+    <string name="github_username">Nama pengguna GitHub</string>
 </resources>
