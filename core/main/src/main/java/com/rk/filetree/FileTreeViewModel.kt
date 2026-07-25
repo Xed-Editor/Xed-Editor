@@ -209,11 +209,11 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
-    fun registerFileOperation() {
+    private fun registerFileOperation() {
         fileOperationsCount++
     }
 
-    fun unregisterFileOperation() {
+    private fun unregisterFileOperation() {
         if (fileOperationsCount > 0) {
             fileOperationsCount--
         }

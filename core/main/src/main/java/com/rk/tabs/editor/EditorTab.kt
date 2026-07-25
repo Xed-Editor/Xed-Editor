@@ -77,6 +77,7 @@ import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.PropertyType
 import java.nio.charset.Charset
 import java.nio.file.Paths
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -97,7 +98,7 @@ open class EditorTab(
         get() = file == null && !isReadOnly
 
     private var autoSaveJob: Job? = null
-    private var taskCount = 0
+    private var activeTasks = mutableSetOf<String>()
 
     private var charset = Charset.forName(Settings.encoding)
     var lspConnector: LspConnector? = null
@@ -403,27 +404,25 @@ open class EditorTab(
 
     @XedExtensionPoint
     suspend fun withTask(block: suspend () -> Unit) {
-        registerTask()
+        val uniqueId = UUID.randomUUID().toString()
+
+        registerTask(uniqueId)
         try {
             block()
         } finally {
-            unregisterTask()
+            unregisterTask(uniqueId)
         }
     }
 
-    fun registerTask() {
-        taskCount++
+    fun registerTask(id: String) {
+        activeTasks.add(id)
     }
 
-    fun unregisterTask() {
-        if (taskCount > 0) {
-            taskCount--
-        }
+    fun unregisterTask(id: String) {
+        activeTasks.remove(id)
     }
 
-    fun isTaskInProcess(): Boolean {
-        return taskCount > 0
-    }
+    fun isTaskInProcess() = activeTasks.isNotEmpty()
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable

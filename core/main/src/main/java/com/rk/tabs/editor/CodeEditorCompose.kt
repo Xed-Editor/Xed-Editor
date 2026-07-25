@@ -217,9 +217,9 @@ fun Editor.registerXedEvents(
 
     subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
         if (event.isLayoutBusy) {
-            editorTab.registerTask()
+            editorTab.registerTask("layout_busy")
         } else {
-            editorTab.unregisterTask()
+            editorTab.unregisterTask("layout_busy")
         }
     }
 

@@ -30,8 +30,23 @@ import java.io.File
 
 private fun validateValue(value: String): String? {
     return when {
-        value.isBlank() -> "Value cannot be empty"
+        value.isBlank() -> strings.value_empty_err.getString()
         else -> null
+    }
+}
+
+private fun normalizeRepoUrl(url: String): String {
+    val trimmed = url.trim()
+
+    return if (
+        trimmed.startsWith("http://") ||
+            trimmed.startsWith("https://") ||
+            trimmed.startsWith("ssh://") ||
+            trimmed.startsWith("git@")
+    ) {
+        trimmed
+    } else {
+        "https://$trimmed"
     }
 }
 
@@ -114,7 +129,7 @@ fun GitCloneDialog(
                         gitViewModel
                             .get()
                             ?.cloneRepository(
-                                repoURL = repoURL,
+                                repoURL = normalizeRepoUrl(repoURL),
                                 repoBranch = repoBranch,
                                 targetDir = File(fileObject!!.getAbsolutePath()),
                                 progressCoordinator = monitor,
