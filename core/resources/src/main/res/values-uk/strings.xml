@@ -723,4 +723,8 @@
     <string name="display_name">Видиме ім\'я</string>
     <string name="github_username">Ім\'я користувача GitHub</string>
     <string name="project_runner">Запускач проєкту</string>
+    <string name="project_runner_desc">Запускає проєкт через /.xed/runner.sh, якщо скрипт існує.</string>
+    <string name="discard_changes">Скасувати зміни</string>
+    <string name="discard_changes_msg">Ви впевнені, що хочете скасувати локальні зміни в \'%s\'? Ця дія невідворотна.</string>
+    <string name="discard_failed">Не вдалося скасувати зміни в %s</string>
 </resources>
