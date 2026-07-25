@@ -30,6 +30,8 @@ abstract class Tab {
 
     open fun onTabUnselected() {}
 
+    open fun onDuplicate(tab: Tab) {}
+
     @Composable abstract fun Content()
 
     @Composable open fun RowScope.Actions() {}

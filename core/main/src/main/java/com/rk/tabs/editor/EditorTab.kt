@@ -134,6 +134,24 @@ open class EditorTab(
         editorState.editor.get()?.clearFocus()
     }
 
+    override fun onDuplicate(tab: Tab) {
+        if (tab is EditorTab) {
+            scope.launch(Dispatchers.Main) {
+                tab.editorState.contentLoaded.await()
+
+                val newContent = tab.editorState.content
+                if (newContent != null && !editorState.isDirty && newContent != editorState.content) {
+                    editorState.updateLock.withLock {
+                        editorState.content = newContent
+                        editorState.editor.get()?.setText(newContent)
+                        editorState.updateUndoRedo()
+                        editorState.isDirty = false
+                    }
+                }
+            }
+        }
+    }
+
     init {
         scope.launch {
             val file = file

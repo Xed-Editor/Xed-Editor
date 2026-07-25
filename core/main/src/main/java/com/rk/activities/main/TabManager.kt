@@ -32,6 +32,8 @@ class TabManager {
             } else -1
 
         if (duplicateIndex != -1) {
+            val existingTab = _tabs[duplicateIndex]
+            existingTab.onDuplicate(tab)
             if (switchToTab) setCurrentTab(duplicateIndex)
             return
         }
