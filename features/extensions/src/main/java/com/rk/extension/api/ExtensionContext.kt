@@ -5,7 +5,8 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
 import androidx.annotation.Keep
-import com.rk.extension.api.XedExtensionPoint
+import com.rk.extension.api.ExtensionActivity
+import com.rk.extension.api.ExtensionScreen
 import com.rk.extension.api.logDebug
 import com.rk.extension.api.logError
 import com.rk.extension.api.logInfo
@@ -14,7 +15,6 @@ import com.rk.file.createDirIfNot
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
 
-@XedExtensionPoint
 @Keep
 class ExtensionContext(val extension: LocalExtension, val appContext: Context, val scope: CoroutineScope) {
 
@@ -46,4 +46,8 @@ class ExtensionContext(val extension: LocalExtension, val appContext: Context, v
     fun logWarn(msg: String) = extension.id.logWarn(msg)
 
     fun logError(msg: String) = extension.id.logError(msg)
+
+    fun startScreen(screen: ExtensionScreen) {
+        ExtensionActivity.start(ActivityProvider.currentActivity ?: appContext, screen)
+    }
 }

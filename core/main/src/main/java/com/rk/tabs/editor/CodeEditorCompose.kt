@@ -365,7 +365,8 @@ private suspend fun FileObject.getExtensionServers(
     activity: Activity,
     scope: CoroutineScope,
 ): List<LspServer> {
-    val servers = LspRegistry.extensionServers.filter { server -> server.isSupported(this) }
+    val servers =
+        (LspRegistry.extensionServers + LspRegistry.builtInServers).filter { server -> server.isSupported(this) }
     return servers.filterActiveLspServers(activity, scope)
 }
 

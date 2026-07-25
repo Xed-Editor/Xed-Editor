@@ -13,6 +13,7 @@ import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkdownRunner
 import com.rk.utils.errorDialog
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.ApiStatus
 
 object RunnerManager {
 
@@ -21,13 +22,21 @@ object RunnerManager {
     val extensionRunners: List<Runner>
         get() = _extensionRunners.toList()
 
-    val builtinRunners = listOf(HtmlRunner, MarkdownRunner, XedProjectRunner)
+    private val _builtinRunners = mutableStateListOf(HtmlRunner, MarkdownRunner, XedProjectRunner)
+    val builtinRunners: List<Runner>
+        get() = _builtinRunners.toList()
 
     @XedExtensionPoint
     fun registerRunner(runner: Runner) {
         if (!_extensionRunners.contains(runner)) {
             _extensionRunners.add(runner)
         }
+    }
+
+    @ApiStatus.Internal
+    // TODO: Temp
+    fun addBuiltInRunner(vararg servers: Runner) {
+        _builtinRunners.addAll(servers)
     }
 
     @XedExtensionPoint

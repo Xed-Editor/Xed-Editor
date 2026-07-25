@@ -27,8 +27,8 @@ class TabManager {
 
     fun addTab(tab: Tab, switchToTab: Boolean, checkDuplicate: Boolean = true) {
         val duplicateIndex =
-            if (checkDuplicate && tab.file != null) {
-                _tabs.indexOfFirst { it.file == tab.file }
+            if (checkDuplicate) {
+                _tabs.indexOfFirst { it == tab }
             } else -1
 
         if (duplicateIndex != -1) {

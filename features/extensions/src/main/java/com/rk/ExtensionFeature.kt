@@ -15,7 +15,7 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
-import com.rk.settings.SettingsRoute
+import com.rk.extension.api.DynamicRoute
 import com.rk.settings.extension.ExtensionDetail
 import com.rk.settings.extension.ExtensionScreen
 import com.rk.settings.extension.ExtensionSettings
@@ -57,7 +57,7 @@ class ExtensionFeature : Feature {
 
         // Register settings routes
         SettingsRegistry.registerRoute(
-            SettingsRoute(
+            DynamicRoute(
                 "${SettingsRoutes.Extensions.route}?query={query}",
                 arguments =
                     listOf(
@@ -75,14 +75,14 @@ class ExtensionFeature : Feature {
             }
         )
         SettingsRegistry.registerRoute(
-            SettingsRoute("${SettingsRoutes.ExtensionDetail.route}/{extensionId}") { navController, backStackEntry ->
+            DynamicRoute("${SettingsRoutes.ExtensionDetail.route}/{extensionId}") { navController, backStackEntry ->
                 val extensionId = backStackEntry.arguments?.getString("extensionId")
                 val extension = extensionId?.let { extensionManager.getExtension(it) }
                 ExtensionDetail(extension, navController)
             }
         )
         SettingsRegistry.registerRoute(
-            SettingsRoute("${SettingsRoutes.ExtensionSettings.route}/{extensionId}") { _, backStackEntry ->
+            DynamicRoute("${SettingsRoutes.ExtensionSettings.route}/{extensionId}") { _, backStackEntry ->
                 val extensionId = backStackEntry.arguments?.getString("extensionId")
                 val extension = extensionId?.let { extensionManager.getExtension(it) }
                 ExtensionSettings(extension)

@@ -708,6 +708,7 @@
     <string name="dependencies_description">The following extensions are required for this extension to work.</string>
     <string name="recommendations_description">The following extensions are recommended to install alongside this extension.</string>
     <string name="project_runner">Project runner</string>
+    <string name="project_runner_desc">Runs the project using /.xed/runner.sh if the script exists.</string>
     <string name="new_project">New project</string>
     <string name="new_project_desc">Select a template</string>
     <string name="template_settings">Template settings</string>
@@ -724,5 +725,8 @@
     <string name="template_size">Expected size: %s</string>
     <string name="description">Description</string>
     <string name="display_name">Display name</string>
+    <string name="discard_changes">Discard changes</string>
+    <string name="discard_changes_msg">Are you sure you want to discard your local changes to \'%s\'? This cannot be undone.</string>
+    <string name="discard_failed">Discard failed: %s</string>
     <string name="github_username">GitHub username</string>
 </resources>

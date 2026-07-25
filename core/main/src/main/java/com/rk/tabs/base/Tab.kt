@@ -5,8 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rk.activities.main.TabState
 import com.rk.file.FileObject
+import java.util.UUID
 
 abstract class Tab {
+    val id = UUID.randomUUID().toString()
+
     var refreshKey: Int = 0
     abstract val name: String
     abstract val icon: ImageVector

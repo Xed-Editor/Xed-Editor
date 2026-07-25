@@ -10,6 +10,7 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialogRes
 import com.rk.utils.expectOOM
 import io.github.rosemoe.sora.event.SelectionChangeEvent
+import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,6 +26,7 @@ class EditorManager(private val viewModel: MainViewModel) {
         isReadOnly: Boolean = false,
         customTitle: String? = null,
         fallbackExtension: String = "txt",
+        initialContent: String? = null,
     ): EditorTab {
         return EditorTab(
             file = file,
@@ -33,6 +35,7 @@ class EditorManager(private val viewModel: MainViewModel) {
             isReadOnly = isReadOnly,
             customTitle = customTitle,
             fallbackExtension = fallbackExtension,
+            initialContent = initialContent?.let { Content(it) },
         )
     }
 
@@ -44,8 +47,9 @@ class EditorManager(private val viewModel: MainViewModel) {
         isReadOnly: Boolean = false,
         customTitle: String? = null,
         fallbackExtension: String = "txt",
+        initialContent: String? = null,
     ) {
-        val editorTab = createEditorTab(file, projectRoot, isReadOnly, customTitle, fallbackExtension)
+        val editorTab = createEditorTab(file, projectRoot, isReadOnly, customTitle, fallbackExtension, initialContent)
         viewModel.tabManager.addTab(editorTab, switchToTab, checkDuplicate)
     }
 
@@ -103,14 +107,14 @@ class EditorManager(private val viewModel: MainViewModel) {
 
     fun addPreviewTab(title: String, content: String, extension: String = "txt", isReadOnly: Boolean = true) {
         val editorTab =
-            createEditorTab(file = null, customTitle = title, fallbackExtension = extension, isReadOnly = isReadOnly)
+            createEditorTab(
+                file = null,
+                customTitle = title,
+                fallbackExtension = extension,
+                isReadOnly = isReadOnly,
+                initialContent = content,
+            )
+
         viewModel.tabManager.addTab(editorTab, switchToTab = true)
-        viewModel.viewModelScope.launch {
-            editorTab.editorState.contentLoaded.await()
-            withContext(Dispatchers.Main) {
-                editorTab.editorState.editor.get()?.setText(content)
-                editorTab.editorState.isDirty = false
-            }
-        }
     }
 }

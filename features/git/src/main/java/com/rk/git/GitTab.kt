@@ -2,7 +2,6 @@ package com.rk.git
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -61,6 +60,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.filesByTab
 import com.rk.components.SingleInputDialog
@@ -609,14 +609,45 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     @Composable
     private fun ChangesItemList(items: List<GitChange>) {
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
 
         Column(modifier = Modifier.padding(start = 40.dp)) {
             items.forEach { change ->
+                var showRollbackDialog by remember { mutableStateOf(false) }
+                if (showRollbackDialog) {
+                    RollbackConfirmDialog(
+                        change = change,
+                        onDismiss = { showRollbackDialog = false },
+                        onConfirm = {
+                            viewModel.discard(change)
+                            showRollbackDialog = false
+                        },
+                    )
+                }
+
+                val file = File(change.absolutePath).toFileWrapper()
+                val fileName = change.path.substringAfterLast("/")
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier =
                         Modifier.width((getDrawerWidth() - 61.dp))
-                            .clickable { viewModel.toggleChange(change) }
+                            .combinedClickable(
+                                onClick = {
+                                    viewModel.getDiff(change) { diff ->
+                                        MainActivity.instance
+                                            ?.viewModel
+                                            ?.editorManager
+                                            ?.addPreviewTab(
+                                                title = fileName,
+                                                content = diff,
+                                                extension = "diff",
+                                            )
+                                        scope.launch { drawerStateRef.get()?.close() }
+                                    }
+                                },
+                                onLongClick = { showRollbackDialog = true },
+                            )
                             .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -626,9 +657,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         onCheckedChange = { viewModel.toggleChange(change) },
                         modifier = Modifier.size(20.dp),
                     )
-
-                    val file = File(change.absolutePath).toFileWrapper()
-                    val fileName = change.path.substringAfterLast("/")
 
                     FileNameIcon(fileName = fileName, isDirectory = false)
 
@@ -660,6 +688,17 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 }
             }
         }
+    }
+
+    @Composable
+    private fun RollbackConfirmDialog(change: GitChange, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(strings.discard_changes)) },
+            text = { Text(stringResource(strings.discard_changes_msg, change.path)) },
+            confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(strings.discard)) } },
+            dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) } },
+        )
     }
 
     override fun getName(): String {
