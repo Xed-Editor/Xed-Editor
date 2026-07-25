@@ -137,7 +137,7 @@ fun MainContent(
                     divider = {},
                 ) {
                     mainViewModel.tabs.forEachIndexed { index, tabState ->
-                        key(tabState) {
+                        key(tabState.id) {
                             TabItem(
                                 mainViewModel = mainViewModel,
                                 fileTreeViewModel = fileTreeViewModel,
@@ -210,7 +210,7 @@ fun MainContent(
                 modifier = Modifier.fillMaxSize().clipToBounds(),
                 beyondViewportPageCount = mainViewModel.tabs.size,
                 userScrollEnabled = false,
-                key = { mainViewModel.tabs.getOrNull(it).hashCode() },
+                key = { mainViewModel.tabs.getOrNull(it)?.id ?: "" },
             ) { page ->
                 if (page < mainViewModel.tabs.size) {
                     mainViewModel.tabs[page].Content()

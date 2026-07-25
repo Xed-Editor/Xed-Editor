@@ -60,6 +60,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.filesByTab
 import com.rk.components.SingleInputDialog
@@ -608,6 +609,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     @Composable
     private fun ChangesItemList(items: List<GitChange>) {
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
 
         Column(modifier = Modifier.padding(start = 40.dp)) {
             items.forEach { change ->
@@ -641,6 +643,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                                 content = diff,
                                                 extension = "diff",
                                             )
+                                        scope.launch { drawerStateRef.get()?.close() }
                                     }
                                 },
                                 onLongClick = { showRollbackDialog = true },

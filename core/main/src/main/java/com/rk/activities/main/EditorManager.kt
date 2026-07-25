@@ -116,12 +116,5 @@ class EditorManager(private val viewModel: MainViewModel) {
             )
 
         viewModel.tabManager.addTab(editorTab, switchToTab = true)
-        //        viewModel.viewModelScope.launch {
-        //            editorTab.editorState.contentRendered.await()
-        //            withContext(Dispatchers.Main) {
-        //                editorTab.editorState.editor.get()?.setText(content)
-        //                editorTab.editorState.isDirty = false
-        //            }
-        //        }
     }
 }

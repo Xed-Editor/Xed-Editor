@@ -11,6 +11,7 @@ import com.rk.events.Events
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileWrapper
 import com.rk.resources.getFilledString
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.toast
@@ -31,7 +32,9 @@ import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
+import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
+import org.eclipse.jgit.treewalk.filter.PathFilter
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -574,28 +577,23 @@ class GitViewModel : ViewModel() {
                     ByteArrayOutputStream().use { out ->
                         DiffFormatter(out).use { formatter ->
                             formatter.setRepository(repo)
+                            formatter.pathFilter = PathFilter.create(change.path)
 
-                            RevWalk(repo).use { walk ->
-                                val head = walk.parseCommit(repo.resolve(Constants.HEAD))
-
-                                val oldTree =
+                            val headId = repo.resolve(Constants.HEAD + "^{" + Constants.TYPE_TREE + "}")
+                            val oldTree =
+                                if (headId != null) {
                                     CanonicalTreeParser().apply {
-                                        reset(
-                                            repo.newObjectReader(),
-                                            head.tree,
-                                        )
+                                        reset(repo.newObjectReader(), headId)
                                     }
-
-                                val newTree = FileTreeIterator(repo)
-
-                                formatter
-                                    .scan(oldTree, newTree)
-                                    .filter { it.newPath == change.path || it.oldPath == change.path }
-                                    .forEach(formatter::format)
-
-                                withContext(Dispatchers.Main) {
-                                    onResult(out.toString())
+                                } else {
+                                    EmptyTreeIterator()
                                 }
+
+                            val newTree = FileTreeIterator(repo)
+                            formatter.scan(oldTree, newTree).forEach(formatter::format)
+
+                            withContext(Dispatchers.Main) {
+                                onResult(out.toString().ifBlank { strings.no_changes.getString() })
                             }
                         }
                     }
