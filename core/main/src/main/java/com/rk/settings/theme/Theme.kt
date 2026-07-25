@@ -87,6 +87,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                     Settings.amoled = it
                     amoled.value = it
                     updateThemes()
+                    refreshEditors()
                 },
             )
 
@@ -100,6 +101,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                     Settings.monet = it
                     dynamicTheme.value = it
                     updateThemes()
+                    refreshEditors()
                 },
             )
         }
