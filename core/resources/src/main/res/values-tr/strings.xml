@@ -726,4 +726,8 @@
     <string name="description">Açıklama</string>
     <string name="display_name">Görünen ad</string>
     <string name="github_username">GitHub kullanıcı adı</string>
+    <string name="project_runner_desc">Projede, /.xed/runner.sh betiği varsa bu betik kullanılarak çalıştırılır.</string>
+    <string name="discard_changes">Değişiklikleri sil</string>
+    <string name="discard_changes_msg">%s\'deki yerel değişikliklerinizi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</string>
+    <string name="discard_failed">Silme başarısız oldu: %s</string>
 </resources>
