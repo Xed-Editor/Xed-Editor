@@ -705,4 +705,22 @@
     <string name="recommendations">推荐</string>
     <string name="dependencies_description">当前扩展需要以下扩展才能工作。</string>
     <string name="recommendations_description">以下扩展被推荐与当前扩展一起安装。</string>
+    <string name="project_runner">项目运行器</string>
+    <string name="new_project">新建项目</string>
+    <string name="new_project_desc">选择一个模版</string>
+    <string name="template_settings">模版设置</string>
+    <string name="template_id">模版 ID</string>
+    <string name="template_min_app_version">最小 App 版本号</string>
+    <string name="template_apply_tint">应用色调</string>
+    <string name="template_inherit_base_theme">继承基础主题</string>
+    <string name="back">返回</string>
+    <string name="creating_project">正在创建项目 ……</string>
+    <string name="template_cleaning_up_git">正在清理 Git……</string>
+    <string name="template_applying_settings">正在应用设置……</string>
+    <string name="template_create_success">已成功创建项目 \'%s\'</string>
+    <string name="template_create_failed">项目创建失败：%s</string>
+    <string name="template_size">预期大小：%s</string>
+    <string name="description">描述</string>
+    <string name="display_name">显示名称</string>
+    <string name="github_username">GitHub 用户名</string>
 </resources>
