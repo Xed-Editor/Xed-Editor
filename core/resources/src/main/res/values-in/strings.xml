@@ -722,4 +722,8 @@
     <string name="description">Deskripsi</string>
     <string name="display_name">Tampilkan nama</string>
     <string name="github_username">Nama pengguna GitHub</string>
+    <string name="project_runner_desc">Jalankan proyek menggunakan /.xed/runner.sh jika skrip tersebut ada.</string>
+    <string name="discard_changes">Buang perubahan</string>
+    <string name="discard_changes_msg">Apakah Anda yakin ingin membuang perubahan lokal Anda pada \'%s\'? Tindakan ini tidak dapat dibatalkan.</string>
+    <string name="discard_failed">Gagal membuang: %s</string>
 </resources>
