@@ -54,6 +54,7 @@ import com.rk.settings.support.handleSupport
 import com.rk.tabs.base.Tab
 import com.rk.utils.errorDialog
 import com.rk.utils.hasBinaryChars
+import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -86,6 +87,7 @@ open class EditorTab(
     isReadOnly: Boolean = false,
     private val customTitle: String? = null,
     val fallbackExtension: String = "txt",
+    initialContent: Content? = null,
 ) : Tab() {
 
     var isReadOnly: Boolean = isReadOnly
@@ -110,7 +112,7 @@ open class EditorTab(
 
     override var tabTitle by mutableStateOf(customTitle ?: file?.getName() ?: strings.temp_file.getString())
 
-    val editorState by mutableStateOf(CodeEditorState())
+    val editorState by mutableStateOf(CodeEditorState(initialContent))
 
     override fun onTabRemoved() {
         autoSaveJob?.cancel()
@@ -171,7 +173,6 @@ open class EditorTab(
                 withContext(Dispatchers.IO) {
                     runCatching {
                         editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
-                        editorState.contentLoaded.complete(Unit)
 
                         if (Settings.detect_bin_files && hasBinaryChars(editorState.content.toString())) {
                             editorState.editable = false
@@ -181,6 +182,7 @@ open class EditorTab(
                         .onFailure { errorDialog(throwable = it) }
                 }
             }
+            editorState.contentLoaded.complete(Unit)
         }
     }
 
@@ -600,7 +602,13 @@ open class EditorTab(
                 ),
             scrollX = editor.scrollX,
             scrollY = editor.scrollY,
-            unsavedContent = if (editorState.isDirty) editor.text.toString() else null,
+            content =
+                when {
+                    file == null -> editor.text.toString()
+                    editorState.isDirty -> editor.text.toString()
+                    else -> null
+                },
+            isDirty = editorState.isDirty,
             isReadOnly = isReadOnly,
             customTitle = customTitle,
             fallbackExtension = fallbackExtension,

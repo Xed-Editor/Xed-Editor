@@ -477,6 +477,61 @@
       "settings": {
         "foreground": "#FFC66D"
       }
+    },
+    {
+      "name": "Extra: Diff Range",
+      "scope": [
+        "meta.diff.range",
+        "meta.diff.index",
+        "meta.separator"
+      ],
+      "settings": {
+        "foreground": "#8A8A8A"
+      }
+    },
+    {
+      "name": "Extra: Diff From",
+      "scope": [
+        "meta.diff.header.from-file",
+        "punctuation.definition.from-file.diff"
+      ],
+      "settings": {
+        "foreground": "#7A9EC2"
+      }
+    },
+    {
+      "name": "Extra: Diff To",
+      "scope": [
+        "meta.diff.header.to-file",
+        "punctuation.definition.to-file.diff"
+      ],
+      "settings": {
+        "foreground": "#7A9EC2"
+      }
+    },
+    {
+      "name": "Diff: deleted",
+      "scope": "markup.deleted.diff",
+      "settings": {
+        "foreground": "#F16D7A",
+        "background": "#40252B"
+      }
+    },
+    {
+      "name": "Diff: changed",
+      "scope": "markup.changed.diff",
+      "settings": {
+        "foreground": "#E6B450",
+        "background": "#45371F"
+      }
+    },
+    {
+      "name": "Diff: inserted",
+      "scope": "markup.inserted.diff",
+      "settings": {
+        "foreground": "#7EC77B",
+        "background": "#243A28"
+      }
     }
   ]
 }

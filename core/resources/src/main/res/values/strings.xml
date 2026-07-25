@@ -725,5 +725,8 @@
     <string name="template_size">Expected size: %s</string>
     <string name="description">Description</string>
     <string name="display_name">Display name</string>
+    <string name="discard_changes">Discard changes</string>
+    <string name="discard_changes_msg">Are you sure you want to discard your local changes to \'%s\'? This cannot be undone.</string>
+    <string name="discard_failed">Discard failed: %s</string>
     <string name="github_username">GitHub username</string>
 </resources>
