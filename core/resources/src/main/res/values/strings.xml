@@ -729,4 +729,6 @@
     <string name="discard_changes_msg">Are you sure you want to discard your local changes to \'%s\'? This cannot be undone.</string>
     <string name="discard_failed">Discard failed: %s</string>
     <string name="github_username">GitHub username</string>
+    <string name="session_name_exists">Session name already exists</string>
+    <string name="rename_session">Rename session</string>
 </resources>

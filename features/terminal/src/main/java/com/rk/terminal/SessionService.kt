@@ -21,9 +21,6 @@ import com.rk.settings.Settings
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class SessionService : Service() {
     private val sessions = hashMapOf<SessionId, TerminalSession>()
@@ -82,6 +79,27 @@ class SessionService : Service() {
             } else {
                 updateNotification()
             }
+        }
+
+        fun renameSession(oldId: String, newId: String) {
+            if (oldId == newId || newId.isEmpty() || newId in sessionList) return
+
+            val session = sessions.remove(oldId) ?: return
+            val pwd = sessionWorkDirs.remove(oldId) ?: return
+
+            sessions[newId] = session
+            sessionWorkDirs[newId] = pwd
+
+            val index = sessionList.indexOf(oldId)
+            if (index != -1) {
+                sessionList[index] = newId
+            }
+
+            if (currentSession.value == oldId) {
+                currentSession.value = newId
+            }
+
+            updateNotification()
         }
     }
 
@@ -231,9 +249,9 @@ class SessionService : Service() {
 
     private fun updateNotification() {
         runCatching {
-                val notification = createNotification()
-                notificationManager.notify(1, notification)
-            }
+            val notification = createNotification()
+            notificationManager.notify(1, notification)
+        }
             .onFailure { it.printStackTrace() }
     }
 
@@ -247,8 +265,7 @@ class SessionService : Service() {
             }
         }"
     }
-
-    }
+}
 
 typealias SessionId = String
 

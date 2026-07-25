@@ -133,6 +133,9 @@ class FileTreeViewModel : ViewModel() {
 
     // File tree
     var sortMode by mutableStateOf(SortMode.entries[Settings.sort_mode])
+    var isRefreshing by mutableStateOf(false)
+        private set
+
     private val selectedFiles = mutableStateMapOf<FileObject, List<FileObject>>()
     private val focusedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
@@ -365,8 +368,12 @@ class FileTreeViewModel : ViewModel() {
         expandFile(projectFile, projectFile)
     }
 
-    suspend fun refreshEverything() =
-        withContext(Dispatchers.IO) { fileListCache.keys.toList().forEach { updateCache(it) } }
+    suspend fun refreshEverything(wasPulled: Boolean = false) =
+        withContext(Dispatchers.IO) {
+            if (wasPulled) isRefreshing = true
+            fileListCache.keys.toList().forEach { updateCache(it) }
+            isRefreshing = false
+        }
 
     fun getNodeChildren(node: FileTreeNode): List<FileTreeNode> {
         return fileListCache[node.file] ?: emptyList()
