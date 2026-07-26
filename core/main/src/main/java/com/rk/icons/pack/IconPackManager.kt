@@ -67,7 +67,7 @@ class IconPackManager(private val context: Application) {
             dialogRes(
                 activity = SettingsActivity.instance,
                 title = strings.warning.getString(),
-                msg = strings.incompatible_theme_warning.getString(),
+                msg = strings.incompatible_icon_pack_warning.getString(),
                 cancelRes = strings.cancel,
                 okRes = strings.continue_action,
                 onOk = { writeIconPackToDisk(iconPackManifest, dir) },

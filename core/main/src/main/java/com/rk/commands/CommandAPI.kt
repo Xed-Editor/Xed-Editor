@@ -93,6 +93,10 @@ abstract class Command {
     open val sectionId: Int = 0
     open val defaultKeybinds: KeyCombination? = null
 
+    open val repeatOnHold: Boolean = false
+
+    open fun onLongClick(context: ActionContext): Boolean = false
+
     /** Executes this command's action, or opens a submenu if [childCommands] are present. */
     fun performCommand(context: ActionContext) {
         if (childCommands.isNotEmpty()) {
@@ -115,6 +119,8 @@ abstract class Command {
         childSearchPlaceholder: () -> String? = { this.getChildSearchPlaceholder() },
         sectionId: Int = this.sectionId,
         defaultKeybinds: KeyCombination? = this.defaultKeybinds,
+        repeatOnHold: Boolean = this.repeatOnHold,
+        onLongClick: (ActionContext) -> Boolean = { ctx -> this.onLongClick(ctx) },
     ): Command {
         return object : Command() {
             override val id: String = id
@@ -140,6 +146,10 @@ abstract class Command {
             override val sectionId: Int = sectionId
 
             override val defaultKeybinds: KeyCombination? = defaultKeybinds
+
+            override val repeatOnHold: Boolean = repeatOnHold
+
+            override fun onLongClick(context: ActionContext): Boolean = onLongClick(context)
         }
     }
 
@@ -169,6 +179,14 @@ abstract class EditorCommand : Command() {
 
     abstract fun action(context: EditorActionContext)
 
+    final override fun onLongClick(context: ActionContext): Boolean {
+        val currentTab = commandContext.mainViewModel.currentTab
+        val editor = (currentTab as? EditorTab)?.editorState?.editor?.get() ?: return false
+        return onLongClick(EditorActionContext(context.currentActivity, currentTab, editor))
+    }
+
+    open fun onLongClick(context: EditorActionContext): Boolean = false
+
     final override fun isSupported(): Boolean {
         val currentTab = commandContext.mainViewModel.currentTab
         if (currentTab !is EditorTab) return false
@@ -196,6 +214,15 @@ abstract class EditorFileCommand : EditorCommand() {
 
     abstract fun action(context: EditorFileActionContext)
 
+    final override fun onLongClick(context: EditorActionContext): Boolean {
+        val currentTab = context.editorTab
+        val editor = context.editor
+        val file = currentTab.file ?: return false
+        return onLongClick(EditorFileActionContext(context.currentActivity, currentTab, editor, file))
+    }
+
+    open fun onLongClick(context: EditorFileActionContext): Boolean = false
+
     final override fun isSupported(context: EditorNonActionContext): Boolean {
         val currentTab = context.editorTab
         val file = currentTab.file ?: return false
@@ -222,6 +249,15 @@ abstract class LspCommand : EditorCommand() {
     }
 
     abstract fun action(context: LspActionContext)
+
+    final override fun onLongClick(context: EditorActionContext): Boolean {
+        val currentTab = context.editorTab
+        val editor = context.editor
+        val baseLspConnector = currentTab.lspConnector ?: return false
+        return onLongClick(LspActionContext(context.currentActivity, currentTab, editor, baseLspConnector))
+    }
+
+    open fun onLongClick(context: LspActionContext): Boolean = false
 
     final override fun isSupported(context: EditorNonActionContext): Boolean {
         val currentTab = context.editorTab

@@ -13,6 +13,8 @@ import com.rk.resources.strings
 class RedoCommand : EditorCommand() {
     override val id: String = "editor.redo"
 
+    override val repeatOnHold: Boolean = true
+
     override fun getLabel(): String = strings.redo.getString()
 
     override fun action(context: EditorActionContext) {

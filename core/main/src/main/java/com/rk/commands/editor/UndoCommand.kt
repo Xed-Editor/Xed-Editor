@@ -13,6 +13,8 @@ import com.rk.resources.strings
 class UndoCommand : EditorCommand() {
     override val id: String = "editor.undo"
 
+    override val repeatOnHold: Boolean = true
+
     override fun getLabel(): String = strings.undo.getString()
 
     override fun action(context: EditorActionContext) {

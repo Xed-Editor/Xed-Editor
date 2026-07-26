@@ -12,7 +12,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.RunnerManager
 import com.rk.runner.RunnerUI
-import com.rk.settings.Settings
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -22,13 +21,23 @@ class RunCommand : EditorFileCommand() {
     override fun getLabel(): String = strings.run.getString()
 
     override fun action(context: EditorFileActionContext) {
-        val activity = context.currentActivity
-        CommandProvider.SaveCommand.action(context)
-        Settings.runs += 1
+        launchRunner(context, forceSelection = false)
+    }
+
+    override fun onLongClick(context: EditorFileActionContext): Boolean {
+        launchRunner(context, forceSelection = true)
+        return true
+    }
+
+    private fun launchRunner(context: EditorFileActionContext, forceSelection: Boolean) {
         RunnerManager.run(
-            activity = activity,
+            activity = context.currentActivity,
             fileObject = context.file,
             projectRoot = context.editorTab.projectRoot,
+            forceSelection = forceSelection,
+            beforeRun = {
+                CommandProvider.SaveCommand.action(context)
+            },
             onMultipleRunners = {
                 RunnerUI.runnersToShow = it
                 RunnerUI.showRunnerDialog = true
