@@ -73,7 +73,7 @@ fun FileTreeNodeItem(
     val selectionColor = MaterialTheme.colorScheme.primaryContainer
 
     val nodeBackground = remember { Animatable(surfaceColor) }
-    LaunchedEffect(isFileFocused, isFileSelected) {
+    LaunchedEffect(isFileFocused, isFileSelected, surfaceColor, selectionColor) {
         if (isFileFocused || isFileSelected) {
             nodeBackground.animateTo(selectionColor, animationSpec = tween(300))
         } else {

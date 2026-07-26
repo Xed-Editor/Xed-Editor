@@ -3,6 +3,7 @@ package com.rk.runner
 import android.app.Application
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.commands.CommandProvider
+import com.rk.commands.ToolbarConfiguration
 import com.rk.commands.editor.RunCommand
 import com.rk.components.DialogRegistry
 import com.rk.extension.api.DynamicRoute
@@ -45,7 +46,7 @@ class RunnerFeature : Feature {
         )
 
         // Register Run command
-        val runCommand = RunCommand()
-        CommandProvider.registerCommand(runCommand)
+        CommandProvider.registerCommand(RunCommand)
+        ToolbarConfiguration.addGlobalToolbarCommand(RunCommand, 0)
     }
 }

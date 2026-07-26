@@ -1,11 +1,12 @@
-package com.rk.activities.main
+package com.rk.activities.main.session
 
 import androidx.lifecycle.viewModelScope
+import com.rk.activities.main.MainActivity
 import com.rk.file.FileObject
 import com.rk.tabs.base.Tab
 import com.rk.tabs.base.TabRegistry
-import java.io.Serializable
 import kotlinx.coroutines.launch
+import java.io.Serializable
 
 sealed interface TabState : Serializable {
     suspend fun toTab(): Tab?

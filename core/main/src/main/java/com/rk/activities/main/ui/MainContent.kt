@@ -1,7 +1,6 @@
-package com.rk.activities.main
+package com.rk.activities.main.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,6 +44,8 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
+import com.rk.activities.main.MainActivity
+import com.rk.activities.main.MainViewModel
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.XedDropdownMenuItem
@@ -103,11 +103,7 @@ fun MainContent(
 
     Column(Modifier.fillMaxSize().padding(innerPadding)) {
         if (mainViewModel.tabs.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                TextButton(onClick = { scope.launch { drawerState.open() } }) {
-                    Text(text = stringResource(strings.click_open), style = MaterialTheme.typography.bodyLarge)
-                }
-            }
+            WelcomeScreen(drawerViewModel, drawerState, scope)
         } else {
             val pagerState = rememberPagerState(pageCount = { mainViewModel.tabs.size })
 

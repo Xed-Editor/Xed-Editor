@@ -11,6 +11,7 @@ import com.rk.icons.Icon
 import com.rk.runner.runners.XedProjectRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkdownRunner
+import com.rk.settings.Settings
 import com.rk.utils.errorDialog
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
@@ -44,18 +45,18 @@ object RunnerManager {
         _extensionRunners.remove(runner)
     }
 
-    fun isRunnable(fileObject: FileObject, projectRoot: FileObject?): Boolean {
+    fun isRunnable(fileObject: FileObject?, projectRoot: FileObject?): Boolean {
         return getAvailableRunners(fileObject, projectRoot).isNotEmpty()
     }
 
-    fun getAvailableRunners(fileObject: FileObject, projectRoot: FileObject?): List<Runner> {
+    fun getAvailableRunners(fileObject: FileObject?, projectRoot: FileObject?): List<Runner> {
         val result = mutableListOf<Runner>()
 
         val runners = builtinRunners + extensionRunners + ShellBasedRunners.runners
         runners.forEach { runner ->
             if (runner.isEnabled()) {
                 when (runner) {
-                    is FileRunner if runner.matcher(fileObject) -> {
+                    is FileRunner if fileObject != null && runner.matcher(fileObject) -> {
                         result.add(runner)
                     }
 
@@ -71,8 +72,10 @@ object RunnerManager {
 
     fun run(
         activity: Activity,
-        fileObject: FileObject,
+        fileObject: FileObject?,
         projectRoot: FileObject?,
+        forceSelection: Boolean = false,
+        beforeRun: () -> Unit = {},
         onMultipleRunners: (List<RunnableOption>) -> Unit,
     ) {
         val availableRunners = getAvailableRunners(fileObject, projectRoot)
@@ -82,14 +85,16 @@ object RunnerManager {
             return
         }
 
-        if (availableRunners.size == 1) {
+        if (availableRunners.size == 1 && !forceSelection) {
             DefaultScope.launch {
+                beforeRun()
                 val runner = availableRunners.first()
-                if (runner is FileRunner) {
+                if (runner is FileRunner && fileObject != null) {
                     runner.run(activity, fileObject)
                 } else if (runner is ProjectRunner && projectRoot != null) {
                     runner.run(activity, projectRoot)
                 }
+                Settings.runs += 1
                 Events.publish(RunnerEvent.RunnerRun(runner))
             }
         } else {
@@ -101,11 +106,13 @@ object RunnerManager {
 
                     override fun run(activity: Activity) {
                         DefaultScope.launch {
-                            if (runner is FileRunner) {
+                            beforeRun()
+                            if (runner is FileRunner && fileObject != null) {
                                 runner.run(activity, fileObject)
                             } else if (runner is ProjectRunner && projectRoot != null) {
                                 runner.run(activity, projectRoot)
                             }
+                            Settings.runs += 1
                             Events.publish(RunnerEvent.RunnerRun(runner))
                         }
                     }

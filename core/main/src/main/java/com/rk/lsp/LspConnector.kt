@@ -5,7 +5,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.snackbarHostStateRef
+import com.rk.activities.main.ui.snackbarHostStateRef
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.editor.Editor
@@ -135,7 +135,7 @@ class LspConnector(
                 return@withContext
             }
 
-            editorTab.registerTask()
+            editorTab.registerTask("lsp")
 
             val projectPath = projectFile.getAbsolutePath()
             val fileExt = fileObject.getExtension()
@@ -170,7 +170,7 @@ class LspConnector(
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
-                editorTab.unregisterTask()
+                editorTab.unregisterTask("lsp")
 
                 val failedConnections = servers.filter { server ->
                     server.instances.any { instance ->

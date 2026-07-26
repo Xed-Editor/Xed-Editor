@@ -29,12 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.ProjectCreatorActivity
 import com.rk.components.AddDialogItem
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.icons.Icon
+import com.rk.project.ProjectCreatorActivity
 import com.rk.project.ProjectTemplateRegistry
 import com.rk.resources.drawables
 import com.rk.resources.strings

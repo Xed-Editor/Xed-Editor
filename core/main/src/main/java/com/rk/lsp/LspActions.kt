@@ -3,8 +3,8 @@ package com.rk.lsp
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
-import com.rk.activities.main.EditorManager
 import com.rk.activities.main.MainViewModel
+import com.rk.activities.main.session.EditorManager
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.sandboxDir
@@ -15,7 +15,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.search.CodeItem
-import com.rk.search.SnippetBuilder
+import com.rk.search.utils.SnippetBuilder
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
 import io.github.rosemoe.sora.lsp.editor.LspEventManager

@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.project
 
 import android.content.Intent
 import android.net.Uri
@@ -69,13 +69,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rk.activities.main.MainActivity
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.file.FileObject
 import com.rk.file.toFileObject
 import com.rk.icons.XedIcon
-import com.rk.project.ProjectCategory
-import com.rk.project.ProjectTemplate
-import com.rk.project.ProjectTemplateRegistry
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getFilledString
 import com.rk.resources.getString

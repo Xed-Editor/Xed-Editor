@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
-import com.rk.activities.main.FileTabState
-import com.rk.activities.main.TabState
+import com.rk.activities.main.session.FileTabState
+import com.rk.activities.main.session.TabState
 import com.rk.file.FileObject
 import com.rk.icons.Error
 import com.rk.icons.Photo

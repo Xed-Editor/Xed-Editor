@@ -39,9 +39,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.drawerStateRef
-import com.rk.activities.main.fileTreeViewModel
-import com.rk.activities.main.searchViewModel
+import com.rk.activities.main.ui.drawerStateRef
+import com.rk.activities.main.ui.fileTreeViewModel
+import com.rk.activities.main.ui.searchViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.codeSearchDialog
 import com.rk.components.fileSearchDialog

@@ -30,5 +30,7 @@ fun getCacheKey(context: Context): String {
         append(currentTheme.value?.lightTokenColors.hashCode())
         append('_')
         append(Settings.amoled)
+        append('_')
+        append(Settings.monet)
     }
 }

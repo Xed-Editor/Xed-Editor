@@ -1,6 +1,7 @@
-package com.rk.activities.main
+package com.rk.activities.main.session
 
 import androidx.lifecycle.viewModelScope
+import com.rk.activities.main.MainViewModel
 import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings

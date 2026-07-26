@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.activities.main.session
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -32,6 +32,8 @@ class TabManager {
             } else -1
 
         if (duplicateIndex != -1) {
+            val existingTab = _tabs[duplicateIndex]
+            existingTab.onDuplicate(tab)
             if (switchToTab) setCurrentTab(duplicateIndex)
             return
         }

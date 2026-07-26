@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.activities.main.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import com.rk.activities.main.MainViewModel
 import com.rk.components.GlobalToolbarActions
 import com.rk.components.isPermanentDrawer
 import com.rk.drawer.DrawerViewModel

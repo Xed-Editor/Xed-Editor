@@ -207,7 +207,7 @@
     <string name="edit_mode">Edit mode</string>
     <string name="no_folder_opened">No folder opened</string>
     <string name="cut">Cut</string>
-    <string name="timeout">Download cancelled due to timeout. Please ensure your internet connection is stable</string>
+    <string name="timeout">Download canceled due to timeout. Please ensure your internet connection is stable</string>
     <string name="more">More</string>
     <string name="theme_settings">Theme settings</string>
     <string name="add_theme">Add theme</string>
@@ -367,6 +367,7 @@
     <string name="search_file_folder">Search files in project</string>
     <string name="search_code">Search code in project</string>
     <string name="incompatible_theme_warning">This theme is not compatible with your current version of Xed-Editor. Would you like to proceed anyway?</string>
+    <string name="incompatible_icon_pack_warning">This icon pack is not compatible with your current version of Xed-Editor. Would you like to proceed anyway?</string>
     <string name="theme_install_failed">Theme installation failed</string>
     <string name="theme_id_missing">JSON file does not specify a valid theme ID. Please add one and try again.</string>
     <string name="theme_name_missing">JSON file does not specify a valid theme name. Please add one and try again.</string>
@@ -450,7 +451,7 @@
     <string name="extra_key_bg_desc">Show background for extra keys</string>
     <string name="actions">Actions</string>
     <string name="enjoying_xed">Enjoying Xed-Editor?</string>
-    <string name="support_message">You\'ve saved %s files and run code %s times with Xed. \n\nI\'m a solo developer keeping this app free and privacy-focused. If Xed has made your coding easier, would you consider supporting its development?\n\nYour support helps me:\n• Build features faster\n• Keep Xed ad-free forever\n• Respond to bugs quickly</string>
+    <string name="support_message">You\'ve saved %s files and run code %s times with Xed. \n\nXed is an open-source, privacy-focused app built with the help of contributors from the community. If Xed has made your coding easier, would you consider supporting its development?\n\nYour support helps me:\n• Build features faster\n• Keep Xed ad-free forever\n• Respond to bugs quickly</string>
     <string name="yes_support">Yes, I\'ll support! ❤️</string>
     <string name="not_for_me">No thanks</string>
     <string name="sponsor_desc">Become a sponsor and help shape the future of this project</string>
@@ -729,4 +730,10 @@
     <string name="discard_changes_msg">Are you sure you want to discard your local changes to \'%s\'? This cannot be undone.</string>
     <string name="discard_failed">Discard failed: %s</string>
     <string name="github_username">GitHub username</string>
+    <string name="session_name_exists">Session name already exists</string>
+    <string name="rename_session">Rename session</string>
+    <string name="searching_in">Searching in: %s</string>
+    <string name="welcome_to">Welcome to %s</string>
+    <string name="selected_project">Selected Project: %s</string>
+    <string name="no_project_selected">No project selected</string>
 </resources>

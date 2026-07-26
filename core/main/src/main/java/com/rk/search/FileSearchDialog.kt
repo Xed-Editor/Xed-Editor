@@ -85,6 +85,14 @@ fun FileSearchDialog(
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                 placeholder = { Text(text = stringResource(strings.enter_name)) },
+                supportingText = {
+                    Text(
+                        text = stringResource(strings.searching_in).fillPlaceholders(projectFile.getAppropriateName()),
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             )
 
             Row(

@@ -1,7 +1,6 @@
 package com.rk.tabs.editor
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +25,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.commands.ToggleableCommand
+import com.rk.components.compose.utils.holdable
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.settings.Settings
@@ -35,6 +35,8 @@ private data class ExtraKey(
     val icon: Icon,
     val isOn: Boolean = false,
     val enabled: Boolean,
+    val repeatOnHold: Boolean = false,
+    val onLongClick: () -> Boolean,
     val onClick: () -> Unit,
 )
 
@@ -43,41 +45,42 @@ fun ExtraKeys(editorTab: EditorTab) {
     val commandIds by remember { derivedStateOf { Settings.extra_keys_commands.split("|").toTypedArray() } }
     val commands by remember { derivedStateOf { commandIds.mapNotNull { id -> CommandProvider.getForId(id) } } }
 
-    val commandExtraKeys =
-        commands.map { command ->
-            ExtraKey(
-                label = command.getLabel(),
-                icon = if (command.preferText) Icon.TextIcon(command.getLabel()) else command.getIcon(),
-                isOn = command is ToggleableCommand && command.isOn(),
-                enabled = command.isEnabled() && command.isSupported(),
-                onClick = { command.performCommand(ActionContext(MainActivity.instance!!)) },
-            )
-        }
+    val commandExtraKeys = commands.map { command ->
+        ExtraKey(
+            label = command.getLabel(),
+            icon = if (command.preferText) Icon.TextIcon(command.getLabel()) else command.getIcon(),
+            isOn = command is ToggleableCommand && command.isOn(),
+            enabled = command.isEnabled() && command.isSupported(),
+            repeatOnHold = command.repeatOnHold,
+            onLongClick = { command.onLongClick(ActionContext(MainActivity.instance!!)) },
+            onClick = { command.performCommand(ActionContext(MainActivity.instance!!)) },
+        )
+    }
 
     val isEditable by remember { derivedStateOf { editorTab.editorState.editable } }
     val symbols = Settings.extra_keys_symbols
-    val symbolExtraKeys =
-        symbols.map {
-            ExtraKey(
-                label = it.toString(),
-                icon = Icon.TextIcon(it.toString()),
-                enabled = isEditable,
-                onClick = {
-                    val editor = editorTab.editorState.editor.get() ?: return@ExtraKey
-                    val insertChar = it.toString()
+    val symbolExtraKeys = symbols.map {
+        ExtraKey(
+            label = it.toString(),
+            icon = Icon.TextIcon(it.toString()),
+            enabled = isEditable,
+            onClick = {
+                val editor = editorTab.editorState.editor.get() ?: return@ExtraKey
+                val insertChar = it.toString()
 
-                    if (insertChar == "\t") {
-                        if (editor.snippetController.isInSnippet()) {
-                            editor.snippetController.shiftToNextTabStop()
-                        } else {
-                            editor.indentOrCommitTab()
-                        }
+                if (insertChar == "\t") {
+                    if (editor.snippetController.isInSnippet()) {
+                        editor.snippetController.shiftToNextTabStop()
                     } else {
-                        editor.insertText(insertChar, 1)
+                        editor.indentOrCommitTab()
                     }
-                },
-            )
-        }
+                } else {
+                    editor.insertText(insertChar, 1)
+                }
+            },
+            onLongClick = { false },
+        )
+    }
 
     val extraKeys = commandExtraKeys + symbolExtraKeys
 
@@ -124,8 +127,10 @@ private fun KeyButton(key: ExtraKey) {
                         Modifier
                     }
                 )
-                .clickable(
+                .holdable(
                     enabled = key.enabled,
+                    repeatOnHold = key.repeatOnHold,
+                    onLongClick = key.onLongClick,
                     onClick = {
                         hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         key.onClick()

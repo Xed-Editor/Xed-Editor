@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.activities.main.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.spring
@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.rk.activities.main.MainActivity
 import com.rk.components.DialogRegistry
 import com.rk.components.ResponsiveDrawer
 import com.rk.drawer.DrawerContent
@@ -57,8 +58,8 @@ fun MainActivity.MainContentHost(
     fileTreeViewModel: FileTreeViewModel = viewModel(),
     searchViewModel: SearchViewModel = viewModel(),
 ) {
-    com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
-    com.rk.activities.main.searchViewModel = WeakReference(searchViewModel)
+    com.rk.activities.main.ui.fileTreeViewModel = WeakReference(fileTreeViewModel)
+    com.rk.activities.main.ui.searchViewModel = WeakReference(searchViewModel)
 
     XedTheme {
         Surface(modifier = Modifier.fillMaxSize()) {

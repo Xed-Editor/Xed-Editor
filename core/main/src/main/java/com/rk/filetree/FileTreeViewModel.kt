@@ -9,12 +9,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rk.activities.main.searchViewModel
+import com.rk.activities.main.ui.searchViewModel
 import com.rk.events.Events
 import com.rk.events.FileTreeEvent
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
-import com.rk.search.GlobExcluder
+import com.rk.search.utils.GlobExcluder
 import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -133,6 +133,9 @@ class FileTreeViewModel : ViewModel() {
 
     // File tree
     var sortMode by mutableStateOf(SortMode.entries[Settings.sort_mode])
+    var isRefreshing by mutableStateOf(false)
+        private set
+
     private val selectedFiles = mutableStateMapOf<FileObject, List<FileObject>>()
     private val focusedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
@@ -206,11 +209,11 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
-    fun registerFileOperation() {
+    private fun registerFileOperation() {
         fileOperationsCount++
     }
 
-    fun unregisterFileOperation() {
+    private fun unregisterFileOperation() {
         if (fileOperationsCount > 0) {
             fileOperationsCount--
         }
@@ -365,8 +368,12 @@ class FileTreeViewModel : ViewModel() {
         expandFile(projectFile, projectFile)
     }
 
-    suspend fun refreshEverything() =
-        withContext(Dispatchers.IO) { fileListCache.keys.toList().forEach { updateCache(it) } }
+    suspend fun refreshEverything(wasPulled: Boolean = false) =
+        withContext(Dispatchers.IO) {
+            if (wasPulled) isRefreshing = true
+            fileListCache.keys.toList().forEach { updateCache(it) }
+            isRefreshing = false
+        }
 
     fun getNodeChildren(node: FileTreeNode): List<FileTreeNode> {
         return fileListCache[node.file] ?: emptyList()

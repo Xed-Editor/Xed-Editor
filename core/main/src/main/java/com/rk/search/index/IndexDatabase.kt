@@ -1,4 +1,4 @@
-package com.rk.search
+package com.rk.search.index
 
 import android.content.Context
 import androidx.room.Dao
