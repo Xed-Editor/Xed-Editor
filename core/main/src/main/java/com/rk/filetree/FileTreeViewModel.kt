@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rk.activities.main.searchViewModel
+import com.rk.activities.main.ui.searchViewModel
 import com.rk.events.Events
 import com.rk.events.FileTreeEvent
 import com.rk.extension.api.XedExtensionPoint

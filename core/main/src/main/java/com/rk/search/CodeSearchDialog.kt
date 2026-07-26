@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -220,6 +221,7 @@ fun CodeSearchDialog(
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     placeholder = { Text(text = stringResource(strings.replace)) },
+                    shape = RectangleShape,
                     trailingIcon = {
                         IconButton(
                             enabled = searchViewModel.totalCodeSearchResults != 0,

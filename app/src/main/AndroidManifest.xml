@@ -91,7 +91,7 @@
             android:name="com.rk.activities.settings.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name="com.rk.activities.main.ProjectCreatorActivity"
+            android:name="com.rk.project.ProjectCreatorActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity

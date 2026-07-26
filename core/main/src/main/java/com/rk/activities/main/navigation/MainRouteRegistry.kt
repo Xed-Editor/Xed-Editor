@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.activities.main.navigation
 
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.api.DynamicRoute

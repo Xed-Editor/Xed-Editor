@@ -47,6 +47,6 @@ class RunnerFeature : Feature {
 
         // Register Run command
         CommandProvider.registerCommand(RunCommand)
-        ToolbarConfiguration.addGlobalToolbarCommand(RunCommand)
+        ToolbarConfiguration.addGlobalToolbarCommand(RunCommand, 0)
     }
 }

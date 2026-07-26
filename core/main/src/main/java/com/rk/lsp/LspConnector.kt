@@ -5,7 +5,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.snackbarHostStateRef
+import com.rk.activities.main.ui.snackbarHostStateRef
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.editor.Editor

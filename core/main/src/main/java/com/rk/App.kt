@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.os.LocaleListCompat
 import com.github.anrwatchdog.ANRWatchDog
-import com.rk.activities.main.SessionManager
+import com.rk.activities.main.session.SessionManager
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
 import com.rk.crashhandler.CrashHandler

@@ -3,8 +3,8 @@ package com.rk.lsp
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
-import com.rk.activities.main.EditorManager
 import com.rk.activities.main.MainViewModel
+import com.rk.activities.main.session.EditorManager
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.sandboxDir

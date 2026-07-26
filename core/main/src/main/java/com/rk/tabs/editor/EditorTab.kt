@@ -27,12 +27,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.rk.activities.main.EditorCursorState
-import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
-import com.rk.activities.main.TabState
-import com.rk.activities.main.searchViewModel
+import com.rk.activities.main.session.EditorCursorState
+import com.rk.activities.main.session.EditorTabState
+import com.rk.activities.main.session.TabState
+import com.rk.activities.main.ui.searchViewModel
 import com.rk.color.ColorPicker
 import com.rk.components.SingleInputDialog
 import com.rk.editor.intelligent.IntelligentFeatureRegistry

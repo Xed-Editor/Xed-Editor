@@ -21,8 +21,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.net.toUri
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
-import com.rk.activities.main.fileTreeViewModel
-import com.rk.activities.main.snackbarHostStateRef
+import com.rk.activities.main.ui.fileTreeViewModel
+import com.rk.activities.main.ui.snackbarHostStateRef
 import com.rk.color.ColorFormat
 import com.rk.color.parseUnknownColor
 import com.rk.commands.KeybindingsManager

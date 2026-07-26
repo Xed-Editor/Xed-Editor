@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.activities.main.session
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf

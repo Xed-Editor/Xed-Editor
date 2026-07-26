@@ -6,7 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.rk.activities.main.TabState
+import com.rk.activities.main.session.TabState
 import com.rk.file.FileObject
 import java.util.UUID
 

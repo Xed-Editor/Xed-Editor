@@ -12,7 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
-import com.rk.activities.main.fileTreeViewModel
+import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.resources.getString
 import com.rk.utils.application
 import com.rk.utils.toast

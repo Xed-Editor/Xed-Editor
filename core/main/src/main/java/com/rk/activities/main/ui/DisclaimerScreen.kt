@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.activities.main.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.rk.activities.main.navigation.MainRoutes
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme

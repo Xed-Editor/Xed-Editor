@@ -2,7 +2,6 @@ package com.rk.project
 
 import android.content.Intent
 import com.rk.DefaultScope
-import com.rk.activities.main.ProjectCreatorActivity
 import com.rk.file.FileObject
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext

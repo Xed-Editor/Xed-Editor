@@ -35,8 +35,9 @@ object RunCommand : Command() {
         val drawerViewModel = commandContext.drawerViewModel
 
         val currentTab = mainViewModel.currentTab as? EditorTab
-        val projectRoot = currentTab?.projectRoot ?: (drawerViewModel.currentDrawerTab as? FileTreeTab)?.root
-        val fileObject = currentTab?.file ?: projectRoot ?: return
+        val currentDrawerTab = drawerViewModel.currentDrawerTab as? FileTreeTab
+        val projectRoot = currentTab?.projectRoot ?: currentDrawerTab?.root
+        val fileObject = currentTab?.file
 
         RunnerManager.run(
             activity = context.currentActivity,
@@ -60,8 +61,9 @@ object RunCommand : Command() {
         val drawerViewModel = commandContext.drawerViewModel
 
         val currentTab = mainViewModel.currentTab as? EditorTab
-        val projectRoot = currentTab?.projectRoot ?: (drawerViewModel.currentDrawerTab as? FileTreeTab)?.root
-        val fileObject = currentTab?.file ?: projectRoot ?: return false
+        val currentDrawerTab = drawerViewModel.currentDrawerTab as? FileTreeTab
+        val projectRoot = currentTab?.projectRoot ?: currentDrawerTab?.root
+        val fileObject = currentTab?.file
 
         return RunnerManager.isRunnable(fileObject, projectRoot)
     }

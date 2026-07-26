@@ -45,7 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.searchViewModel
+import com.rk.activities.main.ui.searchViewModel
 import com.rk.components.XedDropdownMenuItem
 import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileObject

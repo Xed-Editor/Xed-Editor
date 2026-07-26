@@ -60,8 +60,8 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.drawerStateRef
-import com.rk.activities.main.fileTreeViewModel
+import com.rk.activities.main.ui.drawerStateRef
+import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.activities.main.filesByTab
 import com.rk.components.SingleInputDialog
 import com.rk.components.XedDropdownMenuItem
