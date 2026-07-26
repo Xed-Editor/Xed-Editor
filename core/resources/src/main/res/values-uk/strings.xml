@@ -106,7 +106,7 @@
     <string name="github">GitHub</string>
     <string name="github_desc">Постав зірку на GitHub 🤩</string>
     <string name="telegram">Група в Telegram</string>
-    <string name="telegram_desc">Повідомляйте про проблеми, пропонуйте нові функції тощо</string>
+    <string name="telegram_desc">Повідомляйте про проблеми, пропонуйте нові функції тощо.</string>
     <string name="git_commit">хеш коміту Git</string>
     <string name="check_for_updates">Перевірити оновлення</string>
     <string name="check_for_updates_desc">Періодично перевіряти наявність оновлень</string>
@@ -126,7 +126,7 @@
     <string name="add_font_desc">Оберіть .ttf шрифт зі сховища</string>
     <string name="file_unsaved">Файл не збережено</string>
     <string name="ask_unsaved">Ви впевнені, що хочете відхилити зміни цього незбереженого документа?</string>
-    <string name="discard">Відхилити</string>
+    <string name="discard">Відмовитися</string>
     <string name="warning">Попередження</string>
     <string name="encoding_warning">Не рекомендується змінювати типове кодування, оскільки це може призвести до пошкодження файлів. Ми наполегливо рекомендуємо використовувати UTF-8, якщо ви не розумієте всіх наслідків і не створили належних резервних копій.</string>
     <string name="line_spacing">Міжрядковий інтервал</string>
@@ -536,7 +536,7 @@
     <string name="changes">Зміни</string>
     <string name="conflicts">Конфлікти</string>
     <string name="untracked">Не відстежуються</string>
-    <string name="support_message">Ви зберегли %s файлів і запускали код %s разів у Xed.\n\nЯ самотній розробник, я роблю цей застосунок приватним і не додаю сюди рекламу. Якщо Xed полегшив вам програмування, чи не могли б ви допомогти з розробкою редактора?\n\nВаша підтримка допомагає мені:\n• Швидше писати функціонал\n• Підтримувати Xed назавжди безрекламним\n• Швидко виправляти помилки</string>
+    <string name="support_message">Ви зберегли %s файлів і запускали код %s разів у Xed.\n\nXed — це відкритий, конфіденційний, застосунок, побудований спільнотою добровольців. Якщо Xed полегшив вам програмування, чи не могли б ви допомогти з розробкою редактора?\n\nВаша підтримка допомагає нам:\n• Швидше писати функціонал\n• Підтримувати Xed назавжди безрекламним\n• Швидко виправляти помилки</string>
     <string name="ext_not_found_desc">Ця сторінка не доступна. Це могло трапитися, якщо ви видалили локальне розширення з пристрою або розробник розширення видалив його з магазину.</string>
     <string name="terminal_font_warning">Шрифт терміналу \'etc/font.ttf\' замінює вибраний нижче користувацький шрифт. Видаліть файл у пісочниці терміналу, щоб застосувати користувацькі шрифти.</string>
     <string name="outdated_extension">Розширення зроблено для старішої версії Xed-Editor. Буль ласка, попросіть розробника оновити розширення.</string>
@@ -727,4 +727,11 @@
     <string name="discard_changes">Скасувати зміни</string>
     <string name="discard_changes_msg">Ви впевнені, що хочете скасувати локальні зміни в \'%s\'? Ця дія невідворотна.</string>
     <string name="discard_failed">Не вдалося скасувати зміни в %s</string>
+    <string name="incompatible_icon_pack_warning">Цей набір іконок не сумісний з вашою версією Xed-Editor. Все одно продовжити?</string>
+    <string name="session_name_exists">Назва сесії вже існує</string>
+    <string name="rename_session">Перейменувати сесію</string>
+    <string name="searching_in">Пошук у: %s</string>
+    <string name="welcome_to">Ласкаво просимо до %s</string>
+    <string name="selected_project">Вибраний проєкт: %s</string>
+    <string name="no_project_selected">Не вибрано жодного проєкту</string>
 </resources>
