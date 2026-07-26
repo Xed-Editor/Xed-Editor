@@ -1,4 +1,4 @@
-package com.rk.search
+package com.rk.search.utils
 
 import java.nio.file.FileSystems
 import java.nio.file.Paths

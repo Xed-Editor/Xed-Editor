@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.MoreVert
@@ -28,7 +29,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
-import com.rk.components.XedDropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -61,6 +61,7 @@ import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainViewModel
 import com.rk.components.SingleInputDialog
 import com.rk.components.XedDialog
+import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.addIf
 import com.rk.file.FileObject
 import com.rk.filetree.FileIcon
@@ -221,7 +222,13 @@ fun CodeSearchDialog(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(16.dp),
+                modifier =
+                    Modifier.padding(
+                        start = 16.dp,
+                        top = 16.dp,
+                        end = 16.dp,
+                        bottom = 8.dp,
+                    ),
             ) {
                 if (searchViewModel.isIndexing(projectFile) || searchViewModel.isSearchingCode) {
                     CircularProgressIndicator(modifier = Modifier.size(9.dp), strokeWidth = 2.dp)
@@ -250,20 +257,34 @@ fun CodeSearchDialog(
 
             if (searchViewModel.codeSearchQuery.isNotEmpty()) {
                 LazyColumn {
-                    searchViewModel.codeSearchResultsOrder.forEachIndexed { index, fileObject ->
+                    searchViewModel.codeSearchResultsOrder.forEachIndexed { _, fileObject ->
                         val codeItems = searchViewModel.codeSearchResults[fileObject] ?: return@forEachIndexed
+                        val isCollapsed = searchViewModel.isCollapsed(fileObject)
+
                         item {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier =
                                     Modifier.addIf(codeItems.first().isHidden) { alpha(0.5f) }
+                                        .clickable { searchViewModel.toggleCollapsed(fileObject) }
                                         .padding(
                                             start = 16.dp,
                                             end = 8.dp,
-                                            top = if (index > 0) 16.dp else 0.dp,
-                                            bottom = 4.dp,
+                                            top = 8.dp,
+                                            bottom = 8.dp,
                                         ),
                             ) {
+                                Icon(
+                                    imageVector =
+                                        if (isCollapsed) Icons.AutoMirrored.Outlined.KeyboardArrowRight
+                                        else Icons.Outlined.KeyboardArrowDown,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+
+                                Spacer(modifier = Modifier.width(4.dp))
+
                                 FileIcon(file = fileObject, iconTint = MaterialTheme.colorScheme.primary)
 
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -309,26 +330,28 @@ fun CodeSearchDialog(
                             }
                         }
 
-                        items(items = codeItems) { codeItem ->
-                            CodeItemRow(
-                                item = codeItem,
-                                leadingIcon =
-                                    if (searchViewModel.isReplaceShown) {
-                                        {
-                                            Icon(
-                                                painter = painterResource(drawables.find_replace),
-                                                contentDescription = stringResource(strings.replace),
-                                                modifier =
-                                                    Modifier.clip(RoundedCornerShape(8.dp))
-                                                        .clickable(onClick = { replace(codeItem) }),
-                                            )
-                                        }
-                                    } else null,
-                                onClick = {
-                                    codeItem.onClick()
-                                    onFinish()
-                                },
-                            )
+                        if (!isCollapsed) {
+                            items(items = codeItems) { codeItem ->
+                                CodeItemRow(
+                                    item = codeItem,
+                                    leadingIcon =
+                                        if (searchViewModel.isReplaceShown) {
+                                            {
+                                                Icon(
+                                                    painter = painterResource(drawables.find_replace),
+                                                    contentDescription = stringResource(strings.replace),
+                                                    modifier =
+                                                        Modifier.clip(RoundedCornerShape(8.dp))
+                                                            .clickable(onClick = { replace(codeItem) }),
+                                                )
+                                            }
+                                        } else null,
+                                    onClick = {
+                                        codeItem.onClick()
+                                        onFinish()
+                                    },
+                                )
+                            }
                         }
                     }
                 }

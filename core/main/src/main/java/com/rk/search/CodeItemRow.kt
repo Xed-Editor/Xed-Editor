@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.utils.addIf
 import com.rk.file.FileObject
+import com.rk.search.utils.Snippet
 import kotlinx.coroutines.launch
 
 data class CodeItem(

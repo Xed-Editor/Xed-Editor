@@ -15,7 +15,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.search.CodeItem
-import com.rk.search.SnippetBuilder
+import com.rk.search.utils.SnippetBuilder
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
 import io.github.rosemoe.sora.lsp.editor.LspEventManager

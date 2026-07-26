@@ -14,7 +14,7 @@ import com.rk.events.Events
 import com.rk.events.FileTreeEvent
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
-import com.rk.search.GlobExcluder
+import com.rk.search.utils.GlobExcluder
 import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
