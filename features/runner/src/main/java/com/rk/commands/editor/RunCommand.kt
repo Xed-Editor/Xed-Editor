@@ -1,42 +1,52 @@
 package com.rk.commands.editor
 
 import android.view.KeyEvent
+import com.rk.commands.ActionContext
+import com.rk.commands.Command
 import com.rk.commands.CommandProvider
-import com.rk.commands.EditorFileActionContext
-import com.rk.commands.EditorFileCommand
-import com.rk.commands.EditorFileNonActionContext
 import com.rk.commands.KeyCombination
+import com.rk.filetree.FileTreeTab
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.RunnerManager
 import com.rk.runner.RunnerUI
+import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 @OptIn(DelicateCoroutinesApi::class)
-class RunCommand : EditorFileCommand() {
+object RunCommand : Command() {
     override val id: String = "editor.run"
 
     override fun getLabel(): String = strings.run.getString()
 
-    override fun action(context: EditorFileActionContext) {
+    override fun action(context: ActionContext) {
         launchRunner(context, forceSelection = false)
     }
 
-    override fun onLongClick(context: EditorFileActionContext): Boolean {
+    override fun onLongClick(context: ActionContext): Boolean {
         launchRunner(context, forceSelection = true)
         return true
     }
 
-    private fun launchRunner(context: EditorFileActionContext, forceSelection: Boolean) {
+    private fun launchRunner(context: ActionContext, forceSelection: Boolean) {
+        val mainViewModel = commandContext.mainViewModel
+        val drawerViewModel = commandContext.drawerViewModel
+
+        val currentTab = mainViewModel.currentTab as? EditorTab
+        val projectRoot = currentTab?.projectRoot ?: (drawerViewModel.currentDrawerTab as? FileTreeTab)?.root
+        val fileObject = currentTab?.file ?: projectRoot ?: return
+
         RunnerManager.run(
             activity = context.currentActivity,
-            fileObject = context.file,
-            projectRoot = context.editorTab.projectRoot,
+            fileObject = fileObject,
+            projectRoot = projectRoot,
             forceSelection = forceSelection,
             beforeRun = {
-                CommandProvider.SaveCommand.action(context)
+                if (currentTab != null) {
+                    CommandProvider.SaveCommand.action(context)
+                }
             },
             onMultipleRunners = {
                 RunnerUI.runnersToShow = it
@@ -45,8 +55,15 @@ class RunCommand : EditorFileCommand() {
         )
     }
 
-    override fun isSupported(context: EditorFileNonActionContext): Boolean {
-        return RunnerManager.isRunnable(context.file, context.editorTab.projectRoot)
+    override fun isSupported(): Boolean {
+        val mainViewModel = commandContext.mainViewModel
+        val drawerViewModel = commandContext.drawerViewModel
+
+        val currentTab = mainViewModel.currentTab as? EditorTab
+        val projectRoot = currentTab?.projectRoot ?: (drawerViewModel.currentDrawerTab as? FileTreeTab)?.root
+        val fileObject = currentTab?.file ?: projectRoot ?: return false
+
+        return RunnerManager.isRunnable(fileObject, projectRoot)
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.run)

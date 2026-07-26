@@ -56,6 +56,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainViewModel
@@ -65,6 +66,7 @@ import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.addIf
 import com.rk.file.FileObject
 import com.rk.filetree.FileIcon
+import com.rk.filetree.getAppropriateName
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
@@ -196,6 +198,19 @@ fun CodeSearchDialog(
                     ),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                 placeholder = { Text(text = stringResource(strings.search)) },
+                supportingText =
+                    if (!searchViewModel.isReplaceShown) {
+                        {
+                            Text(
+                                text =
+                                    stringResource(strings.searching_in)
+                                        .fillPlaceholders(projectFile.getAppropriateName()),
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    } else null,
             )
 
             if (searchViewModel.isReplaceShown) {
@@ -215,6 +230,15 @@ fun CodeSearchDialog(
                                 contentDescription = stringResource(strings.replace),
                             )
                         }
+                    },
+                    supportingText = {
+                        Text(
+                            text =
+                                stringResource(strings.searching_in).fillPlaceholders(projectFile.getAppropriateName()),
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     },
                 )
             }

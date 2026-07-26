@@ -57,11 +57,14 @@ import com.rk.filetree.FileActionContext
 import com.rk.filetree.FileActionDialogs
 import com.rk.filetree.FileActionProvider
 import com.rk.filetree.FileIcon
+import com.rk.filetree.FileTreeTab
 import com.rk.filetree.FileTreeViewModel
 import com.rk.filetree.MultiFileAction
 import com.rk.filetree.MultiFileActionContext
+import com.rk.filetree.getAppropriateName
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
+import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -71,6 +74,7 @@ import com.rk.utils.dialogRes
 import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getFileColor
 import com.rk.utils.getUnderlineColor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -103,11 +107,7 @@ fun MainContent(
 
     Column(Modifier.fillMaxSize().padding(innerPadding)) {
         if (mainViewModel.tabs.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                TextButton(onClick = { scope.launch { drawerState.open() } }) {
-                    Text(text = stringResource(strings.click_open), style = MaterialTheme.typography.bodyLarge)
-                }
-            }
+            WelcomeScreen(drawerViewModel, scope, drawerState)
         } else {
             val pagerState = rememberPagerState(pageCount = { mainViewModel.tabs.size })
 
@@ -215,6 +215,48 @@ fun MainContent(
                 if (page < mainViewModel.tabs.size) {
                     mainViewModel.tabs[page].Content()
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WelcomeScreen(
+    drawerViewModel: DrawerViewModel,
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = stringResource(strings.welcome_xed),
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+
+            val currentDrawerTab = drawerViewModel.currentDrawerTab
+            val currentProject = if (currentDrawerTab is FileTreeTab) currentDrawerTab.root else null
+            if (currentProject != null) {
+                Text(
+                    text =
+                        stringResource(strings.selected_project).fillPlaceholders(currentProject.getAppropriateName()),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                )
+            } else {
+                Text(
+                    text = stringResource(strings.no_project_selected),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                )
+            }
+
+            TextButton(onClick = { scope.launch { drawerState.open() } }) {
+                Text(
+                    text = stringResource(strings.click_open),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
     }
