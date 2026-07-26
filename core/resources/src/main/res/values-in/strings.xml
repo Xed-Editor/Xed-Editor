@@ -189,7 +189,7 @@
     <string name="edit_mode">Mode edit</string>
     <string name="no_folder_opened">Tidak ada folder yang dibuka</string>
     <string name="cut">Potong</string>
-    <string name="timeout">Unduhan dibatalkan karena waktu habis. Harap pastikan koneksi internet Anda stabil</string>
+    <string name="timeout">Unduhan dibatalkan karena batas waktu habis. Pastikan koneksi internet Anda stabil</string>
     <string name="more">Selengkapnya</string>
     <string name="theme_settings">Pengaturan tema</string>
     <string name="add_theme">Tambah tema</string>
@@ -390,7 +390,7 @@
     <string name="extra_key_bg_desc">Tampilkan latar belakang tombol tambahan</string>
     <string name="actions">Tindakan</string>
     <string name="enjoying_xed">Suka menggunakan Xed-Editor?</string>
-    <string name="support_message">Anda telah menyimpan %s file dan menjalankan kode %s kali dengan Xed.\n\nSaya seorang pengembang solo yang menjaga aplikasi ini tetap gratis dan fokus pada privasi. Jika Xed telah mempermudah coding Anda, maukah Anda mendukung pengembangannya?\n\nDukungan Anda membantu saya:\n• Mengembangkan fitur lebih cepat\n• Menjaga Xed tetap bebas iklan selamanya\n• Menanggapi bug dengan cepat</string>
+    <string name="support_message">Anda telah menyimpan %s file dan menjalankan kode %s kali menggunakan Xed. \n\nXed adalah aplikasi sumber terbuka yang berfokus pada privasi, yang dikembangkan berkat bantuan para kontributor dari komunitas. Jika Xed telah memudahkan Anda dalam menulis kode, maukah Anda mempertimbangkan untuk mendukung pengembangannya?\n\nDukungan Anda membantu saya:\n• Mengembangkan fitur dengan lebih cepat\n• Menjaga Xed tetap bebas iklan selamanya\n• Menanggapi laporan bug dengan cepat</string>
     <string name="yes_support">Ya, saya akan mendukung! ❤️</string>
     <string name="not_for_me">Tidak, terima kasih</string>
     <string name="sponsor_desc">Jadilah sponsor dan bantu menentukan masa depan proyek ini</string>
@@ -722,8 +722,15 @@
     <string name="description">Deskripsi</string>
     <string name="display_name">Tampilkan nama</string>
     <string name="github_username">Nama pengguna GitHub</string>
-    <string name="project_runner_desc">Jalankan proyek menggunakan /.xed/runner.sh jika skrip tersebut ada.</string>
+    <string name="project_runner_desc">Menjalankan proyek menggunakan /.xed/runner.sh jika script tersebut ada.</string>
     <string name="discard_changes">Buang perubahan</string>
     <string name="discard_changes_msg">Apakah Anda yakin ingin membuang perubahan lokal Anda pada \'%s\'? Tindakan ini tidak dapat dibatalkan.</string>
     <string name="discard_failed">Gagal membuang: %s</string>
+    <string name="incompatible_icon_pack_warning">Paket ikon ini tidak kompatibel dengan versi Xed-Editor yang Anda gunakan saat ini. Apakah Anda tetap ingin melanjutkan?</string>
+    <string name="session_name_exists">Nama sesi sudah ada</string>
+    <string name="rename_session">Ubah nama sesi</string>
+    <string name="searching_in">Mencari di: %s</string>
+    <string name="welcome_to">Selamat datang di %s</string>
+    <string name="selected_project">Proyek yang Dipilih: %s</string>
+    <string name="no_project_selected">Tidak ada proyek yang dipilih</string>
 </resources>
