@@ -708,4 +708,18 @@
     <string name="recommendations">Empfehlungen</string>
     <string name="dependencies_description">Die folgenden Erweiterungen sind erforderlich, damit diese Erweiterung funktioniert.</string>
     <string name="recommendations_description">Es wird empfohlen, zusätzlich zu dieser Erweiterung die folgenden Erweiterungen zu installieren.</string>
+    <string name="project_runner">Projekt-Runner</string>
+    <string name="project_runner_desc">Führt das Projekt mithilfe von /.xed/runner.sh aus, falls das Skript existiert.</string>
+    <string name="new_project">Neues Projekt</string>
+    <string name="new_project_desc">Eine Vorlage auswählen</string>
+    <string name="template_settings">Vorlageneinstellungen</string>
+    <string name="template_min_app_version">Mindestversion der App</string>
+    <string name="template_apply_tint">Tönung auftragen</string>
+    <string name="template_inherit_base_theme">Basis-Theme erben</string>
+    <string name="back">Zurück</string>
+    <string name="creating_project">Projekt wird erstellt…</string>
+    <string name="template_applying_settings">Einstellungen werden angewendet…</string>
+    <string name="searching_in">Suche in: %s</string>
+    <string name="welcome_to">Willkommen bei %s</string>
+    <string name="no_project_selected">Kein Projekt ausgewählt</string>
 </resources>
