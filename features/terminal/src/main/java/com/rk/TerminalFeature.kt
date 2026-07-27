@@ -56,70 +56,63 @@ class TerminalFeature : Feature {
             iconRes = drawables.terminal,
         )
 
+    private var settingsCategory: SettingsCategory? = null
+    private var addProjectOption: AddProjectOption? = null
+    private val routes = mutableListOf<DynamicRoute>()
+
     override fun init(application: Application) {
 
         // Register the file action
         FileActionProvider.registerAction(TerminalAction)
 
         // Register settings categories
-        SettingsRegistry.registerCategory(
+        settingsCategory =
             SettingsCategory(
-                labelRes = strings.terminal,
-                descriptionRes = strings.terminal_desc,
-                iconRes = drawables.terminal,
-                route = SettingsRoutes.TerminalSettings.route,
-            )
-        )
+                    labelRes = strings.terminal,
+                    descriptionRes = strings.terminal_desc,
+                    iconRes = drawables.terminal,
+                    route = SettingsRoutes.TerminalSettings.route,
+                )
+                .also { SettingsRegistry.registerCategory(it) }
 
         if (FeatureRegistry.isEnabled("feature_terminal")) {
-            AddProjectRegistry.register(
+            addProjectOption =
                 AddProjectOption(
-                    icon = Icon.ResourceIcon(drawables.terminal),
-                    title = strings.terminal_home.getString(),
-                    description = strings.terminal_home_desc.getString(),
-                    category = AddProjectCategory.STORAGE,
-                    onClick = { onDismiss ->
-                        if (!Settings.has_shown_terminal_dir_warning) {
-                            dialogRes(
-                                title = strings.attention.getString(),
-                                msg = strings.warning_private_dir.getString(),
-                                onOk = {
-                                    Settings.has_shown_terminal_dir_warning = true
-                                    MainActivity.instance
-                                        ?.drawerViewModel
-                                        ?.addFileTreeTab(FileWrapper(sandboxHomeDir()), true)
-                                },
-                            )
-                        } else {
-                            MainActivity.instance?.drawerViewModel?.addFileTreeTab(FileWrapper(sandboxHomeDir()), true)
-                        }
-                        onDismiss()
-                    },
-                )
-            )
+                        icon = Icon.ResourceIcon(drawables.terminal),
+                        title = strings.terminal_home.getString(),
+                        description = strings.terminal_home_desc.getString(),
+                        category = AddProjectCategory.STORAGE,
+                        onClick = { onDismiss ->
+                            if (!Settings.has_shown_terminal_dir_warning) {
+                                dialogRes(
+                                    title = strings.attention.getString(),
+                                    msg = strings.warning_private_dir.getString(),
+                                    onOk = {
+                                        Settings.has_shown_terminal_dir_warning = true
+                                        MainActivity.instance
+                                            ?.drawerViewModel
+                                            ?.addFileTreeTab(FileWrapper(sandboxHomeDir()), true)
+                                    },
+                                )
+                            } else {
+                                MainActivity.instance
+                                    ?.drawerViewModel
+                                    ?.addFileTreeTab(FileWrapper(sandboxHomeDir()), true)
+                            }
+                            onDismiss()
+                        },
+                    )
+                    .also { AddProjectRegistry.register(it) }
         }
 
         // Register settings routes
-        SettingsRegistry.registerRoute(
-            DynamicRoute(SettingsRoutes.TerminalSettings.route) { _, _ ->
-                SettingsTerminalScreen()
-            }
-        )
-        SettingsRegistry.registerRoute(
-            DynamicRoute(SettingsRoutes.TerminalExtraKeys.route) { _, _ ->
-                TerminalExtraKeys()
-            }
-        )
-        SettingsRegistry.registerRoute(
-            DynamicRoute(SettingsRoutes.TerminalCheck.route) { _, _ ->
-                TerminalCheckScreen()
-            }
-        )
-        SettingsRegistry.registerRoute(
-            DynamicRoute(SettingsRoutes.TerminalFontScreen.route) { _, _ ->
-                TerminalFontScreen()
-            }
-        )
+        routes.add(DynamicRoute(SettingsRoutes.TerminalSettings.route) { _, _ -> SettingsTerminalScreen() })
+        routes.add(DynamicRoute(SettingsRoutes.TerminalExtraKeys.route) { _, _ -> TerminalExtraKeys() })
+        routes.add(DynamicRoute(SettingsRoutes.TerminalCheck.route) { _, _ -> TerminalCheckScreen() })
+        routes.add(DynamicRoute(SettingsRoutes.TerminalFontScreen.route) { _, _ -> TerminalFontScreen() })
+
+        routes.forEach { SettingsRegistry.registerRoute(it) }
+
         // Register UniversalRunner dynamically
         RunnerManager.addBuiltInRunner(UniversalRunner)
 
@@ -156,6 +149,21 @@ class TerminalFeature : Feature {
 
         // Register built-in LSP servers
         LspRegistry.addBuiltInServers(HTML, Emmet, CSS, TypeScript, Bash, XML)
+    }
+
+    override fun dispose(application: Application) {
+        FileActionProvider.unregisterAction(TerminalAction)
+        settingsCategory?.let { SettingsRegistry.unregisterCategory(it) }
+        addProjectOption?.let { AddProjectRegistry.unregister(it) }
+        routes.forEach { SettingsRegistry.unregisterRoute(it) }
+        routes.clear()
+
+        RunnerManager.removeBuiltInRunner(UniversalRunner)
+        TerminalLauncher.handler = null
+        SandboxedProcessRegistry.provider = null
+        CommandProvider.unregisterCommand(TerminalCommand)
+        ToolbarConfiguration.removeGlobalToolbarCommand(TerminalCommand)
+        LspRegistry.removeBuiltInServers(HTML, Emmet, CSS, TypeScript, Bash, XML)
     }
 }
 

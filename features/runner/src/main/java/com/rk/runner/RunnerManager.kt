@@ -40,6 +40,12 @@ object RunnerManager {
         _builtinRunners.addAll(servers)
     }
 
+    @ApiStatus.Internal
+    // TODO: Temp
+    fun removeBuiltInRunner(vararg servers: Runner) {
+        _builtinRunners.removeAll(servers.toSet())
+    }
+
     @XedExtensionPoint
     fun unregisterRunner(runner: Runner) {
         _extensionRunners.remove(runner)

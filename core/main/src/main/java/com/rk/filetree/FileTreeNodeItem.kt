@@ -5,8 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -190,10 +188,8 @@ fun FileTreeNodeItem(
         AnimatedVisibility(
             modifier = Modifier.width(getDrawerWidth()),
             visible = isExpanded && node.isExpandable && children.isNotEmpty(),
-            enter =
-                fadeIn(animationSpec = tween(120)) +
-                    expandVertically(animationSpec = tween(120)), // TODO: Fading animation not working
-            exit = fadeOut(animationSpec = tween(90)) + shrinkVertically(animationSpec = tween(90)),
+            enter = expandVertically(animationSpec = tween(120)),
+            exit = shrinkVertically(animationSpec = tween(90)),
         ) {
             Column {
                 displayedChildren.forEach { childNode ->

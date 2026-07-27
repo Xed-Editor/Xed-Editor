@@ -354,6 +354,17 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             }
         }
 
+    fun unloadAllExtensions() {
+        loadedExtensions.values.forEach { loaded ->
+            runCatching {
+                loaded?.api?.onDispose()
+                loaded?.scope?.cancel()
+            }
+        }
+        loadedExtensions.clear()
+        cancel()
+    }
+
     private fun File.deleteWithPackageName(pkgName: String) {
         if (isDirectory) {
             listFiles()?.forEach { it.deleteWithPackageName(pkgName) }

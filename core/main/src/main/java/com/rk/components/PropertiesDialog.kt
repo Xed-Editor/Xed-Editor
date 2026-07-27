@@ -249,15 +249,15 @@ private fun ZipProperties(file: ZipFileObject) {
         } else 0.0
 
     if (file.isFile()) {
-        InfoRow("Compressed size", formatFileSize(compressedSize))
-        InfoRow("Compression ratio", "%.1f%%".format(compressionRatio))
+        InfoRow(stringResource(strings.compressed_size), formatFileSize(compressedSize))
+        InfoRow(stringResource(strings.compression_ratio), "%.1f%%".format(compressionRatio))
     }
-    InfoRow("Compression method", compressionMethod?.label ?: ZipCompressionMethod.UNKNOWN.label)
+    InfoRow(stringResource(strings.compression_method), compressionMethod?.label ?: ZipCompressionMethod.UNKNOWN.label)
     if (file.isFile()) {
-        InfoRow("CRC-32", crc.toString(16).uppercase())
+        InfoRow(stringResource(strings.crc_32), crc.toString(16).uppercase())
     }
     comment?.let {
-        InfoRow("Comment", it)
+        InfoRow(stringResource(strings.comment), it)
     }
 }
 

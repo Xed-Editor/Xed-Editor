@@ -713,7 +713,7 @@
     <string name="new_project">New project</string>
     <string name="new_project_desc">Select a template</string>
     <string name="template_settings">Template settings</string>
-    <string name="template_id">ID</string>
+    <string name="template_id" translatable="false">ID</string>
     <string name="template_min_app_version">Minimum app version</string>
     <string name="template_apply_tint">Apply tint</string>
     <string name="template_inherit_base_theme">Inherit base theme</string>
@@ -737,6 +737,11 @@
     <string name="unzip_failed">Failed to unzip: %s</string>
     <string name="searching_in">Searching in: %s</string>
     <string name="welcome_to">Welcome to %s</string>
-    <string name="selected_project">Selected Project: %s</string>
+    <string name="selected_project">Selected project: %s</string>
     <string name="no_project_selected">No project selected</string>
+    <string name="compressed_size">Compressed size</string>
+    <string name="compression_ratio">Compression ratio</string>
+    <string name="compression_method">Compression method</string>
+    <string name="crc_32" translatable="false">CRC-32</string>
+    <string name="comment">Comment</string>
 </resources>

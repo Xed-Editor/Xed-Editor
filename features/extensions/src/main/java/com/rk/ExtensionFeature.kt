@@ -5,6 +5,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.extension.ActivityProvider
+import com.rk.extension.api.DynamicRoute
 import com.rk.extension.extensionManager
 import com.rk.extension.loader.loadAllExtensions
 import com.rk.extension.manager.ExtensionAPIManager
@@ -15,7 +16,6 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
-import com.rk.extension.api.DynamicRoute
 import com.rk.settings.extension.ExtensionDetail
 import com.rk.settings.extension.ExtensionScreen
 import com.rk.settings.extension.ExtensionSettings
@@ -33,6 +33,9 @@ class ExtensionFeature : Feature {
             iconRes = drawables.extension,
         )
 
+    private var settingsCategory: SettingsCategory? = null
+    private val routes = mutableListOf<DynamicRoute>()
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun init(application: Application) {
         extensionManager = ExtensionManager(application)
@@ -46,17 +49,17 @@ class ExtensionFeature : Feature {
         }
 
         // Register settings category
-        SettingsRegistry.registerCategory(
+        settingsCategory =
             SettingsCategory(
-                labelRes = strings.store,
-                descriptionRes = strings.store_desc,
-                iconRes = drawables.store,
-                route = SettingsRoutes.Extensions.route,
-            )
-        )
+                    labelRes = strings.store,
+                    descriptionRes = strings.store_desc,
+                    iconRes = drawables.store,
+                    route = SettingsRoutes.Extensions.route,
+                )
+                .also { SettingsRegistry.registerCategory(it) }
 
         // Register settings routes
-        SettingsRegistry.registerRoute(
+        routes.add(
             DynamicRoute(
                 "${SettingsRoutes.Extensions.route}?query={query}",
                 arguments =
@@ -74,19 +77,31 @@ class ExtensionFeature : Feature {
                 ExtensionScreen(navController = navController, query)
             }
         )
-        SettingsRegistry.registerRoute(
+        routes.add(
             DynamicRoute("${SettingsRoutes.ExtensionDetail.route}/{extensionId}") { navController, backStackEntry ->
                 val extensionId = backStackEntry.arguments?.getString("extensionId")
                 val extension = extensionId?.let { extensionManager.getExtension(it) }
                 ExtensionDetail(extension, navController)
             }
         )
-        SettingsRegistry.registerRoute(
+        routes.add(
             DynamicRoute("${SettingsRoutes.ExtensionSettings.route}/{extensionId}") { _, backStackEntry ->
                 val extensionId = backStackEntry.arguments?.getString("extensionId")
                 val extension = extensionId?.let { extensionManager.getExtension(it) }
                 ExtensionSettings(extension)
             }
         )
+
+        routes.forEach { SettingsRegistry.registerRoute(it) }
+    }
+
+    override fun dispose(application: Application) {
+        extensionManager.unloadAllExtensions()
+        application.unregisterActivityLifecycleCallbacks(ExtensionAPIManager)
+        application.unregisterActivityLifecycleCallbacks(ActivityProvider)
+
+        settingsCategory?.let { SettingsRegistry.unregisterCategory(it) }
+        routes.forEach { SettingsRegistry.unregisterRoute(it) }
+        routes.clear()
     }
 }

@@ -70,4 +70,10 @@ object LspRegistry {
     fun addBuiltInServers(vararg servers: LspServer) {
         _builtInServers.addAll(servers)
     }
+
+    @ApiStatus.Internal
+    // TODO: Temp
+    fun removeBuiltInServers(vararg servers: LspServer) {
+        _builtInServers.removeAll(servers.toSet())
+    }
 }
