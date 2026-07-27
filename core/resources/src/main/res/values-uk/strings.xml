@@ -734,4 +734,9 @@
     <string name="welcome_to">Ласкаво просимо до %s</string>
     <string name="selected_project">Вибраний проєкт: %s</string>
     <string name="no_project_selected">Не вибрано жодного проєкту</string>
+    <string name="signature_help">Параметри функції під час друку</string>
+    <string name="ctrl">Ctrl</string>
+    <string name="alt">Alt</string>
+    <string name="shift">Shift</string>
+    <string name="template_id">ID</string>
 </resources>
