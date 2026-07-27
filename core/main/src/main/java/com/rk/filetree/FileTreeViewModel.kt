@@ -14,6 +14,7 @@ import com.rk.events.Events
 import com.rk.events.FileTreeEvent
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
+import com.rk.file.ZipFileObject
 import com.rk.search.utils.GlobExcluder
 import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,20 @@ import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
 
 fun FileObject.toFileTreeNode(): FileTreeNode {
-    return FileTreeNode(file = this, isFile = isFile(), isDirectory = isDirectory(), name = getAppropriateName())
+    return FileTreeNode(
+        file = this,
+        isFile = isFile(),
+        isExpandable = isDirectory() || isZip(),
+        name = getAppropriateName(),
+    )
+}
+
+fun FileObject.isZip(): Boolean {
+    return isFile() && getExtension().equals("zip", ignoreCase = true)
+}
+
+fun FileObject.isXedExtension(): Boolean {
+    return isFile() && getExtension().equals("xed", ignoreCase = true)
 }
 
 class FileTreeViewModel : ViewModel() {
@@ -300,7 +314,7 @@ class FileTreeViewModel : ViewModel() {
                 break
             }
             val child = children.first()
-            if (!child.isDirectory) {
+            if (!child.isExpandable) {
                 break
             }
             collapsedName += "/${child.name}"
@@ -311,7 +325,9 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun updateCache(parent: FileObject) {
-        if (!parent.isDirectory()) return
+        if (!parent.isDirectory() && !parent.isZip()) {
+            return
+        }
         searchViewModel.get()?.syncIndex(parent)
 
         viewModelScope.launch {
@@ -321,25 +337,7 @@ class FileTreeViewModel : ViewModel() {
         collapsedNameCache.remove(parent)
         _loadingStates[parent] = true // Mark as loading
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Safely access file listing
-                val fileList =
-                    try {
-                        parent.listFiles()
-                    } catch (_: Exception) {
-                        _loadingStates[parent] = false
-                        return@launch
-                    }
-
-                // Process files
-                val sortedFiles = sortAndFilterFiles(fileList)
-
-                fileListCache[parent] = sortedFiles
-
-                viewModelScope.launch { clearLoadingState(parent) }
-            } catch (_: Exception) {
-                _loadingStates[parent] = false
-            }
+            loadAndCacheChildren(parent)
         }
     }
 
@@ -381,64 +379,64 @@ class FileTreeViewModel : ViewModel() {
 
     fun loadChildrenForNode(node: FileTreeNode) {
         // If already in cache, don't reload
-        if (fileListCache.containsKey(node.file)) {
-            _loadingStates[node.file] = false
+        val file = node.file
+        if (fileListCache.containsKey(file)) {
+            _loadingStates[file] = false
             return
         }
 
         // Set loading state
-        _loadingStates[node.file] = true
+        _loadingStates[file] = true
 
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Safely access file listing
-                val fileList =
-                    try {
-                        node.file.listFiles()
-                    } catch (_: Exception) {
-                        _loadingStates[node.file] = false
-                        return@launch
-                    }
-
-                // Process files
-                val sortedFiles = sortAndFilterFiles(fileList)
-
-                fileListCache[node.file] = sortedFiles
-                viewModelScope.launch { clearLoadingState(node.file) }
-            } catch (_: Exception) {
-                _loadingStates[node.file] = false
-            }
+            loadAndCacheChildren(file)
         }
     }
 
     suspend fun loadChildrenForNodeSynchronous(node: FileTreeNode) {
         // If already in cache, don't reload
-        if (fileListCache.containsKey(node.file)) {
-            _loadingStates[node.file] = false
+        val file = node.file
+        if (fileListCache.containsKey(file)) {
+            _loadingStates[file] = false
             return
         }
 
         // Set loading state
-        _loadingStates[node.file] = true
+        _loadingStates[file] = true
 
+        loadAndCacheChildren(file)
+    }
+
+    private suspend fun loadAndCacheChildren(file: FileObject) {
         try {
             // Safely access file listing
             val fileList =
                 try {
-                    node.file.listFiles()
+                    val effectiveFile = toZipAwareFile(file)
+                    effectiveFile.listFiles()
                 } catch (_: Exception) {
-                    _loadingStates[node.file] = false
+                    _loadingStates[file] = false
                     return
                 }
 
             // Process files
             val sortedFiles = sortAndFilterFiles(fileList)
 
-            fileListCache[node.file] = sortedFiles
-            viewModelScope.launch { clearLoadingState(node.file) }
+            fileListCache[file] = sortedFiles
+            viewModelScope.launch { clearLoadingState(file) }
         } catch (_: Exception) {
-            _loadingStates[node.file] = false
+            _loadingStates[file] = false
         }
+    }
+
+    private fun toZipAwareFile(file: FileObject): FileObject {
+        val effectiveFile =
+            if (file !is ZipFileObject && file.isZip()) {
+                ZipFileObject(file, "")
+            } else {
+                file
+            }
+        return effectiveFile
     }
 
     private suspend fun clearLoadingState(file: FileObject) {

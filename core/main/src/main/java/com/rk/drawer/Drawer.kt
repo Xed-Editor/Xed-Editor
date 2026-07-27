@@ -189,7 +189,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                         painter = painterResource(drawables.outline_folder),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier.size(48.dp),
+                                        modifier = Modifier.size(36.dp),
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(

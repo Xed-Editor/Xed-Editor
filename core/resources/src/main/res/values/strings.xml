@@ -732,6 +732,9 @@
     <string name="github_username">GitHub username</string>
     <string name="session_name_exists">Session name already exists</string>
     <string name="rename_session">Rename session</string>
+    <string name="unzip">Unzip</string>
+    <string name="unzip_success">Successfully unzipped</string>
+    <string name="unzip_failed">Failed to unzip: %s</string>
     <string name="searching_in">Searching in: %s</string>
     <string name="welcome_to">Welcome to %s</string>
     <string name="selected_project">Selected Project: %s</string>
