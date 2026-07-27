@@ -3,6 +3,8 @@ package com.rk.file
 import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
+import com.rk.resources.getString
+import com.rk.resources.strings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -11,6 +13,34 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.zip.ZipFile
+
+data class ZipEntryMetadata(
+    val size: Long,
+    val compressedSize: Long,
+    val comment: String?,
+    val crc: Long,
+    val compressionMethod: Int,
+    val lastModified: Long?,
+)
+
+enum class ZipCompressionMethod(val id: Int, val label: String) {
+    STORED(0, "Stored"),
+    SHRUNK(1, "Shrunk"),
+    REDUCED_1(2, "Reduced (1)"),
+    REDUCED_2(3, "Reduced (2)"),
+    REDUCED_3(4, "Reduced (3)"),
+    REDUCED_4(5, "Reduced (4)"),
+    IMPLODED(6, "Imploded"),
+    TOKENIZING(7, "Tokenizing"),
+    DEFLATED(8, "Deflated"),
+    UNKNOWN(-1, strings.unknown.getString());
+
+    companion object {
+        fun fromId(id: Int): ZipCompressionMethod {
+            return entries.find { it.id == id } ?: UNKNOWN
+        }
+    }
+}
 
 class ZipFileObject(
     val zipFileObject: FileObject,
@@ -138,18 +168,50 @@ class ZipFileObject(
 
     override fun canExecute(): Boolean = false
 
-    override fun lastModified(): Long = 0L
+    private var metadataCache: ZipEntryMetadata? = null
 
-    override suspend fun length(): Long =
+    private suspend fun getZipEntryMetadata(): ZipEntryMetadata? =
         withContext(Dispatchers.IO) {
+            metadataCache?.let {
+                return@withContext it
+            }
+
             val zipFile = File(zipFileObject.getAbsolutePath())
-            runCatching {
-                    ZipFile(zipFile).use { zip ->
-                        zip.getEntry(entryPath)?.size ?: 0L
-                    }
+
+            val metadata = runCatching {
+                ZipFile(zipFile).use { zip ->
+                    val entry = zip.getEntry(entryPath) ?: return@use null
+
+                    ZipEntryMetadata(
+                        size = entry.size,
+                        compressedSize = entry.compressedSize,
+                        comment = entry.comment,
+                        crc = entry.crc,
+                        compressionMethod = entry.method,
+                        lastModified = entry.lastModifiedTime?.toMillis(),
+                    )
                 }
-                .getOrDefault(0L)
+            }
+                .getOrNull()
+
+            metadataCache = metadata
+            metadata
         }
+
+    override suspend fun lastModified(): Long? = getZipEntryMetadata()?.lastModified
+
+    override suspend fun length(): Long = getZipEntryMetadata()?.size ?: 0L
+
+    suspend fun getComment(): String? = getZipEntryMetadata()?.comment
+
+    suspend fun getCompressedSize(): Long = getZipEntryMetadata()?.compressedSize ?: 0L
+
+    suspend fun getCrc(): Long = getZipEntryMetadata()?.crc ?: 0L
+
+    suspend fun getCompressionMethod(): ZipCompressionMethod {
+        val method = getZipEntryMetadata()?.compressionMethod ?: -1
+        return ZipCompressionMethod.fromId(method)
+    }
 
     override suspend fun toUri(): Uri = Uri.parse("zip://${getAbsolutePath()}")
 

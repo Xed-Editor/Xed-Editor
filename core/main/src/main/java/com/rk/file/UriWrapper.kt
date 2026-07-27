@@ -253,8 +253,8 @@ class UriWrapper : FileObject {
         return false
     }
 
-    override fun lastModified(): Long {
-        return file.lastModified()
+    override suspend fun lastModified(): Long? {
+        return file.lastModified().takeIf { it != 0L }
     }
 
     override suspend fun getChildForName(name: String): FileObject =

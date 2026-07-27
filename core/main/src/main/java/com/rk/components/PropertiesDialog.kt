@@ -24,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -39,17 +41,19 @@ import com.rk.file.FileObject
 import com.rk.file.FileOperations
 import com.rk.file.FilePropertiesRegistry
 import com.rk.file.FileWrapper
+import com.rk.file.ZipCompressionMethod
+import com.rk.file.ZipFileObject
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.formatFileSize
 import com.rk.utils.rememberNumberFormatter
-import java.text.DateFormat
-import java.util.Date
-import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.DateFormat
+import java.util.Date
+import java.util.Locale
 
 data class ContentProgress(val totalSize: Long, val totalItems: Long)
 
@@ -121,13 +125,27 @@ fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
 
 @Composable
 fun GeneralProperties(file: FileObject) {
-    var size by remember { mutableStateOf(formatFileSize(0)) }
+    var size by remember { mutableStateOf(strings.loading.getString()) }
     var itemsCount by remember { mutableStateOf("0") }
     val numberFormatter = rememberNumberFormatter()
 
-    val lastModified =
-        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault())
-            .format(Date(file.lastModified()))
+    val lastModified by
+        produceState(stringResource(strings.loading)) {
+            val lastModified = file.lastModified()
+
+            if (lastModified == null) {
+                value = strings.unknown.getString()
+                return@produceState
+            }
+
+            value =
+                DateFormat.getDateTimeInstance(
+                        DateFormat.MEDIUM,
+                        DateFormat.MEDIUM,
+                        Locale.getDefault(),
+                    )
+                    .format(Date(lastModified))
+        }
 
     LaunchedEffect(file) {
         if (file.isFile()) {
@@ -167,6 +185,10 @@ fun AdvancedProperties(file: FileObject) {
     InfoRow(stringResource(strings.permissions), getPseudoPermissions(file))
     InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
 
+    if (file is ZipFileObject) {
+        ZipProperties(file)
+    }
+
     FilePropertiesRegistry.getProperties(file).forEach { property ->
         InfoRow(
             label = property.label,
@@ -202,6 +224,40 @@ fun AdvancedProperties(file: FileObject) {
                     result.third
                 }
         }
+    }
+}
+
+@Composable
+private fun ZipProperties(file: ZipFileObject) {
+    var comment by remember(file) { mutableStateOf<String?>(null) }
+    var compressedSize by remember(file) { mutableLongStateOf(0L) }
+    var size by remember(file) { mutableLongStateOf(0L) }
+    var crc by remember(file) { mutableLongStateOf(0L) }
+    var compressionMethod by remember(file) { mutableStateOf<ZipCompressionMethod?>(null) }
+
+    LaunchedEffect(file) {
+        comment = file.getComment()
+        compressedSize = file.getCompressedSize()
+        size = file.length()
+        crc = file.getCrc()
+        compressionMethod = file.getCompressionMethod()
+    }
+
+    val compressionRatio =
+        if (size > 0L) {
+            compressedSize.toDouble() / size.toDouble() * 100
+        } else 0.0
+
+    if (file.isFile()) {
+        InfoRow("Compressed size", formatFileSize(compressedSize))
+        InfoRow("Compression ratio", "%.1f%%".format(compressionRatio))
+    }
+    InfoRow("Compression method", compressionMethod?.label ?: ZipCompressionMethod.UNKNOWN.label)
+    if (file.isFile()) {
+        InfoRow("CRC-32", crc.toString(16).uppercase())
+    }
+    comment?.let {
+        InfoRow("Comment", it)
     }
 }
 

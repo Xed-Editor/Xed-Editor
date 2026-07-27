@@ -112,7 +112,7 @@ class NetWrapper(private val url: URL) : FileObject {
 
     override fun canExecute(): Boolean = false
 
-    override fun lastModified(): Long = -1L
+    override suspend fun lastModified(): Long? = null
 
     override suspend fun getChildForName(name: String): FileObject {
         throw UnsupportedOperationException("URL is not a directory")

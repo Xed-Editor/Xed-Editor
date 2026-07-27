@@ -176,8 +176,8 @@ class FileWrapper(var file: File) : FileObject {
         return file.canExecute()
     }
 
-    override fun lastModified(): Long {
-        return file.lastModified()
+    override suspend fun lastModified(): Long? {
+        return file.lastModified().takeIf { it != 0L }
     }
 
     override suspend fun getChildForName(name: String): FileObject {
