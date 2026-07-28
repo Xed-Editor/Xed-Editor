@@ -10,6 +10,7 @@ import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.Charset
+import java.util.Locale
 
 class NetWrapper(private val url: URL) : FileObject {
     private fun openConnection(): HttpURLConnection {
@@ -79,11 +80,10 @@ class NetWrapper(private val url: URL) : FileObject {
     override fun getAbsolutePath(): String = url.toString()
 
     override suspend fun length(): Long {
-        return try {
-            openConnection().contentLengthLong
-        } catch (e: Exception) {
-            -1L
-        }
+        return runCatching {
+                openConnection().contentLengthLong
+            }
+            .getOrDefault(0L)
     }
 
     override suspend fun delete(): Boolean = false
@@ -93,7 +93,7 @@ class NetWrapper(private val url: URL) : FileObject {
     override suspend fun getMimeType(context: Context): String? {
         val ext = MimeTypeMap.getFileExtensionFromUrl(url.toString())
         return if (ext.isNotEmpty()) {
-            MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.lowercase(Locale.getDefault()))
         } else {
             null
         }
@@ -111,9 +111,9 @@ class NetWrapper(private val url: URL) : FileObject {
 
     override fun canExecute(): Boolean = false
 
-    override fun lastModified(): Long = -1L
+    override suspend fun lastModified(): Long? = null
 
-    override suspend fun getChildForName(name: String): FileObject {
+    override suspend fun getChild(name: String): FileObject {
         throw UnsupportedOperationException("URL is not a directory")
     }
 

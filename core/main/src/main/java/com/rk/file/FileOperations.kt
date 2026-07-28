@@ -159,7 +159,7 @@ object FileOperations {
                 // Perform the copy operation
                 copyRecursive(context, sourceFile, destinationFolder, onProgress)
                 val newFile =
-                    destinationFolder.getChildForName(sourceFile.getName())
+                    destinationFolder.getChild(sourceFile.getName())
                         ?: throw IllegalStateException("Failed to find pasted file")
 
                 // If it's a cut operation, delete the source

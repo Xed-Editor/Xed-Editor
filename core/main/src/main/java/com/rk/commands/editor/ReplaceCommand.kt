@@ -4,6 +4,7 @@ import android.view.KeyEvent
 import androidx.compose.ui.text.TextRange
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
+import com.rk.commands.EditorNonActionContext
 import com.rk.commands.KeyCombination
 import com.rk.icons.Icon
 import com.rk.resources.drawables
@@ -23,6 +24,10 @@ class ReplaceCommand : EditorCommand() {
             isSearching = true
             isReplaceShown = true
         }
+    }
+
+    override fun isEnabled(context: EditorNonActionContext): Boolean {
+        return context.editorTab.editorState.editable
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.find_replace)

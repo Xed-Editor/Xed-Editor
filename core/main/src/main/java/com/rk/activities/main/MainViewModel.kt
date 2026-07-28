@@ -6,6 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rk.activities.main.session.EditorManager
+import com.rk.activities.main.session.SessionManager
+import com.rk.activities.main.session.TabManager
 import com.rk.commands.Command
 import com.rk.file.FileObject
 import com.rk.settings.Settings

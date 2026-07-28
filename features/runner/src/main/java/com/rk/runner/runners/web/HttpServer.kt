@@ -2,6 +2,7 @@ package com.rk.runner.runners.web
 
 import android.content.Context
 import com.rk.file.FileObject
+import com.rk.file.resolve
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -9,8 +10,8 @@ import com.rk.theme.amoled
 import com.rk.utils.isDarkTheme
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.Response.Status
-import java.net.URLConnection
 import kotlinx.coroutines.runBlocking
+import java.net.URLConnection
 
 class HttpServer(
     val context: Context,
@@ -35,9 +36,9 @@ class HttpServer(
                 return@runBlocking serveFile(root)
             }
 
-            var file = root.getChildForName(uri)
+            var file = root.resolve(uri) ?: return@runBlocking notFoundError()
             if (file.isDirectory()) {
-                file = file.getChildForName("index.html")
+                file = file.getChild("index.html") ?: return@runBlocking notFoundError()
             }
 
             // Hook override

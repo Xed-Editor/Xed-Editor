@@ -52,10 +52,7 @@ object ThemeTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/Them
     private var nameError by mutableStateOf<String?>(null)
     private var minAppVersionError by mutableStateOf<String?>(null)
 
-    private fun validateId(value: String): String? {
-        val regex = "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$".toRegex()
-        return if (!regex.matches(value)) strings.invalid_characters.getString() else null
-    }
+    private fun validateId(value: String): String? = if (value.isBlank()) strings.value_empty_err.getString() else null
 
     private fun validateName(value: String): String? = if (value.isBlank()) strings.name_empty_err.getString() else null
 
@@ -179,9 +176,9 @@ object ThemeTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/Them
     }
 
     override suspend fun afterClone(projectDir: FileObject) {
-        val themeFile = projectDir.getChildForName("theme.json")
-        if (themeFile.exists()) {
-            val content = themeFile.readText() ?: return
+        val themeFile = projectDir.getChild("theme.json")
+        if (themeFile?.exists() == true) {
+            val content = themeFile.readText()
             val json = JSONObject(content)
 
             json.put("id", configStates.id)

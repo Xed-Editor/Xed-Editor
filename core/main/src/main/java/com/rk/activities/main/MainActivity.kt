@@ -16,6 +16,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rk.activities.main.navigation.MainRouteRegistry
+import com.rk.activities.main.navigation.MainRoutes
+import com.rk.activities.main.session.SessionManager
+import com.rk.activities.main.ui.DisclaimerScreen
+import com.rk.activities.main.ui.MainContentHost
 import com.rk.commands.KeybindingsManager
 import com.rk.drawer.DrawerPersistence
 import com.rk.drawer.DrawerViewModel
@@ -155,6 +160,12 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 composable(MainRoutes.Disclaimer.route) { DisclaimerScreen(navController) { finishAffinity() } }
+
+                MainRouteRegistry.routes.forEach { customRoute ->
+                    composable(customRoute.route, arguments = customRoute.arguments) { backStackEntry ->
+                        customRoute.content(navController, backStackEntry)
+                    }
+                }
             }
         }
     }

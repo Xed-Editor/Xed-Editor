@@ -36,6 +36,7 @@ import com.rk.commands.ActionContext
 import com.rk.commands.KeybindingsManager
 import com.rk.commands.ToggleableCommand
 import com.rk.commands.ToolbarConfiguration
+import com.rk.components.compose.utils.holdable
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.strings
@@ -81,8 +82,14 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
             }
             toolbarActions.forEach { command ->
                 IconButton(
-                    onClick = { command.performCommand(ActionContext(activity!!)) },
-                    modifier = Modifier.size(48.dp),
+                    onClick = { /* Handled by holdable modifier */ },
+                    modifier =
+                        Modifier.size(48.dp).holdable(
+                            enabled = command.isEnabled(),
+                            repeatOnHold = command.repeatOnHold,
+                            onLongClick = { command.onLongClick(ActionContext(activity!!)) },
+                            onClick = { command.performCommand(ActionContext(activity!!)) },
+                        ),
                     enabled = command.isEnabled(),
                     colors =
                         IconButtonDefaults.iconButtonColors().let {

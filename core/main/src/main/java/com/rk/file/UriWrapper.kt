@@ -253,11 +253,11 @@ class UriWrapper : FileObject {
         return false
     }
 
-    override fun lastModified(): Long {
-        return file.lastModified()
+    override suspend fun lastModified(): Long? {
+        return file.lastModified().takeIf { it != 0L }
     }
 
-    override suspend fun getChildForName(name: String): FileObject =
+    override suspend fun getChild(name: String): FileObject? =
         withContext(Dispatchers.IO) {
             if (!file.isDirectory) {
                 throw IllegalStateException("Cannot get child for a non-directory file")
@@ -265,23 +265,21 @@ class UriWrapper : FileObject {
 
             val child =
                 file.listFiles().find { it.name == name || it.name == name.removePrefix("/") }
-                    ?: throw FileNotFoundException("Child with name $name not found")
+                    ?: return@withContext null
 
             return@withContext UriWrapper(child)
         }
 
-    override suspend fun readText(): String? =
+    override suspend fun readText(): String =
         withContext(Dispatchers.IO) {
-            val uri: Uri = file.uri
-            return@withContext application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
+            return@withContext useInputStream { inputStream ->
                 BufferedReader(InputStreamReader(inputStream)).use { reader -> reader.readText() }
             }
         }
 
-    override suspend fun readText(charset: Charset): String? =
+    override suspend fun readText(charset: Charset): String =
         withContext(Dispatchers.IO) {
-            val uri: Uri = file.uri
-            return@withContext application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
+            return@withContext useInputStream { inputStream ->
                 BufferedReader(InputStreamReader(inputStream, charset)).use { reader -> reader.readText() }
             }
         }

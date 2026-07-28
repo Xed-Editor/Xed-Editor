@@ -119,6 +119,8 @@ class EmulateKeyCommand : EditorCommand() {
                 object : EditorCommand() {
                     override val id: String = "editor.emulate_key.${keyName.lowercase()}"
 
+                    override val repeatOnHold = true
+
                     override fun getLabel(): String = keyDisplayName
 
                     override fun action(context: EditorActionContext) {

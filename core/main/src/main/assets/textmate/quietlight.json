@@ -417,7 +417,7 @@
         "meta.separator"
       ],
       "settings": {
-        "foreground": "#434343"
+        "foreground": "#666666"
       }
     },
     {
@@ -427,7 +427,7 @@
         "punctuation.definition.from-file.diff"
       ],
       "settings": {
-        "foreground": "#4B69C6"
+        "foreground": "#4F73D9"
       }
     },
     {
@@ -437,28 +437,31 @@
         "punctuation.definition.to-file.diff"
       ],
       "settings": {
-        "foreground": "#4B69C6"
+        "foreground": "#4F73D9"
       }
     },
     {
-      "name": "diff: deleted",
+      "name": "Diff: deleted",
       "scope": "markup.deleted.diff",
       "settings": {
-        "foreground": "#C73D20"
+        "foreground": "#A92F1B",
+        "background": "#F5D8D2"
       }
     },
     {
-      "name": "diff: changed",
+      "name": "Diff: changed",
       "scope": "markup.changed.diff",
       "settings": {
-        "foreground": "#9C5D27"
+        "foreground": "#86521F",
+        "background": "#F1E3D2"
       }
     },
     {
-      "name": "diff: inserted",
+      "name": "Diff: inserted",
       "scope": "markup.inserted.diff",
       "settings": {
-        "foreground": "#448C27"
+        "foreground": "#2F661F",
+        "background": "#DDEED7"
       }
     },
     {

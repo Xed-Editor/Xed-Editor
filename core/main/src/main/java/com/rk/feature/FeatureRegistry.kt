@@ -9,11 +9,14 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.xededitor.BuildConfig
 
 interface Feature {
     fun init(application: Application)
+
+    fun dispose(application: Application) {}
 
     val toggle: FeatureToggle?
         get() = null
@@ -33,11 +36,13 @@ data class FeatureToggle(
     fun setEnable(enable: Boolean) {
         Preference.setBoolean(key, enable)
         state.value = enable
+        FeatureRegistry.onToggleChange(key, enable)
     }
 }
 
 object FeatureRegistry {
-    private val features = mutableListOf<Feature>()
+    private val features = mutableMapOf<String, Feature>()
+    private val featuresWithoutToggles = mutableListOf<Feature>()
     val toggles = mutableStateListOf<FeatureToggle>()
 
     init {
@@ -65,20 +70,36 @@ object FeatureRegistry {
     }
 
     fun register(feature: Feature) {
-        features.add(feature)
-        feature.toggle?.let { registerToggle(it) }
+        val toggle = feature.toggle
+        if (toggle != null) {
+            features[toggle.key] = feature
+            registerToggle(toggle)
+        } else {
+            featuresWithoutToggles.add(feature)
+        }
     }
 
     fun initFeatures(application: Application) {
-        features.forEach { feature ->
-            val toggle = feature.toggle
-            if (toggle == null || isEnabled(toggle.key)) {
+        featuresWithoutToggles.forEach { it.init(application) }
+        features.forEach { (key, feature) ->
+            if (isEnabled(key)) {
                 feature.init(application)
             }
         }
     }
 
+    fun onToggleChange(key: String, enabled: Boolean) {
+        val application = application ?: return
+        val feature = features[key] ?: return
+        if (enabled) {
+            feature.init(application)
+        } else {
+            feature.dispose(application)
+        }
+    }
+
     fun registerToggle(toggle: FeatureToggle) {
+        if (toggles.any { it.key == toggle.key }) return
         toggles.add(toggle)
     }
 

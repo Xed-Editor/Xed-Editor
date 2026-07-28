@@ -10,8 +10,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.filterWithFiles
+import com.rk.activities.main.ui.drawerStateRef
 import com.rk.components.PropertiesDialog
 import com.rk.components.SingleInputDialog
 import com.rk.drawer.DrawerViewModel
@@ -77,7 +77,7 @@ fun FileActionDialogs(
 
                     tabsToRename.forEach {
                         it.tabTitle = newName
-                        it.file = parentFile.getChildForName(newName)
+                        it.file = parentFile.getChild(newName)
                     }
                 }
             },

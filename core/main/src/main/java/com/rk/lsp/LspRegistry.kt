@@ -3,6 +3,7 @@ package com.rk.lsp
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.api.XedExtensionPoint
+import org.jetbrains.annotations.ApiStatus
 
 object LspRegistry {
     private val _extensionServers = mutableStateListOf<LspServer>()
@@ -13,14 +14,18 @@ object LspRegistry {
     val externalServers: List<LspServer>
         get() = _externalServers.toList()
 
+    private val _builtInServers = mutableStateListOf<LspServer>()
+    val builtInServers: List<LspServer>
+        get() = _builtInServers.toList()
+
     private val configuration: MutableMap<LspServer, Boolean> = mutableMapOf()
 
     suspend fun updateConfiguration(context: Context) {
-      externalServers.forEach { configuration[it] = it.isInstalled(context) }
+        (builtInServers + extensionServers + externalServers).forEach { configuration[it] = it.isInstalled(context) }
     }
 
     suspend fun getConfigurationChanges(context: Context): List<LspServer> {
-        return extensionServers + externalServers.filter {
+        return (builtInServers + extensionServers + externalServers).filter {
             val isInstalled = it.isInstalled(context)
             (configuration[it] ?: false) != isInstalled
         }
@@ -43,7 +48,8 @@ object LspRegistry {
     }
 
     fun getForId(id: String): LspServer? {
-        return _externalServers.find { it.id == id }
+        return _builtInServers.find { it.id == id }
+            ?: _externalServers.find { it.id == id }
             ?: _extensionServers.find { it.id == id }
     }
 
@@ -57,5 +63,17 @@ object LspRegistry {
     @XedExtensionPoint
     fun unregisterServer(server: LspServer) {
         _extensionServers.remove(server)
+    }
+
+    @ApiStatus.Internal
+    // TODO: Temp
+    fun addBuiltInServers(vararg servers: LspServer) {
+        _builtInServers.addAll(servers)
+    }
+
+    @ApiStatus.Internal
+    // TODO: Temp
+    fun removeBuiltInServers(vararg servers: LspServer) {
+        _builtInServers.removeAll(servers.toSet())
     }
 }

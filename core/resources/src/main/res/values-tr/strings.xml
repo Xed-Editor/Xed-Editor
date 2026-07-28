@@ -168,7 +168,7 @@
     <string name="edit_mode">Edit modu</string>
     <string name="no_folder_opened">Klasör açılmadı</string>
     <string name="cut">Kes</string>
-    <string name="timeout">Zaman aşımı nedeniyle indirme iptal edildi. Lütfen internet bağlantınızın sabit olduğundan emin olun</string>
+    <string name="timeout">İndirme, zaman aşımı nedeniyle iptal edildi. Lütfen internet bağlantınızın kararlı olduğundan emin olun</string>
     <string name="more">Daha fazla</string>
     <string name="theme_settings">Tema ayarları</string>
     <string name="add_theme">Tema ekle</string>
@@ -390,7 +390,7 @@
     <string name="extra_key_bg_desc">Ek tuşlar için arka planı göster</string>
     <string name="actions">Eylemler</string>
     <string name="enjoying_xed">Xed-Editor\'ü beğeniyor musun?</string>
-    <string name="support_message">Xed ile %s dosya kaydettiniz ve kodu %s kez çalıştırdınız.\n\nBu uygulamayı ücretsiz ve gizlilik odaklı tutan tek bir geliştiriciyim. Xed kod yazmanızı kolaylaştırdıysa, geliştirilmesini desteklemeyi düşünür müsünüz?\n\nDesteğiniz bana şunlarda yardımcı olur:\n• Özellikleri daha hızlı geliştirmek\n• Xed\'i sonsuza dek reklamsız tutmak\n• Hatalara hızlı yanıt vermek</string>
+    <string name="support_message">Xed ile %s dosya kaydettiniz ve kodu %s kez çalıştırdınız.\n\nBen bu uygulamayı ücretsiz ve gizlilik odaklı tutan tek bir geliştiriciyim. Xed, topluluktan katkıda bulunanların yardımıyla geliştirilmiş açık kaynaklı, gizlilik odaklı bir uygulamadır. Eğer Xed kod yazmanızı kolaylaştırdıysa, gelişimini desteklemeyi düşünür müsünüz?\n\nDesteğiniz bana yardımcı olur:\n• Özellikleri daha hızlı geliştirmeme\n• Xed\'i sonsuza dek reklamsız tutmama\n• Hatalara hızlıca yanıt vermeme</string>
     <string name="yes_support">Evet, destekleyeceğim! ❤️</string>
     <string name="not_for_me">Hayır teşekkürler</string>
     <string name="sponsor_desc">Sponsor ol ve bu projenin geleceğini şekillendirmeye yardım et</string>
@@ -726,4 +726,15 @@
     <string name="description">Açıklama</string>
     <string name="display_name">Görünen ad</string>
     <string name="github_username">GitHub kullanıcı adı</string>
+    <string name="project_runner_desc">Projede, /.xed/runner.sh betiği varsa bu betik kullanılarak çalıştırılır.</string>
+    <string name="discard_changes">Değişiklikleri sil</string>
+    <string name="discard_changes_msg">%s\'deki yerel değişikliklerinizi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</string>
+    <string name="discard_failed">Silme başarısız oldu: %s</string>
+    <string name="incompatible_icon_pack_warning">Bu simge paketi, Xed-Editor\'ın mevcut sürümünüzle uyumlu değil. Yine de devam etmek ister misiniz?</string>
+    <string name="session_name_exists">Oturum adı zaten mevcut</string>
+    <string name="rename_session">Oturum adını değiştir</string>
+    <string name="searching_in">Aranıyor: %s</string>
+    <string name="welcome_to">%s\'e hoş geldiniz</string>
+    <string name="selected_project">Seçilen Proje: %s</string>
+    <string name="no_project_selected">Proje seçilmedi</string>
 </resources>

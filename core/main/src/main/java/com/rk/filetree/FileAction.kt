@@ -17,11 +17,16 @@ import com.rk.icons.CreateNewFolder
 import com.rk.icons.Icon
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
+import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab
+import com.rk.utils.logError
 import com.rk.utils.toast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import java.util.zip.ZipFile
 
 data class FileActionContext(
     val file: FileObject,
@@ -194,7 +199,7 @@ object PasteAction : FileAction() {
                                     val targetTab =
                                         viewModel.tabs.find { it is EditorTab && it.file == clipboardFile }
                                             as? EditorTab
-                                    targetTab?.file = context.file.getChildForName(clipboardFile.getName())
+                                    targetTab?.file = context.file.getChild(clipboardFile.getName())
                                 }
                             }
                             clipboardFile.getParentFile()?.let { context.viewModel.updateCache(it) }
@@ -273,4 +278,49 @@ object PropertiesAction : FileAction() {
     }
 
     override val type = FileActionType.All
+}
+
+object UnzipAction : FileAction() {
+    override val icon = Icon.ResourceIcon(drawables.archive)
+    override val title = strings.unzip.getString()
+
+    override fun action(context: FileActionContext) {
+        context.viewModel.viewModelScope.launch(Dispatchers.IO) {
+            val zipFile = File(context.file.getAbsolutePath())
+            val targetDir = File(zipFile.parentFile, zipFile.nameWithoutExtension).apply { mkdirs() }
+
+            runCatching {
+                context.viewModel.withFileOperation {
+                    ZipFile(zipFile).use { zip ->
+                        zip.entries().asSequence().forEach { entry ->
+                            val entryFile = File(targetDir, entry.name)
+                            if (entry.isDirectory) {
+                                entryFile.mkdirs()
+                            } else {
+                                entryFile.parentFile?.mkdirs()
+                                zip.getInputStream(entry).use { input ->
+                                    entryFile.outputStream().use { output ->
+                                        input.copyTo(output)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+                .onSuccess {
+                    val parent = context.file.getParentFile()
+                    parent?.let { context.viewModel.updateCache(it) }
+                    toast(strings.unzip_success.getString())
+                }
+                .onFailure { e ->
+                    logError(e)
+                    toast(strings.unzip_failed.getFilledString(e.message))
+                }
+        }
+    }
+
+    override fun isSupported(file: FileObject) = file.isZip() || file.isXedExtension()
+
+    override val type = FileActionType(file = true, folder = false, rootFolder = false)
 }

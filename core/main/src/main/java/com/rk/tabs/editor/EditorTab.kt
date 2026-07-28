@@ -27,12 +27,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.rk.activities.main.EditorCursorState
-import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
-import com.rk.activities.main.TabState
-import com.rk.activities.main.searchViewModel
+import com.rk.activities.main.session.EditorCursorState
+import com.rk.activities.main.session.EditorTabState
+import com.rk.activities.main.session.TabState
+import com.rk.activities.main.ui.searchViewModel
 import com.rk.color.ColorPicker
 import com.rk.components.SingleInputDialog
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
@@ -54,6 +54,7 @@ import com.rk.settings.support.handleSupport
 import com.rk.tabs.base.Tab
 import com.rk.utils.errorDialog
 import com.rk.utils.hasBinaryChars
+import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -76,6 +77,7 @@ import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.PropertyType
 import java.nio.charset.Charset
 import java.nio.file.Paths
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -86,6 +88,7 @@ open class EditorTab(
     isReadOnly: Boolean = false,
     private val customTitle: String? = null,
     val fallbackExtension: String = "txt",
+    initialContent: Content? = null,
 ) : Tab() {
 
     var isReadOnly: Boolean = isReadOnly
@@ -95,7 +98,7 @@ open class EditorTab(
         get() = file == null && !isReadOnly
 
     private var autoSaveJob: Job? = null
-    private var taskCount = 0
+    private var activeTasks = mutableSetOf<String>()
 
     private var charset = Charset.forName(Settings.encoding)
     var lspConnector: LspConnector? = null
@@ -110,7 +113,7 @@ open class EditorTab(
 
     override var tabTitle by mutableStateOf(customTitle ?: file?.getName() ?: strings.temp_file.getString())
 
-    val editorState by mutableStateOf(CodeEditorState())
+    val editorState by mutableStateOf(CodeEditorState(initialContent))
 
     override fun onTabRemoved() {
         autoSaveJob?.cancel()
@@ -130,6 +133,24 @@ open class EditorTab(
 
     override fun onTabUnselected() {
         editorState.editor.get()?.clearFocus()
+    }
+
+    override fun onDuplicate(tab: Tab) {
+        if (tab is EditorTab) {
+            scope.launch(Dispatchers.Main) {
+                tab.editorState.contentLoaded.await()
+
+                val newContent = tab.editorState.content
+                if (newContent != null && !editorState.isDirty && newContent != editorState.content) {
+                    editorState.updateLock.withLock {
+                        editorState.content = newContent
+                        editorState.editor.get()?.setText(newContent)
+                        editorState.updateUndoRedo()
+                        editorState.isDirty = false
+                    }
+                }
+            }
+        }
     }
 
     init {
@@ -171,7 +192,6 @@ open class EditorTab(
                 withContext(Dispatchers.IO) {
                     runCatching {
                         editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
-                        editorState.contentLoaded.complete(Unit)
 
                         if (Settings.detect_bin_files && hasBinaryChars(editorState.content.toString())) {
                             editorState.editable = false
@@ -181,6 +201,7 @@ open class EditorTab(
                         .onFailure { errorDialog(throwable = it) }
                 }
             }
+            editorState.contentLoaded.complete(Unit)
         }
     }
 
@@ -383,27 +404,25 @@ open class EditorTab(
 
     @XedExtensionPoint
     suspend fun withTask(block: suspend () -> Unit) {
-        registerTask()
+        val uniqueId = UUID.randomUUID().toString()
+
+        registerTask(uniqueId)
         try {
             block()
         } finally {
-            unregisterTask()
+            unregisterTask(uniqueId)
         }
     }
 
-    fun registerTask() {
-        taskCount++
+    fun registerTask(id: String) {
+        activeTasks.add(id)
     }
 
-    fun unregisterTask() {
-        if (taskCount > 0) {
-            taskCount--
-        }
+    fun unregisterTask(id: String) {
+        activeTasks.remove(id)
     }
 
-    fun isTaskInProcess(): Boolean {
-        return taskCount > 0
-    }
+    fun isTaskInProcess() = activeTasks.isNotEmpty()
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -600,7 +619,13 @@ open class EditorTab(
                 ),
             scrollX = editor.scrollX,
             scrollY = editor.scrollY,
-            unsavedContent = if (editorState.isDirty) editor.text.toString() else null,
+            content =
+                when {
+                    file == null -> editor.text.toString()
+                    editorState.isDirty -> editor.text.toString()
+                    else -> null
+                },
+            isDirty = editorState.isDirty,
             isReadOnly = isReadOnly,
             customTitle = customTitle,
             fallbackExtension = fallbackExtension,

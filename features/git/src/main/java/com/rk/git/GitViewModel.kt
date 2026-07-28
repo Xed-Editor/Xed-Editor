@@ -10,6 +10,8 @@ import com.rk.DefaultScope
 import com.rk.events.Events
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileWrapper
+import com.rk.resources.getFilledString
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.toast
@@ -22,12 +24,18 @@ import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.api.errors.DetachedHeadException
 import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
+import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+import org.eclipse.jgit.treewalk.CanonicalTreeParser
+import org.eclipse.jgit.treewalk.EmptyTreeIterator
+import org.eclipse.jgit.treewalk.FileTreeIterator
+import org.eclipse.jgit.treewalk.filter.PathFilter
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 class GitViewModel : ViewModel() {
@@ -517,6 +525,78 @@ class GitViewModel : ViewModel() {
                     toast(strings.git_auth_error)
                 } else {
                     toast(e.message)
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
+    }
+
+    fun discard(change: GitChange) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                val root = currentRoot.value
+                Git.open(root).use { git ->
+                    when (change.type) {
+                        ChangeType.MODIFIED,
+                        ChangeType.DELETED,
+                        ChangeType.RENAMED,
+                        ChangeType.CONFLICTING -> {
+                            git.checkout().addPath(change.path).call()
+                        }
+                        ChangeType.ADDED -> {
+                            git.rm().addFilepattern(change.path).call()
+                        }
+                        ChangeType.UNTRACKED -> {
+                            File(change.absolutePath).delete()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                toast(strings.discard_failed.getFilledString(e.message ?: ""))
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    syncChanges(currentRoot.value!!)
+                }
+            }
+        }
+    }
+
+    fun getDiff(change: GitChange, onResult: (String) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                val root = currentRoot.value
+                Git.open(root).use { git ->
+                    val repo = git.repository
+
+                    ByteArrayOutputStream().use { out ->
+                        DiffFormatter(out).use { formatter ->
+                            formatter.setRepository(repo)
+                            formatter.pathFilter = PathFilter.create(change.path)
+
+                            val headId = repo.resolve(Constants.HEAD + "^{" + Constants.TYPE_TREE + "}")
+                            val oldTree =
+                                if (headId != null) {
+                                    CanonicalTreeParser().apply {
+                                        reset(repo.newObjectReader(), headId)
+                                    }
+                                } else {
+                                    EmptyTreeIterator()
+                                }
+
+                            val newTree = FileTreeIterator(repo)
+                            formatter.scan(oldTree, newTree).forEach(formatter::format)
+
+                            withContext(Dispatchers.Main) {
+                                onResult(out.toString().ifBlank { strings.no_changes.getString() })
+                            }
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 toast(e.message)

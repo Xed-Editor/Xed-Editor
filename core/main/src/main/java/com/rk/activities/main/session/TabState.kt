@@ -1,11 +1,12 @@
-package com.rk.activities.main
+package com.rk.activities.main.session
 
 import androidx.lifecycle.viewModelScope
+import com.rk.activities.main.MainActivity
 import com.rk.file.FileObject
 import com.rk.tabs.base.Tab
 import com.rk.tabs.base.TabRegistry
-import java.io.Serializable
 import kotlinx.coroutines.launch
+import java.io.Serializable
 
 sealed interface TabState : Serializable {
     suspend fun toTab(): Tab?
@@ -17,7 +18,8 @@ data class EditorTabState(
     val cursor: EditorCursorState,
     val scrollX: Int,
     val scrollY: Int,
-    val unsavedContent: String?,
+    val content: String?,
+    val isDirty: Boolean = false,
     val isReadOnly: Boolean = false,
     val customTitle: String? = null,
     val fallbackExtension: String = "txt",
@@ -25,17 +27,22 @@ data class EditorTabState(
     override suspend fun toTab(): Tab? {
         if (fileObject != null && !fileObject.exists() && !fileObject.canRead()) return null
 
-        MainActivity.instance!!.viewModel.apply {
+        return MainActivity.instance?.viewModel?.run {
             val editorTab =
-                editorManager.createEditorTab(fileObject, projectRoot, isReadOnly, customTitle, fallbackExtension)
+                editorManager.createEditorTab(
+                    file = fileObject,
+                    projectRoot = projectRoot,
+                    isReadOnly = isReadOnly,
+                    customTitle = customTitle,
+                    fallbackExtension = fallbackExtension,
+                    initialContent = content,
+                )
 
             viewModelScope.launch {
                 editorTab.editorState.contentRendered.await()
                 val editor = editorTab.editorState.editor.get()!!
-                unsavedContent?.let {
-                    editorTab.editorState.isDirty = true
-                    editor.setText(it)
-                }
+
+                editorTab.editorState.isDirty = isDirty
 
                 val maxLine = editor.text.lineCount - 1
                 val lineLeft = cursor.lineLeft.coerceAtMost(maxLine)
@@ -50,7 +57,7 @@ data class EditorTabState(
                 editor.scroller.startScroll(scrollX, scrollY, 0, 0)
             }
 
-            return editorTab
+            editorTab
         }
     }
 }

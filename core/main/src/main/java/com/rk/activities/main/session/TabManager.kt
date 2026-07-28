@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.activities.main.session
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -27,11 +27,13 @@ class TabManager {
 
     fun addTab(tab: Tab, switchToTab: Boolean, checkDuplicate: Boolean = true) {
         val duplicateIndex =
-            if (checkDuplicate && tab.file != null) {
-                _tabs.indexOfFirst { it.file == tab.file }
+            if (checkDuplicate) {
+                _tabs.indexOfFirst { it == tab }
             } else -1
 
         if (duplicateIndex != -1) {
+            val existingTab = _tabs[duplicateIndex]
+            existingTab.onDuplicate(tab)
             if (switchToTab) setCurrentTab(duplicateIndex)
             return
         }

@@ -5,8 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -41,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
 import com.rk.file.FileObject
+import com.rk.file.ZipFileObject
 import com.rk.resources.drawables
 import com.rk.settings.Settings
 import com.rk.utils.drawErrorUnderline
@@ -56,24 +55,30 @@ fun FileTreeNodeItem(
     onFileClick: (FileTreeNode) -> Unit,
     viewModel: FileTreeViewModel,
 ) {
-    val isHidden = node.file.getName().startsWith(".")
+    val file = node.file
+    val isHidden = file.getName().startsWith(".")
     if (isHidden && !Settings.show_hidden_files_drawer) return
 
-    val isExpanded = viewModel.isNodeExpanded(root, node.file)
+    val isExpanded = viewModel.isNodeExpanded(root, file)
     val horizontalPadding = (depth * 16).dp
 
-    val isLoading = viewModel.isNodeLoading(node.file)
-    val isCut = viewModel.isNodeCut(node.file)
+    val isLoading = viewModel.isNodeLoading(file)
+    val isCut = viewModel.isNodeCut(file)
 
-    val isFileSelected = viewModel.isFileSelected(root, node.file)
-    val isFileFocused = viewModel.isFileFocused(root, node.file)
+    val isFileSelected = viewModel.isFileSelected(root, file)
+    val isFileFocused = viewModel.isFileFocused(root, file)
 
     val context = LocalContext.current
-    val surfaceColor = MaterialTheme.colorScheme.surface
+    val surfaceColor =
+        if (file is ZipFileObject) {
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
     val selectionColor = MaterialTheme.colorScheme.primaryContainer
 
     val nodeBackground = remember { Animatable(surfaceColor) }
-    LaunchedEffect(isFileFocused, isFileSelected) {
+    LaunchedEffect(isFileFocused, isFileSelected, surfaceColor, selectionColor) {
         if (isFileFocused || isFileSelected) {
             nodeBackground.animateTo(selectionColor, animationSpec = tween(300))
         } else {
@@ -82,16 +87,16 @@ fun FileTreeNodeItem(
     }
 
     // Load children when expanded
-    LaunchedEffect(node.file, isExpanded) {
-        if (isExpanded && node.isDirectory) {
+    LaunchedEffect(file, isExpanded) {
+        if (isExpanded && node.isExpandable) {
             viewModel.loadChildrenForNode(node)
         }
     }
 
     val children by
-        remember(node.file, isExpanded) {
+        remember(file, isExpanded) {
             derivedStateOf {
-                if (node.isDirectory && isExpanded) {
+                if (node.isExpandable && isExpanded) {
                     viewModel.getNodeChildren(node)
                 } else {
                     emptyList()
@@ -104,7 +109,7 @@ fun FileTreeNodeItem(
 
     LaunchedEffect(children, Settings.compact_folders_drawer) {
         displayedChildren =
-            if (Settings.compact_folders_drawer && children.size == 1 && children[0].isDirectory) {
+            if (Settings.compact_folders_drawer && children.size == 1 && children[0].isExpandable) {
                 val collapsedNode = viewModel.collapseNode(root, node)
                 viewModel.getNodeChildren(collapsedNode)
             } else children
@@ -122,18 +127,18 @@ fun FileTreeNodeItem(
                     .combinedClickable(
                         onClick = {
                             if (viewModel.isAnyFileSelected(root)) {
-                                viewModel.toggleSelection(root, node.file)
+                                viewModel.toggleSelection(root, file)
                                 return@combinedClickable
                             }
 
-                            if (node.isDirectory) {
-                                viewModel.toggleNodeExpansion(root, node.file)
+                            if (node.isExpandable) {
+                                viewModel.toggleNodeExpansion(root, file)
                                 return@combinedClickable
                             }
 
                             onFileClick(node)
                         },
-                        onLongClick = { viewModel.toggleSelection(root, node.file) },
+                        onLongClick = { viewModel.toggleSelection(root, file) },
                     )
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
@@ -141,7 +146,7 @@ fun FileTreeNodeItem(
         ) {
             Spacer(modifier = Modifier.width(horizontalPadding))
 
-            if (node.isDirectory) {
+            if (node.isExpandable) {
                 val rotationDegree by
                     animateFloatAsState(targetValue = if (!isExpanded) 0f else 90f, label = "rotation")
 
@@ -163,11 +168,11 @@ fun FileTreeNodeItem(
                 Spacer(modifier = Modifier.width(24.dp))
             }
 
-            Box(modifier = Modifier.addIf(isHidden) { alpha(0.5f) }) { FileIcon(node.file, isExpanded = isExpanded) }
+            Box(modifier = Modifier.addIf(isHidden) { alpha(0.5f) }) { FileIcon(file, isExpanded = isExpanded) }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            val underlineColor = getUnderlineColor(context, viewModel, node.file)
+            val underlineColor = getUnderlineColor(context, viewModel, file)
             Row(modifier = Modifier.width((getDrawerWidth() - 61.dp)), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = displayName,
@@ -175,18 +180,16 @@ fun FileTreeNodeItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
-                    color = getFileColor(node.file) ?: MaterialTheme.colorScheme.onSurface,
+                    color = getFileColor(file) ?: MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
 
         AnimatedVisibility(
             modifier = Modifier.width(getDrawerWidth()),
-            visible = isExpanded && node.isDirectory && children.isNotEmpty(),
-            enter =
-                fadeIn(animationSpec = tween(120)) +
-                    expandVertically(animationSpec = tween(120)), // TODO: Fading animation not working
-            exit = fadeOut(animationSpec = tween(90)) + shrinkVertically(animationSpec = tween(90)),
+            visible = isExpanded && node.isExpandable && children.isNotEmpty(),
+            enter = expandVertically(animationSpec = tween(120)),
+            exit = shrinkVertically(animationSpec = tween(90)),
         ) {
             Column {
                 displayedChildren.forEach { childNode ->

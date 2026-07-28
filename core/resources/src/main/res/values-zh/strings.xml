@@ -189,7 +189,7 @@
     <string name="edit_mode">编辑模式</string>
     <string name="no_folder_opened">未打开文件夹</string>
     <string name="cut">剪切</string>
-    <string name="timeout">下载文件已超时，请检查您的网络连接是否正常</string>
+    <string name="timeout">由于超时下载取消，请确保您的网络连接稳定</string>
     <string name="more">更多</string>
     <string name="theme_settings">主题设置</string>
     <string name="add_theme">添加主题</string>
@@ -391,7 +391,7 @@
     <string name="actions">行动</string>
     <string name="sponsor_desc">成为赞助者，共同塑造本项目的未来</string>
     <string name="enjoying_xed">喜欢 Xed-Editor 吗？</string>
-    <string name="support_message">您已使用 Xed 保存了 %s 个文件并运行了 %s 次代码。\n\n我是一名独立开发者，致力于维护这款免费且注重隐私的应用。如果 Xed 让您的编码工作更加轻松，您是否愿意支持它的开发？\n\n您的支持将帮助我：\n• 更快开发新功能\n• 让 Xed 永远无广告\n• 更快修复 bug</string>
+    <string name="support_message">您已使用 Xed 保存了 %s 个文件并运行了 %s 次代码。\n\nXed 是在社区贡献者帮助下打造的开源、聚焦隐私的应用。如果 Xed 让您的编码工作更加轻松，您是否愿意支持它的开发？\n\n您的支持将帮助我：\n• 更快开发新功能\n• 让 Xed 永远无广告\n• 更快修复 bug</string>
     <string name="yes_support">好，我愿意支持！❤️</string>
     <string name="not_for_me">不，谢谢</string>
     <string name="coffee_desc">请我喝杯咖啡表达你的支持——每一杯都意义非凡！☕</string>
@@ -705,4 +705,22 @@
     <string name="recommendations">推荐</string>
     <string name="dependencies_description">当前扩展需要以下扩展才能工作。</string>
     <string name="recommendations_description">以下扩展被推荐与当前扩展一起安装。</string>
+    <string name="project_runner">项目运行器</string>
+    <string name="new_project">新建项目</string>
+    <string name="new_project_desc">选择一个模版</string>
+    <string name="template_settings">模版设置</string>
+    <string name="template_id">模版 ID</string>
+    <string name="template_min_app_version">最小 App 版本号</string>
+    <string name="template_apply_tint">应用色调</string>
+    <string name="template_inherit_base_theme">继承基础主题</string>
+    <string name="back">返回</string>
+    <string name="creating_project">正在创建项目 ……</string>
+    <string name="template_cleaning_up_git">正在清理 Git……</string>
+    <string name="template_applying_settings">正在应用设置……</string>
+    <string name="template_create_success">已成功创建项目 \'%s\'</string>
+    <string name="template_create_failed">项目创建失败：%s</string>
+    <string name="template_size">预期大小：%s</string>
+    <string name="description">描述</string>
+    <string name="display_name">显示名称</string>
+    <string name="github_username">GitHub 用户名</string>
 </resources>

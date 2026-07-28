@@ -9,7 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.fileTreeViewModel
+import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.settingsNavController
 import com.rk.components.EditorSettingsItem

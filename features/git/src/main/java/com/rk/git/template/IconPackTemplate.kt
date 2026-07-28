@@ -52,10 +52,7 @@ object IconPackTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/I
     private var nameError by mutableStateOf<String?>(null)
     private var minAppVersionError by mutableStateOf<String?>(null)
 
-    private fun validateId(value: String): String? {
-        val regex = "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$".toRegex()
-        return if (!regex.matches(value)) strings.invalid_characters.getString() else null
-    }
+    private fun validateId(value: String): String? = if (value.isBlank()) strings.value_empty_err.getString() else null
 
     private fun validateName(value: String): String? = if (value.isBlank()) strings.name_empty_err.getString() else null
 
@@ -179,9 +176,9 @@ object IconPackTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/I
     }
 
     override suspend fun afterClone(projectDir: FileObject) {
-        val manifestFile = projectDir.getChildForName("manifest.json")
-        if (manifestFile.exists()) {
-            val content = manifestFile.readText() ?: return
+        val manifestFile = projectDir.getChild("manifest.json")
+        if (manifestFile?.exists() == true) {
+            val content = manifestFile.readText()
             val json = JSONObject(content)
 
             json.put("id", configStates.id)

@@ -21,9 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
-import com.rk.activities.main.drawerStateRef
-import com.rk.activities.main.fileTreeViewModel
-import com.rk.activities.main.searchViewModel
+import com.rk.activities.main.ui.drawerStateRef
+import com.rk.activities.main.ui.fileTreeViewModel
+import com.rk.activities.main.ui.searchViewModel
 import com.rk.commands.ActionContext
 import com.rk.commands.ToolbarConfiguration
 import com.rk.drawer.DrawerViewModel

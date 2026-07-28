@@ -15,10 +15,13 @@ import com.rk.components.DialogRegistry
 import com.rk.drawer.AddProjectCategory
 import com.rk.drawer.AddProjectOption
 import com.rk.drawer.AddProjectRegistry
+import com.rk.drawer.ServiceTabProvider
 import com.rk.drawer.ServiceTabRegistry
 import com.rk.events.EditorTabEvent
+import com.rk.events.EventSubscription
 import com.rk.events.Events
 import com.rk.events.FileTreeEvent
+import com.rk.extension.api.DynamicRoute
 import com.rk.feature.Feature
 import com.rk.feature.FeatureRegistry
 import com.rk.feature.FeatureToggle
@@ -41,7 +44,6 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
-import com.rk.settings.SettingsRoute
 import com.rk.settings.git.GitSettings
 import com.rk.theme.gitAdded
 import com.rk.theme.gitConflicted
@@ -61,67 +63,83 @@ class GitFeature : Feature {
             iconRes = drawables.git,
         )
 
+    private var settingsCategory: SettingsCategory? = null
+    private var settingsRoute: DynamicRoute? = null
+    private var serviceTabProvider: ServiceTabProvider? = null
+    private var addProjectOption: AddProjectOption? = null
+    private var dialogProvider: DialogProvider? = null
+    private var projectCategory: ProjectCategory? = null
+    private val subscriptions = mutableListOf<EventSubscription>()
+
     override fun init(application: Application) {
         // Register Git settings category
-        SettingsRegistry.registerCategory(
+        settingsCategory =
             SettingsCategory(
-                labelRes = strings.git,
-                descriptionRes = strings.git_desc,
-                iconRes = drawables.git,
-                route = SettingsRoutes.Git.route,
-            )
-        )
+                    labelRes = strings.git,
+                    descriptionRes = strings.git_desc,
+                    iconRes = drawables.git,
+                    route = SettingsRoutes.Git.route,
+                )
+                .also { SettingsRegistry.registerCategory(it) }
 
         // Register Git settings route
-        SettingsRegistry.registerRoute(
-            SettingsRoute(SettingsRoutes.Git.route) { _, _ ->
-                GitSettings()
-            }
-        )
+        settingsRoute =
+            DynamicRoute(SettingsRoutes.Git.route) { _, _ -> GitSettings() }
+                .also {
+                    SettingsRegistry.registerRoute(it)
+                }
 
         FileDecorationRegistry.register(GitFileDecorationProvider)
         FilePropertiesRegistry.register(GitProperty)
 
-        ServiceTabRegistry.register { owner ->
-            val viewModel = ViewModelProvider(owner)[GitViewModel::class.java]
-            gitViewModel = WeakReference(viewModel)
-            GitTab(viewModel)
-        }
+        serviceTabProvider =
+            ServiceTabProvider { owner ->
+                val viewModel = ViewModelProvider(owner)[GitViewModel::class.java]
+                gitViewModel = WeakReference(viewModel)
+                GitTab(viewModel)
+            }
+                .also { ServiceTabRegistry.register(it) }
 
         // Register file change notification listeners
-        Events.subscribe<FileTreeEvent.Opened> { event ->
-            val gitRoot = findGitRoot(event.projectRoot.getAbsolutePath())
-            if (gitRoot != null) {
-                gitViewModel.get()?.loadRepository(gitRoot)
+        subscriptions.add(
+            Events.subscribe<FileTreeEvent.Opened> { event ->
+                val gitRoot = findGitRoot(event.projectRoot.getAbsolutePath())
+                if (gitRoot != null) {
+                    gitViewModel.get()?.loadRepository(gitRoot)
+                }
             }
-        }
+        )
 
-        Events.subscribe<FileTreeEvent.TreeSynchronized> { event ->
-            gitViewModel.get()?.syncChanges(event.parent.getAbsolutePath())
-        }
+        subscriptions.add(
+            Events.subscribe<FileTreeEvent.TreeSynchronized> { event ->
+                gitViewModel.get()?.syncChanges(event.parent.getAbsolutePath())
+            }
+        )
 
-        Events.subscribe<EditorTabEvent.Saved> { event ->
-            gitViewModel.get()?.syncChanges(event.file.getAbsolutePath())
-        }
+        subscriptions.add(
+            Events.subscribe<EditorTabEvent.Saved> { event ->
+                gitViewModel.get()?.syncChanges(event.file.getAbsolutePath())
+            }
+        )
 
         // Register Git Clone Overlay and Add Project Sheet action
         var showCloneDialog by mutableStateOf(false)
         if (FeatureRegistry.isEnabled("enable_git")) {
-            val option =
+            addProjectOption =
                 AddProjectOption(
-                    icon = Icon.ResourceIcon(drawables.git),
-                    title = strings.clone_repo.getString(),
-                    description = strings.clone_repo_desc.getString(),
-                    category = AddProjectCategory.CREATE,
-                    onClick = { onDismiss ->
-                        showCloneDialog = true
-                        onDismiss()
-                    },
-                )
-            AddProjectRegistry.register(option)
+                        icon = Icon.ResourceIcon(drawables.git),
+                        title = strings.clone_repo.getString(),
+                        description = strings.clone_repo_desc.getString(),
+                        category = AddProjectCategory.CREATE,
+                        onClick = { onDismiss ->
+                            showCloneDialog = true
+                            onDismiss()
+                        },
+                    )
+                    .also { AddProjectRegistry.register(it) }
         }
 
-        DialogRegistry.register(
+        dialogProvider =
             DialogProvider {
                 if (showCloneDialog) {
                     GitCloneDialog(
@@ -133,20 +151,38 @@ class GitFeature : Feature {
                     )
                 }
             }
-        )
+                .also { DialogRegistry.register(it) }
 
         // Register Xed project templates
-        val category =
+        projectCategory =
             ProjectCategory(
-                id = "xed_editor",
-                label = strings.app_name.getString(),
-                icon = Icon.ResourceIcon(drawables.xed_editor),
-            )
-        val templates = listOf(ExtensionTemplate, ThemeTemplate, IconPackTemplate)
+                    id = "xed_editor",
+                    label = strings.app_name.getString(),
+                    icon = Icon.ResourceIcon(drawables.xed_editor),
+                )
+                .also {
+                    ProjectTemplateRegistry.registerCategory(it)
+                    val templates = listOf(ExtensionTemplate, ThemeTemplate, IconPackTemplate)
+                    templates.forEach { template ->
+                        ProjectTemplateRegistry.registerTemplate(it, template)
+                    }
+                }
+    }
 
-        ProjectTemplateRegistry.registerCategory(category)
-        templates.forEach { template ->
-            ProjectTemplateRegistry.registerTemplate(category, template)
+    override fun dispose(application: Application) {
+        settingsCategory?.let { SettingsRegistry.unregisterCategory(it) }
+        settingsRoute?.let { SettingsRegistry.unregisterRoute(it) }
+        FileDecorationRegistry.unregister(GitFileDecorationProvider)
+        FilePropertiesRegistry.unregister(GitProperty)
+        serviceTabProvider?.let { ServiceTabRegistry.unregister(it) }
+        subscriptions.forEach { it.unsubscribe() }
+        subscriptions.clear()
+        addProjectOption?.let { AddProjectRegistry.unregister(it) }
+        dialogProvider?.let { DialogRegistry.unregister(it) }
+        projectCategory?.let {
+            val templates = listOf(ExtensionTemplate, ThemeTemplate, IconPackTemplate)
+            templates.forEach { template -> ProjectTemplateRegistry.unregisterTemplate(it, template) }
+            ProjectTemplateRegistry.unregisterCategory(it)
         }
     }
 }

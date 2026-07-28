@@ -24,13 +24,13 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import com.rk.components.XedDropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,7 +45,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.searchViewModel
+import com.rk.activities.main.ui.searchViewModel
+import com.rk.components.XedDropdownMenuItem
 import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileObject
 import com.rk.icons.XedIcon
@@ -124,21 +125,28 @@ fun FileTree(
             }
         }
 
-        Column(
-            modifier =
-                Modifier.horizontalScroll(rememberScrollState())
-                    .verticalScroll(rememberScrollState())
-                    .padding(vertical = 8.dp)
+        PullToRefreshBox(
+            isRefreshing = viewModel.isRefreshing,
+            onRefresh = { viewModel.viewModelScope.launch { viewModel.refreshEverything(wasPulled = true) } },
+            modifier = Modifier.fillMaxWidth().weight(1f),
         ) {
-            key(rootNode.file.hashCode(), rootNode.name) {
-                FileTreeNodeItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    root = rootNode.file,
-                    node = rootNode,
-                    depth = 0,
-                    onFileClick = { rootNode.onFileClick(it) },
-                    viewModel = viewModel,
-                )
+            Column(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .horizontalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState())
+                        .padding(vertical = 8.dp)
+            ) {
+                key(rootNode.file.hashCode(), rootNode.name) {
+                    FileTreeNodeItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        root = rootNode.file,
+                        node = rootNode,
+                        depth = 0,
+                        onFileClick = { rootNode.onFileClick(it) },
+                        viewModel = viewModel,
+                    )
+                }
             }
         }
     }

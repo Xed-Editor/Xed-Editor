@@ -18,8 +18,6 @@ unset system_mnt
 
 ARGS="$ARGS -b /sdcard"
 ARGS="$ARGS -b /storage"
-ARGS="$ARGS -b /storage/emulated:/storage/emulated"
-ARGS="$ARGS -b /storage/emulated/0:/storage/emulated/0"
 ARGS="$ARGS -b /dev"
 ARGS="$ARGS -b /data"
 ARGS="$ARGS -b /dev/urandom:/dev/random"

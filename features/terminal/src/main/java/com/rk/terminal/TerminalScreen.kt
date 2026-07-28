@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,10 +70,12 @@ import androidx.navigation.compose.rememberNavController
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.terminal.Terminal
 import com.rk.animations.NavigationAnimationTransitions
+import com.rk.components.SingleInputDialog
 import com.rk.editor.FontCache
 import com.rk.exec.pendingCommand
 import com.rk.file.child
 import com.rk.file.sandboxDir
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
@@ -175,14 +178,14 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
                                                 buttonTextColor = onSurfaceColor
 
                                                 runCatching {
-                                                        reload(
-                                                            VirtualKeysInfo(
-                                                                Settings.terminal_extra_keys,
-                                                                "",
-                                                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
-                                                            )
+                                                    reload(
+                                                        VirtualKeysInfo(
+                                                            Settings.terminal_extra_keys,
+                                                            "",
+                                                            VirtualKeysConstants.CONTROL_CHARS_ALIASES,
                                                         )
-                                                    }
+                                                    )
+                                                }
                                                     .onFailure {
                                                         toast(strings.invalid_terminal_extra_keys)
                                                         reload(
@@ -358,6 +361,37 @@ private fun ColumnScope.TerminalView(
 
 @Composable
 private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navController: NavController) {
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var sessionToRename by remember { mutableStateOf("") }
+    var renameValue by remember { mutableStateOf("") }
+    var renameError by remember { mutableStateOf<String?>(null) }
+
+    if (showRenameDialog) {
+        val service = terminalActivity.sessionBinder?.get()?.getService()
+
+        SingleInputDialog(
+            title = stringResource(strings.rename_session),
+            inputLabel = stringResource(strings.name),
+            inputValue = renameValue,
+            errorMessage = renameError,
+            onInputValueChange = {
+                renameValue = it
+                renameError =
+                    if (it.isBlank()) {
+                        strings.name_empty_err.getString()
+                    } else if (it != sessionToRename && service?.sessionList?.contains(it) == true) {
+                        strings.session_name_exists.getString()
+                    } else null
+            },
+            onConfirm = {
+                if (renameError == null && renameValue.isNotBlank() && renameValue != sessionToRename) {
+                    terminalActivity.sessionBinder?.get()?.renameSession(sessionToRename, renameValue)
+                }
+            },
+            onFinish = { showRenameDialog = false },
+        )
+    }
+
     ModalDrawerSheet(modifier = Modifier.width(drawerWidth)) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(
@@ -417,30 +451,51 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                             onClick = { terminalActivity.changeSession(sessionId) },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                             badge = {
-                                IconButton(
-                                    onClick = {
-                                        if (isSelected) {
-                                            val index = service.sessionList.indexOf(sessionId)
-                                            val sessionBefore = service.sessionList.getOrNull(index - 1)
-                                            val sessionAfter = service.sessionList.getOrNull(index + 1)
-                                            val neighborSession = sessionBefore ?: sessionAfter
-                                            neighborSession?.let { terminalActivity.changeSession(it) }
-                                        }
-
-                                        terminalActivity.sessionBinder?.get()?.terminateSession(sessionId)
-
-                                        if (service.sessionList.isEmpty()) {
-                                            terminalActivity.finish()
-                                            service.actionExit()
-                                        }
-                                    },
-                                    modifier = Modifier.size(24.dp),
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Delete,
-                                        contentDescription = stringResource(strings.delete),
-                                        modifier = Modifier.size(20.dp),
-                                    )
+                                    IconButton(
+                                        onClick = {
+                                            sessionToRename = sessionId
+                                            renameValue = sessionId
+                                            renameError = null
+                                            showRenameDialog = true
+                                        },
+                                        modifier = Modifier.size(24.dp),
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Edit,
+                                            contentDescription = stringResource(strings.rename),
+                                            modifier = Modifier.size(20.dp),
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            if (isSelected) {
+                                                val index = service.sessionList.indexOf(sessionId)
+                                                val sessionBefore = service.sessionList.getOrNull(index - 1)
+                                                val sessionAfter = service.sessionList.getOrNull(index + 1)
+                                                val neighborSession = sessionBefore ?: sessionAfter
+                                                neighborSession?.let { terminalActivity.changeSession(it) }
+                                            }
+
+                                            terminalActivity.sessionBinder?.get()?.terminateSession(sessionId)
+
+                                            if (service.sessionList.isEmpty()) {
+                                                terminalActivity.finish()
+                                                service.actionExit()
+                                            }
+                                        },
+                                        modifier = Modifier.size(24.dp),
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Delete,
+                                            contentDescription = stringResource(strings.delete),
+                                            modifier = Modifier.size(20.dp),
+                                        )
+                                    }
                                 }
                             },
                         )

@@ -4,16 +4,16 @@ import com.rk.file.FileObject
 
 object XedManager {
     /** Returns the `.xed` directory within the project root. */
-    suspend fun getXedDir(projectRoot: FileObject): FileObject {
-        return projectRoot.getChildForName(".xed")
+    suspend fun getXedDir(projectRoot: FileObject): FileObject? {
+        return projectRoot.getChild(".xed")
     }
 
     /** Returns the `runner.sh` file if it exists in `.xed`. */
     suspend fun getRunScript(projectRoot: FileObject): FileObject? {
         val xedDir = getXedDir(projectRoot)
-        if (xedDir.exists() && xedDir.isDirectory()) {
-            val runScript = xedDir.getChildForName("runner.sh")
-            if (runScript.exists() && runScript.isFile()) {
+        if (xedDir != null && xedDir.exists() && xedDir.isDirectory()) {
+            val runScript = xedDir.getChild("runner.sh")
+            if (runScript != null && runScript.exists() && runScript.isFile()) {
                 return runScript
             }
         }
