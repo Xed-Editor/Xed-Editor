@@ -708,7 +708,7 @@
     <string name="rename_session">Přejmenovat relaci</string>
     <string name="searching_in">Hledání v: %s</string>
     <string name="welcome_to">Vítejte v %s</string>
-    <string name="selected_project">Vybraný Projekt: %s</string>
+    <string name="selected_project">Vybraný projekt: %s</string>
     <string name="no_project_selected">Žádný projekt vybrán</string>
     <string name="project_runner">Spouštěč projektů</string>
     <string name="project_runner_desc">Spustit projekt pomocí /.xed/runner.sh jestli skript existuje.</string>
