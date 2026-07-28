@@ -176,9 +176,9 @@ object IconPackTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/I
     }
 
     override suspend fun afterClone(projectDir: FileObject) {
-        val manifestFile = projectDir.getChildForName("manifest.json")
-        if (manifestFile.exists()) {
-            val content = manifestFile.readText() ?: return
+        val manifestFile = projectDir.getChild("manifest.json")
+        if (manifestFile?.exists() == true) {
+            val content = manifestFile.readText()
             val json = JSONObject(content)
 
             json.put("id", configStates.id)

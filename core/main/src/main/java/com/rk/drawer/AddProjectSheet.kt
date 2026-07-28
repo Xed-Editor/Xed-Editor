@@ -63,6 +63,10 @@ fun AddProjectSheet(
             modifier =
                 Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).verticalScroll(rememberScrollState())
         ) {
+            val storageOptions = remember {
+                AddProjectRegistry.options.filter { it.category == AddProjectCategory.STORAGE }
+            }
+
             SectionHeader(stringResource(strings.storage))
 
             AddDialogItem(
@@ -120,36 +124,38 @@ fun AddProjectSheet(
                 }
             }
 
-            AddProjectRegistry.options
-                .filter { it.category == AddProjectCategory.STORAGE }
-                .forEach { option ->
-                    AddDialogItem(
-                        icon = option.icon,
-                        title = option.title,
-                        description = option.description,
-                        onClick = { option.onClick(onDismiss) },
-                    )
-                }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            SectionHeader(stringResource(strings.create))
-
-            if (ProjectTemplateRegistry.categories.any { it.templates.isNotEmpty() }) {
+            storageOptions.forEach { option ->
                 AddDialogItem(
-                    icon = Icon.ResourceIcon(drawables.add),
-                    title = stringResource(strings.new_project),
-                    description = stringResource(strings.new_project_desc),
-                    onClick = {
-                        context.startActivity(Intent(context, ProjectCreatorActivity::class.java))
-                        onDismiss()
-                    },
+                    icon = option.icon,
+                    title = option.title,
+                    description = option.description,
+                    onClick = { option.onClick(onDismiss) },
                 )
             }
 
-            AddProjectRegistry.options
-                .filter { it.category == AddProjectCategory.CREATE }
-                .forEach { option ->
+            val createOptions = remember {
+                AddProjectRegistry.options.filter { it.category == AddProjectCategory.CREATE }
+            }
+            val hasTemplates = remember { ProjectTemplateRegistry.categories.any { it.templates.isNotEmpty() } }
+
+            if (hasTemplates || createOptions.isNotEmpty()) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                SectionHeader(stringResource(strings.create))
+
+                if (hasTemplates) {
+                    AddDialogItem(
+                        icon = Icon.ResourceIcon(drawables.add),
+                        title = stringResource(strings.new_project),
+                        description = stringResource(strings.new_project_desc),
+                        onClick = {
+                            context.startActivity(Intent(context, ProjectCreatorActivity::class.java))
+                            onDismiss()
+                        },
+                    )
+                }
+
+                createOptions.forEach { option ->
                     AddDialogItem(
                         icon = option.icon,
                         title = option.title,
@@ -157,33 +163,38 @@ fun AddProjectSheet(
                         onClick = { option.onClick(onDismiss) },
                     )
                 }
+            }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            val otherOptions = remember {
+                AddProjectRegistry.options.filter { it.category == AddProjectCategory.OTHER }
+            }
+            val isDebugMode = FeatureRegistry.isEnabled("debug_mode")
 
-            SectionHeader(stringResource(strings.other))
+            if (isDebugMode || otherOptions.isNotEmpty()) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            if (FeatureRegistry.isEnabled("debug_mode")) {
-                AddDialogItem(
-                    icon = Icon.ResourceIcon(drawables.build),
-                    title = stringResource(strings.private_files),
-                    description = stringResource(strings.private_files_desc),
-                    onClick = {
-                        if (!Settings.has_shown_private_data_dir_warning) {
-                            showPrivateFileWarning {
-                                Settings.has_shown_private_data_dir_warning = true
+                SectionHeader(stringResource(strings.other))
+
+                if (isDebugMode) {
+                    AddDialogItem(
+                        icon = Icon.ResourceIcon(drawables.build),
+                        title = stringResource(strings.private_files),
+                        description = stringResource(strings.private_files_desc),
+                        onClick = {
+                            if (!Settings.has_shown_private_data_dir_warning) {
+                                showPrivateFileWarning {
+                                    Settings.has_shown_private_data_dir_warning = true
+                                    lifecycleScope.launch { onAddProject(FileWrapper(activity.filesDir.parentFile!!)) }
+                                }
+                            } else {
                                 lifecycleScope.launch { onAddProject(FileWrapper(activity.filesDir.parentFile!!)) }
                             }
-                        } else {
-                            lifecycleScope.launch { onAddProject(FileWrapper(activity.filesDir.parentFile!!)) }
-                        }
-                        onDismiss()
-                    },
-                )
-            }
+                            onDismiss()
+                        },
+                    )
+                }
 
-            AddProjectRegistry.options
-                .filter { it.category == AddProjectCategory.OTHER }
-                .forEach { option ->
+                otherOptions.forEach { option ->
                     AddDialogItem(
                         icon = option.icon,
                         title = option.title,
@@ -191,7 +202,9 @@ fun AddProjectSheet(
                         onClick = { option.onClick(onDismiss) },
                     )
                 }
+            }
         }
+
     }
 }
 

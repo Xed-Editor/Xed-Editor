@@ -31,6 +31,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
+import com.rk.file.resolveOrCreateDirectory
 import com.rk.icons.Error
 import com.rk.icons.Icon
 import com.rk.icons.XedIcons
@@ -295,8 +296,8 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
 
     override suspend fun afterClone(projectDir: FileObject) {
         // Update /manifest.json
-        val manifestFile = projectDir.getChildForName("manifest.json")
-        if (manifestFile.exists()) {
+        val manifestFile = projectDir.getChild("manifest.json")
+        if (manifestFile?.exists() == true) {
             val content = manifestFile.readText() ?: return
             val json = JSONObject(content)
 
@@ -318,9 +319,9 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
         }
 
         // Update /app/build.gradle.kts
-        val buildFile = projectDir.getChildForName("app/build.gradle.kts")
-        if (buildFile.exists()) {
-            val content = buildFile.readText() ?: return
+        val buildFile = projectDir.getChild("app/build.gradle.kts")
+        if (buildFile?.exists() == true) {
+            val content = buildFile.readText()
 
             val updatedContent =
                 content
@@ -337,8 +338,8 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
         }
 
         // Update /settings.gradle.kts
-        val settingsFile = projectDir.getChildForName("settings.gradle.kts")
-        if (settingsFile.exists()) {
+        val settingsFile = projectDir.getChild("settings.gradle.kts")
+        if (settingsFile?.exists() == true) {
             val content = settingsFile.readText() ?: return
 
             val updatedContent =
@@ -351,11 +352,11 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
         }
 
         // Update /app/src/main/java/com/rk/demo/Main.kt
-        val oldDir = projectDir.getChildForName("app/src/main/java/com/rk/demo")
-        val mainFile = oldDir.getChildForName("Main.kt")
-        if (!mainFile.exists()) return
+        val oldDir = projectDir.getChild("app/src/main/java/com/rk/demo")
+        val mainFile = oldDir?.getChild("Main.kt")
+        if (mainFile?.exists() == false) return
 
-        val content = mainFile.readText() ?: return
+        val content = mainFile?.readText() ?: return
 
         val updatedContent =
             content.replace(
@@ -369,17 +370,15 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
         if (configStates.id != "com.rk.demo") {
             runCatching {
                 val newPackagePath = "app/src/main/java/${configStates.id.replace(".", "/")}"
-                val newDir = projectDir.getChildForName(newPackagePath)
-
-                newDir.mkdirs()
+                val newDir = projectDir.resolveOrCreateDirectory(newPackagePath)
 
                 FileOperations.moveFile(application!!, mainFile, newDir)
 
                 mainFile.delete()
 
                 var dir = oldDir
-                val javaDir = projectDir.getChildForName("app/src/main/java")
-                while (dir.exists() && dir != javaDir) {
+                val javaDir = projectDir.getChild("app/src/main/java")
+                while (dir?.exists() == true && dir != javaDir) {
                     if (dir.listFiles().isNotEmpty()) break
 
                     val parent = dir.getParentFile() ?: break

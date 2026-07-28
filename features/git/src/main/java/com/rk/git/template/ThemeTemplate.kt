@@ -176,9 +176,9 @@ object ThemeTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/Them
     }
 
     override suspend fun afterClone(projectDir: FileObject) {
-        val themeFile = projectDir.getChildForName("theme.json")
-        if (themeFile.exists()) {
-            val content = themeFile.readText() ?: return
+        val themeFile = projectDir.getChild("theme.json")
+        if (themeFile?.exists() == true) {
+            val content = themeFile.readText()
             val json = JSONObject(content)
 
             json.put("id", configStates.id)

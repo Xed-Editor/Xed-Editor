@@ -261,7 +261,7 @@ class ProjectIndexer(
             if (isHidden && !Settings.show_hidden_files_search) return
 
             val path = file.getAbsolutePath()
-            val lastModified = file.lastModified()
+            val lastModified = file.lastModified() ?: 0L
 
             if (excluder.isExcluded(path)) return
 
