@@ -154,7 +154,7 @@
     <string name="installing">Встановлення…</string>
     <string name="install_from_storage">Встановити зі сховища</string>
     <string name="no_ext">Розширень не знайдено.</string>
-    <string name="loading">Завантаження…</string>
+    <string name="loading">Завантажується…</string>
     <string name="info_ext">Розширення дозволяють змінювати поведінку та функціонал Xed-Editor. Щоб дізнатися, як створити розширення, натисніть тут.</string>
     <string name="downloading">Завантаження…</string>
     <string name="network_err">Помилка мережі. Перевірте, чи коректно працює ваше інтернет-з\'єднання.</string>
@@ -739,4 +739,5 @@
     <string name="alt">Alt</string>
     <string name="shift">Shift</string>
     <string name="template_id">ID</string>
+    <string name="invalid_intent">Отримано неправильний Android intent:\n%s</string>
 </resources>
