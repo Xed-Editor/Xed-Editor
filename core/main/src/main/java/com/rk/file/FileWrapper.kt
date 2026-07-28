@@ -180,8 +180,9 @@ class FileWrapper(var file: File) : FileObject {
         return file.lastModified().takeIf { it != 0L }
     }
 
-    override suspend fun getChildForName(name: String): FileObject {
-        return FileWrapper(File(file, name))
+    override suspend fun getChild(name: String): FileObject? {
+        val file = File(file, name)
+        return FileWrapper(file).takeIf { file.exists() }
     }
 
     override suspend fun readText(): String {

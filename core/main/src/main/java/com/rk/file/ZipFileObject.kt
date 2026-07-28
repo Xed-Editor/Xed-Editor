@@ -220,13 +220,13 @@ class ZipFileObject(
 
     override suspend fun hasChild(name: String): Boolean = listFiles().any { it.getName() == name }
 
-    override suspend fun getChildForName(name: String): FileObject {
+    override suspend fun getChild(name: String): FileObject? {
         if (!isDirectory()) {
             throw IllegalStateException("Cannot get child of non-directory: $entryPath")
         }
 
         val childEntryPath = if (entryPath.isEmpty()) name else "$entryPath$name"
-        return ZipFileObject(zipFileObject, childEntryPath)
+        return ZipFileObject(zipFileObject, childEntryPath).takeIf { it.exists() }
     }
 
     override suspend fun readText(): String = getInputStream().bufferedReader().use { it.readText() }

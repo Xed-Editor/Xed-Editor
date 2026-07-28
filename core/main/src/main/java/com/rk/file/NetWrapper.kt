@@ -80,11 +80,10 @@ class NetWrapper(private val url: URL) : FileObject {
     override fun getAbsolutePath(): String = url.toString()
 
     override suspend fun length(): Long {
-        return try {
-            openConnection().contentLengthLong
-        } catch (e: Exception) {
-            -1L
-        }
+        return runCatching {
+                openConnection().contentLengthLong
+            }
+            .getOrDefault(0L)
     }
 
     override suspend fun delete(): Boolean = false
@@ -114,7 +113,7 @@ class NetWrapper(private val url: URL) : FileObject {
 
     override suspend fun lastModified(): Long? = null
 
-    override suspend fun getChildForName(name: String): FileObject {
+    override suspend fun getChild(name: String): FileObject {
         throw UnsupportedOperationException("URL is not a directory")
     }
 

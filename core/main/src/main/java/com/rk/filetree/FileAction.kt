@@ -199,7 +199,7 @@ object PasteAction : FileAction() {
                                     val targetTab =
                                         viewModel.tabs.find { it is EditorTab && it.file == clipboardFile }
                                             as? EditorTab
-                                    targetTab?.file = context.file.getChildForName(clipboardFile.getName())
+                                    targetTab?.file = context.file.getChild(clipboardFile.getName())
                                 }
                             }
                             clipboardFile.getParentFile()?.let { context.viewModel.updateCache(it) }
