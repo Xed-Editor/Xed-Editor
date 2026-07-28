@@ -731,6 +731,13 @@
     <string name="rename_session">Ubah nama sesi</string>
     <string name="searching_in">Mencari di: %s</string>
     <string name="welcome_to">Selamat datang di %s</string>
-    <string name="selected_project">Proyek yang Dipilih: %s</string>
+    <string name="selected_project">Proyek yang dipilih: %s</string>
     <string name="no_project_selected">Tidak ada proyek yang dipilih</string>
+    <string name="unzip">Ekstrak</string>
+    <string name="unzip_success">Berhasil diekstrak</string>
+    <string name="unzip_failed">Gagal mengekstrak: %s</string>
+    <string name="compressed_size">Ukuran terkompresi</string>
+    <string name="compression_ratio">Rasio kompresi</string>
+    <string name="compression_method">Metode kompresi</string>
+    <string name="comment">Komentar</string>
 </resources>
