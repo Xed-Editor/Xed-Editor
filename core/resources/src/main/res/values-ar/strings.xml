@@ -345,8 +345,8 @@
     <string name="toolbar_actions">أفعال شريط الأدوات</string>
     <string name="toolbar_actions_desc">أختر الأفعال التي تظهر في شريط التطبيق</string>
     <string name="add_command">أضف أمر</string>
-    <string name="info_toolbar_actions">أفعال شريط الأدوات تحدد الأوامر الظاهرة في الشريط عند فتح ملف. يكمنك أطالة الضغط والسحب لتغيير ترتيبهن، أو نقر الزر لإضافة أمر جديد.</string>
-    <string name="permissions">صالحيات</string>
+    <string name="info_toolbar_actions">أفعال شريط الأدوات تحدد الأوامر الظاهرة في الشريط عند فتح ملف. يمكنك النقر المطوَّل والسحب لتغيير الترتيب، أو انقر لإضافة أمر جديد.</string>
+    <string name="permissions">صلاحيات</string>
     <string name="command">أمر</string>
     <string name="empty_command">أمر فارغ</string>
     <string name="seccomp_seccomp">وضع الحسابة الأمنة (seccomp)</string>
@@ -354,4 +354,14 @@
     <string name="process">عملية</string>
     <string name="project_restore_failed">فشلت أعادة المشارع</string>
     <string name="theme_flipper">مغيير الألوان</string>
+    <string name="anr_watchdog">مراقب ANR</string>
+    <string name="socket">Socket</string>
+    <string name="theme_flipper_desc">تغيير وضع الثيم كل 7 ثوانِ</string>
+    <string name="show_tab_icons">إظهار أيقونات علامات التبويب</string>
+    <string name="show_tab_icons_desc">إظهار الأيقوناتبجانب عناوين علامات التبويب</string>
+    <string name="invalid_intent">تم استقبال مرجع خاطئ:\n%s</string>
+    <string name="add_parent_command">أضف امر الأصل</string>
+    <string name="jump_to_line">التنقل بين السطور</string>
+    <string name="line_number">رقم السطر</string>
+    <string name="search_file_folder">البحث في ملفات المشروع</string>
 </resources>
