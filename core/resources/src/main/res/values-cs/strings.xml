@@ -731,4 +731,11 @@
     <string name="discard_changes_msg">Opravdu chcete zahodit vaše lokální změny pro \'%s\' Tato akce nemůže být vrácena zpět.</string>
     <string name="discard_failed">Zahození selhalo: %s</string>
     <string name="incompatible_icon_pack_warning">Tato sada ikon není kompatibilní s vaší aktuální verzí Xed-Editoru. Chcete i tak pokračovat?</string>
+    <string name="comment">Komentář</string>
+    <string name="compression_method">Metoda komprese</string>
+    <string name="compression_ratio">Poměr komprese</string>
+    <string name="compressed_size">Kompresovaná velikost</string>
+    <string name="unzip_failed">Selhalo rozbalení: %s</string>
+    <string name="unzip_success">Úspěšně rozbaleno</string>
+    <string name="unzip">Rozbalit</string>
 </resources>
