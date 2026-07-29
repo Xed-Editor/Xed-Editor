@@ -390,7 +390,7 @@
     <string name="extra_key_bg_desc">Hintergrund für Zusatztasten anzeigen</string>
     <string name="actions">Aktionen</string>
     <string name="enjoying_xed">Gefällt dir Xed-Editor?</string>
-    <string name="support_message">Du hast %s Dateien gespeichert und %s Mal Code mit Xed ausgeführt.\n\nIch bin ein Einzelentwickler und halte diese App kostenlos und datenschutzorientiert. Wenn Xed dir das Programmieren erleichtert hat, würdest du die Entwicklung unterstützen?\n\nDeine Unterstützung hilft mir:\n• Neue Funktionen schneller zu entwickeln\n• Xed dauerhaft werbefrei zu halten\n• Fehler schnell zu beheben</string>
+    <string name="support_message">Du hast %s Dateien gespeichert und %s Mal Code mit Xed ausgeführt.\n\nXed ist eine Open-Source-App mit Fokus auf Datenschutz, die mithilfe von Mitwirkenden aus der Community entwickelt wurde. Wenn Xed dir das Programmieren erleichtert hat, würdest du die Entwicklung unterstützen?\n\nDeine Unterstützung hilft mir:\n• Neue Funktionen schneller zu entwickeln\n• Xed dauerhaft werbefrei zu halten\n• Fehler schnell zu beheben</string>
     <string name="yes_support">Ja, ich werde es unterstützen! ❤️</string>
     <string name="not_for_me">Nein danke</string>
     <string name="sponsor_desc">Werde ein Sponsor und hilf mit, die Zukunft dieses Projekts zu gestalten</string>
@@ -722,4 +722,25 @@
     <string name="searching_in">Suche in: %s</string>
     <string name="welcome_to">Willkommen bei %s</string>
     <string name="no_project_selected">Kein Projekt ausgewählt</string>
+    <string name="incompatible_icon_pack_warning">Dieses Icon-Paket ist nicht mit deiner aktuellen Version von Xed-Editor kompatibel. Möchtest du trotzdem fortfahren?</string>
+    <string name="template_cleaning_up_git">Git wird bereinigt…</string>
+    <string name="template_create_success">Projekt \'%s\' erfolgreich erstellt</string>
+    <string name="template_create_failed">Projekt konnte nicht erstellt werden: %s</string>
+    <string name="template_size">Erwartete Größe: %s</string>
+    <string name="description">Beschreibung</string>
+    <string name="display_name">Anzeigename</string>
+    <string name="discard_changes">Änderungen verwerfen</string>
+    <string name="discard_changes_msg">Bist du dir sicher, dass du deine lokalen Änderungen an \'%s\' verwerfen möchtest? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="discard_failed">Verwerfen fehlgeschlagen: %s</string>
+    <string name="github_username">GitHub-Benutzername</string>
+    <string name="session_name_exists">Sitzungsname existiert bereits</string>
+    <string name="rename_session">Sitzung umbenennen</string>
+    <string name="unzip">Entpacken</string>
+    <string name="unzip_success">Erfolgreich entpackt</string>
+    <string name="unzip_failed">Entpacken fehlgeschlagen: %s</string>
+    <string name="selected_project">Ausgewähltes Projekt: %s</string>
+    <string name="compressed_size">Komprimierte Größe</string>
+    <string name="compression_ratio">Kompressionsverhältnis</string>
+    <string name="compression_method">Kompressionsverfahren</string>
+    <string name="comment">Kommentar</string>
 </resources>

@@ -741,4 +741,11 @@
     <string name="welcome_to">Bienvenue à %s</string>
     <string name="selected_project">Projet sélectionné : %s</string>
     <string name="no_project_selected">Aucun projet sélectionné</string>
+    <string name="unzip">Dezipper</string>
+    <string name="unzip_success">Succès de la décompression</string>
+    <string name="unzip_failed">Échec de la décompression %s</string>
+    <string name="compressed_size">Taille compressée</string>
+    <string name="compression_ratio">Taux de compression</string>
+    <string name="compression_method">Méthode de compression</string>
+    <string name="comment">Commentaire</string>
 </resources>

@@ -735,6 +735,13 @@
     <string name="rename_session">Oturum adını değiştir</string>
     <string name="searching_in">Aranıyor: %s</string>
     <string name="welcome_to">%s\'e hoş geldiniz</string>
-    <string name="selected_project">Seçilen Proje: %s</string>
+    <string name="selected_project">Seçilen proje: %s</string>
     <string name="no_project_selected">Proje seçilmedi</string>
+    <string name="unzip">Ayıkla</string>
+    <string name="unzip_success">Başarıyla ayıklandı</string>
+    <string name="unzip_failed">Ayıklama başarısız: %s</string>
+    <string name="compressed_size">Sıkıştırılmış boyut</string>
+    <string name="compression_ratio">Sıkıştırma oranı</string>
+    <string name="compression_method">Sıkıştırma yöntemi</string>
+    <string name="comment">Yorum</string>
 </resources>
