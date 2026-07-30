@@ -740,4 +740,11 @@
     <string name="shift">Shift</string>
     <string name="template_id">ID</string>
     <string name="invalid_intent">Отримано неправильний Android intent:\n%s</string>
+    <string name="unzip">Розпакувати</string>
+    <string name="unzip_success">Успішно розпаковано</string>
+    <string name="unzip_failed">Не вдалося розпакувати: %s</string>
+    <string name="compressed_size">Розмір стиснутого</string>
+    <string name="compression_ratio">Коефіцієнт стиснення</string>
+    <string name="compression_method">Спосіб стиснення</string>
+    <string name="comment">Коментар</string>
 </resources>
