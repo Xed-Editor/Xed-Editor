@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rk.activities.main.navigation.MainRouteRegistry
 import com.rk.activities.main.navigation.MainRoutes
+import com.rk.activities.main.session.DocumentStateDatabase
 import com.rk.activities.main.session.SessionManager
 import com.rk.activities.main.ui.DisclaimerScreen
 import com.rk.activities.main.ui.MainContentHost
@@ -134,6 +135,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(Settings.theme_mode)
         super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = DocumentStateDatabase.getDatabase(applicationContext)
+            val thirtyDaysInMillis = 1000L * 60 * 60 * 24 * 30
+            val timestamp = System.currentTimeMillis() - thirtyDaysInMillis
+            db.documentStateDao().deleteOlderThan(timestamp)
+        }
+
         enableEdgeToEdge()
         instance = this
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

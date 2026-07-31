@@ -168,17 +168,11 @@ class ZipFileObject(
 
     override fun canExecute(): Boolean = false
 
-    private var metadataCache: ZipEntryMetadata? = null
-
     private suspend fun getZipEntryMetadata(): ZipEntryMetadata? =
         withContext(Dispatchers.IO) {
-            metadataCache?.let {
-                return@withContext it
-            }
-
             val zipFile = File(zipFileObject.getAbsolutePath())
 
-            val metadata = runCatching {
+            runCatching {
                 ZipFile(zipFile).use { zip ->
                     val entry = zip.getEntry(entryPath) ?: return@use null
 
@@ -193,9 +187,6 @@ class ZipFileObject(
                 }
             }
                 .getOrNull()
-
-            metadataCache = metadata
-            metadata
         }
 
     override suspend fun lastModified(): Long? = getZipEntryMetadata()?.lastModified
