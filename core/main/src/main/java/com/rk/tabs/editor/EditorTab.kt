@@ -29,7 +29,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
-import com.rk.activities.main.session.EditorCursorState
+import com.rk.activities.main.session.DocumentState
+import com.rk.activities.main.session.DocumentStateDatabase
 import com.rk.activities.main.session.EditorTabState
 import com.rk.activities.main.session.TabState
 import com.rk.activities.main.ui.searchViewModel
@@ -115,7 +116,14 @@ open class EditorTab(
 
     val editorState by mutableStateOf(CodeEditorState(initialContent))
 
+    override fun onTabAdded() {
+        scope.launch(Dispatchers.Main) {
+            restoreDocumentState()
+        }
+    }
+
     override fun onTabRemoved() {
+        saveDocumentState()
         autoSaveJob?.cancel()
         scope.cancel()
         editorState.content = null
@@ -191,11 +199,13 @@ open class EditorTab(
             if (editorState.content == null) {
                 withContext(Dispatchers.IO) {
                     runCatching {
-                        editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
+                        withTask {
+                            editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
 
-                        if (Settings.detect_bin_files && hasBinaryChars(editorState.content.toString())) {
-                            editorState.editable = false
-                            showNotice(BINARY_NOTICE_KEY) { id -> BinaryNotice(id) }
+                            if (Settings.detect_bin_files && hasBinaryChars(editorState.content.toString())) {
+                                editorState.editable = false
+                                showNotice(BINARY_NOTICE_KEY) { id -> BinaryNotice(id) }
+                            }
                         }
                     }
                         .onFailure { errorDialog(throwable = it) }
@@ -606,19 +616,11 @@ open class EditorTab(
     }
 
     override fun getState(): TabState? {
+        saveDocumentState()
         val editor = editorState.editor.get() ?: return null
         return EditorTabState(
             fileObject = file,
             projectRoot = projectRoot,
-            cursor =
-                EditorCursorState(
-                    lineLeft = editor.cursor.leftLine,
-                    columnLeft = editor.cursor.leftColumn,
-                    lineRight = editor.cursor.rightLine,
-                    columnRight = editor.cursor.rightColumn,
-                ),
-            scrollX = editor.scrollX,
-            scrollY = editor.scrollY,
             content =
                 when {
                     file == null -> editor.text.toString()
@@ -630,6 +632,54 @@ open class EditorTab(
             customTitle = customTitle,
             fallbackExtension = fallbackExtension,
         )
+    }
+
+    private suspend fun restoreDocumentState() {
+        val file = file ?: return
+        editorState.contentRendered.await()
+        val editor = editorState.editor.get() ?: return
+
+        val db = DocumentStateDatabase.getDatabase(MainActivity.instance!!)
+        val state = db.documentStateDao().getState(file.getAbsolutePath())
+        if (state != null) {
+            val maxLine = editor.text.lineCount - 1
+            val lineLeft = state.cursorLineLeft.coerceAtMost(maxLine)
+            val lineRight = state.cursorLineRight.coerceAtMost(maxLine)
+
+            val maxColumnLeft = editor.text.getColumnCount(lineLeft)
+            val maxColumnRight = editor.text.getColumnCount(lineRight)
+            val columnLeft = state.cursorColumnLeft.coerceAtMost(maxColumnLeft)
+            val columnRight = state.cursorColumnRight.coerceAtMost(maxColumnRight)
+
+            editor.setSelectionRegion(lineLeft, columnLeft, lineRight, columnRight)
+            editor.scroller.startScroll(state.scrollX, state.scrollY, 0, 0)
+        }
+    }
+
+    private fun saveDocumentState() {
+        val file = file ?: return
+        val editor = editorState.editor.get() ?: return
+        val path = file.getAbsolutePath()
+        val cursor = editor.cursor
+        val scrollX = editor.scrollX
+        val scrollY = editor.scrollY
+
+        val state =
+            DocumentState(
+                path = path,
+                cursorLineLeft = cursor.leftLine,
+                cursorColumnLeft = cursor.leftColumn,
+                cursorLineRight = cursor.rightLine,
+                cursorColumnRight = cursor.rightColumn,
+                scrollX = scrollX,
+                scrollY = scrollY,
+                lastOpened = System.currentTimeMillis(),
+            )
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val db = DocumentStateDatabase.getDatabase(MainActivity.instance!!)
+            db.documentStateDao().insertState(state)
+        }
     }
 
     @Composable
