@@ -17,7 +17,9 @@ class JumpToLineCommand : EditorCommand() {
     override fun action(context: EditorActionContext) {
         context.editorTab.editorState.apply {
             showJumpToLineDialog = true
-            jumpToLineValue = "${context.editor.cursor.leftLine}:${context.editor.cursor.leftColumn}"
+            val line = context.editor.cursor.leftLine + 1
+            val column = context.editor.cursor.leftColumn + 1
+            jumpToLineValue = "$line:$column"
         }
     }
 
