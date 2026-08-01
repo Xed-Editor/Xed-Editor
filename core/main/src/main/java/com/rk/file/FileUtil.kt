@@ -11,6 +11,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.toast
 import java.io.File
+import java.util.zip.ZipFile
 
 fun File.child(fileName: String): File {
     return File(this, fileName)
@@ -56,6 +57,32 @@ fun File.toFileWrapper(): FileWrapper {
 
 inline fun isFileManager(): Boolean {
     return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && Environment.isExternalStorageManager())
+}
+
+/**
+ * Unzips the current file to the specified destination directory.
+ *
+ * @param destDir The directory where the contents of the zip file will be extracted.
+ */
+fun File.unzipTo(destDir: File) {
+    if (!destDir.exists()) {
+        destDir.mkdirs()
+    }
+    ZipFile(this).use { zip ->
+        zip.entries().asSequence().forEach { entry ->
+            val target = File(destDir, entry.name)
+            if (entry.isDirectory) {
+                target.mkdirs()
+            } else {
+                target.parentFile?.mkdirs()
+                zip.getInputStream(entry).use { input ->
+                    target.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            }
+        }
+    }
 }
 
 suspend fun openWith(context: Context, file: FileObject) {

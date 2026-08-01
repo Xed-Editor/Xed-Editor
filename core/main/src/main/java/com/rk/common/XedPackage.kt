@@ -1,11 +1,11 @@
 package com.rk.common
 
+import com.rk.file.unzipTo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import java.io.File
-import java.util.zip.ZipFile
 
 enum class PackageType {
     @SerialName("extension") EXTENSION,
@@ -32,20 +32,7 @@ object XedPackage {
     }
 
     fun extract(zipFile: File, destDir: File) {
-        if (!destDir.exists()) destDir.mkdirs()
-        ZipFile(zipFile).use { zip ->
-            zip.entries().asSequence().forEach { entry ->
-                val target = File(destDir, entry.name)
-                if (entry.isDirectory) {
-                    target.mkdirs()
-                } else {
-                    target.parentFile?.mkdirs()
-                    zip.getInputStream(entry).use { input ->
-                        target.outputStream().use { output -> input.copyTo(output) }
-                    }
-                }
-            }
-        }
+        zipFile.unzipTo(destDir)
     }
 
     fun detectPackageType(dir: File): PackageType? {
