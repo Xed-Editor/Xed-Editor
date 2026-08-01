@@ -55,14 +55,6 @@ class IconPackManager(private val context: Application) : CoroutineScope by Coro
     val localIconPacks = mutableStateMapOf<String, LocalIconPack>()
     val storeIconPacks = mutableStateMapOf<String, StoreIconPack>()
 
-    init {
-        launch(Dispatchers.IO) {
-            runCatching {
-                indexLocalPacks()
-                indexStoreIconPacks()
-            }
-        }
-    }
 
     fun isInstalled(id: String) = localIconPacks.containsKey(id)
 

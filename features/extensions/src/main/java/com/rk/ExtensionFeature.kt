@@ -44,10 +44,12 @@ class ExtensionFeature : Feature {
 
         // Initialize and load extensions
         GlobalScope.launch(Dispatchers.IO) {
-            extensionManager.indexLocalExtensions()
-            extensionManager.loadAllExtensions()
             application.registerActivityLifecycleCallbacks(ExtensionAPIManager)
             application.registerActivityLifecycleCallbacks(ActivityProvider)
+
+            extensionManager.indexLocalExtensions()
+            extensionManager.loadAllExtensions()
+            extensionManager.indexStoreExtensions()
         }
 
         // Register settings category

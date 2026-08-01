@@ -64,14 +64,6 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
     val localThemes = mutableStateMapOf<String, LocalTheme>()
     val storeThemes = mutableStateMapOf<String, StoreTheme>()
 
-    init {
-        launch(Dispatchers.IO) {
-            runCatching {
-                indexLocalThemes()
-                indexStoreThemes()
-            }
-        }
-    }
 
     fun isInstalled(id: String) = localThemes.containsKey(id)
 

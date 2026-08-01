@@ -90,8 +90,14 @@ open class App : Application() {
         AppCompatDelegate.setApplicationLocales(appLocale)
 
         GlobalScope.launch(Dispatchers.IO) {
-            launch(Dispatchers.IO) { iconPackManager.indexLocalPacks() }
-            launch(Dispatchers.IO) { themeManager.indexLocalThemes() }
+            launch(Dispatchers.IO) {
+                iconPackManager.indexLocalPacks()
+                iconPackManager.indexStoreIconPacks()
+            }
+            launch(Dispatchers.IO) {
+                themeManager.indexLocalThemes()
+                themeManager.indexStoreThemes()
+            }
 
             launch { LanguageManager.initGrammarRegistry() }
 

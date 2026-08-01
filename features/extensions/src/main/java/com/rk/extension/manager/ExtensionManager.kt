@@ -57,14 +57,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     val loadedExtensions = mutableStateMapOf<LocalExtension, LoadedExtension?>()
 
-    init {
-        launch(Dispatchers.IO) {
-            runCatching {
-                indexLocalExtensions()
-                indexStoreExtensions()
-            }
-        }
-    }
 
     private val disabledPrefs by lazy {
         context.getSharedPreferences("disabled_extensions", Context.MODE_PRIVATE)

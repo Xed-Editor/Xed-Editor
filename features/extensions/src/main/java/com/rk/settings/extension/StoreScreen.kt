@@ -119,41 +119,59 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
     var isIndexing by remember { mutableStateOf(false) }
     var isFetching by remember { mutableStateOf(false) }
 
-    LaunchedEffect(refreshKey) {
-        val shouldLoad =
-            refreshKey > 0 ||
-                extensionManager.localExtensions.isEmpty() ||
-                extensionManager.storeExtension.isEmpty() ||
-                themeManager.storeThemes.isEmpty() ||
-                iconPackManager.storeIconPacks.isEmpty()
+    LaunchedEffect(refreshKey, selectedCategory) {
+        val isForceRefresh = refreshKey > 0
 
-        if (shouldLoad) {
-            isIndexing = true
-            isFetching = true
+        val needsLocal =
+            when (selectedCategory) {
+                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.localExtensions.isEmpty()
+                StoreCategory.THEMES -> isForceRefresh || themeManager.localThemes.isEmpty()
+                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.localIconPacks.isEmpty()
+            }
+
+        val needsStore =
+            when (selectedCategory) {
+                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.storeExtension.isEmpty()
+                StoreCategory.THEMES -> isForceRefresh || themeManager.storeThemes.isEmpty()
+                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.storeIconPacks.isEmpty()
+            }
+
+        if (needsLocal || needsStore) {
+            isIndexing = needsLocal
+            isFetching = needsStore
 
             val localJob =
-                launch(Dispatchers.IO) {
-                    runCatching {
-                        extensionManager.indexLocalExtensions()
-                        themeManager.indexLocalThemes()
-                        iconPackManager.indexLocalPacks()
+                if (needsLocal) {
+                    launch(Dispatchers.IO) {
+                        runCatching {
+                            when (selectedCategory) {
+                                StoreCategory.EXTENSIONS -> extensionManager.indexLocalExtensions()
+                                StoreCategory.THEMES -> themeManager.indexLocalThemes()
+                                StoreCategory.ICON_PACKS -> iconPackManager.indexLocalPacks()
+                            }
+                        }
+                        isIndexing = false
                     }
-                    isIndexing = false
-                }
-            val storeJob =
-                launch(Dispatchers.IO) {
-                    runCatching {
-                        extensionManager.indexStoreExtensions()
-                        themeManager.indexStoreThemes()
-                        iconPackManager.indexStoreIconPacks()
-                    }
-                    isFetching = false
-                }
+                } else null
 
-            localJob.join()
-            storeJob.join()
-            isRefreshing = false
+            val storeJob =
+                if (needsStore) {
+                    launch(Dispatchers.IO) {
+                        runCatching {
+                            when (selectedCategory) {
+                                StoreCategory.EXTENSIONS -> extensionManager.indexStoreExtensions()
+                                StoreCategory.THEMES -> themeManager.indexStoreThemes()
+                                StoreCategory.ICON_PACKS -> iconPackManager.indexStoreIconPacks()
+                            }
+                        }
+                        isFetching = false
+                    }
+                } else null
+
+            localJob?.join()
+            storeJob?.join()
         }
+        isRefreshing = false
     }
 
     val filePickerLauncher =
