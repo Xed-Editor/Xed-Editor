@@ -626,6 +626,8 @@
     <string name="terminal_font_warning">The terminal font file at \'etc/font.ttf\' overrides the custom font set below. Delete the file in the terminal sandbox to apply the custom fonts.</string>
     <string name="ext_not_found">Extension not found</string>
     <string name="ext_not_found_desc">This page is not available. This can happen if a local extension has been uninstalled or a store extension has been removed from the registry by its owner.</string>
+    <string name="theme_not_found_desc">This page is not available. This can happen if a local theme has been uninstalled or a store theme has been removed from the registry by its owner.</string>
+    <string name="icon_pack_not_found_desc">This page is not available. This can happen if a local icon pack has been uninstalled or a store icon pack has been removed from the registry by its owner.</string>
     <string name="downloads">Downloads</string>
     <string name="rating">Rating</string>
     <string name="overview">Overview</string>
@@ -744,4 +746,8 @@
     <string name="compression_method">Compression method</string>
     <string name="crc_32" translatable="false">CRC-32</string>
     <string name="comment">Comment</string>
+    <string name="browse_themes">Browse themes</string>
+    <string name="browse_icon_packs">Browse icon packs</string>
+    <string name="theme_not_found">Theme not found</string>
+    <string name="icon_pack_not_found">Icon pack not found</string>
 </resources>

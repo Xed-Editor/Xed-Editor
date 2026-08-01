@@ -57,7 +57,7 @@ import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension
 import com.rk.extension.UpdatableExtension
 import com.rk.extension.extensionManager
-import com.rk.extension.manager.ExtensionRegistry
+import com.rk.extension.manager.StoreManager
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
@@ -299,7 +299,7 @@ private fun AboutSection(
         outdatedWarning = outdatedClient || !supportedArchitecture,
         installState = installState,
         scope = scope,
-        progress = ExtensionRegistry.downloadProgress[extension.id] ?: 0f,
+        progress = StoreManager.downloadProgress[extension.id] ?: 0f,
         onInstallClick = {
             val action = {
                 val missing = getMissingDependencies(extension)

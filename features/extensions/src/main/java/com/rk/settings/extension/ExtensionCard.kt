@@ -31,7 +31,7 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.extension.Extension
 import com.rk.extension.UpdatableExtension
 import com.rk.extension.extensionManager
-import com.rk.extension.manager.ExtensionRegistry
+import com.rk.extension.manager.StoreManager
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.theme.Typography
@@ -111,7 +111,7 @@ fun ExtensionCard(
                     }
                 }
 
-                val progress = ExtensionRegistry.downloadProgress[extension.id]
+                val progress = StoreManager.downloadProgress[extension.id]
                 if (progress != null) {
                     Spacer(Modifier.height(4.dp))
                     if (progress >= 0f) {

@@ -291,6 +291,7 @@ object UnzipAction : FileAction() {
 
             runCatching {
                 context.viewModel.withFileOperation {
+                    // TODO: Write extract method for file
                     ZipFile(zipFile).use { zip ->
                         zip.entries().asSequence().forEach { entry ->
                             val entryFile = File(targetDir, entry.name)
@@ -320,7 +321,7 @@ object UnzipAction : FileAction() {
         }
     }
 
-    override fun isSupported(file: FileObject) = file.isZip() || file.isXedExtension()
+    override fun isSupported(file: FileObject) = file.isZip() || file.isXedPackage()
 
     override val type = FileActionType(file = true, folder = false, rootFolder = false)
 }

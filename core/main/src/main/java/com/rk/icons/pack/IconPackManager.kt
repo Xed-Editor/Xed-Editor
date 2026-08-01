@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.activities.settings.SettingsActivity
+import com.rk.common.XedPackage
 import com.rk.file.child
 import com.rk.file.createDirIfNot
 import com.rk.file.localDir
@@ -18,39 +19,37 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.util.zip.ZipFile
+
+@Serializable
+data class IconPackEntry(
+    val id: String,
+    val manifest: IconPackManifest,
+    val createdAt: Long,
+    val updatedAt: Long,
+)
 
 val currentIconPack = mutableStateOf<IconPack?>(null)
 val iconPackDir = localDir().child("icon_pack").also { it.createDirIfNot() }
 
 class IconPackManager(private val context: Application) {
     val iconPacks = mutableStateMapOf<IconPackId, IconPack>()
-    val json = Json {
+    val storeIconPacks = mutableStateMapOf<String, IconPackEntry>()
+
+    private val json = Json {
         ignoreUnknownKeys = true
         allowTrailingComma = true
     }
 
-    suspend fun installIconPack(zipFile: File) =
+    suspend fun installIconPack(xedFile: File) =
         withContext(Dispatchers.IO) {
-            // Extract to temp dir first
             val tempDir = File(context.cacheDir, "icon_temp_${System.currentTimeMillis()}")
             tempDir.mkdirs()
 
             try {
-                ZipFile(zipFile).use { zip ->
-                    zip.entries().asSequence().forEach { entry ->
-                        if (!entry.isDirectory) {
-                            val target = tempDir.resolve(entry.name)
-                            target.parentFile?.mkdirs()
-                            zip.getInputStream(entry).use { input ->
-                                target.outputStream().use { output -> input.copyTo(output) }
-                            }
-                        }
-                    }
-                }
-
+                XedPackage.extract(xedFile, tempDir)
                 installIconPackFromDir(tempDir)
             } finally {
                 tempDir.deleteRecursively()

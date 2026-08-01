@@ -1,4 +1,3 @@
-// ExtensionActivity.kt
 package com.rk.extension.api
 
 import android.app.Activity

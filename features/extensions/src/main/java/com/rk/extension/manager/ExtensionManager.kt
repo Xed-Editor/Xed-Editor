@@ -6,20 +6,20 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.edit
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.DefaultScope
+import com.rk.common.XedPackage
 import com.rk.events.Events
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionAPI
 import com.rk.extension.ExtensionError
 import com.rk.extension.ExtensionEvent
-import com.rk.extension.ExtensionId
-import com.rk.extension.ExtensionManifest
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.StoreExtension
 import com.rk.extension.UpdatableExtension
+import com.rk.extension.model.ExtensionId
+import com.rk.extension.model.ExtensionManifest
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
-import com.rk.file.child
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.errorDialog
@@ -35,7 +35,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.util.zip.ZipFile
 
 private val Context.localDir: File
     get() = filesDir.parentFile!!.resolve("local").apply { if (!exists()) mkdirs() }
@@ -200,7 +199,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     suspend fun indexStoreExtensions() =
         withContext(Dispatchers.IO) {
-            val extensions = ExtensionRegistry.fetchExtensions()
+            val extensions = StoreManager.fetchExtensions()
             val newExtensions = extensions.associate { it.id to StoreExtension(it) }
             withContext(Dispatchers.Main) {
                 val toRemove = storeExtension.keys.filter { it !in newExtensions }
@@ -208,12 +207,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 storeExtension.putAll(newExtensions)
             }
         }
-
-    suspend fun installStoreExtension(context: Context, extension: StoreExtension) = runCatching {
-        val dir = context.cacheDir.child("${extension.id}.zip")
-        ExtensionRegistry.downloadZip(extension.manifest, dir)
-        installExtensionFromZip(dir)
-    }
 
     @OptIn(ExperimentalSerializationApi::class)
     internal fun validateExtensionDir(dir: File): Result<ExtensionManifest> {
@@ -236,24 +229,14 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         return Result.success(extensionManifest)
     }
 
-    suspend fun installExtensionFromZip(zipFile: File): InstallResult =
+    suspend fun installExtensionFromZip(xedFile: File): InstallResult =
         withContext(Dispatchers.IO) {
             // Extract to temp dir first
             val tempDir = File(context.cacheDir, "ext_temp_${System.currentTimeMillis()}")
             tempDir.mkdirs()
 
             try {
-                ZipFile(zipFile).use { zip ->
-                    zip.entries().asSequence().forEach { entry ->
-                        if (!entry.isDirectory) {
-                            val target = tempDir.resolve(entry.name)
-                            target.parentFile?.mkdirs()
-                            zip.getInputStream(entry).use { input ->
-                                target.outputStream().use { output -> input.copyTo(output) }
-                            }
-                        }
-                    }
-                }
+                XedPackage.extract(xedFile, tempDir)
                 installExtensionFromDir(tempDir)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -285,7 +268,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val pm = context.packageManager
             val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
 
-            if (extensionInfo.minAppVersion != null && xedVersionCode < extensionInfo.minAppVersion) {
+            val minAppVersion = extensionInfo.minAppVersion
+            if (minAppVersion != null && xedVersionCode < minAppVersion) {
                 return@withContext InstallResult.Error(ExtensionError.OUTDATED_CLIENT)
             }
 

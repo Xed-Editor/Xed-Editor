@@ -28,6 +28,7 @@ import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
+import com.rk.filetree.isXedPackage
 import com.rk.lsp.LspRegistry
 import com.rk.resources.getFilledString
 import com.rk.resources.strings
@@ -118,6 +119,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             val file = uri.toFileObject(expectedIsFile = true)
+
+            if (file.isXedPackage()) {
+                // TODO: Implement
+            }
 
             viewModel.awaitSessionRestoration()
             viewModel.editorManager.openFile(file, projectRoot = null, switchToTab = true)

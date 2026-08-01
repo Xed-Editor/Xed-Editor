@@ -55,6 +55,10 @@ sealed class SettingsRoutes(val route: String) {
 
     data object Themes : SettingsRoutes("theme")
 
+    data object ThemeDetail : SettingsRoutes("theme_detail")
+
+    data object IconPackDetail : SettingsRoutes("icon_pack_detail")
+
     data object LspSettings : SettingsRoutes("lsp_settings")
 
     data object LspServerDetail : SettingsRoutes("lsp_server_detail")

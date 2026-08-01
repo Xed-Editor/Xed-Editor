@@ -24,13 +24,18 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.activities.main.MainActivity
+import com.rk.extension.ActivityProvider
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 
-fun errorDialog(activity: Activity? = MainActivity.instance, title: String = strings.error.getString(), msg: String) {
+fun errorDialog(
+    activity: Activity? = ActivityProvider.currentActivity,
+    title: String = strings.error.getString(),
+    msg: String,
+) {
     Log.e("ERROR_DIALOG", msg)
 
     runOnUiThread {
@@ -93,7 +98,7 @@ var isDialogShowing = false
     private set
 
 fun dialogRes(
-    activity: Activity? = MainActivity.instance,
+    activity: Activity? = ActivityProvider.currentActivity,
     title: String? = null,
     msg: String,
     @StringRes cancelRes: Int = strings.cancel,
@@ -116,7 +121,7 @@ fun dialogRes(
 
 @XedExtensionPoint
 fun dialog(
-    activity: Activity? = MainActivity.instance,
+    activity: Activity? = ActivityProvider.currentActivity,
     title: String? = null,
     msg: String,
     cancelText: String = strings.cancel.getString(),

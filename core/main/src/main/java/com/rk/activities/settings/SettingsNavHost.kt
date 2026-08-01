@@ -88,7 +88,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             val instanceId = backStackEntry.arguments?.getString("instanceId")!!
             LspServerLogs(server, instanceId)
         }
-        composable(SettingsRoutes.Themes.route) { ThemeScreen() }
+        composable(SettingsRoutes.Themes.route) { ThemeScreen(navController) }
 
         SettingsRegistry.routes.forEach { customRoute ->
             composable(customRoute.route, arguments = customRoute.arguments) { backStackEntry ->

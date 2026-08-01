@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,11 +28,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.rk.App.Companion.iconPackManager
 import com.rk.DefaultScope
-import com.rk.activities.settings.SettingsActivity
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.BottomSheetContent
 import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -42,28 +43,25 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.events.AppEvent
 import com.rk.events.Events
 import com.rk.file.child
-import com.rk.file.copyToTempDir
 import com.rk.file.themeDir
-import com.rk.file.toFileObject
 import com.rk.icons.pack.currentIconPack
+import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
 import com.rk.theme.ThemeHolder
+import com.rk.theme.ThemeManager
 import com.rk.theme.amoled
 import com.rk.theme.blueberry
 import com.rk.theme.builtInThemes
 import com.rk.theme.currentTheme
 import com.rk.theme.dynamicTheme
-import com.rk.theme.installFromFile
-import com.rk.theme.updateThemes
-import com.rk.utils.LoadingPopup
 import kotlinx.coroutines.launch
 
 val themes = mutableStateListOf<ThemeHolder>()
 
 @Composable
-fun ThemeScreen(modifier: Modifier = Modifier) {
+fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
     val showDayNightBottomSheet = remember { mutableStateOf(false) }
     val monetState = remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) }
     val amoledState = remember { mutableStateOf(Settings.amoled) }
@@ -86,7 +84,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                 sideEffect = {
                     Settings.amoled = it
                     amoled.value = it
-                    updateThemes()
+                    ThemeManager.updateThemes()
                     refreshEditors()
                 },
             )
@@ -100,7 +98,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                 sideEffect = {
                     Settings.monet = it
                     dynamicTheme.value = it
-                    updateThemes()
+                    ThemeManager.updateThemes()
                     refreshEditors()
                 },
             )
@@ -143,13 +141,13 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                                         }
                                     }
 
-                                    themeDir().child(theme.name).delete()
+                                    themeDir().child(theme.id).deleteRecursively()
                                     themes.remove(theme)
                                 }
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
-                                    stringResource(strings.delete),
+                                    contentDescription = stringResource(strings.delete),
                                 )
                             }
                         }
@@ -158,18 +156,20 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
             }
 
             SettingsItem(
-                label = stringResource(strings.add_theme),
+                label = stringResource(strings.browse_themes),
                 description = null,
                 showSwitch = false,
                 default = false,
                 startWidget = {
                     Icon(
                         modifier = Modifier.padding(start = 16.dp),
-                        imageVector = Icons.Outlined.Add,
-                        contentDescription = stringResource(strings.add),
+                        painter = painterResource(drawables.arrow_outward),
+                        contentDescription = null,
                     )
                 },
-                sideEffect = { addTheme() },
+                sideEffect = {
+                    navController.navigate("${SettingsRoutes.Extensions.route}?category=themes")
+                },
             )
         }
 
@@ -237,61 +237,35 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                                 iconPackManager.uninstallIconPack(id)
                             }
                         ) {
-                            Icon(imageVector = Icons.Outlined.Delete, stringResource(strings.delete))
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = stringResource(strings.delete),
+                            )
                         }
                     },
                 )
             }
 
             SettingsItem(
-                label = stringResource(strings.add_icon_pack),
+                label = stringResource(strings.browse_icon_packs),
                 description = null,
                 showSwitch = false,
                 default = false,
                 startWidget = {
                     Icon(
                         modifier = Modifier.padding(start = 16.dp),
-                        imageVector = Icons.Outlined.Add,
-                        contentDescription = stringResource(strings.add),
+                        painter = painterResource(drawables.arrow_outward),
+                        contentDescription = null,
                     )
                 },
-                sideEffect = { addIconPack() },
+                sideEffect = {
+                    navController.navigate("${SettingsRoutes.Extensions.route}?category=icon_packs")
+                },
             )
         }
 
         if (showDayNightBottomSheet.value) {
             DayNightDialog(showBottomSheet = showDayNightBottomSheet, context = LocalContext.current)
-        }
-    }
-}
-
-private fun addTheme() {
-    SettingsActivity.instance?.fileManager?.requestOpenFile(mimeType = "application/json") {
-        DefaultScope.launch {
-            if (it != null) {
-                val loading = LoadingPopup(SettingsActivity.instance, null)
-                loading.show()
-
-                installFromFile(it.toFileObject(expectedIsFile = true))
-
-                loading.hide()
-            }
-        }
-    }
-}
-
-private fun addIconPack() {
-    SettingsActivity.instance?.fileManager?.requestOpenFile(mimeType = "application/zip") {
-        DefaultScope.launch {
-            if (it != null) {
-                val loading = LoadingPopup(SettingsActivity.instance, null)
-                loading.show()
-
-                val file = it.toFileObject(expectedIsFile = true).copyToTempDir()
-                iconPackManager.installIconPack(file)
-
-                loading.hide()
-            }
         }
     }
 }

@@ -27,7 +27,7 @@ import com.rk.settings.debugOptions.startThemeFlipperIfNotRunning
 import com.rk.settings.editor.DEFAULT_APP_FONT_PATH
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
-import com.rk.theme.updateThemes
+import com.rk.theme.ThemeManager
 import com.rk.utils.application
 import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
@@ -67,7 +67,7 @@ open class App : Application() {
         application = this
         Res.application = this
 
-        updateThemes()
+        ThemeManager.updateThemes()
         LspPersistence.restoreServers()
 
         MarkdownImageProvider.register()

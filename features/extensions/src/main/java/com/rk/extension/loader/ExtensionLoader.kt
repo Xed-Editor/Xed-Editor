@@ -13,8 +13,6 @@ import com.rk.extension.apkFile
 import com.rk.extension.extensionManager
 import com.rk.extension.manager.ExtensionManager
 import com.rk.extension.manager.LoadedExtension
-import com.rk.file.FileObject
-import com.rk.file.copyToTempDir
 import com.rk.utils.application
 import com.rk.utils.isMainThread
 import dalvik.system.PathClassLoader
@@ -153,12 +151,6 @@ private fun LocalExtension.instantiateAPI(
         val realError = if (err is InvocationTargetException) err.cause ?: err else err
         throw realError
     }
-}
-
-/** Installs an extension directly from a file object by copying it to a temporary directory first. */
-suspend fun ExtensionManager.installExtensionFromZip(fileObject: FileObject) = run {
-    val file = fileObject.copyToTempDir()
-    installExtensionFromZip(file).also { file.delete() }
 }
 
 /**

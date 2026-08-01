@@ -1,7 +1,7 @@
 package com.rk.extension.api
 
 import android.util.Log
-import com.rk.extension.ExtensionId
+import com.rk.extension.model.ExtensionId
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.debugOptions.LogCollector

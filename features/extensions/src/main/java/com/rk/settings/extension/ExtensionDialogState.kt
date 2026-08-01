@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.rk.extension.Extension
-import com.rk.extension.ExtensionId
+import com.rk.extension.model.ExtensionId
 
 sealed class ExtensionDialog {
     object Warning : ExtensionDialog()

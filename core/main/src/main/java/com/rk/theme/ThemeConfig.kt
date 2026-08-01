@@ -1,14 +1,11 @@
 package com.rk.theme
 
 import androidx.annotation.Keep
-import com.google.gson.JsonElement
-import com.google.gson.JsonParser
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.Serial
-import java.io.Serializable
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Keep
+@Serializable
 data class BaseColors(
     val primary: String? = null,
     val onPrimary: String? = null,
@@ -46,9 +43,10 @@ data class BaseColors(
     val surfaceContainer: String? = null,
     val surfaceContainerHigh: String? = null,
     val surfaceContainerHighest: String? = null,
-) : Serializable
+) : java.io.Serializable
 
 @Keep
+@Serializable
 data class ThemePalette(
     val baseColors: BaseColors?,
     val terminalColors: Map<String, String>? = null,
@@ -88,21 +86,8 @@ data class ThemePalette(
      * }
      * ```
      */
-    @Transient var tokenColors: JsonElement? = null,
-) : Serializable {
-    @Serial
-    private fun writeObject(out: ObjectOutputStream) {
-        out.defaultWriteObject()
-        out.writeObject(tokenColors?.toString())
-    }
-
-    @Serial
-    private fun readObject(input: ObjectInputStream) {
-        input.defaultReadObject()
-        val tokenColorsStr = input.readObject() as? String
-        tokenColors = tokenColorsStr?.let { JsonParser.parseString(it) }
-    }
-}
+    val tokenColors: JsonElement? = null,
+) : java.io.Serializable
 
 @Keep
 data class ThemeConfig(
@@ -112,4 +97,4 @@ data class ThemeConfig(
     val inheritBase: Boolean?,
     val light: ThemePalette?,
     val dark: ThemePalette?,
-) : Serializable
+) : java.io.Serializable

@@ -5,6 +5,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -24,7 +26,6 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
-import com.rk.components.XedDropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -32,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LeadingIconTab
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.RadioButton
@@ -49,6 +51,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,37 +59,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.gson.GsonBuilder
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.rk.App
 import com.rk.App.Companion.iconPackManager
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayoutLazyColumn
 import com.rk.extension.Extension
 import com.rk.extension.UpdatableExtension
 import com.rk.extension.extensionManager
-import com.rk.extension.manager.ExtensionRegistry
-import com.rk.extension.manager.IconPackEntry
-import com.rk.extension.manager.ThemeEntry
+import com.rk.extension.manager.StoreManager
 import com.rk.file.child
-import com.rk.file.copyToTempDir
 import com.rk.file.themeDir
-import com.rk.file.toFileObject
 import com.rk.icons.Download
 import com.rk.icons.XedIcons
+import com.rk.icons.pack.IconPackEntry
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.theme.themes
-import com.rk.theme.ThemeConfig
+import com.rk.theme.ThemeEntry
+import com.rk.theme.ThemeManager
 import com.rk.theme.Typography
-import com.rk.theme.installFromFile
-import com.rk.theme.installTheme
-import com.rk.utils.LoadingPopup
-import com.rk.utils.errorDialog
-import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -108,12 +107,19 @@ private enum class ExtensionFilterOptions(val stringRes: Int) {
 private enum class StoreCategory(val stringRes: Int, val drawableRes: Int) {
     EXTENSIONS(strings.ext, drawables.extension),
     THEMES(strings.themes, drawables.palette),
-    ICON_PACKS(strings.icon_packs, drawables.widgets),
+    ICON_PACKS(strings.icon_packs, drawables.widgets);
+
+    companion object {
+        fun fromName(name: String): StoreCategory? {
+            return entries.find { it.name.equals(name, ignoreCase = true) }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExtensionScreen(navController: NavController, query: String?) {
+// TODO: Rename to StoreScreen and fix local themes/icon-packs not showing
+fun ExtensionScreen(navController: NavController, query: String?, category: String? = null) {
     val context = LocalContext.current
     val activity = LocalActivity.current as? AppCompatActivity
     val scope = rememberCoroutineScope()
@@ -121,7 +127,9 @@ fun ExtensionScreen(navController: NavController, query: String?) {
     var isRefreshing by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
 
-    var selectedCategory by remember { mutableStateOf(StoreCategory.EXTENSIONS) }
+    var selectedCategory by remember {
+        mutableStateOf(category?.let { StoreCategory.fromName(it) } ?: StoreCategory.EXTENSIONS)
+    }
 
     var currentSortOption by remember { mutableStateOf(ExtensionSortOptions.DOWNLOAD_COUNT) }
     var currentFilterOption by remember { mutableStateOf(ExtensionFilterOptions.ALL) }
@@ -132,16 +140,13 @@ fun ExtensionScreen(navController: NavController, query: String?) {
     var isIndexing by remember { mutableStateOf(false) }
     var isFetching by remember { mutableStateOf(false) }
 
-    var storeThemes by remember { mutableStateOf<List<ThemeEntry>>(emptyList()) }
-    var storeIconPacks by remember { mutableStateOf<List<IconPackEntry>>(emptyList()) }
-
     LaunchedEffect(refreshKey) {
         val shouldLoad =
             refreshKey > 0 ||
                 extensionManager.localExtensions.isEmpty() ||
                 extensionManager.storeExtension.isEmpty() ||
-                storeThemes.isEmpty() ||
-                storeIconPacks.isEmpty()
+                ThemeManager.storeThemes.isEmpty() ||
+                iconPackManager.storeIconPacks.isEmpty()
 
         if (shouldLoad) {
             isIndexing = true
@@ -160,19 +165,13 @@ fun ExtensionScreen(navController: NavController, query: String?) {
             val themesJob =
                 launch(Dispatchers.IO) {
                     runCatching {
-                        val list = ExtensionRegistry.fetchThemes()
-                        withContext(Dispatchers.Main) {
-                            storeThemes = list
-                        }
+                        StoreManager.fetchThemes()
                     }
                 }
             val iconPacksJob =
                 launch(Dispatchers.IO) {
                     runCatching {
-                        val list = ExtensionRegistry.fetchIconPacks()
-                        withContext(Dispatchers.Main) {
-                            storeIconPacks = list
-                        }
+                        StoreManager.fetchIconPacks()
                     }
                 }
 
@@ -186,36 +185,7 @@ fun ExtensionScreen(navController: NavController, query: String?) {
 
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
-            installExtensionFromUri(scope, uri, activity)
-        }
-
-    val themeFilePickerLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
-            if (uri != null) {
-                scope.launch {
-                    val loading = LoadingPopup(activity, null)
-                    loading.show()
-                    runCatching {
-                        installFromFile(uri.toFileObject(expectedIsFile = true))
-                    }
-                    loading.hide()
-                }
-            }
-        }
-
-    val iconPackFilePickerLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
-            if (uri != null) {
-                scope.launch {
-                    val loading = LoadingPopup(activity, null)
-                    loading.show()
-                    runCatching {
-                        val file = uri.toFileObject(expectedIsFile = true).copyToTempDir()
-                        iconPackManager.installIconPack(file)
-                    }
-                    loading.hide()
-                }
-            }
+            installAutoDetect(scope, uri, activity)
         }
 
     val localExtensions by remember {
@@ -244,9 +214,9 @@ fun ExtensionScreen(navController: NavController, query: String?) {
             val query = searchQuery.text
             val filtered =
                 if (query.isEmpty()) {
-                    storeThemes
+                    ThemeManager.storeThemes.values
                 } else {
-                    storeThemes.filter { theme ->
+                    ThemeManager.storeThemes.values.filter { theme ->
                         theme.manifest.name.contains(query, ignoreCase = true)
                     }
                 }
@@ -261,9 +231,9 @@ fun ExtensionScreen(navController: NavController, query: String?) {
             val query = searchQuery.text
             val filtered =
                 if (query.isEmpty()) {
-                    storeIconPacks
+                    iconPackManager.storeIconPacks.values
                 } else {
-                    storeIconPacks.filter { pack ->
+                    iconPackManager.storeIconPacks.values.filter { pack ->
                         pack.manifest.name.contains(query, ignoreCase = true)
                     }
                 }
@@ -283,18 +253,12 @@ fun ExtensionScreen(navController: NavController, query: String?) {
         fab = {
             ExtendedFloatingActionButton(
                 onClick = {
-                    when (selectedCategory) {
-                        StoreCategory.EXTENSIONS -> {
-                            if (Settings.warn_extensions) {
-                                dialogManager.showWarning {
-                                    filePickerLauncher.launch(arrayOf("application/zip"))
-                                }
-                            } else {
-                                filePickerLauncher.launch(arrayOf("application/zip"))
-                            }
+                    if (Settings.warn_extensions) {
+                        dialogManager.showWarning {
+                            filePickerLauncher.launch(arrayOf("*/*"))
                         }
-                        StoreCategory.THEMES -> themeFilePickerLauncher.launch(arrayOf("application/json"))
-                        StoreCategory.ICON_PACKS -> iconPackFilePickerLauncher.launch(arrayOf("application/zip"))
+                    } else {
+                        filePickerLauncher.launch(arrayOf("*/*"))
                     }
                 },
                 icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
@@ -513,40 +477,30 @@ fun ExtensionScreen(navController: NavController, query: String?) {
                                         themeEntry = themeEntry,
                                         isInstalled = isInstalled,
                                         onInstallClick = {
-                                            val manifestJsonString = themeEntry.manifest.toString()
-                                            val gson =
-                                                GsonBuilder()
-                                                    .excludeFieldsWithModifiers(java.lang.reflect.Modifier.STATIC)
-                                                    .create()
-                                            val themeConfig = gson.fromJson(manifestJsonString, ThemeConfig::class.java)
-                                            DefaultScope.launch(Dispatchers.IO) {
-                                                runCatching {
-                                                    themeConfig.installTheme()
-                                                }
-                                                    .onSuccess {
-                                                        withContext(Dispatchers.Main) {
-                                                            toast(strings.installed)
-                                                        }
-                                                    }
-                                                    .onFailure { err ->
-                                                        withContext(Dispatchers.Main) {
-                                                            errorDialog(activity, err)
-                                                        }
-                                                    }
-                                            }
+                                            runThemeInstallAction(
+                                                themeEntry.id,
+                                                themeEntry.manifest.name,
+                                                context,
+                                                activity,
+                                            )
                                         },
                                         onUninstallClick = {
                                             val installedTheme = themes.find { it.id == themeEntry.id }
                                             if (installedTheme != null) {
                                                 DefaultScope.launch(Dispatchers.IO) {
                                                     runCatching {
-                                                        themeDir().child(installedTheme.name).delete()
+                                                        themeDir().child(installedTheme.id).deleteRecursively()
                                                         withContext(Dispatchers.Main) {
                                                             themes.remove(installedTheme)
                                                         }
                                                     }
                                                 }
                                             }
+                                        },
+                                        onClick = {
+                                            navController.navigate(
+                                                "${SettingsRoutes.ThemeDetail.route}/${themeEntry.id}"
+                                            )
                                         },
                                     )
                                 }
@@ -588,6 +542,11 @@ fun ExtensionScreen(navController: NavController, query: String?) {
                                                     iconPackManager.uninstallIconPack(iconPackEntry.id)
                                                 }
                                             }
+                                        },
+                                        onClick = {
+                                            navController.navigate(
+                                                "${SettingsRoutes.IconPackDetail.route}/${iconPackEntry.id}"
+                                            )
                                         },
                                     )
                                 }
@@ -642,17 +601,25 @@ fun ThemeStoreCard(
     isInstalled: Boolean,
     onInstallClick: () -> Unit,
     onUninstallClick: () -> Unit,
+    onClick: () -> Unit,
 ) {
     val name = themeEntry.manifest.name
-    val progress = ExtensionRegistry.downloadProgress[themeEntry.id]
+    val progress = StoreManager.downloadProgress[themeEntry.id]
     PreferenceTemplate(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         startWidget = {
-            Icon(
-                painter = painterResource(drawables.palette),
+            AsyncImage(
+                model =
+                    ImageRequest.Builder(LocalContext.current)
+                        .data(StoreManager.getThemeIconUrl(themeEntry.id))
+                        .placeholder(drawables.palette)
+                        .error(drawables.palette)
+                        .crossfade(true)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .build(),
                 contentDescription = null,
-                modifier = Modifier.size(48.dp).padding(8.dp),
-                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(48.dp).padding(8.dp).clip(RoundedCornerShape(8.dp)),
             )
         },
         title = {
@@ -670,13 +637,13 @@ fun ThemeStoreCard(
                 if (progress != null) {
                     Spacer(Modifier.height(4.dp))
                     if (progress >= 0f) {
-                        androidx.compose.material3.LinearProgressIndicator(
+                        LinearProgressIndicator(
                             progress = { progress },
                             modifier = Modifier.fillMaxWidth().height(4.dp),
                             color = MaterialTheme.colorScheme.primary,
                         )
                     } else {
-                        androidx.compose.material3.LinearProgressIndicator(
+                        LinearProgressIndicator(
                             modifier = Modifier.fillMaxWidth().height(4.dp),
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -707,18 +674,26 @@ fun IconPackStoreCard(
     isInstalled: Boolean,
     onInstallClick: () -> Unit,
     onUninstallClick: () -> Unit,
+    onClick: () -> Unit,
 ) {
     val name = iconPackEntry.manifest.name
     val id = iconPackEntry.manifest.id
-    val progress = ExtensionRegistry.downloadProgress[id]
+    val progress = StoreManager.downloadProgress[id]
     PreferenceTemplate(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         startWidget = {
-            Icon(
-                painter = painterResource(drawables.widgets),
+            AsyncImage(
+                model =
+                    ImageRequest.Builder(LocalContext.current)
+                        .data(StoreManager.getIconPackIconUrl(id))
+                        .placeholder(drawables.widgets)
+                        .error(drawables.widgets)
+                        .crossfade(true)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .build(),
                 contentDescription = null,
-                modifier = Modifier.size(48.dp).padding(8.dp),
-                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(48.dp).padding(8.dp).clip(RoundedCornerShape(8.dp)),
             )
         },
         title = {
@@ -736,13 +711,13 @@ fun IconPackStoreCard(
                 if (progress != null) {
                     Spacer(Modifier.height(4.dp))
                     if (progress >= 0f) {
-                        androidx.compose.material3.LinearProgressIndicator(
+                        LinearProgressIndicator(
                             progress = { progress },
                             modifier = Modifier.fillMaxWidth().height(4.dp),
                             color = MaterialTheme.colorScheme.primary,
                         )
                     } else {
-                        androidx.compose.material3.LinearProgressIndicator(
+                        LinearProgressIndicator(
                             modifier = Modifier.fillMaxWidth().height(4.dp),
                             color = MaterialTheme.colorScheme.primary,
                         )
