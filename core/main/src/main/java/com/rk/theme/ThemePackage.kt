@@ -9,7 +9,6 @@ import com.rk.extension.model.Package
 import com.rk.extension.model.PackageAuthor
 import com.rk.extension.model.Review
 import com.rk.extension.model.UpdatablePackage
-import com.rk.file.themeDir
 import io.github.z4kn4fein.semver.toVersionOrNull
 
 interface ThemePackage : Package {
@@ -75,10 +74,10 @@ data class StoreTheme(val entry: ThemeEntry) : ThemePackage {
     override val size: Long?
         get() = entry.size
 
-    override val createdAt: Long?
+    override val createdAt: Long
         get() = entry.createdAt
 
-    override val updatedAt: Long?
+    override val updatedAt: Long
         get() = entry.updatedAt
 
     override suspend fun getReviews(): List<Review> = emptyList()
@@ -86,6 +85,7 @@ data class StoreTheme(val entry: ThemeEntry) : ThemePackage {
 
 data class LocalTheme(
     val manifest: ThemeManifest,
+    val installPath: String,
     override val createdAt: Long?,
     override val updatedAt: Long?,
     val initSize: Long?,
@@ -124,13 +124,13 @@ data class LocalTheme(
         get() = false
 
     override val iconUrl: String
-        get() = themeDir().resolve(id).resolve("icon.png").absolutePath
+        get() = "$installPath/icon.png"
 
     override val readmeUrl: String
-        get() = themeDir().resolve(id).resolve("README.md").absolutePath
+        get() = "$installPath/README.md"
 
     override val changelogUrl: String
-        get() = themeDir().resolve(id).resolve("CHANGELOG.md").absolutePath
+        get() = "$installPath/CHANGELOG.md"
 
     override val minAppVersion: Int?
         get() = manifest.minAppVersion
@@ -210,10 +210,10 @@ data class UpdatableTheme(val installed: LocalTheme, val store: StoreTheme) : Th
     override val size: Long?
         get() = installed.size
 
-    override val createdAt: Long?
+    override val createdAt: Long
         get() = store.createdAt
 
-    override val updatedAt: Long?
+    override val updatedAt: Long
         get() = store.updatedAt
 
     override suspend fun getReviews() = store.getReviews()

@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.App
 import com.rk.App.Companion.iconPackManager
+import com.rk.App.Companion.themeManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.common.PackageType
 import com.rk.components.XedDropdownMenuItem
@@ -66,7 +67,6 @@ import com.rk.extension.model.Package
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.theme.ThemeManager
 import com.rk.theme.Typography
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -124,7 +124,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
             refreshKey > 0 ||
                 extensionManager.localExtensions.isEmpty() ||
                 extensionManager.storeExtension.isEmpty() ||
-                ThemeManager.storeThemes.isEmpty() ||
+                themeManager.storeThemes.isEmpty() ||
                 iconPackManager.storeIconPacks.isEmpty()
 
         if (shouldLoad) {
@@ -135,8 +135,8 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
                 launch(Dispatchers.IO) {
                     runCatching {
                         extensionManager.indexLocalExtensions()
-                        ThemeManager.indexLocalThemes()
-                        iconPackManager.indexIconPacks()
+                        themeManager.indexLocalThemes()
+                        iconPackManager.indexLocalPacks()
                     }
                     isIndexing = false
                 }
@@ -144,7 +144,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
                 launch(Dispatchers.IO) {
                     runCatching {
                         extensionManager.indexStoreExtensions()
-                        ThemeManager.indexStoreThemes()
+                        themeManager.indexStoreThemes()
                         iconPackManager.indexStoreIconPacks()
                     }
                     isFetching = false
@@ -171,7 +171,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
 
     val sortedThemes by remember {
         derivedStateOf {
-            val all = ThemeManager.getSyncedThemes()
+            val all = themeManager.getSyncedThemes()
             val filtered = applyGenericFilter(searchQuery, all)
             filtered.sortedBy { it.name }
         }

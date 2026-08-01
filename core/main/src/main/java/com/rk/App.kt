@@ -55,6 +55,16 @@ open class App : Application() {
 
                 return _iconPackManager!!
             }
+
+        private var _themeManager: ThemeManager? = null
+        val themeManager: ThemeManager
+            get() {
+                if (_themeManager == null) {
+                    _themeManager = ThemeManager(application!!)
+                }
+
+                return _themeManager!!
+            }
     }
 
     init {
@@ -67,7 +77,6 @@ open class App : Application() {
         application = this
         Res.application = this
 
-        ThemeManager.updateThemes()
         LspPersistence.restoreServers()
 
         MarkdownImageProvider.register()
@@ -81,7 +90,8 @@ open class App : Application() {
         AppCompatDelegate.setApplicationLocales(appLocale)
 
         GlobalScope.launch(Dispatchers.IO) {
-            launch(Dispatchers.IO) { iconPackManager.indexIconPacks() }
+            launch(Dispatchers.IO) { iconPackManager.indexLocalPacks() }
+            launch(Dispatchers.IO) { themeManager.indexLocalThemes() }
 
             launch { LanguageManager.initGrammarRegistry() }
 

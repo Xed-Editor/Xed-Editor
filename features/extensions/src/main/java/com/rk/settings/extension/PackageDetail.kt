@@ -66,7 +66,7 @@ import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.theme.ThemeManager
+import com.rk.App.Companion.themeManager
 import com.rk.theme.Typography
 import com.rk.utils.formatFileSize
 import com.rk.utils.formatNumberCompact
@@ -134,7 +134,7 @@ fun PackageDetail(pkg: Package?, navController: NavController) {
                     updateInstallState = {
                         if (pkg.type == PackageType.EXTENSION && extensionManager.getExtension(pkg.id) == null) {
                             navController.popBackStack()
-                        } else if (pkg.type == PackageType.THEME && ThemeManager.getTheme(pkg.id) == null) {
+                        } else if (pkg.type == PackageType.THEME && themeManager.getTheme(pkg.id) == null) {
                             navController.popBackStack()
                         } else if (
                             pkg.type == PackageType.ICON_PACK && App.iconPackManager.getIconPackPackage(pkg.id) == null

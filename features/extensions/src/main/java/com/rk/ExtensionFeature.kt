@@ -3,6 +3,8 @@ package com.rk
 import android.app.Application
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.rk.App.Companion.iconPackManager
+import com.rk.App.Companion.themeManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.extension.ActivityProvider
 import com.rk.extension.api.DynamicRoute
@@ -16,10 +18,9 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
-import com.rk.settings.extension.PackageDetail
 import com.rk.settings.extension.ExtensionSettings
+import com.rk.settings.extension.PackageDetail
 import com.rk.settings.extension.StoreScreen
-import com.rk.theme.ThemeManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -45,9 +46,6 @@ class ExtensionFeature : Feature {
         GlobalScope.launch(Dispatchers.IO) {
             extensionManager.indexLocalExtensions()
             extensionManager.loadAllExtensions()
-            ThemeManager.indexLocalThemes()
-            ThemeManager.updateThemes()
-            App.iconPackManager.indexIconPacks()
             application.registerActivityLifecycleCallbacks(ExtensionAPIManager)
             application.registerActivityLifecycleCallbacks(ActivityProvider)
         }
@@ -106,14 +104,14 @@ class ExtensionFeature : Feature {
         routes.add(
             DynamicRoute("${SettingsRoutes.ThemeDetail.route}/{themeId}") { navController, backStackEntry ->
                 val themeId = backStackEntry.arguments?.getString("themeId")
-                val theme = themeId?.let { ThemeManager.getTheme(it) }
+                val theme = themeId?.let { themeManager.getTheme(it) }
                 PackageDetail(theme, navController)
             }
         )
         routes.add(
             DynamicRoute("${SettingsRoutes.IconPackDetail.route}/{iconPackId}") { navController, backStackEntry ->
                 val iconPackId = backStackEntry.arguments?.getString("iconPackId")
-                val iconPack = iconPackId?.let { App.iconPackManager.getIconPackPackage(it) }
+                val iconPack = iconPackId?.let { iconPackManager.getIconPackPackage(it) }
                 PackageDetail(iconPack, navController)
             }
         )

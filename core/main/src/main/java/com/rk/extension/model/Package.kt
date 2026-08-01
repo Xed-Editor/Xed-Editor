@@ -1,7 +1,15 @@
 package com.rk.extension.model
 
 import com.rk.common.PackageType
+import kotlinx.serialization.Serializable
 import java.util.Date
+
+@Serializable
+data class PackageCache(
+    val createdAt: Long? = null,
+    val updatedAt: Long? = null,
+    val size: Long? = null,
+)
 
 data class Review(val rating: Int, val text: String, val author: String, val date: Date, val authorResponse: String?)
 

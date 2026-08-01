@@ -41,7 +41,7 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.theme.ThemeManager
+import com.rk.App.Companion.themeManager
 import com.rk.theme.UpdatableTheme
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
@@ -450,7 +450,7 @@ fun runThemeInstallAction(
             if (downloadSuccess) {
                 showDownloadNotification(context, id, name, 1f)
                 runCatching {
-                    ThemeManager.installTheme(tempFile)
+                    themeManager.installTheme(tempFile)
                 }
                     .onSuccess {
                         success = true
@@ -606,7 +606,7 @@ fun runPackageUninstallAction(
                 scope.launch(Dispatchers.IO) {
                     themeDir().child(pkg.id).deleteRecursively()
                     withContext(Dispatchers.Main) {
-                        ThemeManager.localThemes.remove(pkg.id)
+                        themeManager.localThemes.remove(pkg.id)
                         updateInstallState(InstallState.Idle)
                     }
                 }
@@ -676,7 +676,7 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
 
             if (fileObject.getExtension() == "json") {
                 fileObject.copyToTempDir().also {
-                    ThemeManager.installTheme(it)
+                    themeManager.installTheme(it)
                     withContext(Dispatchers.Main) {
                         toast(strings.installed)
                         loading?.hide()
@@ -731,7 +731,7 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                         }
                     }
                     PackageType.THEME -> {
-                        ThemeManager.installTheme(localFile)
+                        themeManager.installTheme(localFile)
                         withContext(Dispatchers.Main) { toast(strings.installed) }
                     }
                     PackageType.ICON_PACK -> {
@@ -816,8 +816,8 @@ fun rememberPackageInstallState(pkg: Package): InstallState {
                 } else InstallState.Idle
             }
             PackageType.THEME -> {
-                if (ThemeManager.isInstalled(id)) {
-                    val theme = ThemeManager.getTheme(id)
+                if (themeManager.isInstalled(id)) {
+                    val theme = themeManager.getTheme(id)
                     if (theme is UpdatableTheme && theme.hasUpdate()) InstallState.Updatable else InstallState.Installed
                 } else InstallState.Idle
             }

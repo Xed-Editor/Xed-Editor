@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.App.Companion.iconPackManager
+import com.rk.App.Companion.themeManager
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.BottomSheetContent
@@ -48,7 +49,6 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
-import com.rk.theme.ThemeManager
 import com.rk.theme.amoled
 import com.rk.theme.blueberry
 import com.rk.theme.builtInThemes
@@ -99,7 +99,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
         }
 
         PreferenceGroup(heading = stringResource(strings.themes)) {
-            ThemeManager.loadedThemes.forEach { theme ->
+            themeManager.loadedThemes.forEach { theme ->
                 SettingsItem(
                     isEnabled = !dynamicTheme.value,
                     label = theme.name,
@@ -136,7 +136,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                                     }
 
                                     themeDir().child(theme.id).deleteRecursively()
-                                    ThemeManager.removeTheme(theme)
+                                    themeManager.uninstallTheme(theme)
                                 }
                             ) {
                                 Icon(
@@ -191,7 +191,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                 },
             )
 
-            iconPackManager.iconPacks.forEach { (id, iconPack) ->
+            iconPackManager.localIconPacks.forEach { (id, iconPack) ->
                 val iconPackManifest = iconPack.manifest
 
                 SettingsItem(

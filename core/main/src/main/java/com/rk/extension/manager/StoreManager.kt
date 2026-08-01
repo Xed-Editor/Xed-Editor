@@ -8,10 +8,7 @@ import com.rk.extension.InstallState
 import com.rk.extension.THEMES_API_BASE
 import com.rk.extension.model.ExtensionManifest
 import com.rk.icons.pack.IconPackEntry
-import com.rk.icons.pack.StoreIconPack
-import com.rk.theme.StoreTheme
 import com.rk.theme.ThemeEntry
-import com.rk.theme.ThemeManager
 import com.rk.utils.okHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

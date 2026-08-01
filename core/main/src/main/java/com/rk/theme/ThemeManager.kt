@@ -1,5 +1,6 @@
 package com.rk.theme
 
+import android.app.Application
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -11,10 +12,12 @@ import androidx.core.graphics.toColorInt
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
 import com.rk.extension.manager.StoreManager
+import com.rk.extension.model.PackageCache
+import com.rk.file.FileOperations
+import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.themeDir
 import com.rk.resources.getFilledString
@@ -25,8 +28,11 @@ import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.logError
 import com.rk.utils.toast
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
@@ -47,15 +53,25 @@ data class ThemeEntry(
     val updatedAt: Long,
 )
 
-object ThemeManager {
+class ThemeManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
+    private val mutex = Mutex()
     private val json = Json {
         ignoreUnknownKeys = true
         allowTrailingComma = true
     }
 
-    val loadedThemes = mutableStateListOf<ThemeHolder>()
+    val loadedThemes = mutableStateListOf<ThemeHolder>().apply { addAll(builtInThemes) }
     val localThemes = mutableStateMapOf<String, LocalTheme>()
     val storeThemes = mutableStateMapOf<String, StoreTheme>()
+
+    init {
+        launch(Dispatchers.IO) {
+            runCatching {
+                indexLocalThemes()
+                indexStoreThemes()
+            }
+        }
+    }
 
     fun isInstalled(id: String) = localThemes.containsKey(id)
 
@@ -64,7 +80,7 @@ object ThemeManager {
         val store = storeThemes[id]
 
         return when {
-            local != null && store != null -> UpdatableTheme(local, store)
+            (local != null && store != null) -> UpdatableTheme(local, store)
             local != null -> local
             store != null -> store
             else -> null
@@ -76,9 +92,50 @@ object ThemeManager {
         return allIds.mapNotNull { getTheme(it) }
     }
 
-    fun removeTheme(theme: ThemeHolder) {
+    fun uninstallTheme(theme: ThemeHolder) {
+        val localTheme = localThemes[theme.id] ?: return
+        File(localTheme.installPath).deleteRecursively()
+
         loadedThemes.remove(theme)
-        localThemes.remove(theme.id)
+    }
+
+    private suspend fun calcSize(dir: File): Long {
+        return FileOperations.calculateContent(FileWrapper(dir)).totalSize
+    }
+
+    private fun resolveCache(dir: File): PackageCache {
+        val cacheFile = dir.resolve("cache.json")
+
+        if (!cacheFile.exists() || !cacheFile.isFile) {
+            return PackageCache()
+        }
+
+        return runCatching {
+            json.decodeFromString<PackageCache>(cacheFile.readText())
+        }
+            .getOrElse {
+                PackageCache()
+            }
+    }
+
+    private fun writeCache(dir: File, cache: PackageCache) {
+        val cacheFile = dir.resolve("cache.json")
+        cacheFile.writeText(json.encodeToString(cache))
+    }
+
+    suspend fun invalidateSize(pkg: ThemePackage) {
+        if (pkg is StoreTheme) return
+
+        withContext(Dispatchers.IO) {
+            val dir = themeDir().resolve(pkg.id)
+            val cache = resolveCache(dir)
+            val newSize = calcSize(dir)
+            writeCache(dir, cache.copy(size = newSize))
+
+            withContext(Dispatchers.Main) {
+                localThemes[pkg.id]?.size = newSize
+            }
+        }
     }
 
     suspend fun installTheme(file: File) {
@@ -103,7 +160,7 @@ object ThemeManager {
 
                 val jsonText =
                     when {
-                        manifestFile.exists() -> themeFile.readText()
+                        manifestFile.exists() -> manifestFile.readText()
                         themeFile.exists() -> themeFile.readText()
                         else -> {
                             withContext(Dispatchers.Main) { toast("Neither manifest.json nor theme.json found") }
@@ -163,8 +220,8 @@ object ThemeManager {
                     cancelRes = strings.cancel,
                     okRes = strings.continue_action,
                     onOk = {
-                        finishThemeInstall(manifest, sourceDir)
-                        DefaultScope.launch {
+                        launch(Dispatchers.IO) {
+                            finishThemeInstall(manifest, sourceDir)
                             indexLocalThemes()
                         }
                     },
@@ -174,11 +231,15 @@ object ThemeManager {
 
             finishThemeInstall(manifest, sourceDir)
             indexLocalThemes()
-            indexLocalThemes()
         }
 
-    private fun finishThemeInstall(manifest: ThemeManifest, sourceDir: File?) {
+    private suspend fun finishThemeInstall(manifest: ThemeManifest, sourceDir: File?) {
         val installDir = themeDir().child(manifest.id).also { if (!it.exists()) it.mkdirs() }
+
+        var oldCreatedAt: Long? = null
+        if (installDir.exists()) {
+            oldCreatedAt = resolveCache(installDir).createdAt
+        }
 
         val manifestFile = installDir.resolve("manifest.json")
         manifestFile.writeText(json.encodeToString<ThemeManifest>(manifest))
@@ -188,6 +249,15 @@ object ThemeManager {
                 file.copyRecursively(installDir.resolve(file.name), overwrite = true)
             }
         }
+
+        val size = calcSize(installDir)
+        val newCache =
+            PackageCache(
+                createdAt = oldCreatedAt ?: System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis(),
+                size = size,
+            )
+        writeCache(installDir, newCache)
     }
 
     suspend fun indexStoreThemes() =
@@ -200,7 +270,7 @@ object ThemeManager {
             }
         }
 
-    suspend fun indexLocalThemes() =
+    suspend fun indexLocalThemes() = mutex.withLock {
         withContext(Dispatchers.IO) {
             val themeDir = themeDir()
             if (!themeDir.exists()) return@withContext
@@ -217,12 +287,16 @@ object ThemeManager {
                             val manifest = json.decodeFromString<ThemeManifest>(manifestFile.readText())
                             newLoadedThemes.add(manifest.build())
 
+                            val cache = resolveCache(dir)
+                            val size = cache.size ?: calcSize(dir).also { writeCache(dir, cache.copy(size = it)) }
+
                             val theme =
                                 LocalTheme(
                                     manifest = manifest,
-                                    createdAt = dir.lastModified(), // TODO
-                                    updatedAt = dir.lastModified(),
-                                    initSize = null, // TODO: Calculate size
+                                    installPath = dir.absolutePath,
+                                    createdAt = cache.createdAt,
+                                    updatedAt = cache.updatedAt,
+                                    initSize = size,
                                 )
 
                             newLocalThemes[manifest.id] = theme
@@ -242,6 +316,7 @@ object ThemeManager {
                 loadedThemes.addAll(newLoadedThemes)
             }
         }
+    }
 
     private fun migrateOldThemes(themeDir: File) {
         themeDir.listFiles()?.forEach { file ->
@@ -259,7 +334,10 @@ object ThemeManager {
                                     light = oldConfig.light,
                                     dark = oldConfig.dark,
                                 )
-                            finishThemeInstall(manifest, null)
+                            launch(Dispatchers.IO) {
+                                finishThemeInstall(manifest, null)
+                                indexLocalThemes()
+                            }
                             file.delete()
                         }
                     }

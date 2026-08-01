@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.android.material.color.MaterialColors
+import com.rk.App
 import com.rk.settings.Settings
 import com.rk.settings.editor.rememberAppTypography
 import com.rk.utils.isDarkTheme
@@ -56,7 +57,7 @@ fun XedTheme(
             baseColorScheme
         } else {
             if (currentTheme.value == null) {
-                themeHolder = ThemeManager.loadedThemes.find { it.id == Settings.theme } ?: themeHolder
+                themeHolder = App.themeManager.loadedThemes.find { it.id == Settings.theme } ?: themeHolder
                 currentTheme.value = themeHolder
             } else {
                 themeHolder = currentTheme.value ?: themeHolder

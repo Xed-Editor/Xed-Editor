@@ -18,6 +18,7 @@ import com.rk.extension.StoreExtension
 import com.rk.extension.UpdatableExtension
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.model.ExtensionManifest
+import com.rk.extension.model.PackageCache
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
 import com.rk.resources.getString
@@ -32,7 +33,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
 
@@ -43,13 +43,6 @@ val Context.extensionDir: File
     get() = localDir.resolve("extensions").apply { if (!exists()) mkdirs() }
 
 internal fun Context.compiledDexDir() = extensionDir.resolve("oat")
-
-@Serializable
-data class ExtensionCache(
-    val createdAt: Long? = null,
-    val updatedAt: Long? = null,
-    val size: Long? = null,
-)
 
 data class LoadedExtension(val api: ExtensionAPI, val scope: CoroutineScope)
 
@@ -121,22 +114,22 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         return FileOperations.calculateContent(FileWrapper(dir)).totalSize
     }
 
-    private fun resolveCache(dir: File): ExtensionCache {
+    private fun resolveCache(dir: File): PackageCache {
         val cacheFile = dir.resolve("cache.json")
 
         if (!cacheFile.exists() || !cacheFile.isFile) {
-            return ExtensionCache()
+            return PackageCache()
         }
 
         return runCatching {
-            json.decodeFromString<ExtensionCache>(cacheFile.readText())
+            json.decodeFromString<PackageCache>(cacheFile.readText())
         }
             .getOrElse {
-                ExtensionCache()
+                PackageCache()
             }
     }
 
-    private fun writeCache(dir: File, cache: ExtensionCache) {
+    private fun writeCache(dir: File, cache: PackageCache) {
         val cacheFile = dir.resolve("cache.json")
         cacheFile.writeText(json.encodeToString(cache))
     }
@@ -277,7 +270,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             val size = calcSize(targetDir)
             val newExtensionCache =
-                ExtensionCache(
+                PackageCache(
                         createdAt = oldCreatedAt ?: System.currentTimeMillis(),
                         updatedAt = System.currentTimeMillis(),
                         size = size,
