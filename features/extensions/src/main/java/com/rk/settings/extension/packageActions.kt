@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.core.app.NotificationCompat
 import com.rk.App
+import com.rk.App.Companion.themeManager
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.PackageType
@@ -41,7 +42,6 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.App.Companion.themeManager
 import com.rk.theme.UpdatableTheme
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
@@ -759,7 +759,7 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun handleInstallResult(
+fun handleInstallResult(
     result: InstallResult,
     activity: Activity?,
     onError: () -> Unit = {},

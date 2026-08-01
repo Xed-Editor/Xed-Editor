@@ -5,16 +5,26 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.rk.App.Companion.iconPackManager
 import com.rk.App.Companion.themeManager
+import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.common.XedPackage
+import com.rk.components.DialogProvider
+import com.rk.components.DialogRegistry
 import com.rk.extension.ActivityProvider
 import com.rk.extension.api.DynamicRoute
+import com.rk.extension.api.IntentHandleRegistry
+import com.rk.extension.api.IntentHandler
 import com.rk.extension.extensionManager
 import com.rk.extension.loader.loadAllExtensions
 import com.rk.extension.loader.unloadAllExtensions
 import com.rk.extension.manager.ExtensionAPIManager
 import com.rk.extension.manager.ExtensionManager
+import com.rk.extension.ui.XedInstallDialog
 import com.rk.feature.Feature
 import com.rk.feature.FeatureToggle
+import com.rk.file.FileWrapper
+import com.rk.file.copyToTempDir
+import com.rk.filetree.isXedPackage
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.SettingsCategory
@@ -22,10 +32,13 @@ import com.rk.settings.SettingsRegistry
 import com.rk.settings.extension.ExtensionSettings
 import com.rk.settings.extension.PackageDetail
 import com.rk.settings.extension.StoreScreen
+import com.rk.utils.errorDialog
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class ExtensionFeature : Feature {
     override val toggle =
@@ -36,12 +49,57 @@ class ExtensionFeature : Feature {
             iconRes = drawables.extension,
         )
 
+    private var intentHandler: IntentHandler? = null
+    private var dialogProvider: DialogProvider? = null
     private var settingsCategory: SettingsCategory? = null
     private val routes = mutableListOf<DynamicRoute>()
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun init(application: Application) {
         extensionManager = ExtensionManager(application)
+
+        dialogProvider =
+            DialogProvider {
+                MainActivity.instance?.let { XedInstallDialog(viewModel = it.viewModel) }
+            }
+                .also { DialogRegistry.register(it) }
+
+        intentHandler =
+            IntentHandler { file ->
+                if (!file.isXedPackage()) return@IntentHandler false
+
+                withContext(Dispatchers.IO) {
+                    val context = application.applicationContext
+                    val cacheDir = context.cacheDir
+                    val tempFile = file.copyToTempDir()
+                    val tempDir = File(cacheDir, "ext_temp_${System.currentTimeMillis()}")
+                    tempDir.mkdirs()
+                    try {
+                        XedPackage.extract(tempFile, tempDir)
+                        extensionManager
+                            .validateExtensionDir(tempDir)
+                            .onSuccess { manifest ->
+                                val packageIcon = tempDir.resolve("icon.png")
+                                val iconFile = FileWrapper(packageIcon).copyToTempDir()
+
+                                withContext(Dispatchers.Main) {
+                                    MainActivity.instance
+                                        ?.viewModel
+                                        ?.openExtensionIntentDialog(manifest, tempFile, iconFile)
+                                }
+                            }
+                            .onFailure {
+                                withContext(Dispatchers.Main) {
+                                    errorDialog(throwable = it)
+                                }
+                            }
+                    } finally {
+                        tempDir.deleteRecursively()
+                    }
+                }
+                return@IntentHandler true
+            }
+                .also { IntentHandleRegistry.register(it) }
 
         // Initialize and load extensions
         GlobalScope.launch(Dispatchers.IO) {
@@ -127,6 +185,8 @@ class ExtensionFeature : Feature {
         application.unregisterActivityLifecycleCallbacks(ExtensionAPIManager)
         application.unregisterActivityLifecycleCallbacks(ActivityProvider)
 
+        intentHandler?.let { IntentHandleRegistry.unregister(it) }
+        dialogProvider?.let { DialogRegistry.unregister(it) }
         settingsCategory?.let { SettingsRegistry.unregisterCategory(it) }
         routes.forEach { SettingsRegistry.unregisterRoute(it) }
         routes.clear()

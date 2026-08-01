@@ -64,7 +64,6 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
     val localThemes = mutableStateMapOf<String, LocalTheme>()
     val storeThemes = mutableStateMapOf<String, StoreTheme>()
 
-
     fun isInstalled(id: String) = localThemes.containsKey(id)
 
     fun getTheme(id: String): ThemePackage? {
@@ -254,7 +253,7 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
 
     suspend fun indexStoreThemes() =
         withContext(Dispatchers.IO) {
-            val themesList = StoreManager.fetchThemes()
+            val themesList = runCatching { StoreManager.fetchThemes() }.getOrNull() ?: return@withContext
             val newThemes = themesList.associateBy({ it.id }, { StoreTheme(it) })
             withContext(Dispatchers.Main) {
                 storeThemes.clear()

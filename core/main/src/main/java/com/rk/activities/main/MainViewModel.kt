@@ -10,6 +10,7 @@ import com.rk.activities.main.session.EditorManager
 import com.rk.activities.main.session.SessionManager
 import com.rk.activities.main.session.TabManager
 import com.rk.commands.Command
+import com.rk.extension.model.ExtensionManifest
 import com.rk.file.FileObject
 import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
@@ -19,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.File
 
 fun List<Tab>.filterEditorTabs() = filterIsInstance<EditorTab>()
 
@@ -64,6 +66,34 @@ class MainViewModel : ViewModel() {
 
     var commandPaletteInitialPlaceholder by mutableStateOf<String?>(null)
         private set
+
+    var pendingExtensionManifest by mutableStateOf<ExtensionManifest?>(null)
+        private set
+
+    var pendingExtensionFile by mutableStateOf<File?>(null)
+        private set
+
+    var pendingExtensionIcon by mutableStateOf<File?>(null)
+        private set
+
+    fun openExtensionIntentDialog(manifest: ExtensionManifest, file: File, icon: File) {
+        pendingExtensionManifest = manifest
+        pendingExtensionFile = file
+        pendingExtensionIcon = icon
+    }
+
+    fun closeExtensionIntentDialog() {
+        viewModelScope.launch(Dispatchers.IO) {
+            pendingExtensionIcon?.delete()
+            pendingExtensionFile?.delete()
+
+            withContext(Dispatchers.Main) {
+                pendingExtensionManifest = null
+                pendingExtensionFile = null
+                pendingExtensionIcon = null
+            }
+        }
+    }
 
     fun showCommandPalette() {
         showCommandPalette = true

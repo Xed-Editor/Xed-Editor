@@ -183,7 +183,11 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     suspend fun indexStoreExtensions() =
         withContext(Dispatchers.IO) {
-            val extensions = StoreManager.fetchExtensions()
+            val extensions =
+                runCatching {
+                    StoreManager.fetchExtensions()
+                }
+                    .getOrNull() ?: return@withContext
             val newExtensions = extensions.associate { it.id to StoreExtension(it) }
             withContext(Dispatchers.Main) {
                 val toRemove = storeExtension.keys.filter { it !in newExtensions }

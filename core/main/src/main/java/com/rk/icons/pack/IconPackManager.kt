@@ -55,7 +55,6 @@ class IconPackManager(private val context: Application) : CoroutineScope by Coro
     val localIconPacks = mutableStateMapOf<String, LocalIconPack>()
     val storeIconPacks = mutableStateMapOf<String, StoreIconPack>()
 
-
     fun isInstalled(id: String) = localIconPacks.containsKey(id)
 
     fun getIconPackPackage(id: String): IconPackPackage? {
@@ -222,7 +221,7 @@ class IconPackManager(private val context: Application) : CoroutineScope by Coro
 
     suspend fun indexStoreIconPacks() =
         withContext(Dispatchers.IO) {
-            val packsList = StoreManager.fetchIconPacks()
+            val packsList = runCatching { StoreManager.fetchIconPacks() }.getOrNull() ?: return@withContext
             val newPacks = packsList.associateBy({ it.id }, { StoreIconPack(it) })
             withContext(Dispatchers.Main) {
                 storeIconPacks.clear()

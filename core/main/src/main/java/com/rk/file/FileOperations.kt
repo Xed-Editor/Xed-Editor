@@ -6,6 +6,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.components.ContentProgress
 import com.rk.events.Events
 import com.rk.events.FileEvent
+import com.rk.utils.logError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util
@@ -174,6 +175,9 @@ object FileOperations {
                     Events.publish(FileEvent.Copied(newFile, sourceFile.getAbsolutePath()))
                 }
             }
+                .onFailure {
+                    logError(it, "Failed to paste file")
+                }
         }
 
     /** Recursively copies a file or directory */
