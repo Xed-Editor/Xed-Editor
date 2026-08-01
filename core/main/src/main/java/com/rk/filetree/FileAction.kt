@@ -10,6 +10,7 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.drawer.DrawerViewModel
+import com.rk.extension.api.IntentHandleRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
 import com.rk.file.unzipTo
@@ -278,6 +279,19 @@ object PropertiesAction : FileAction() {
     }
 
     override val type = FileActionType.All
+}
+
+object InstallPackageAction : FileAction() {
+    override val icon = Icon.ResourceIcon(drawables.download)
+    override val title = strings.install.getString()
+
+    override fun action(context: FileActionContext) {
+        context.viewModel.viewModelScope.launch { IntentHandleRegistry.handleIntent(context.file) }
+    }
+
+    override fun isSupported(file: FileObject) = file.isXedPackage()
+
+    override val type = FileActionType(file = true, folder = false, rootFolder = false)
 }
 
 object UnzipAction : FileAction() {

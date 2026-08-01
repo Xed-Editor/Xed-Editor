@@ -2,6 +2,7 @@ package com.rk.activities.main.session
 
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainViewModel
+import com.rk.extension.api.IntentHandleRegistry
 import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -89,6 +90,8 @@ class EditorManager(private val viewModel: MainViewModel) {
         isReadOnly: Boolean = false,
         customTitle: String? = null,
     ) {
+        if (IntentHandleRegistry.handleIntent(fileObject)) return
+
         val function = suspend {
             val tab = TabRegistry.getTab(fileObject, projectRoot, viewModel, isReadOnly, customTitle)
             withContext(Dispatchers.Main) { viewModel.tabManager.addTab(tab, switchToTab, checkDuplicate) }

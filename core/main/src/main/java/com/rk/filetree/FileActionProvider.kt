@@ -22,6 +22,7 @@ object FileActionProvider {
             AddFileAction,
             OpenAsProjectAction,
             PropertiesAction,
+            InstallPackageAction,
             UnzipAction,
         )
 
