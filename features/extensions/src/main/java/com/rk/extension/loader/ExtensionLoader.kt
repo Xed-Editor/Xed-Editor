@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.reflect.InvocationTargetException
@@ -181,3 +182,20 @@ suspend fun ExtensionManager.loadAllExtensions() =
             }
         }
     }
+
+/**
+ * Unloads all currently active extensions.
+ *
+ * This function iterates through all loaded extensions, invokes their respective shutdown lifecycle callbacks, cancels
+ * their associated coroutine scopes, and clears them from the [extensionManager].
+ */
+fun ExtensionManager.unloadAllExtensions() {
+    loadedExtensions.values.forEach { loaded ->
+        runCatching {
+            loaded?.api?.onDispose()
+            loaded?.scope?.cancel()
+        }
+    }
+    loadedExtensions.clear()
+    cancel()
+}

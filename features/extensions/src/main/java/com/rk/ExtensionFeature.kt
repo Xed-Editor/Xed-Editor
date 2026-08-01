@@ -10,6 +10,7 @@ import com.rk.extension.ActivityProvider
 import com.rk.extension.api.DynamicRoute
 import com.rk.extension.extensionManager
 import com.rk.extension.loader.loadAllExtensions
+import com.rk.extension.loader.unloadAllExtensions
 import com.rk.extension.manager.ExtensionAPIManager
 import com.rk.extension.manager.ExtensionManager
 import com.rk.feature.Feature

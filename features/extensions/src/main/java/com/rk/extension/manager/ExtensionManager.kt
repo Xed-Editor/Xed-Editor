@@ -57,7 +57,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     val loadedExtensions = mutableStateMapOf<LocalExtension, LoadedExtension?>()
 
-
     private val disabledPrefs by lazy {
         context.getSharedPreferences("disabled_extensions", Context.MODE_PRIVATE)
     }
@@ -322,17 +321,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 Result.failure(Exception("Failed to uninstall extension: ${err.message}", err))
             }
         }
-
-    fun unloadAllExtensions() {
-        loadedExtensions.values.forEach { loaded ->
-            runCatching {
-                loaded?.api?.onDispose()
-                loaded?.scope?.cancel()
-            }
-        }
-        loadedExtensions.clear()
-        cancel()
-    }
 
     private fun File.deleteWithPackageName(pkgName: String) {
         if (isDirectory) {
