@@ -62,7 +62,6 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayoutLazyColumn
 import com.rk.extension.Extension
 import com.rk.extension.extensionManager
-import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.Package
 import com.rk.resources.drawables
 import com.rk.resources.strings
@@ -145,8 +144,8 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
                 launch(Dispatchers.IO) {
                     runCatching {
                         extensionManager.indexStoreExtensions()
-                        StoreManager.fetchThemes()
-                        StoreManager.fetchIconPacks()
+                        ThemeManager.indexStoreThemes()
+                        iconPackManager.indexStoreIconPacks()
                     }
                     isFetching = false
                 }

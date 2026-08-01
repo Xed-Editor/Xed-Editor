@@ -2,7 +2,6 @@ package com.rk.extension.manager
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
-import com.rk.App
 import com.rk.extension.EXTENSION_API_BASE
 import com.rk.extension.ICONPACKS_API_BASE
 import com.rk.extension.InstallState
@@ -146,12 +145,7 @@ object StoreManager {
             runCatching {
                 val jsonString = requestJson(THEMES_API_BASE)
                 val response = json.decodeFromString<ThemeListResponse>(jsonString)
-                response.themes.also { list ->
-                    withContext(Dispatchers.Main) {
-                        ThemeManager.storeThemes.clear()
-                        list.forEach { ThemeManager.storeThemes[it.id] = StoreTheme(it) }
-                    }
-                }
+                response.themes
             }
                 .onFailure {
                     it.printStackTrace()
@@ -164,12 +158,7 @@ object StoreManager {
             runCatching {
                 val jsonString = requestJson(ICONPACKS_API_BASE)
                 val response = json.decodeFromString<IconPackListResponse>(jsonString)
-                response.iconPacks.also { list ->
-                    withContext(Dispatchers.Main) {
-                        App.iconPackManager.storeIconPacks.clear()
-                        list.forEach { App.iconPackManager.storeIconPacks[it.id] = StoreIconPack(it) }
-                    }
-                }
+                response.iconPacks
             }
                 .onFailure {
                     it.printStackTrace()

@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,7 +48,6 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
-import com.rk.theme.ThemeHolder
 import com.rk.theme.ThemeManager
 import com.rk.theme.amoled
 import com.rk.theme.blueberry
@@ -57,8 +55,6 @@ import com.rk.theme.builtInThemes
 import com.rk.theme.currentTheme
 import com.rk.theme.dynamicTheme
 import kotlinx.coroutines.launch
-
-val themes = mutableStateListOf<ThemeHolder>()
 
 @Composable
 fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
@@ -84,7 +80,6 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                 sideEffect = {
                     Settings.amoled = it
                     amoled.value = it
-                    ThemeManager.updateThemes()
                     refreshEditors()
                 },
             )
@@ -98,14 +93,13 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                 sideEffect = {
                     Settings.monet = it
                     dynamicTheme.value = it
-                    ThemeManager.updateThemes()
                     refreshEditors()
                 },
             )
         }
 
         PreferenceGroup(heading = stringResource(strings.themes)) {
-            themes.forEach { theme ->
+            ThemeManager.loadedThemes.forEach { theme ->
                 SettingsItem(
                     isEnabled = !dynamicTheme.value,
                     label = theme.name,
@@ -142,7 +136,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                                     }
 
                                     themeDir().child(theme.id).deleteRecursively()
-                                    themes.remove(theme)
+                                    ThemeManager.removeTheme(theme)
                                 }
                             ) {
                                 Icon(

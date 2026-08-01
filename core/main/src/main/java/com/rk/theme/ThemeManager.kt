@@ -3,6 +3,7 @@ package com.rk.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.pm.PackageInfoCompat
@@ -10,19 +11,22 @@ import androidx.core.graphics.toColorInt
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
+import com.rk.extension.manager.StoreManager
 import com.rk.file.child
 import com.rk.file.themeDir
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.theme.themes
 import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
+import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
@@ -49,6 +53,7 @@ object ThemeManager {
         allowTrailingComma = true
     }
 
+    val loadedThemes = mutableStateListOf<ThemeHolder>()
     val localThemes = mutableStateMapOf<String, LocalTheme>()
     val storeThemes = mutableStateMapOf<String, StoreTheme>()
 
@@ -69,6 +74,11 @@ object ThemeManager {
     fun getSyncedThemes(): List<ThemePackage> {
         val allIds = localThemes.keys + storeThemes.keys
         return allIds.mapNotNull { getTheme(it) }
+    }
+
+    fun removeTheme(theme: ThemeHolder) {
+        loadedThemes.remove(theme)
+        localThemes.remove(theme.id)
     }
 
     suspend fun installTheme(file: File) {
@@ -154,14 +164,16 @@ object ThemeManager {
                     okRes = strings.continue_action,
                     onOk = {
                         finishThemeInstall(manifest, sourceDir)
-                        updateThemes()
+                        DefaultScope.launch {
+                            indexLocalThemes()
+                        }
                     },
                 )
                 return@withContext
             }
 
             finishThemeInstall(manifest, sourceDir)
-            updateThemes()
+            indexLocalThemes()
             indexLocalThemes()
         }
 
@@ -178,63 +190,58 @@ object ThemeManager {
         }
     }
 
-    // TODO: Duplicate theme storage? In localThemes and themes?
+    suspend fun indexStoreThemes() =
+        withContext(Dispatchers.IO) {
+            val themesList = StoreManager.fetchThemes()
+            val newThemes = themesList.associateBy({ it.id }, { StoreTheme(it) })
+            withContext(Dispatchers.Main) {
+                storeThemes.clear()
+                storeThemes.putAll(newThemes)
+            }
+        }
+
     suspend fun indexLocalThemes() =
         withContext(Dispatchers.IO) {
             val themeDir = themeDir()
             if (!themeDir.exists()) return@withContext
-            val newThemes = mutableMapOf<String, LocalTheme>()
+
+            migrateOldThemes(themeDir)
+
+            val newLocalThemes = mutableMapOf<String, LocalTheme>()
+            val newLoadedThemes = mutableListOf<ThemeHolder>()
             themeDir.listFiles()?.forEach { dir ->
                 if (dir.isDirectory) {
                     runCatching {
                         val manifestFile = dir.resolve("manifest.json")
                         if (manifestFile.exists()) {
                             val manifest = json.decodeFromString<ThemeManifest>(manifestFile.readText())
+                            newLoadedThemes.add(manifest.build())
+
                             val theme =
                                 LocalTheme(
                                     manifest = manifest,
-                                    createdAt = dir.lastModified(), // Fallback
+                                    createdAt = dir.lastModified(), // TODO
                                     updatedAt = dir.lastModified(),
                                     initSize = null, // TODO: Calculate size
                                 )
-                            newThemes[manifest.id] = theme
+
+                            newLocalThemes[manifest.id] = theme
                         }
                     }
+                        .onFailure {
+                            logError(it, "Failed to index local themes")
+                        }
                 }
             }
             withContext(Dispatchers.Main) {
                 localThemes.clear()
-                localThemes.putAll(newThemes)
+                localThemes.putAll(newLocalThemes)
+
+                loadedThemes.clear()
+                loadedThemes.addAll(builtInThemes)
+                loadedThemes.addAll(newLoadedThemes)
             }
         }
-
-    fun updateThemes() {
-        themes.clear()
-        themes.addAll(builtInThemes)
-        loadThemes()
-    }
-
-    fun loadThemes() {
-        val themeDir = themeDir()
-        if (!themeDir.exists()) return
-
-        migrateOldThemes(themeDir)
-
-        themeDir.listFiles()?.forEach { dir ->
-            if (dir.isDirectory) {
-                runCatching {
-                    val manifestFile = dir.resolve("manifest.json")
-                    if (manifestFile.exists()) {
-                        val manifest = json.decodeFromString<ThemeManifest>(manifestFile.readText())
-                        themes.add(manifest.build())
-                    }
-                }
-                    .onFailure {
-                        it.printStackTrace()
-                    }
-            }
-        }
-    }
 
     private fun migrateOldThemes(themeDir: File) {
         themeDir.listFiles()?.forEach { file ->

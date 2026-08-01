@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -17,10 +16,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.google.android.material.color.MaterialColors
 import com.rk.settings.Settings
 import com.rk.settings.editor.rememberAppTypography
-import com.rk.settings.theme.themes
 import com.rk.utils.isDarkTheme
 import com.rk.utils.toast
 
@@ -57,7 +56,7 @@ fun XedTheme(
             baseColorScheme
         } else {
             if (currentTheme.value == null) {
-                themeHolder = themes.find { it.id == Settings.theme } ?: themeHolder
+                themeHolder = ThemeManager.loadedThemes.find { it.id == Settings.theme } ?: themeHolder
                 currentTheme.value = themeHolder
             } else {
                 themeHolder = currentTheme.value ?: themeHolder
@@ -95,9 +94,7 @@ fun XedTheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = rememberAppTypography(LocalContext.current),
-            shapes = MaterialTheme.shapes.copy(
-                extraSmall = RoundedCornerShape(16.dp)
-            )
+            shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp)),
         ) {
             Surface(color = MaterialTheme.colorScheme.background) { content() }
         }

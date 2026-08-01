@@ -7,6 +7,7 @@ import androidx.core.content.pm.PackageInfoCompat
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
+import com.rk.extension.manager.StoreManager
 import com.rk.file.child
 import com.rk.file.createDirIfNot
 import com.rk.file.localDir
@@ -16,7 +17,6 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.dialogRes
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,6 +24,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.io.File
 
 @Serializable
 data class IconPackEntry(
@@ -162,6 +163,16 @@ class IconPackManager(private val context: Application) {
         iconPack.installDir.deleteRecursively()
         iconPacks.remove(iconPackId)
     }
+
+    suspend fun indexStoreIconPacks() =
+        withContext(Dispatchers.IO) {
+            val packsList = StoreManager.fetchIconPacks()
+            val newPacks = packsList.associateBy({ it.id }, { StoreIconPack(it) })
+            withContext(Dispatchers.Main) {
+                storeIconPacks.clear()
+                storeIconPacks.putAll(newPacks)
+            }
+        }
 
     // TODO: createAt??? really
     suspend fun indexIconPacks() {
