@@ -15,8 +15,12 @@ typealias IconPackPath = String
 data class IconPackManifest(
     val id: IconPackId,
     val name: String,
-    val author: PackageAuthor? = null,
+    val author: PackageAuthor = PackageAuthor.UNKNOWN,
     val version: String = "1.0.0",
+    val description: String? = null,
+    val tags: List<String> = emptyList(),
+    val repository: String? = null,
+    val license: String? = null,
     val minAppVersion: Int? = null,
     val applyTint: Boolean = false,
     val icons: IconPackList,

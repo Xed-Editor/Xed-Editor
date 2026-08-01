@@ -5,18 +5,13 @@ import kotlinx.serialization.Serializable
 typealias ExtensionId = String
 
 @Serializable
-data class PackageAuthor(val displayName: String, val github: String? = null) {
-    override fun toString() = displayName
-}
-
-@Serializable
 data class ExtensionManifest(
     val id: ExtensionId,
     val name: String,
     val mainClass: String,
     val version: String = "1.0.0",
     val description: String? = null,
-    val author: PackageAuthor,
+    val author: PackageAuthor = PackageAuthor.UNKNOWN,
     val minAppVersion: Int? = null, // null means no minimum restriction
     val supportedArchitectures: List<String>? = null,
     val repository: String,

@@ -5,10 +5,12 @@ import androidx.compose.runtime.mutableStateMapOf
 import com.rk.App
 import com.rk.extension.EXTENSION_API_BASE
 import com.rk.extension.ICONPACKS_API_BASE
+import com.rk.extension.InstallState
 import com.rk.extension.THEMES_API_BASE
 import com.rk.extension.model.ExtensionManifest
 import com.rk.icons.pack.IconPackEntry
-import com.rk.settings.extension.InstallState
+import com.rk.icons.pack.StoreIconPack
+import com.rk.theme.StoreTheme
 import com.rk.theme.ThemeEntry
 import com.rk.theme.ThemeManager
 import com.rk.utils.okHttpClient
@@ -121,9 +123,13 @@ object StoreManager {
 
     fun getThemeReadmeUrl(id: String): String = "$THEMES_API_BASE/$id/README.md"
 
+    fun getThemeChangelogUrl(id: String): String = "$THEMES_API_BASE/$id/CHANGELOG.md"
+
     fun getIconPackIconUrl(id: String): String = "$ICONPACKS_API_BASE/$id/icon.png"
 
     fun getIconPackReadmeUrl(id: String): String = "$ICONPACKS_API_BASE/$id/README.md"
+
+    fun getIconPackChangelogUrl(id: String): String = "$ICONPACKS_API_BASE/$id/CHANGELOG.md"
 
     private fun requestJson(url: String): String {
         val req = Request.Builder().url(url).build()
@@ -143,7 +149,7 @@ object StoreManager {
                 response.themes.also { list ->
                     withContext(Dispatchers.Main) {
                         ThemeManager.storeThemes.clear()
-                        list.forEach { ThemeManager.storeThemes[it.id] = it }
+                        list.forEach { ThemeManager.storeThemes[it.id] = StoreTheme(it) }
                     }
                 }
             }
@@ -161,7 +167,7 @@ object StoreManager {
                 response.iconPacks.also { list ->
                     withContext(Dispatchers.Main) {
                         App.iconPackManager.storeIconPacks.clear()
-                        list.forEach { App.iconPackManager.storeIconPacks[it.id] = it }
+                        list.forEach { App.iconPackManager.storeIconPacks[it.id] = StoreIconPack(it) }
                     }
                 }
             }

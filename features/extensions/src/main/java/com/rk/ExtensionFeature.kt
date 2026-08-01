@@ -16,11 +16,10 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
-import com.rk.settings.extension.ExtensionDetail
-import com.rk.settings.extension.ExtensionScreen
+import com.rk.settings.extension.PackageDetail
 import com.rk.settings.extension.ExtensionSettings
-import com.rk.settings.extension.IconPackDetail
-import com.rk.settings.extension.ThemeDetail
+import com.rk.settings.extension.StoreScreen
+import com.rk.theme.ThemeManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -46,6 +45,9 @@ class ExtensionFeature : Feature {
         GlobalScope.launch(Dispatchers.IO) {
             extensionManager.indexLocalExtensions()
             extensionManager.loadAllExtensions()
+            ThemeManager.indexLocalThemes()
+            ThemeManager.updateThemes()
+            App.iconPackManager.indexIconPacks()
             application.registerActivityLifecycleCallbacks(ExtensionAPIManager)
             application.registerActivityLifecycleCallbacks(ActivityProvider)
         }
@@ -84,14 +86,14 @@ class ExtensionFeature : Feature {
             ) { navController, backStackEntry ->
                 val query = backStackEntry.arguments?.getString("query")
                 val category = backStackEntry.arguments?.getString("category")
-                ExtensionScreen(navController = navController, query = query, category = category)
+                StoreScreen(navController = navController, query = query, category = category)
             }
         )
         routes.add(
             DynamicRoute("${SettingsRoutes.ExtensionDetail.route}/{extensionId}") { navController, backStackEntry ->
                 val extensionId = backStackEntry.arguments?.getString("extensionId")
                 val extension = extensionId?.let { extensionManager.getExtension(it) }
-                ExtensionDetail(extension, navController)
+                PackageDetail(extension, navController)
             }
         )
         routes.add(
@@ -102,15 +104,17 @@ class ExtensionFeature : Feature {
             }
         )
         routes.add(
-            DynamicRoute("${SettingsRoutes.ThemeDetail.route}/{themeId}") { _, backStackEntry ->
+            DynamicRoute("${SettingsRoutes.ThemeDetail.route}/{themeId}") { navController, backStackEntry ->
                 val themeId = backStackEntry.arguments?.getString("themeId")
-                ThemeDetail(themeId)
+                val theme = themeId?.let { ThemeManager.getTheme(it) }
+                PackageDetail(theme, navController)
             }
         )
         routes.add(
-            DynamicRoute("${SettingsRoutes.IconPackDetail.route}/{iconPackId}") { _, backStackEntry ->
+            DynamicRoute("${SettingsRoutes.IconPackDetail.route}/{iconPackId}") { navController, backStackEntry ->
                 val iconPackId = backStackEntry.arguments?.getString("iconPackId")
-                IconPackDetail(iconPackId)
+                val iconPack = iconPackId?.let { App.iconPackManager.getIconPackPackage(it) }
+                PackageDetail(iconPack, navController)
             }
         )
 

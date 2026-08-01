@@ -20,6 +20,7 @@ import com.rk.extension.Extension
 import com.rk.extension.ExtensionError
 import com.rk.extension.ICONPACKS_API_BASE
 import com.rk.extension.InstallResult
+import com.rk.extension.InstallState
 import com.rk.extension.LocalExtension
 import com.rk.extension.StoreExtension
 import com.rk.extension.THEMES_API_BASE
@@ -29,25 +30,31 @@ import com.rk.extension.loader.LoadScenario
 import com.rk.extension.loader.load
 import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.ExtensionId
+import com.rk.extension.model.Package
+import com.rk.file.child
 import com.rk.file.copyToTempDir
+import com.rk.file.themeDir
 import com.rk.file.toFileObject
+import com.rk.icons.pack.UpdatableIconPack
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.theme.ThemeManager
+import com.rk.theme.UpdatableTheme
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
+import java.io.File
 
 fun getMissingDependencies(extension: Extension): List<ExtensionId> {
     val missing = linkedSetOf<ExtensionId>()
@@ -161,7 +168,8 @@ suspend fun installExtensionSequentially(
     activity: AppCompatActivity?,
 ): Boolean =
     withContext(Dispatchers.IO) {
-        val storeExt = extension as? StoreExtension ?: return@withContext false
+        val storeExt =
+            extension as? StoreExtension ?: (extension as? UpdatableExtension)?.store ?: return@withContext false
         val id = storeExt.id
         val name = storeExt.name
 
@@ -410,7 +418,6 @@ fun runThemeInstallAction(
     context: Context,
     activity: AppCompatActivity?,
 ) {
-    // TODO: Simplify duplicate code (activeInstalls[id] = ...)
     StoreManager.activeInstalls[id] = InstallState.Installing
     StoreManager.downloadProgress[id] = 0f
 
@@ -546,6 +553,104 @@ fun runIconPackInstallAction(
                 }
             }
         }
+    }
+}
+
+fun runPackageInstallAction(
+    pkg: Package,
+    updateInstallState: (InstallState) -> Unit,
+    context: Context,
+    activity: AppCompatActivity?,
+    dialogManager: ExtensionDialogManager,
+) {
+    if (pkg.type == PackageType.EXTENSION) {
+        val extension = pkg as? Extension ?: return
+        val action = {
+            val missing = getMissingDependencies(extension)
+            if (missing.isNotEmpty()) {
+                dialogManager.showDependencies(extension, missing) {
+                    runExtensionInstallAction(extension, updateInstallState, context, activity)
+                }
+            } else {
+                runExtensionInstallAction(extension, updateInstallState, context, activity)
+            }
+        }
+
+        if (Settings.warn_extensions) {
+            dialogManager.showWarning(action)
+        } else {
+            action()
+        }
+    } else if (pkg.type == PackageType.THEME) {
+        runThemeInstallAction(pkg.id, pkg.name, context, activity)
+    } else if (pkg.type == PackageType.ICON_PACK) {
+        runIconPackInstallAction(pkg.id, pkg.name, context, activity)
+    }
+}
+
+fun runPackageUninstallAction(
+    pkg: Package,
+    updateInstallState: (InstallState) -> Unit,
+    scope: CoroutineScope,
+    activity: AppCompatActivity?,
+) {
+    if (pkg.type == PackageType.EXTENSION) {
+        runExtensionUninstallAction(pkg as Extension, updateInstallState, scope, activity)
+    } else if (pkg.type == PackageType.THEME) {
+        dialogRes(
+            activity = activity,
+            title = strings.uninstall_theme_dialog.getString(),
+            msg = strings.uninstall_theme_dialog_desc.getFilledString(pkg.name),
+            okRes = strings.uninstall,
+            onOk = {
+                scope.launch(Dispatchers.IO) {
+                    themeDir().child(pkg.id).deleteRecursively()
+                    withContext(Dispatchers.Main) {
+                        ThemeManager.localThemes.remove(pkg.id)
+                        updateInstallState(InstallState.Idle)
+                    }
+                }
+            },
+        )
+    } else if (pkg.type == PackageType.ICON_PACK) {
+        dialogRes(
+            activity = activity,
+            title = strings.uninstall_icon_pack_dialog.getString(),
+            msg = strings.uninstall_icon_pack_dialog_desc.getFilledString(pkg.name),
+            okRes = strings.uninstall,
+            onOk = {
+                scope.launch(Dispatchers.IO) {
+                    App.iconPackManager.uninstallIconPack(pkg.id)
+                    withContext(Dispatchers.Main) {
+                        updateInstallState(InstallState.Idle)
+                    }
+                }
+            },
+        )
+    }
+}
+
+fun runPackageUpdateAction(
+    pkg: Package,
+    updateInstallState: (InstallState) -> Unit,
+    context: Context,
+    activity: AppCompatActivity?,
+    dialogManager: ExtensionDialogManager,
+) {
+    if (pkg.type == PackageType.EXTENSION) {
+        val extension = pkg as? UpdatableExtension ?: return
+        val missing = getMissingDependencies(extension)
+        if (missing.isNotEmpty()) {
+            dialogManager.showDependencies(extension, missing) {
+                runExtensionUpdateAction(extension, updateInstallState, context, activity)
+            }
+        } else {
+            runExtensionUpdateAction(extension, updateInstallState, context, activity)
+        }
+    } else if (pkg.type == PackageType.THEME) {
+        runThemeInstallAction(pkg.id, pkg.name, context, activity)
+    } else if (pkg.type == PackageType.ICON_PACK) {
+        runIconPackInstallAction(pkg.id, pkg.name, context, activity)
     }
 }
 
@@ -697,20 +802,34 @@ private fun handleInstallResult(
     }
 
 @Composable
-fun rememberInstallState(extension: Extension): InstallState =
-    remember(
-        extension,
-        StoreManager.activeInstalls[extension.id],
-    ) {
-        val active = StoreManager.activeInstalls[extension.id]
-        active
-            ?: if (extensionManager.isInstalled(extension.id)) {
-                if (extension is UpdatableExtension && extension.hasUpdate()) {
-                    InstallState.Updatable
-                } else {
-                    InstallState.Installed
-                }
-            } else {
-                InstallState.Idle
+fun rememberPackageInstallState(pkg: Package): InstallState {
+    val id = pkg.id
+    return remember(pkg, StoreManager.activeInstalls[id]) {
+        val active = StoreManager.activeInstalls[id]
+        if (active != null) return@remember active
+
+        when (pkg.type) {
+            PackageType.EXTENSION -> {
+                if (extensionManager.isInstalled(id)) {
+                    val ext = extensionManager.getExtension(id)
+                    if (ext is UpdatableExtension && ext.hasUpdate()) InstallState.Updatable else InstallState.Installed
+                } else InstallState.Idle
             }
+            PackageType.THEME -> {
+                if (ThemeManager.isInstalled(id)) {
+                    val theme = ThemeManager.getTheme(id)
+                    if (theme is UpdatableTheme && theme.hasUpdate()) InstallState.Updatable else InstallState.Installed
+                } else InstallState.Idle
+            }
+            PackageType.ICON_PACK -> {
+                if (App.iconPackManager.isInstalled(id)) {
+                    val pack = App.iconPackManager.getIconPackPackage(id)
+                    if (pack is UpdatableIconPack && pack.hasUpdate()) InstallState.Updatable
+                    else InstallState.Installed
+                } else InstallState.Idle
+            }
+        }
     }
+}
+
+@Composable fun rememberInstallState(extension: Extension): InstallState = rememberPackageInstallState(extension)

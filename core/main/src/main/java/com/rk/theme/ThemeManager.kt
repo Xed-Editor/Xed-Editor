@@ -38,6 +38,7 @@ import kotlinx.serialization.json.JsonElement as KJsonElement
 data class ThemeEntry(
     val id: String,
     val manifest: ThemeManifest,
+    val size: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,
 )
@@ -48,7 +49,27 @@ object ThemeManager {
         allowTrailingComma = true
     }
 
-    val storeThemes = mutableStateMapOf<String, ThemeEntry>()
+    val localThemes = mutableStateMapOf<String, LocalTheme>()
+    val storeThemes = mutableStateMapOf<String, StoreTheme>()
+
+    fun isInstalled(id: String) = localThemes.containsKey(id)
+
+    fun getTheme(id: String): ThemePackage? {
+        val local = localThemes[id]
+        val store = storeThemes[id]
+
+        return when {
+            local != null && store != null -> UpdatableTheme(local, store)
+            local != null -> local
+            store != null -> store
+            else -> null
+        }
+    }
+
+    fun getSyncedThemes(): List<ThemePackage> {
+        val allIds = localThemes.keys + storeThemes.keys
+        return allIds.mapNotNull { getTheme(it) }
+    }
 
     suspend fun installTheme(file: File) {
         withContext(Dispatchers.IO) {
@@ -141,6 +162,7 @@ object ThemeManager {
 
             finishThemeInstall(manifest, sourceDir)
             updateThemes()
+            indexLocalThemes()
         }
 
     private fun finishThemeInstall(manifest: ThemeManifest, sourceDir: File?) {
@@ -155,6 +177,36 @@ object ThemeManager {
             }
         }
     }
+
+    // TODO: Duplicate theme storage? In localThemes and themes?
+    suspend fun indexLocalThemes() =
+        withContext(Dispatchers.IO) {
+            val themeDir = themeDir()
+            if (!themeDir.exists()) return@withContext
+            val newThemes = mutableMapOf<String, LocalTheme>()
+            themeDir.listFiles()?.forEach { dir ->
+                if (dir.isDirectory) {
+                    runCatching {
+                        val manifestFile = dir.resolve("manifest.json")
+                        if (manifestFile.exists()) {
+                            val manifest = json.decodeFromString<ThemeManifest>(manifestFile.readText())
+                            val theme =
+                                LocalTheme(
+                                    manifest = manifest,
+                                    createdAt = dir.lastModified(), // Fallback
+                                    updatedAt = dir.lastModified(),
+                                    initSize = null, // TODO: Calculate size
+                                )
+                            newThemes[manifest.id] = theme
+                        }
+                    }
+                }
+            }
+            withContext(Dispatchers.Main) {
+                localThemes.clear()
+                localThemes.putAll(newThemes)
+            }
+        }
 
     fun updateThemes() {
         themes.clear()

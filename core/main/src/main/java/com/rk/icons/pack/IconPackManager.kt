@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
 import com.rk.file.child
@@ -15,18 +16,20 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.dialogRes
+import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.io.File
 
 @Serializable
 data class IconPackEntry(
     val id: String,
     val manifest: IconPackManifest,
+    val size: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,
 )
@@ -36,7 +39,27 @@ val iconPackDir = localDir().child("icon_pack").also { it.createDirIfNot() }
 
 class IconPackManager(private val context: Application) {
     val iconPacks = mutableStateMapOf<IconPackId, IconPack>()
-    val storeIconPacks = mutableStateMapOf<String, IconPackEntry>()
+    val localIconPacks = mutableStateMapOf<String, LocalIconPack>()
+    val storeIconPacks = mutableStateMapOf<String, StoreIconPack>()
+
+    fun isInstalled(id: String) = localIconPacks.containsKey(id)
+
+    fun getIconPackPackage(id: String): IconPackPackage? {
+        val local = localIconPacks[id]
+        val store = storeIconPacks[id]
+
+        return when {
+            local != null && store != null -> UpdatableIconPack(local, store)
+            local != null -> local
+            store != null -> store
+            else -> null
+        }
+    }
+
+    fun getSyncedIconPacks(): List<IconPackPackage> {
+        val allIds = localIconPacks.keys + storeIconPacks.keys
+        return allIds.mapNotNull { getIconPackPackage(it) }
+    }
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -56,7 +79,7 @@ class IconPackManager(private val context: Application) {
             }
         }
 
-    private fun installIconPackFromDir(dir: File) {
+    private suspend fun installIconPackFromDir(dir: File) {
         val iconPackManifest = validateIconPack(dir) ?: return
 
         val packageName = application!!.packageName
@@ -69,15 +92,20 @@ class IconPackManager(private val context: Application) {
                 msg = strings.incompatible_icon_pack_warning.getString(),
                 cancelRes = strings.cancel,
                 okRes = strings.continue_action,
-                onOk = { writeIconPackToDisk(iconPackManifest, dir) },
+                onOk = {
+                    DefaultScope.launch {
+                        writeIconPackToDisk(iconPackManifest, dir)
+                    }
+                },
             )
             return
         }
 
         writeIconPackToDisk(iconPackManifest, dir)
+        indexIconPacks()
     }
 
-    private fun writeIconPackToDisk(iconPackManifest: IconPackManifest, dir: File) {
+    private suspend fun writeIconPackToDisk(iconPackManifest: IconPackManifest, dir: File) {
         val installDir = iconPackDir.child(iconPackManifest.id)
         if (installDir.exists()) {
             uninstallIconPack(iconPackManifest.id)
@@ -87,6 +115,7 @@ class IconPackManager(private val context: Application) {
 
         val iconPack = IconPack(iconPackManifest, installDir)
         iconPacks[iconPackManifest.id] = iconPack
+        indexIconPacks()
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -134,8 +163,10 @@ class IconPackManager(private val context: Application) {
         iconPacks.remove(iconPackId)
     }
 
+    // TODO: createAt??? really
     suspend fun indexIconPacks() {
         iconPacks.clear()
+        val newLocal = mutableMapOf<String, LocalIconPack>()
         withContext(Dispatchers.IO) {
             iconPackDir.listFiles()?.forEach { dir ->
                 if (dir.isDirectory) {
@@ -146,10 +177,22 @@ class IconPackManager(private val context: Application) {
                             val installDir = iconPackDir.child(iconPackManifest.id)
                             val iconPack = IconPack(iconPackManifest, installDir)
                             iconPacks[iconPackManifest.id] = iconPack
+                            newLocal[iconPackManifest.id] =
+                                LocalIconPack(
+                                    manifest = iconPackManifest,
+                                    installPath = installDir.absolutePath,
+                                    createdAt = dir.lastModified(),
+                                    updatedAt = dir.lastModified(),
+                                    initSize = null,
+                                )
                         }
                     }
                 }
             }
+        }
+        withContext(Dispatchers.Main) {
+            localIconPacks.clear()
+            localIconPacks.putAll(newLocal)
         }
 
         if (Settings.icon_pack.isNotEmpty()) {
