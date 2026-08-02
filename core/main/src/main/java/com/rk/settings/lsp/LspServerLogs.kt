@@ -27,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.components.StyledTextField
-import com.rk.feature.FeatureRegistry
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.LspServer
 import com.rk.lsp.LspServerInstance
@@ -109,8 +108,7 @@ fun LspServerLogs(server: LspServer, id: String) {
                 MessageSource.entries.forEach { source ->
                     XedDropdownMenuItem(
                         enabled =
-                            source != MessageSource.RPC ||
-                                (FeatureRegistry.isEnabled("debug_mode") && Settings.record_rpc),
+                            source != MessageSource.RPC || Settings.record_rpc,
                         text = { Text(text = source.name) },
                         leadingIcon = {
                             Checkbox(

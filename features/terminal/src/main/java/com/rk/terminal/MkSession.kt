@@ -5,6 +5,7 @@ import android.content.Context
 import com.rk.activities.main.MainActivity
 import com.rk.exec.pendingCommand
 import com.rk.file.FileWrapper
+import com.rk.feature.FeatureRegistry
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localDir
@@ -15,7 +16,6 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
-import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.runBlocking
@@ -63,7 +63,7 @@ object MkSession {
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",
                 "LANG=C.UTF-8",
-                "DEBUG=${BuildConfig.DEBUG}",
+                "DEBUG=${FeatureRegistry.isEnabled("debug_mode")}",
                 "LOCAL=${localDir(context).absolutePath}",
                 "PRIVATE_DIR=${context.filesDir.parentFile!!.absolutePath}",
                 "LD_LIBRARY_PATH=${localLibDir(context).absolutePath}",

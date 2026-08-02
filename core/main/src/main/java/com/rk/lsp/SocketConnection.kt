@@ -1,7 +1,6 @@
 package com.rk.lsp
 
 import android.util.Log
-import com.rk.feature.FeatureRegistry
 import com.rk.settings.Settings
 import java.io.IOException
 import java.io.InputStream
@@ -39,14 +38,14 @@ class SocketConnection(
         loggingInput =
             LoggingInputStream(socket!!.getInputStream()) { json ->
                 Log.d("SocketConnection", "[stdout] $json")
-                if (FeatureRegistry.isEnabled("debug_mode") && Settings.record_rpc) {
+                if (Settings.record_rpc) {
                     instance.addLog(LspLogEntry(MessageSource.RPC, null, "→ $json"))
                 }
             }
         loggingOutput =
             LoggingOutputStream(socket!!.getOutputStream()) { json ->
                 Log.d("SocketConnection", "[stdin] $json")
-                if (FeatureRegistry.isEnabled("debug_mode") && Settings.record_rpc) {
+                if (Settings.record_rpc) {
                     instance.addLog(LspLogEntry(MessageSource.RPC, null, "← $json"))
                 }
             }

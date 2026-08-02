@@ -49,7 +49,7 @@ object FeatureRegistry {
         registerToggle(
             FeatureToggle(
                 nameRes = strings.debug_options,
-                key = "debug_mode", // TODO: When checking for debug related settings always check for this to be true
+                key = "debug_mode",
                 default = BuildConfig.DEBUG,
                 iconRes = drawables.build,
                 onSwitch = { activity, checked, onComplete ->

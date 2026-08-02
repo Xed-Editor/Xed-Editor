@@ -30,7 +30,6 @@ import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.theme.ThemeManager
 import com.rk.utils.application
 import com.rk.utils.getTempDir
-import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -146,11 +145,11 @@ open class App : Application() {
             }
         }
 
-        if (BuildConfig.DEBUG || Settings.anr_watchdog) {
+        if (Settings.anr_watchdog) {
             ANRWatchDog().start()
         }
 
-        if (BuildConfig.DEBUG || Settings.strict_mode) {
+        if (Settings.strict_mode) {
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder()
                     .apply {
