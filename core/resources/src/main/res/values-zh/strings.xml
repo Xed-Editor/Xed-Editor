@@ -723,4 +723,22 @@
     <string name="description">描述</string>
     <string name="display_name">显示名称</string>
     <string name="github_username">GitHub 用户名</string>
+    <string name="incompatible_icon_pack_warning">图标包与当前 Xed-Editor 版本不兼容。是否继续？</string>
+    <string name="project_runner_desc">如果 /.xed/runner.sh 存在，则使用此脚本运行项目。</string>
+    <string name="discard_changes">丢弃变更</string>
+    <string name="discard_changes_msg">确认是否真的要丢弃自 \'%s\' 以来的本地变更？该操作无法撤销。</string>
+    <string name="discard_failed">丢弃操作执行失败： %s</string>
+    <string name="session_name_exists">会话名已存在</string>
+    <string name="rename_session">重命名会话</string>
+    <string name="unzip">解压缩</string>
+    <string name="unzip_success">成功完成解压缩</string>
+    <string name="unzip_failed">解压缩操作失败：%s</string>
+    <string name="searching_in">正在检索 %s</string>
+    <string name="welcome_to">欢迎进入 %s</string>
+    <string name="selected_project">已选项目：%s</string>
+    <string name="no_project_selected">未选择项目</string>
+    <string name="compressed_size">压缩后大小</string>
+    <string name="compression_ratio">压缩比</string>
+    <string name="compression_method">压缩方法</string>
+    <string name="comment">注释</string>
 </resources>
