@@ -747,4 +747,18 @@
     <string name="compression_ratio">Коефіцієнт стиснення</string>
     <string name="compression_method">Спосіб стиснення</string>
     <string name="comment">Коментар</string>
+    <string name="theme_migrated">Вдало перенесено %d тем</string>
+    <string name="theme_not_found_desc">Ця сторінка не доступна. Це могло статися тому, що було видалено локальну тему або власник теми видалив її з магазину.</string>
+    <string name="icon_pack_not_found_desc">Ця сторінка не доступна. Це могло статися тому, що набір іконок видалили локально або власник набору іконок видалив його з магазину.</string>
+    <string name="browse_themes">Переглянути теми</string>
+    <string name="browse_icon_packs">Переглянути набори іконок</string>
+    <string name="theme_not_found">Тему не знайдено</string>
+    <string name="icon_pack_not_found">Набір іконок не знайдено</string>
+    <string name="uninstall_theme_dialog">Видалити тему?</string>
+    <string name="uninstall_theme_dialog_desc">Ви точно хочете видалити \'%s\'?</string>
+    <string name="uninstall_icon_pack_dialog">Видалити набір іконок?</string>
+    <string name="uninstall_icon_pack_dialog_desc">Ви точно хочете видалити \'%s\"?</string>
+    <string name="xed_package">Пакет Xed</string>
+    <string name="migrating_themes">Переносимо теми…</string>
+    <string name="preview">Огляд</string>
 </resources>
