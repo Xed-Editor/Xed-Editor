@@ -203,11 +203,11 @@ object FileOperations {
                 targetParent.createChild(true, sourceFile.getName())
                     ?: throw IllegalStateException("Failed to create file: ${sourceFile.getName()}")
 
-            context.contentResolver.openInputStream(sourceFile.toUri())?.use { inputStream ->
-                context.contentResolver.openOutputStream(targetFile.toUri())?.use { outputStream ->
+            sourceFile.useInputStream { inputStream ->
+                targetFile.getOutputStream(append = false).use { outputStream ->
                     Util.copyStream(inputStream, outputStream)
-                } ?: throw IllegalStateException("Failed to open output stream for: ${sourceFile.getName()}")
-            } ?: throw IllegalStateException("Failed to open input stream for: ${sourceFile.getName()}")
+                }
+            }
         }
     }
 

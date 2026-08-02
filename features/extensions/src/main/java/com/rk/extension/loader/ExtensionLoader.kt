@@ -1,5 +1,6 @@
 package com.rk.extension.loader
 
+import android.app.Activity
 import android.app.Application
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.DefaultScope
@@ -8,6 +9,7 @@ import com.rk.events.Events
 import com.rk.extension.ExtensionAPI
 import com.rk.extension.ExtensionContext
 import com.rk.extension.ExtensionEvent
+import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.apkFile
 import com.rk.extension.extensionManager
@@ -15,6 +17,7 @@ import com.rk.extension.manager.ExtensionManager
 import com.rk.extension.manager.LoadedExtension
 import com.rk.utils.application
 import com.rk.utils.isMainThread
+import com.rk.utils.logError
 import dalvik.system.PathClassLoader
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -79,6 +82,28 @@ suspend fun LocalExtension.load(
         }
 
         instance
+    }
+}
+
+suspend fun LocalExtension.loadAfterInstall(result: InstallResult.Success, activity: Activity?): Result<ExtensionAPI> {
+    extensionManager.setExtensionCrashed(this, false)
+    val loadScenario = if (result.performedUpdate) LoadScenario.UPDATE else LoadScenario.INSTALL
+    return load(activity?.application ?: application!!, loadScenario).onFailure { error ->
+        extensionManager.setExtensionCrashed(this, true)
+        withContext(Dispatchers.Main) {
+            logError(error, "Failed to load extension '$name'")
+            activity?.let {
+                CrashActivity.start(
+                    context = it,
+                    extensionId = id,
+                    extensionName = name,
+                    extensionVersion = version,
+                    extensionAuthor = author.toString(),
+                    repository = repository,
+                    error = error,
+                )
+            }
+        }
     }
 }
 

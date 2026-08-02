@@ -41,6 +41,8 @@ import com.rk.utils.copyToClipboard
 import com.rk.utils.openUrl
 import com.rk.utils.origin
 import com.rk.xededitor.BuildConfig
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
@@ -113,8 +115,8 @@ class CrashActivity : ComponentActivity() {
                     }
                     putExtra("error_cause", cause)
 
-                    val stringWriter = java.io.StringWriter()
-                    val printWriter = java.io.PrintWriter(stringWriter)
+                    val stringWriter = StringWriter()
+                    val printWriter = PrintWriter(stringWriter)
                     error.printStackTrace(printWriter)
                     putExtra("stacktrace", stringWriter.toString())
                 }
@@ -131,103 +133,103 @@ class CrashActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         runCatching {
-                enableEdgeToEdge()
-                val crashText = buildCrashReport()
+            enableEdgeToEdge()
+            val crashText = buildCrashReport()
 
-                setContent {
-                    val context = LocalContext.current
+            setContent {
+                val context = LocalContext.current
 
-                    XedTheme {
-                        Scaffold(
-                            topBar = {
-                                Column {
-                                    val mainThreadCrashed = remember(intent) { isMainThreadCrashed() }
+                XedTheme {
+                    Scaffold(
+                        topBar = {
+                            Column {
+                                val mainThreadCrashed = remember(intent) { isMainThreadCrashed() }
 
-                                    TopAppBar(
-                                        navigationIcon = {
-                                            IconButton(
-                                                onClick = {
-                                                    if (mainThreadCrashed) {
-                                                        runCatching {
-                                                            // Close all activities
-                                                            finishAffinity()
+                                TopAppBar(
+                                    navigationIcon = {
+                                        IconButton(
+                                            onClick = {
+                                                if (mainThreadCrashed) {
+                                                    runCatching {
+                                                        // Close all activities
+                                                        finishAffinity()
 
-                                                            // Kill the app process
-                                                            Process.killProcess(Process.myPid())
-                                                            exitProcess(0)
-                                                        }
-                                                    } else {
-                                                        onBackPressedDispatcher.onBackPressed()
+                                                        // Kill the app process
+                                                        Process.killProcess(Process.myPid())
+                                                        exitProcess(0)
                                                     }
+                                                } else {
+                                                    onBackPressedDispatcher.onBackPressed()
                                                 }
-                                            ) {
-                                                Icon(
-                                                    imageVector =
-                                                        if (mainThreadCrashed) {
-                                                            Icons.Default.Close
-                                                        } else {
-                                                            Icons.AutoMirrored.Filled.ArrowBack
-                                                        },
-                                                    contentDescription = "Back",
-                                                )
                                             }
-                                        },
-                                        title = { Text(strings.error.getString()) },
-                                        actions = {
+                                        ) {
+                                            Icon(
+                                                imageVector =
+                                                    if (mainThreadCrashed) {
+                                                        Icons.Default.Close
+                                                    } else {
+                                                        Icons.AutoMirrored.Filled.ArrowBack
+                                                    },
+                                                contentDescription = "Back",
+                                            )
+                                        }
+                                    },
+                                    title = { Text(strings.error.getString()) },
+                                    actions = {
+                                        TextButton(
+                                            onClick = {
+                                                runCatching { copyToClipboard("crash_report", crashText, true) }
+                                                    .onFailure { logErrorOrExit(it) }
+                                            }
+                                        ) {
+                                            Text(stringResource(strings.copy))
+                                        }
+
+                                        val showReport = remember {
+                                            intent.getBooleanExtra("force_crash", false).not()
+                                        }
+
+                                        if (showReport) {
                                             TextButton(
                                                 onClick = {
-                                                    runCatching { copyToClipboard("crash_report", crashText, true) }
+                                                    runCatching { reportLogs(crashText, context) }
                                                         .onFailure { logErrorOrExit(it) }
                                                 }
                                             ) {
-                                                Text(stringResource(strings.copy))
+                                                Text(stringResource(strings.report_issue))
                                             }
-
-                                            val showReport = remember {
-                                                intent.getBooleanExtra("force_crash", false).not()
-                                            }
-
-                                            if (showReport) {
-                                                TextButton(
-                                                    onClick = {
-                                                        runCatching { reportLogs(crashText, context) }
-                                                            .onFailure { logErrorOrExit(it) }
-                                                    }
-                                                ) {
-                                                    Text(stringResource(strings.report_issue))
-                                                }
-                                            }
-                                        },
-                                    )
-                                    HorizontalDivider()
-                                }
+                                        }
+                                    },
+                                )
+                                HorizontalDivider()
                             }
-                        ) { paddingValues ->
-                            val selectionColors = LocalTextSelectionColors.current
-                            val isDarkMode = isSystemInDarkTheme()
-                            val colorScheme = MaterialTheme.colorScheme
-
-                            AndroidView(
-                                modifier = Modifier.fillMaxSize().padding(paddingValues),
-                                factory = { context ->
-                                    Editor(context).apply {
-                                        setTextSize(10f)
-                                        setText(crashText)
-                                        editable = false
-                                        isWordwrap = false
-                                        setThemeColors(
-                                            isDarkMode = isDarkMode,
-                                            selectionColors = selectionColors,
-                                            colorScheme = colorScheme,
-                                        )
-                                    }
-                                },
-                                update = { editor -> editor.setText(crashText) },
-                            )
                         }
+                    ) { paddingValues ->
+                        val selectionColors = LocalTextSelectionColors.current
+                        val isDarkMode = isSystemInDarkTheme()
+                        val colorScheme = MaterialTheme.colorScheme
+
+                        AndroidView(
+                            modifier = Modifier.fillMaxSize().padding(paddingValues),
+                            factory = { context ->
+                                Editor(context).apply {
+                                    setTextSize(10f)
+                                    setText(crashText)
+                                    editable = false
+                                    isWordwrap = false
+                                    setThemeColors(
+                                        isDarkMode = isDarkMode,
+                                        selectionColors = selectionColors,
+                                        colorScheme = colorScheme,
+                                    )
+                                }
+                            },
+                            update = { editor -> editor.setText(crashText) },
+                        )
                     }
                 }
             }
+        }
             .onFailure {
                 logErrorOrExit(it)
                 it.printStackTrace()

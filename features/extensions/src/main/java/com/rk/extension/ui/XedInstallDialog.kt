@@ -25,18 +25,13 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.rk.activities.main.MainViewModel
-import com.rk.crashhandler.CrashActivity
 import com.rk.extension.InstallResult
 import com.rk.extension.extensionManager
-import com.rk.extension.loader.LoadScenario
-import com.rk.extension.loader.load
+import com.rk.extension.loader.loadAfterInstall
 import com.rk.resources.drawables
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.extension.ExtensionAuthorIcon
 import com.rk.settings.extension.handleInstallResult
-import com.rk.utils.application
-import com.rk.utils.errorDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -109,38 +104,13 @@ fun XedInstallDialog(viewModel: MainViewModel) {
                         scope.launch(Dispatchers.IO) {
                             val result = extensionManager.installExtensionFromZip(file)
 
-                            // TODO: Duplicate code
-                            if (result is InstallResult.Success) {
-                                extensionManager.setExtensionCrashed(result.extension, false)
-                                val loadScenario =
-                                    if (result.performedUpdate) LoadScenario.UPDATE else LoadScenario.INSTALL
-                                result.extension.load(application!!, loadScenario).onFailure { error ->
-                                    extensionManager.setExtensionCrashed(result.extension, true)
-                                    withContext(Dispatchers.Main) {
-                                        activity?.let {
-                                            CrashActivity.start(
-                                                context = it,
-                                                extensionId = result.extension.id,
-                                                extensionName = result.extension.name,
-                                                extensionVersion = result.extension.version,
-                                                extensionAuthor = result.extension.author.toString(),
-                                                repository = result.extension.repository,
-                                                error = error,
-                                            )
-                                        }
-                                            ?: run {
-                                                errorDialog(
-                                                    activity,
-                                                    msg = error.message ?: strings.unknown_error.getString(),
-                                                )
-                                            }
-                                    }
-                                }
-                            }
-
                             withContext(Dispatchers.Main) {
                                 handleInstallResult(result, activity)
                                 viewModel.closeExtensionIntentDialog()
+                            }
+
+                            if (result is InstallResult.Success) {
+                                result.extension.loadAfterInstall(result, activity)
                             }
                         }
                     }

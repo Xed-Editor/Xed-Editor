@@ -281,19 +281,6 @@ object PropertiesAction : FileAction() {
     override val type = FileActionType.All
 }
 
-object InstallPackageAction : FileAction() {
-    override val icon = Icon.ResourceIcon(drawables.download)
-    override val title = strings.install.getString()
-
-    override fun action(context: FileActionContext) {
-        context.viewModel.viewModelScope.launch { IntentHandleRegistry.handleIntent(context.file) }
-    }
-
-    override fun isSupported(file: FileObject) = file.isXedPackage()
-
-    override val type = FileActionType(file = true, folder = false, rootFolder = false)
-}
-
 object UnzipAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.archive)
     override val title = strings.unzip.getString()
@@ -321,6 +308,19 @@ object UnzipAction : FileAction() {
     }
 
     override fun isSupported(file: FileObject) = file.isZip() || file.isXedPackage()
+
+    override val type = FileActionType(file = true, folder = false, rootFolder = false)
+}
+
+object InstallPackageAction : FileAction() {
+    override val icon = Icon.ResourceIcon(drawables.download)
+    override val title = strings.install.getString()
+
+    override fun action(context: FileActionContext) {
+        context.viewModel.viewModelScope.launch { IntentHandleRegistry.handleIntent(context.file) }
+    }
+
+    override fun isSupported(file: FileObject) = file.isXedPackage()
 
     override val type = FileActionType(file = true, folder = false, rootFolder = false)
 }

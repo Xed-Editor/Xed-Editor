@@ -29,6 +29,7 @@ import com.rk.extension.UpdatableExtension
 import com.rk.extension.extensionManager
 import com.rk.extension.loader.LoadScenario
 import com.rk.extension.loader.load
+import com.rk.extension.loader.loadAfterInstall
 import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.model.Package
@@ -700,34 +701,11 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 when (type) {
                     PackageType.EXTENSION -> {
                         val result = extensionManager.installExtensionFromDir(tempDir)
-                        if (result is InstallResult.Success) {
-                            extensionManager.setExtensionCrashed(result.extension, false)
-                            val loadScenario = if (result.performedUpdate) LoadScenario.UPDATE else LoadScenario.INSTALL
-                            result.extension.load(application!!, loadScenario).onFailure { error ->
-                                extensionManager.setExtensionCrashed(result.extension, true)
-                                withContext(Dispatchers.Main) {
-                                    activity?.let {
-                                        CrashActivity.start(
-                                            context = it,
-                                            extensionId = result.extension.id,
-                                            extensionName = result.extension.name,
-                                            extensionVersion = result.extension.version,
-                                            extensionAuthor = result.extension.author.toString(),
-                                            repository = result.extension.repository,
-                                            error = error,
-                                        )
-                                    }
-                                        ?: run {
-                                            errorDialog(
-                                                activity,
-                                                msg = error.message ?: strings.unknown_error.getString(),
-                                            )
-                                        }
-                                }
-                            }
-                        }
                         withContext(Dispatchers.Main) {
                             handleInstallResult(result, activity)
+                        }
+                        if (result is InstallResult.Success) {
+                            result.extension.loadAfterInstall(result, activity)
                         }
                     }
                     PackageType.THEME -> {

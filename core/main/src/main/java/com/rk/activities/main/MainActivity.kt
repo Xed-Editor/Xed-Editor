@@ -146,6 +146,7 @@ class MainActivity : AppCompatActivity() {
             val db = DocumentStateDatabase.getDatabase(applicationContext)
             val thirtyDaysInMillis = 1000L * 60 * 60 * 24 * 30
             val timestamp = System.currentTimeMillis() - thirtyDaysInMillis
+            // TODO: Instead of always deleting when older than 30 days, delete the oldest when limit is reached
             db.documentStateDao().deleteOlderThan(timestamp)
         }
 
