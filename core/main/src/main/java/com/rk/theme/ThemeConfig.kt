@@ -1,8 +1,13 @@
 package com.rk.theme
 
 import androidx.annotation.Keep
+import com.google.gson.JsonParser
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serial
 
 @Keep
 @Serializable
@@ -43,11 +48,37 @@ data class BaseColors(
     val surfaceContainer: String? = null,
     val surfaceContainerHigh: String? = null,
     val surfaceContainerHighest: String? = null,
-) : java.io.Serializable
+) : java.io.Serializable {
+    companion object {
+        private const val serialVersionUID = 4610250133026960367L
+    }
+}
+
+@Keep
+@Deprecated("Use ThemePaletteNew instead. This class exists for backwards compatibility")
+data class ThemePalette(
+    val baseColors: BaseColors?,
+    val terminalColors: Map<String, String>? = null,
+    val editorColors: Map<String, String>? = null,
+    @Transient var tokenColors: com.google.gson.JsonElement? = null,
+) : java.io.Serializable {
+    @Serial
+    private fun writeObject(out: ObjectOutputStream) {
+        out.defaultWriteObject()
+        out.writeObject(tokenColors?.toString())
+    }
+
+    @Serial
+    private fun readObject(input: ObjectInputStream) {
+        input.defaultReadObject()
+        val tokenColorsStr = input.readObject() as? String
+        tokenColors = tokenColorsStr?.let { JsonParser.parseString(it) }
+    }
+}
 
 @Keep
 @Serializable
-data class ThemePalette(
+data class ThemePaletteNew(
     val baseColors: BaseColors?,
     val terminalColors: Map<String, String>? = null,
     val editorColors: Map<String, String>? = null,
@@ -87,8 +118,26 @@ data class ThemePalette(
      * ```
      */
     val tokenColors: JsonElement? = null,
-) : java.io.Serializable
+) : java.io.Serializable {
+    companion object {
+        @Deprecated("This conversion exists for backwards compatibility")
+        fun fromLegacyPalette(palette: ThemePalette): ThemePaletteNew {
+            return ThemePaletteNew(
+                baseColors = palette.baseColors,
+                terminalColors = palette.terminalColors,
+                editorColors = palette.editorColors,
+                tokenColors = palette.tokenColors?.toKotlinxJsonElement(),
+            )
+        }
+    }
+}
 
+fun com.google.gson.JsonElement.toKotlinxJsonElement(): JsonElement {
+    val string = this.toString()
+    return Json.parseToJsonElement(string)
+}
+
+@Deprecated("Use ThemeManifest instead. This class exists for backwards compatibility")
 @Keep
 data class ThemeConfig(
     val id: String?,

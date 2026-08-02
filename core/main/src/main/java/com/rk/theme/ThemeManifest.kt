@@ -15,6 +15,6 @@ data class ThemeManifest(
     val license: String? = null,
     val minAppVersion: Int? = null,
     val inheritBase: Boolean = true,
-    val light: ThemePalette? = null,
-    val dark: ThemePalette? = null,
+    val light: ThemePaletteNew? = null,
+    val dark: ThemePaletteNew? = null,
 )

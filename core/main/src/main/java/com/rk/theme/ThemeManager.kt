@@ -309,8 +309,10 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         }
     }
 
+    @Deprecated("Migration from old theme format for backwards compatibility")
     private fun migrateOldThemes(themeDir: File) {
-        themeDir.listFiles()?.forEach { file ->
+        val listFiles = themeDir.listFiles()
+        listFiles?.forEach { file ->
             if (file.isFile) {
                 runCatching {
                     ObjectInputStream(FileInputStream(file)).use { input ->
@@ -322,8 +324,8 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                                     name = oldConfig.name ?: file.name,
                                     minAppVersion = oldConfig.minAppVersion,
                                     inheritBase = oldConfig.inheritBase ?: true,
-                                    light = oldConfig.light,
-                                    dark = oldConfig.dark,
+                                    light = oldConfig.light?.let { ThemePaletteNew.fromLegacyPalette(it) },
+                                    dark = oldConfig.dark?.let { ThemePaletteNew.fromLegacyPalette(it) },
                                 )
                             launch(Dispatchers.IO) {
                                 finishThemeInstall(manifest, null)
@@ -398,7 +400,7 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         return JsonArray()
     }
 
-    fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {
+    fun ThemePaletteNew.build(isDarkTheme: Boolean): ColorScheme {
         return if (isDarkTheme) {
             darkColorScheme(
                 primary = baseColors?.primary?.toColor() ?: blueberry.darkScheme.primary,
