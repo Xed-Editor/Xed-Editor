@@ -4,7 +4,7 @@ import com.rk.drawer.DrawerTab
 import com.rk.editor.Editor
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
-import com.rk.icons.pack.IconPack
+import com.rk.icons.pack.LocalIconPack
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.LspLogEntry
 import com.rk.lsp.LspServerInstance
@@ -195,7 +195,7 @@ sealed interface AppEvent : Event {
     data class ThemeChanged(val newTheme: ThemeHolder, val oldTheme: ThemeHolder?) : AppEvent
 
     /** Event triggered when the application icon pack changes. */
-    data class IconPackChanged(val newIconPack: IconPack?, val oldIconPack: IconPack?) : AppEvent
+    data class IconPackChanged(val newIconPack: LocalIconPack?, val oldIconPack: LocalIconPack?) : AppEvent
 
     /** Event triggered when the application language changes. */
     data class LanguageChanged(val newLanguage: Locale, val oldLanguage: Locale?) : AppEvent

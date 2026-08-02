@@ -1,10 +1,9 @@
-package com.rk.extension
+package com.rk.extension.model
 
 import kotlinx.serialization.Serializable
 
 typealias ExtensionId = String
 
-/** @property id Unique identifier of the extension (package name) */
 @Serializable
 data class ExtensionManifest(
     val id: ExtensionId,
@@ -12,7 +11,7 @@ data class ExtensionManifest(
     val mainClass: String,
     val version: String = "1.0.0",
     val description: String? = null,
-    val author: ExtensionAuthor,
+    val author: PackageAuthor = PackageAuthor.UNKNOWN,
     val minAppVersion: Int? = null, // null means no minimum restriction
     val supportedArchitectures: List<String>? = null,
     val repository: String,

@@ -2,7 +2,6 @@ package com.rk.lsp
 
 import android.util.Log
 import com.rk.SandboxedProcessRegistry
-import com.rk.feature.FeatureRegistry
 import com.rk.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,14 +39,14 @@ class ProcessConnection(private val cmd: Array<String>, instance: LspServerInsta
         loggingInput =
             LoggingInputStream(process!!.inputStream) { json ->
                 Log.d("ProcessConnection", "[stdout] $json")
-                if (FeatureRegistry.isEnabled("debug_mode") && Settings.record_rpc) {
+                if (Settings.record_rpc) {
                     instance.addLog(LspLogEntry(MessageSource.RPC, null, "→ $json"))
                 }
             }
         loggingOutput =
             LoggingOutputStream(process!!.outputStream) { json ->
                 Log.d("ProcessConnection", "[stdin] $json")
-                if (FeatureRegistry.isEnabled("debug_mode") && Settings.record_rpc) {
+                if (Settings.record_rpc) {
                     instance.addLog(LspLogEntry(MessageSource.RPC, null, "← $json"))
                 }
             }

@@ -27,10 +27,9 @@ import com.rk.settings.debugOptions.startThemeFlipperIfNotRunning
 import com.rk.settings.editor.DEFAULT_APP_FONT_PATH
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
-import com.rk.theme.updateThemes
+import com.rk.theme.ThemeManager
 import com.rk.utils.application
 import com.rk.utils.getTempDir
-import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -55,6 +54,16 @@ open class App : Application() {
 
                 return _iconPackManager!!
             }
+
+        private var _themeManager: ThemeManager? = null
+        val themeManager: ThemeManager
+            get() {
+                if (_themeManager == null) {
+                    _themeManager = ThemeManager(application!!)
+                }
+
+                return _themeManager!!
+            }
     }
 
     init {
@@ -67,7 +76,6 @@ open class App : Application() {
         application = this
         Res.application = this
 
-        updateThemes()
         LspPersistence.restoreServers()
 
         MarkdownImageProvider.register()
@@ -81,7 +89,14 @@ open class App : Application() {
         AppCompatDelegate.setApplicationLocales(appLocale)
 
         GlobalScope.launch(Dispatchers.IO) {
-            launch(Dispatchers.IO) { iconPackManager.indexIconPacks() }
+            launch(Dispatchers.IO) {
+                iconPackManager.indexLocalPacks()
+                iconPackManager.indexStoreIconPacks()
+            }
+            launch(Dispatchers.IO) {
+                themeManager.indexLocalThemes()
+                themeManager.indexStoreThemes()
+            }
 
             launch { LanguageManager.initGrammarRegistry() }
 
@@ -130,11 +145,11 @@ open class App : Application() {
             }
         }
 
-        if (BuildConfig.DEBUG || Settings.anr_watchdog) {
+        if (Settings.anr_watchdog) {
             ANRWatchDog().start()
         }
 
-        if (BuildConfig.DEBUG || Settings.strict_mode) {
+        if (Settings.strict_mode) {
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder()
                     .apply {

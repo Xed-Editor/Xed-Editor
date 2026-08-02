@@ -36,7 +36,7 @@ fun FileObject.isZip(): Boolean {
     return isFile() && getExtension().equals("zip", ignoreCase = true)
 }
 
-fun FileObject.isXedExtension(): Boolean {
+fun FileObject.isXedPackage(): Boolean {
     return isFile() && getExtension().equals("xed", ignoreCase = true)
 }
 

@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.rk.components.StateScreen
-import com.rk.extension.Extension
-import com.rk.extension.Review
+import com.rk.extension.model.Package
+import com.rk.extension.model.Review
 import com.rk.resources.drawables
 import com.rk.resources.strings
 
@@ -38,10 +38,10 @@ sealed interface ReviewsStatus {
 }
 
 @Composable
-fun ReviewsPage(extension: Extension, refreshKey: Int, onLoaded: () -> Unit, modifier: Modifier = Modifier) {
-    var state by remember(extension) { mutableStateOf<ReviewsStatus>(ReviewsStatus.Loading) }
+fun ReviewsPage(pkg: Package, refreshKey: Int, onLoaded: () -> Unit, modifier: Modifier = Modifier) {
+    var state by remember(pkg) { mutableStateOf<ReviewsStatus>(ReviewsStatus.Loading) }
 
-    LaunchedEffect(extension, refreshKey) {
+    LaunchedEffect(pkg, refreshKey) {
         state = ReviewsStatus.Loading
         // TODO: Implement
         state = ReviewsStatus.Error.NotSupported

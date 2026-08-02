@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
-import com.rk.extension.Extension
+import com.rk.extension.model.Package
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
@@ -31,9 +31,10 @@ import com.rk.utils.SourceCodeProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SourceCodeSheet(extension: Extension, onDismissRequest: () -> Unit) {
+fun SourceCodeSheet(pkg: Package, onDismissRequest: () -> Unit) {
     val context = LocalContext.current
-    val sourceCodeProvider = SourceCodeProvider.fromUrl(extension.repository)
+    val repo = pkg.repository ?: return
+    val sourceCodeProvider = SourceCodeProvider.fromUrl(repo)
 
     ModalBottomSheet(onDismissRequest) {
         Column(modifier = Modifier.padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -57,14 +58,14 @@ fun SourceCodeSheet(extension: Extension, onDismissRequest: () -> Unit) {
             }
 
             val sheetDescription =
-                extension.license?.let { stringResource(strings.ext_source_desc_license).fillPlaceholders(it) }
+                pkg.license?.let { stringResource(strings.ext_source_desc_license).fillPlaceholders(it) }
                     ?: stringResource(strings.ext_source_desc)
             Text(sheetDescription, modifier = Modifier.padding(horizontal = 16.dp))
 
             PreferenceGroup {
                 SettingsItem(
                     label = stringResource(sourceCodeProvider.viewStringRes),
-                    description = extension.repository,
+                    description = repo,
                     isEnabled = true,
                     showSwitch = false,
                     default = false,
@@ -83,7 +84,7 @@ fun SourceCodeSheet(extension: Extension, onDismissRequest: () -> Unit) {
                         )
                     },
                     sideEffect = {
-                        val intent = Intent(Intent.ACTION_VIEW, extension.repository.toUri())
+                        val intent = Intent(Intent.ACTION_VIEW, repo.toUri())
                         context.startActivity(intent)
                     },
                 )

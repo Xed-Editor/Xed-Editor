@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -12,32 +11,31 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.google.android.material.color.MaterialColors
+import com.rk.App.Companion.themeManager
 import com.rk.settings.Settings
 import com.rk.settings.editor.rememberAppTypography
-import com.rk.settings.theme.themes
 import com.rk.utils.isDarkTheme
-import com.rk.utils.toast
 
-val currentTheme = mutableStateOf<ThemeHolder?>(null)
-val dynamicTheme = mutableStateOf(Settings.monet)
-val amoled = mutableStateOf(Settings.amoled)
+val currentTheme = derivedStateOf {
+     themeManager.loadedThemes.find { it.id == Settings.theme } ?: blueberry
+}
 
 val LocalThemeHolder = staticCompositionLocalOf<ThemeHolder> { error("No ThemeHolder state provided") }
 
 @Composable
 fun XedTheme(
     darkTheme: Boolean = isDarkTheme(LocalContext.current),
-    highContrastDarkTheme: Boolean = amoled.value,
-    dynamicColor: Boolean = dynamicTheme.value,
+    highContrastDarkTheme: Boolean = Settings.amoled,
+    dynamicColor: Boolean = Settings.monet,
     content: @Composable () -> Unit,
 ) {
-    var themeHolder = blueberry
+    var themeHolder: ThemeHolder
     val colorScheme =
         if (dynamicColor && supportsDynamicTheming()) {
             val context = LocalContext.current
@@ -56,38 +54,20 @@ fun XedTheme(
 
             baseColorScheme
         } else {
-            if (currentTheme.value == null) {
-                themeHolder = themes.find { it.id == Settings.theme } ?: themeHolder
-                currentTheme.value = themeHolder
-            } else {
-                themeHolder = currentTheme.value ?: themeHolder
-            }
+            themeHolder = currentTheme.value
 
-            val theme =
-                if (darkTheme) {
-                    if (highContrastDarkTheme) {
-                        themeHolder.darkScheme.copy(
-                            background = Color.Black,
-                            surface = Color.Black,
-                            surfaceDim = Color.Black,
-                        )
-                    } else {
-                        themeHolder.darkScheme
-                    }
+            if (darkTheme) {
+                if (highContrastDarkTheme) {
+                    themeHolder.darkScheme.copy(
+                        background = Color.Black,
+                        surface = Color.Black,
+                        surfaceDim = Color.Black,
+                    )
                 } else {
-                    themeHolder.lightScheme
-                }
-
-            // Is possible?
-            if (currentTheme.value == null) {
-                LaunchedEffect(theme) { toast("No theme selected") }
-                if (darkTheme) {
-                    blueberry.darkScheme
-                } else {
-                    blueberry.lightScheme
+                    themeHolder.darkScheme
                 }
             } else {
-                theme
+                themeHolder.lightScheme
             }
         }
 
@@ -95,9 +75,7 @@ fun XedTheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = rememberAppTypography(LocalContext.current),
-            shapes = MaterialTheme.shapes.copy(
-                extraSmall = RoundedCornerShape(16.dp)
-            )
+            shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp)),
         ) {
             Surface(color = MaterialTheme.colorScheme.background) { content() }
         }

@@ -146,6 +146,7 @@ dependencies {
     implementation(libs.androidsvg.aar)
     implementation(libs.ec4j.core)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.semver)
     debugImplementation(libs.leakcanary)
 
     implementation(libs.androidx.room.runtime)

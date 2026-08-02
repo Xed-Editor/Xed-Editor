@@ -6,7 +6,6 @@ import com.rk.file.resolve
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.theme.amoled
 import com.rk.utils.isDarkTheme
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.Response.Status
@@ -68,7 +67,7 @@ class HttpServer(
             }
 
             val darkTheme = isDarkTheme(context)
-            val erudaTheme = if (amoled.value && darkTheme) "AMOLED" else if (darkTheme) "Dark" else "Light"
+            val erudaTheme = if (Settings.amoled && darkTheme) "AMOLED" else if (darkTheme) "Dark" else "Light"
             val erudaScript =
                 """
                 <!-- Injected code, this is not present in original code -->

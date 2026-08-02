@@ -3,12 +3,12 @@ package com.rk.extension.manager
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import com.rk.extension.EXTENSION_API_BASE
-import com.rk.extension.ExtensionManifest
 import com.rk.extension.ICONPACKS_API_BASE
+import com.rk.extension.InstallState
 import com.rk.extension.THEMES_API_BASE
-import com.rk.icons.pack.IconPackManifest
-import com.rk.settings.extension.InstallState
-import com.rk.utils.errorDialog
+import com.rk.extension.model.ExtensionManifest
+import com.rk.icons.pack.IconPackEntry
+import com.rk.theme.ThemeEntry
 import com.rk.utils.okHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -41,42 +41,21 @@ data class DownloadUrls(
 
 @Serializable data class ThemeListResponse(val themes: List<ThemeEntry>)
 
-@Serializable
-data class ThemeEntry(
-    val id: String,
-    val manifest: ThemeManifest,
-    val createdAt: Int,
-    val updatedAt: Int,
-)
-
-@Serializable
-data class ThemeManifest(
-    val id: String,
-    val name: String,
-)
-
 @Serializable data class IconPackListResponse(val iconPacks: List<IconPackEntry>)
 
-@Serializable
-data class IconPackEntry(
-    val id: String,
-    val manifest: IconPackManifest,
-    val createdAt: Int,
-    val updatedAt: Int,
-)
-
-object ExtensionRegistry {
-    private const val TAG = "ExtensionRegistry"
+object StoreManager {
+    private const val TAG = "StoreManager"
     private const val BASE_URL = EXTENSION_API_BASE
 
     private val client: OkHttpClient = okHttpClient
+
+    val downloadProgress = mutableStateMapOf<String, Float>()
+    val activeInstalls = mutableStateMapOf<String, InstallState>()
+
     private val json = Json {
         ignoreUnknownKeys = true
         allowTrailingComma = true
     }
-
-    val downloadProgress = mutableStateMapOf<String, Float>()
-    val activeInstalls = mutableStateMapOf<String, InstallState>()
 
     suspend fun downloadFileWithProgress(
         url: String,
@@ -136,6 +115,18 @@ object ExtensionRegistry {
 
     fun getChangelogUrl(id: String): String = "$BASE_URL/$id/CHANGELOG.md"
 
+    fun getThemeIconUrl(id: String): String = "$THEMES_API_BASE/$id/icon.png"
+
+    fun getThemeReadmeUrl(id: String): String = "$THEMES_API_BASE/$id/README.md"
+
+    fun getThemeChangelogUrl(id: String): String = "$THEMES_API_BASE/$id/CHANGELOG.md"
+
+    fun getIconPackIconUrl(id: String): String = "$ICONPACKS_API_BASE/$id/icon.png"
+
+    fun getIconPackReadmeUrl(id: String): String = "$ICONPACKS_API_BASE/$id/README.md"
+
+    fun getIconPackChangelogUrl(id: String): String = "$ICONPACKS_API_BASE/$id/CHANGELOG.md"
+
     private fun requestJson(url: String): String {
         val req = Request.Builder().url(url).build()
         return client.newCall(req).execute().use { res ->
@@ -145,28 +136,6 @@ object ExtensionRegistry {
             body
         }
     }
-
-    suspend fun downloadZip(manifest: ExtensionManifest, destFile: File): Boolean =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                val zipUrl = "$BASE_URL/${manifest.id}/plugin.zip"
-
-                val request = Request.Builder().url(zipUrl).build()
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) error("HTTP ${response.code}")
-                    destFile.parentFile?.mkdirs()
-                    response.body.byteStream().use { input ->
-                        destFile.outputStream().use { output -> input.copyTo(output) }
-                    }
-                }
-                true
-            }
-                .onFailure {
-                    it.printStackTrace()
-                    errorDialog(throwable = it)
-                }
-                .getOrElse { false }
-        }
 
     suspend fun fetchThemes(): List<ThemeEntry> =
         withContext(Dispatchers.IO) {
@@ -192,26 +161,5 @@ object ExtensionRegistry {
                     it.printStackTrace()
                 }
                 .getOrElse { emptyList() }
-        }
-
-    suspend fun downloadIconPackZip(id: String, destFile: File): Boolean =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                val zipUrl = "${ICONPACKS_API_BASE}/$id/iconpack.zip"
-                val request = Request.Builder().url(zipUrl).build()
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) error("HTTP ${response.code}")
-                    destFile.parentFile?.mkdirs()
-                    response.body.byteStream().use { input ->
-                        destFile.outputStream().use { output -> input.copyTo(output) }
-                    }
-                }
-                true
-            }
-                .onFailure {
-                    it.printStackTrace()
-                    errorDialog(throwable = it)
-                }
-                .getOrElse { false }
         }
 }

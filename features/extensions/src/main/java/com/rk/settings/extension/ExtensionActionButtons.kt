@@ -31,20 +31,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rk.extension.InstallState
 import com.rk.icons.Download
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
-enum class InstallState {
-    Idle,
-    Installing,
-    Installed,
-    Updatable,
-    Updating,
-}
 
 @Composable
 fun SmallExtensionActionButton(

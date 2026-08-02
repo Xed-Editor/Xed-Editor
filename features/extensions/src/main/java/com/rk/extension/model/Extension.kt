@@ -3,45 +3,21 @@ package com.rk.extension
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.rk.common.PackageType
 import com.rk.extension.manager.ExtensionEntry
-import com.rk.extension.manager.ExtensionRegistry
+import com.rk.extension.manager.StoreManager
+import com.rk.extension.model.ExtensionId
+import com.rk.extension.model.ExtensionManifest
+import com.rk.extension.model.Package
+import com.rk.extension.model.Review
+import com.rk.extension.model.UpdatablePackage
 import com.rk.xededitor.BuildConfig
 import io.github.z4kn4fein.semver.toVersionOrNull
-import kotlinx.serialization.Serializable
 import java.io.File
-import java.util.Date
 
-sealed interface Extension {
-    val id: ExtensionId
-    val name: String
-    val version: String
-    val author: ExtensionAuthor
-    val description: String?
-    val tags: List<String>
-    val repository: String
-    val license: String?
-    val dependencies: List<ExtensionId>
-    val recommendations: List<ExtensionId>
-    val hasSettings: Boolean
-    val iconUrl: String
-    val readmeUrl: String
-    val changelogUrl: String
-    val minAppVersion: Int?
-    val supportedArchitectures: List<String>?
-    val downloads: Int?
-    val rating: Float?
-    val size: Long?
-    val createdAt: Long?
-    val updatedAt: Long?
-
-    suspend fun getReviews(): List<Review>
-}
-
-data class Review(val rating: Int, val text: String, val author: String, val date: Date, val authorResponse: String?)
-
-@Serializable
-data class ExtensionAuthor(val displayName: String, val github: String? = null) {
-    override fun toString() = displayName
+sealed interface Extension : Package {
+    override val type: PackageType
+        get() = PackageType.EXTENSION
 }
 
 /** Extensions that are published in the store (online registry). Might or might not be installed locally. */
@@ -84,13 +60,13 @@ data class StoreExtension(private val entry: ExtensionEntry) : Extension {
         get() = manifest.hasSettings
 
     override val iconUrl: String
-        get() = ExtensionRegistry.getIconUrl(manifest.id)
+        get() = StoreManager.getIconUrl(manifest.id)
 
     override val readmeUrl: String
-        get() = ExtensionRegistry.getReadmeUrl(manifest.id)
+        get() = StoreManager.getReadmeUrl(manifest.id)
 
     override val changelogUrl
-        get() = ExtensionRegistry.getChangelogUrl(manifest.id)
+        get() = StoreManager.getChangelogUrl(manifest.id)
 
     override val minAppVersion
         get() = manifest.minAppVersion
@@ -196,7 +172,7 @@ data class LocalExtension(
     override suspend fun getReviews(): List<Review> = emptyList()
 }
 
-data class UpdatableExtension(val installed: LocalExtension, val store: StoreExtension) : Extension {
+data class UpdatableExtension(val installed: LocalExtension, val store: StoreExtension) : Extension, UpdatablePackage {
     override val id
         get() = store.id
 
@@ -206,7 +182,7 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
     override val version
         get() = installed.version
 
-    val newVersion: String
+    override val newVersion: String
         get() = store.version
 
     override val author
@@ -265,7 +241,7 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
 
     override suspend fun getReviews() = store.getReviews()
 
-    fun hasUpdate(): Boolean {
+    override fun hasUpdate(): Boolean {
         val installedVersion = installed.version.toVersionOrNull() ?: return false
         val storeVersion = store.version.toVersionOrNull() ?: return false
         return installedVersion < storeVersion

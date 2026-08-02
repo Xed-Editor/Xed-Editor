@@ -1,5 +1,6 @@
 package com.rk.extension.loader
 
+import android.app.Activity
 import android.app.Application
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.DefaultScope
@@ -8,20 +9,21 @@ import com.rk.events.Events
 import com.rk.extension.ExtensionAPI
 import com.rk.extension.ExtensionContext
 import com.rk.extension.ExtensionEvent
+import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.apkFile
 import com.rk.extension.extensionManager
 import com.rk.extension.manager.ExtensionManager
 import com.rk.extension.manager.LoadedExtension
-import com.rk.file.FileObject
-import com.rk.file.copyToTempDir
 import com.rk.utils.application
 import com.rk.utils.isMainThread
+import com.rk.utils.logError
 import dalvik.system.PathClassLoader
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.reflect.InvocationTargetException
@@ -80,6 +82,28 @@ suspend fun LocalExtension.load(
         }
 
         instance
+    }
+}
+
+suspend fun LocalExtension.loadAfterInstall(result: InstallResult.Success, activity: Activity?): Result<ExtensionAPI> {
+    extensionManager.setExtensionCrashed(this, false)
+    val loadScenario = if (result.performedUpdate) LoadScenario.UPDATE else LoadScenario.INSTALL
+    return load(activity?.application ?: application!!, loadScenario).onFailure { error ->
+        extensionManager.setExtensionCrashed(this, true)
+        withContext(Dispatchers.Main) {
+            logError(error, "Failed to load extension '$name'")
+            activity?.let {
+                CrashActivity.start(
+                    context = it,
+                    extensionId = id,
+                    extensionName = name,
+                    extensionVersion = version,
+                    extensionAuthor = author.toString(),
+                    repository = repository,
+                    error = error,
+                )
+            }
+        }
     }
 }
 
@@ -155,12 +179,6 @@ private fun LocalExtension.instantiateAPI(
     }
 }
 
-/** Installs an extension directly from a file object by copying it to a temporary directory first. */
-suspend fun ExtensionManager.installExtensionFromZip(fileObject: FileObject) = run {
-    val file = fileObject.copyToTempDir()
-    installExtensionFromZip(file).also { file.delete() }
-}
-
 /**
  * Scans all local extensions and loads any that are not disabled. If an extension fails to load, it is marked as
  * disabled and a crash screen is shown.
@@ -189,3 +207,20 @@ suspend fun ExtensionManager.loadAllExtensions() =
             }
         }
     }
+
+/**
+ * Unloads all currently active extensions.
+ *
+ * This function iterates through all loaded extensions, invokes their respective shutdown lifecycle callbacks, cancels
+ * their associated coroutine scopes, and clears them from the [extensionManager].
+ */
+fun ExtensionManager.unloadAllExtensions() {
+    loadedExtensions.values.forEach { loaded ->
+        runCatching {
+            loaded?.api?.onDispose()
+            loaded?.scope?.cancel()
+        }
+    }
+    loadedExtensions.clear()
+    cancel()
+}

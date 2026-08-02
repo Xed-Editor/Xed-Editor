@@ -6,20 +6,21 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.edit
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.DefaultScope
+import com.rk.common.XedPackage
 import com.rk.events.Events
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionAPI
 import com.rk.extension.ExtensionError
 import com.rk.extension.ExtensionEvent
-import com.rk.extension.ExtensionId
-import com.rk.extension.ExtensionManifest
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.StoreExtension
 import com.rk.extension.UpdatableExtension
+import com.rk.extension.model.ExtensionId
+import com.rk.extension.model.ExtensionManifest
+import com.rk.extension.model.PackageCache
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
-import com.rk.file.child
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.errorDialog
@@ -32,10 +33,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.util.zip.ZipFile
 
 private val Context.localDir: File
     get() = filesDir.parentFile!!.resolve("local").apply { if (!exists()) mkdirs() }
@@ -44,13 +43,6 @@ val Context.extensionDir: File
     get() = localDir.resolve("extensions").apply { if (!exists()) mkdirs() }
 
 internal fun Context.compiledDexDir() = extensionDir.resolve("oat")
-
-@Serializable
-data class ExtensionCache(
-    val createdAt: Long? = null,
-    val updatedAt: Long? = null,
-    val size: Long? = null,
-)
 
 data class LoadedExtension(val api: ExtensionAPI, val scope: CoroutineScope)
 
@@ -64,15 +56,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     val loadedExtensions = mutableStateMapOf<LocalExtension, LoadedExtension?>()
-
-    init {
-        launch(Dispatchers.IO) {
-            runCatching {
-                indexLocalExtensions()
-                indexStoreExtensions()
-            }
-        }
-    }
 
     private val disabledPrefs by lazy {
         context.getSharedPreferences("disabled_extensions", Context.MODE_PRIVATE)
@@ -122,22 +105,22 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         return FileOperations.calculateContent(FileWrapper(dir)).totalSize
     }
 
-    private fun resolveCache(dir: File): ExtensionCache {
+    private fun resolveCache(dir: File): PackageCache {
         val cacheFile = dir.resolve("cache.json")
 
         if (!cacheFile.exists() || !cacheFile.isFile) {
-            return ExtensionCache()
+            return PackageCache()
         }
 
         return runCatching {
-            json.decodeFromString<ExtensionCache>(cacheFile.readText())
+            json.decodeFromString<PackageCache>(cacheFile.readText())
         }
             .getOrElse {
-                ExtensionCache()
+                PackageCache()
             }
     }
 
-    private fun writeCache(dir: File, cache: ExtensionCache) {
+    private fun writeCache(dir: File, cache: PackageCache) {
         val cacheFile = dir.resolve("cache.json")
         cacheFile.writeText(json.encodeToString(cache))
     }
@@ -200,7 +183,11 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     suspend fun indexStoreExtensions() =
         withContext(Dispatchers.IO) {
-            val extensions = ExtensionRegistry.fetchExtensions()
+            val extensions =
+                runCatching {
+                    StoreManager.fetchExtensions()
+                }
+                    .getOrNull() ?: return@withContext
             val newExtensions = extensions.associate { it.id to StoreExtension(it) }
             withContext(Dispatchers.Main) {
                 val toRemove = storeExtension.keys.filter { it !in newExtensions }
@@ -208,12 +195,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 storeExtension.putAll(newExtensions)
             }
         }
-
-    suspend fun installStoreExtension(context: Context, extension: StoreExtension) = runCatching {
-        val dir = context.cacheDir.child("${extension.id}.zip")
-        ExtensionRegistry.downloadZip(extension.manifest, dir)
-        installExtensionFromZip(dir)
-    }
 
     @OptIn(ExperimentalSerializationApi::class)
     internal fun validateExtensionDir(dir: File): Result<ExtensionManifest> {
@@ -236,24 +217,14 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         return Result.success(extensionManifest)
     }
 
-    suspend fun installExtensionFromZip(zipFile: File): InstallResult =
+    suspend fun installExtensionFromZip(xedFile: File): InstallResult =
         withContext(Dispatchers.IO) {
             // Extract to temp dir first
             val tempDir = File(context.cacheDir, "ext_temp_${System.currentTimeMillis()}")
             tempDir.mkdirs()
 
             try {
-                ZipFile(zipFile).use { zip ->
-                    zip.entries().asSequence().forEach { entry ->
-                        if (!entry.isDirectory) {
-                            val target = tempDir.resolve(entry.name)
-                            target.parentFile?.mkdirs()
-                            zip.getInputStream(entry).use { input ->
-                                target.outputStream().use { output -> input.copyTo(output) }
-                            }
-                        }
-                    }
-                }
+                XedPackage.extract(xedFile, tempDir)
                 installExtensionFromDir(tempDir)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -285,7 +256,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val pm = context.packageManager
             val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
 
-            if (extensionInfo.minAppVersion != null && xedVersionCode < extensionInfo.minAppVersion) {
+            val minAppVersion = extensionInfo.minAppVersion
+            if (minAppVersion != null && xedVersionCode < minAppVersion) {
                 return@withContext InstallResult.Error(ExtensionError.OUTDATED_CLIENT)
             }
 
@@ -293,7 +265,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             val size = calcSize(targetDir)
             val newExtensionCache =
-                ExtensionCache(
+                PackageCache(
                         createdAt = oldCreatedAt ?: System.currentTimeMillis(),
                         updatedAt = System.currentTimeMillis(),
                         size = size,
@@ -353,17 +325,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 Result.failure(Exception("Failed to uninstall extension: ${err.message}", err))
             }
         }
-
-    fun unloadAllExtensions() {
-        loadedExtensions.values.forEach { loaded ->
-            runCatching {
-                loaded?.api?.onDispose()
-                loaded?.scope?.cancel()
-            }
-        }
-        loadedExtensions.clear()
-        cancel()
-    }
 
     private fun File.deleteWithPackageName(pkgName: String) {
         if (isDirectory) {

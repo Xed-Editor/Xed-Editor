@@ -23,6 +23,7 @@ object FileActionProvider {
             OpenAsProjectAction,
             PropertiesAction,
             UnzipAction,
+            InstallPackageAction,
         )
 
     val fileActions: List<BaseFileAction>

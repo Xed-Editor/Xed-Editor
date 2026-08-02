@@ -10,10 +10,12 @@ import com.rk.activities.main.session.EditorManager
 import com.rk.activities.main.session.SessionManager
 import com.rk.activities.main.session.TabManager
 import com.rk.commands.Command
+import com.rk.extension.model.ExtensionManifest
 import com.rk.file.FileObject
 import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
+import java.io.File
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -64,6 +66,37 @@ class MainViewModel : ViewModel() {
 
     var commandPaletteInitialPlaceholder by mutableStateOf<String?>(null)
         private set
+
+    var pendingExtensionManifest by mutableStateOf<ExtensionManifest?>(null)
+        private set
+
+    var pendingExtensionPackage by mutableStateOf<File?>(null)
+        private set
+
+    var pendingExtensionIcon by mutableStateOf<File?>(null)
+        private set
+
+    fun openExtensionIntentDialog(manifest: ExtensionManifest, file: File, icon: File) {
+        pendingExtensionManifest = manifest
+        pendingExtensionPackage = file
+        pendingExtensionIcon = icon
+    }
+
+    fun closeExtensionIntentDialog() {
+        val icon = pendingExtensionIcon
+        val file = pendingExtensionPackage
+
+        viewModelScope.launch(Dispatchers.Main) {
+            pendingExtensionManifest = null
+            pendingExtensionPackage = null
+            pendingExtensionIcon = null
+
+            withContext(Dispatchers.IO) {
+                icon?.delete()
+                file?.delete()
+            }
+        }
+    }
 
     fun showCommandPalette() {
         showCommandPalette = true

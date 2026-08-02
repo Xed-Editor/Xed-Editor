@@ -53,17 +53,20 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.App
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.common.PackageType
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension
-import com.rk.extension.UpdatableExtension
+import com.rk.extension.InstallState
 import com.rk.extension.extensionManager
-import com.rk.extension.manager.ExtensionRegistry
+import com.rk.extension.manager.StoreManager
+import com.rk.extension.model.Package
+import com.rk.extension.model.UpdatablePackage
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Settings
+import com.rk.App.Companion.themeManager
 import com.rk.theme.Typography
 import com.rk.utils.formatFileSize
 import com.rk.utils.formatNumberCompact
@@ -72,7 +75,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ExtensionDetail(extension: Extension?, navController: NavController) {
+fun PackageDetail(pkg: Package?, navController: NavController) {
     val scope = rememberCoroutineScope()
     val dialogManager = remember { ExtensionDialogManager() }
 
@@ -80,19 +83,28 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
     var refreshKey by remember { mutableIntStateOf(0) }
     var showSourceCodeSheet by remember { mutableStateOf(false) }
 
+    val notFoundRes =
+        when (pkg?.type) {
+            PackageType.THEME -> strings.theme_not_found
+            PackageType.ICON_PACK -> strings.icon_pack_not_found
+            else -> strings.ext_not_found
+        }
+
     RefreshablePreferenceLayout(
-        label = extension?.name ?: stringResource(strings.ext_not_found),
+        label = pkg?.name ?: stringResource(notFoundRes),
         backArrowVisible = true,
         isExpandedScreen = true,
         actions = {
-            IconButton(onClick = { showSourceCodeSheet = true }) {
-                Icon(painter = painterResource(drawables.xml), contentDescription = null)
+            pkg?.repository?.let {
+                IconButton(onClick = { showSourceCodeSheet = true }) {
+                    Icon(painter = painterResource(drawables.xml), contentDescription = null)
+                }
             }
 
-            if (extension?.hasSettings == true) {
+            if (pkg?.hasSettings == true) {
                 IconButton(
-                    enabled = extensionManager.isInstalled(extension.id),
-                    onClick = { navController.navigate("${SettingsRoutes.ExtensionSettings.route}/${extension.id}") },
+                    enabled = extensionManager.isInstalled(pkg.id),
+                    onClick = { navController.navigate("${SettingsRoutes.ExtensionSettings.route}/${pkg.id}") },
                 ) {
                     Icon(
                         painter = painterResource(drawables.settings),
@@ -109,18 +121,24 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
     ) {
         ExtensionDialogRenderer(dialogManager)
 
-        if (extension == null) {
-            Text(stringResource(strings.ext_not_found_desc), modifier = Modifier.padding(horizontal = 16.dp))
+        if (pkg == null) {
+            Text(stringResource(notFoundRes), modifier = Modifier.padding(horizontal = 16.dp))
         } else {
-            val installState = rememberInstallState(extension)
+            val installState = rememberPackageInstallState(pkg)
 
             Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 AboutSection(
-                    extension = extension,
+                    pkg = pkg,
                     refreshKey = refreshKey,
                     installState = installState,
                     updateInstallState = {
-                        if (extensionManager.getExtension(extension.id) == null) {
+                        if (pkg.type == PackageType.EXTENSION && extensionManager.getExtension(pkg.id) == null) {
+                            navController.popBackStack()
+                        } else if (pkg.type == PackageType.THEME && themeManager.getTheme(pkg.id) == null) {
+                            navController.popBackStack()
+                        } else if (
+                            pkg.type == PackageType.ICON_PACK && App.iconPackManager.getIconPackPackage(pkg.id) == null
+                        ) {
                             navController.popBackStack()
                         }
                     },
@@ -128,10 +146,10 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
                     dialogManager = dialogManager,
                 )
             }
-            TabSection(extension, scope, refreshKey, onLoaded = { isRefreshing = false })
+            TabSection(pkg, scope, refreshKey, onLoaded = { isRefreshing = false })
 
             if (showSourceCodeSheet) {
-                SourceCodeSheet(extension) { showSourceCodeSheet = false }
+                SourceCodeSheet(pkg) { showSourceCodeSheet = false }
             }
         }
     }
@@ -139,7 +157,7 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
 
 @Composable
 private fun AboutSection(
-    extension: Extension,
+    pkg: Package,
     refreshKey: Int,
     installState: InstallState,
     updateInstallState: (InstallState) -> Unit,
@@ -150,12 +168,19 @@ private fun AboutSection(
     val activity = LocalActivity.current as? AppCompatActivity
 
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        val placeholder =
+            when (pkg.type) {
+                PackageType.THEME -> drawables.palette
+                PackageType.ICON_PACK -> drawables.widgets
+                else -> drawables.extension
+            }
+
         AsyncImage(
             model =
                 ImageRequest.Builder(LocalContext.current)
-                    .data(extension.iconUrl)
-                    .placeholder(drawables.extension)
-                    .error(drawables.extension)
+                    .data(pkg.iconUrl)
+                    .placeholder(placeholder)
+                    .error(placeholder)
                     .crossfade(true)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
@@ -166,7 +191,7 @@ private fun AboutSection(
 
         Column {
             Text(
-                text = extension.name,
+                text = pkg.name,
                 style = Typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
@@ -177,24 +202,26 @@ private fun AboutSection(
                 Row(
                     modifier =
                         Modifier.clickable(
-                            enabled = extension.author.github != null,
+                            enabled = pkg.author.github != null,
                             onClick = {
-                                val githubProfileUrl = extension.author.github.let { "https://github.com/$it" }
-                                val intent = Intent(Intent.ACTION_VIEW, githubProfileUrl.toUri())
-                                context.startActivity(intent)
+                                val githubProfileUrl = pkg.author.github?.let { "https://github.com/$it" }
+                                githubProfileUrl?.let {
+                                    val intent = Intent(Intent.ACTION_VIEW, it.toUri())
+                                    context.startActivity(intent)
+                                }
                             },
                         ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     ExtensionAuthorIcon(
-                        extension.author,
+                        pkg.author,
                         Modifier.size(24.dp).padding(end = 4.dp),
                     )
                     Text(
-                        text = "${extension.author}",
+                        text = "${pkg.author}",
                         style = Typography.labelLarge,
                         color =
-                            if (extension.author.github != null) {
+                            if (pkg.author.github != null) {
                                 MaterialTheme.colorScheme.primary
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant
@@ -205,17 +232,18 @@ private fun AboutSection(
                 }
 
                 Text(
-                    text = " • v${extension.version}",
+                    text = " • v${pkg.version}",
                     style = Typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                val isUpdatable = extension is UpdatableExtension && extension.hasUpdate()
-                if (isUpdatable) {
+                val newVersion = (pkg as? UpdatablePackage)?.newVersion
+
+                newVersion?.let {
                     Text(
-                        text = " → v${extension.newVersion}",
+                        text = " → v$it",
                         style = Typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         maxLines = 1,
@@ -223,34 +251,35 @@ private fun AboutSection(
                     )
                 }
 
-                var isCrashed by remember {
-                    mutableStateOf(extensionManager.isExtensionCrashed(extension))
-                }
-                if (isCrashed) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = " • ",
-                            style = Typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                        )
+                if (pkg.type == PackageType.EXTENSION) {
+                    var isCrashed by remember {
+                        mutableStateOf(extensionManager.isExtensionCrashed(pkg as Extension))
+                    }
+                    if (isCrashed) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = " • ",
+                                style = Typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                            )
 
-                        Text(
-                            text = stringResource(strings.disabled_crashed),
-                            style = Typography.labelLarge,
-                            color = MaterialTheme.colorScheme.error,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier =
-                                Modifier.clickable(
-                                    onClick = {
-                                        // TODO: Crash detail screen
-                                        extensionManager.setExtensionCrashed(extension, false)
-                                        toast("Re-enabled extension. Restart the app for changes to take effect.")
-                                        isCrashed = false
-                                    }
-                                ),
-                        )
+                            Text(
+                                text = stringResource(strings.disabled_crashed),
+                                style = Typography.labelLarge,
+                                color = MaterialTheme.colorScheme.error,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier =
+                                    Modifier.clickable(
+                                        onClick = {
+                                            extensionManager.setExtensionCrashed(pkg as Extension, false)
+                                            toast("Re-enabled extension. Restart the app for changes to take effect.")
+                                            isCrashed = false
+                                        }
+                                    ),
+                            )
+                        }
                     }
                 }
             }
@@ -258,82 +287,62 @@ private fun AboutSection(
     }
 
     LaunchedEffect(refreshKey) {
-        extensionManager.invalidateSize(extension)
+        if (pkg.type == PackageType.EXTENSION) {
+            extensionManager.invalidateSize(pkg as Extension)
+        }
     }
 
     val size =
-        remember(extension.size) {
-            extension.size?.let { formatFileSize(it) } ?: "---"
+        remember(pkg.size) {
+            pkg.size?.let { formatFileSize(it) } ?: "---"
         }
 
-    val rating = extension.rating?.toString() ?: "---"
-    val showStar = extension.rating != null
+    val rating = pkg.rating?.toString() ?: "---"
+    val showStar = pkg.rating != null
 
     val downloadCount =
-        remember(extension.downloads) {
-            extension.downloads?.let { formatNumberCompact(it) } ?: "---"
+        remember(pkg.downloads) {
+            pkg.downloads?.let { formatNumberCompact(it) } ?: "---"
         }
 
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), downloadCount)
-        ExtensionStats(
+        PackageStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), downloadCount)
+        PackageStats(
             Modifier.weight(1f),
             stringResource(strings.rating).uppercase(),
             rating,
             if (showStar) Icons.Default.Star else null,
         )
-        ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), size)
+        PackageStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), size)
     }
 
     val xedVersionCode = App.versionCode
-    val minAppVersion = extension.minAppVersion
+    val minAppVersion = pkg.minAppVersion
     val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
 
     val currentArchitecture = Build.SUPPORTED_ABIS.firstOrNull()
     val supportedArchitecture =
-        currentArchitecture == null || extension.supportedArchitectures?.contains(currentArchitecture) ?: true
-
-    val recommendations = getRecommendations(extension)
+        currentArchitecture == null || pkg.supportedArchitectures?.contains(currentArchitecture) ?: true
 
     ExtensionActionButtons(
         outdatedWarning = outdatedClient || !supportedArchitecture,
         installState = installState,
         scope = scope,
-        progress = ExtensionRegistry.downloadProgress[extension.id] ?: 0f,
+        progress = StoreManager.downloadProgress[pkg.id] ?: 0f,
         onInstallClick = {
-            val action = {
-                val missing = getMissingDependencies(extension)
-                if (missing.isNotEmpty()) {
-                    dialogManager.showDependencies(extension, missing) {
-                        runExtensionInstallAction(extension, updateInstallState, context, activity)
-                    }
-                } else {
-                    runExtensionInstallAction(extension, updateInstallState, context, activity)
-                }
-            }
-
-            if (Settings.warn_extensions) {
-                dialogManager.showWarning(action)
-            } else {
-                action()
-            }
+            runPackageInstallAction(pkg, updateInstallState, context, activity, dialogManager)
         },
-        onUninstallClick = { runExtensionUninstallAction(extension, updateInstallState, scope, activity) },
+        onUninstallClick = {
+            runPackageUninstallAction(pkg, updateInstallState, scope, activity)
+        },
         onUpdateClick = {
-            if (extension !is UpdatableExtension) return@ExtensionActionButtons
-
-            val missing = getMissingDependencies(extension)
-            if (missing.isNotEmpty()) {
-                dialogManager.showDependencies(extension, missing) {
-                    runExtensionUpdateAction(extension, updateInstallState, context, activity)
-                }
-            } else {
-                runExtensionUpdateAction(extension, updateInstallState, context, activity)
-            }
+            runPackageUpdateAction(pkg, updateInstallState, context, activity, dialogManager)
         },
-        showRecommendedButton = recommendations.isNotEmpty(),
+        showRecommendedButton = pkg.type == PackageType.EXTENSION && getRecommendations(pkg as Extension).isNotEmpty(),
         onRecommendedClick = {
-            dialogManager.showRecommendations(extension, recommendations)
+            if (pkg is Extension) {
+                dialogManager.showRecommendations(pkg, getRecommendations(pkg))
+            }
         },
     )
 
@@ -353,7 +362,7 @@ private fun AboutSection(
 }
 
 @Composable
-fun ExtensionStats(modifier: Modifier = Modifier, title: String, value: String, trailingVector: ImageVector? = null) {
+fun PackageStats(modifier: Modifier = Modifier, title: String, value: String, trailingVector: ImageVector? = null) {
     val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
 
     Card(
@@ -377,18 +386,18 @@ fun ExtensionStats(modifier: Modifier = Modifier, title: String, value: String, 
     }
 }
 
-enum class ExtensionRoutes(val icon: Icon, val label: String, val route: String) {
+enum class PackageRoutes(val icon: Icon, val label: String, val route: String) {
     OVERVIEW(Icon.ResourceIcon(drawables.file), strings.overview.getString(), "overview"),
     REVIEWS(Icon.ResourceIcon(drawables.comment), strings.reviews.getString(), "reviews"),
     CHANGELOG(Icon.ResourceIcon(drawables.update), strings.changelog.getString(), "changelog"),
 }
 
 @Composable
-private fun TabSection(extension: Extension, scope: CoroutineScope, refreshKey: Int, onLoaded: () -> Unit) {
-    val pagerState = rememberPagerState(initialPage = 0) { ExtensionRoutes.entries.size }
+private fun TabSection(pkg: Package, scope: CoroutineScope, refreshKey: Int, onLoaded: () -> Unit) {
+    val pagerState = rememberPagerState(initialPage = 0) { PackageRoutes.entries.size }
 
     PrimaryScrollableTabRow(edgePadding = 16.dp, selectedTabIndex = pagerState.currentPage) {
-        ExtensionRoutes.entries.forEachIndexed { index, destination ->
+        PackageRoutes.entries.forEachIndexed { index, destination ->
             LeadingIconTab(
                 icon = { XedIcon(destination.icon) },
                 selected = pagerState.currentPage == index,
@@ -407,10 +416,10 @@ private fun TabSection(extension: Extension, scope: CoroutineScope, refreshKey: 
         modifier = Modifier.fillMaxSize(),
     ) { page ->
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            when (ExtensionRoutes.entries[page]) {
-                ExtensionRoutes.OVERVIEW -> MarkdownViewer(extension.readmeUrl, refreshKey, onLoaded)
-                ExtensionRoutes.REVIEWS -> ReviewsPage(extension, refreshKey, onLoaded)
-                ExtensionRoutes.CHANGELOG -> MarkdownViewer(extension.changelogUrl, refreshKey, onLoaded)
+            when (PackageRoutes.entries[page]) {
+                PackageRoutes.OVERVIEW -> MarkdownViewer(pkg.readmeUrl, refreshKey, onLoaded)
+                PackageRoutes.REVIEWS -> ReviewsPage(pkg, refreshKey, onLoaded)
+                PackageRoutes.CHANGELOG -> MarkdownViewer(pkg.changelogUrl, refreshKey, onLoaded)
             }
         }
     }

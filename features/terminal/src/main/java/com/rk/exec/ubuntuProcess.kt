@@ -2,6 +2,7 @@ package com.rk.exec
 
 import android.annotation.SuppressLint
 import android.util.Log
+import com.rk.feature.FeatureRegistry
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localDir
@@ -12,7 +13,6 @@ import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
-import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -113,7 +113,7 @@ suspend fun ubuntuProcess(
                 addAll(command)
             }
 
-        if (BuildConfig.DEBUG) {
+        if (FeatureRegistry.isEnabled("debug_mode")) {
             Log.i("SANDBOX", args.toList().toString())
         }
 
@@ -125,7 +125,7 @@ suspend fun ubuntuProcess(
             env["TERM"] = "xterm-256color"
             env["LANG"] = "C.UTF-8"
             env["PUBLIC_HOME"] = application!!.getExternalFilesDir(null)?.absolutePath.orEmpty()
-            env["DEBUG"] = BuildConfig.DEBUG.toString()
+            env["DEBUG"] = FeatureRegistry.isEnabled("debug_mode").toString()
             env["LOCAL"] = localDir().absolutePath
             env["PRIVATE_DIR"] = application!!.filesDir.parentFile!!.absolutePath
             env["EXT_HOME"] = sandboxHomeDir().absolutePath

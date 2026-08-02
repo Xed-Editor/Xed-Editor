@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.rk.extension.Extension
-import com.rk.extension.ExtensionId
+import com.rk.extension.model.ExtensionId
 import com.rk.extension.extensionManager
 import com.rk.resources.drawables
 import com.rk.resources.strings

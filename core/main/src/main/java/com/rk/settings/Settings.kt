@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import com.rk.commands.ToolbarConfiguration
+import com.rk.feature.FeatureRegistry
 import com.rk.filetree.SortMode
 import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_DRAWER
 import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_SEARCH
@@ -69,10 +70,28 @@ object Settings {
             false,
         )
     var has_shown_terminal_dir_warning by CachedPreference("has_shown_terminal_dir_warning", false)
-    var anr_watchdog by CachedPreference("anr", BuildConfig.DEBUG)
-    var strict_mode by CachedPreference("strict_mode", BuildConfig.DEBUG)
+    private var _anr_watchdog by CachedPreference("anr", BuildConfig.DEBUG)
+    var anr_watchdog: Boolean
+        get() = FeatureRegistry.isEnabled("debug_mode") && _anr_watchdog
+        set(value) {
+            _anr_watchdog = value
+        }
+
+    private var _strict_mode by CachedPreference("strict_mode", BuildConfig.DEBUG)
+    var strict_mode: Boolean
+        get() = FeatureRegistry.isEnabled("debug_mode") && _strict_mode
+        set(value) {
+            _strict_mode = value
+        }
+
     var expose_home_dir by CachedPreference("expose_home_dir", false)
-    var verbose_error by CachedPreference("verbose_error", BuildConfig.DEBUG)
+
+    private var _verbose_error by CachedPreference("verbose_error", BuildConfig.DEBUG)
+    var verbose_error: Boolean
+        get() = FeatureRegistry.isEnabled("debug_mode") && _verbose_error
+        set(value) {
+            _verbose_error = value
+        }
     var project_as_pwd by CachedPreference("project_as_pwd", true)
     var terminate_sessions_on_exit by CachedPreference("terminate_sessions_on_exit", false)
     var donated by CachedPreference("donated", false)
@@ -80,8 +99,19 @@ object Settings {
     var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
     var textmate_suggestions by CachedPreference("textmate_suggestions", true)
     var seccomp_mode by CachedPreference("seccomp_mode", "unspecified")
-    var desktop_mode by CachedPreference("desktop_mode", false)
-    var theme_flipper by CachedPreference("theme_flipper", false)
+    private var _desktop_mode by CachedPreference("desktop_mode", false)
+    var desktop_mode: Boolean
+        get() = FeatureRegistry.isEnabled("debug_mode") && _desktop_mode
+        set(value) {
+            _desktop_mode = value
+        }
+
+    private var _theme_flipper by CachedPreference("theme_flipper", false)
+    var theme_flipper: Boolean
+        get() = FeatureRegistry.isEnabled("debug_mode") && _theme_flipper
+        set(value) {
+            _theme_flipper = value
+        }
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
     var compact_folders_drawer by CachedPreference("compact_folders_drawer", true)
@@ -109,8 +139,19 @@ object Settings {
     var auto_closing_bracket by CachedPreference("auto_closing_bracket", true)
     var confirm_exit by CachedPreference("confirm_exit", true)
     var terminal_clipboard_keybindings by CachedPreference("terminal_clipboard_keybindings", true)
-    var record_rpc by CachedPreference("record_rpc", BuildConfig.DEBUG)
-    var enable_logcat by CachedPreference("enable_logcat", false)
+    private var _record_rpc by CachedPreference("record_rpc", BuildConfig.DEBUG)
+    var record_rpc: Boolean
+        get() = FeatureRegistry.isEnabled("debug_mode") && _record_rpc
+        set(value) {
+            _record_rpc = value
+        }
+
+    private var _enable_logcat by CachedPreference("enable_logcat", false)
+    var enable_logcat: Boolean
+        get() = FeatureRegistry.isEnabled("debug_mode") && _enable_logcat
+        set(value) {
+            _enable_logcat = value
+        }
 
     // Int settings
     var tab_size by CachedPreference("tab_size", 4)

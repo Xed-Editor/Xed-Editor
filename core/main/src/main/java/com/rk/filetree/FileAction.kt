@@ -10,8 +10,10 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.drawer.DrawerViewModel
+import com.rk.extension.api.IntentHandleRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
+import com.rk.file.unzipTo
 import com.rk.icons.CreateNewFile
 import com.rk.icons.CreateNewFolder
 import com.rk.icons.Icon
@@ -26,7 +28,6 @@ import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.zip.ZipFile
 
 data class FileActionContext(
     val file: FileObject,
@@ -291,21 +292,7 @@ object UnzipAction : FileAction() {
 
             runCatching {
                 context.viewModel.withFileOperation {
-                    ZipFile(zipFile).use { zip ->
-                        zip.entries().asSequence().forEach { entry ->
-                            val entryFile = File(targetDir, entry.name)
-                            if (entry.isDirectory) {
-                                entryFile.mkdirs()
-                            } else {
-                                entryFile.parentFile?.mkdirs()
-                                zip.getInputStream(entry).use { input ->
-                                    entryFile.outputStream().use { output ->
-                                        input.copyTo(output)
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    zipFile.unzipTo(targetDir)
                 }
             }
                 .onSuccess {
@@ -320,7 +307,20 @@ object UnzipAction : FileAction() {
         }
     }
 
-    override fun isSupported(file: FileObject) = file.isZip() || file.isXedExtension()
+    override fun isSupported(file: FileObject) = file.isZip() || file.isXedPackage()
+
+    override val type = FileActionType(file = true, folder = false, rootFolder = false)
+}
+
+object InstallPackageAction : FileAction() {
+    override val icon = Icon.ResourceIcon(drawables.download)
+    override val title = strings.install.getString()
+
+    override fun action(context: FileActionContext) {
+        context.viewModel.viewModelScope.launch { IntentHandleRegistry.handleIntent(context.file) }
+    }
+
+    override fun isSupported(file: FileObject) = file.isXedPackage()
 
     override val type = FileActionType(file = true, folder = false, rootFolder = false)
 }
