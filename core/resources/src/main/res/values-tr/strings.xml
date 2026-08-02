@@ -744,4 +744,18 @@
     <string name="compression_ratio">Sıkıştırma oranı</string>
     <string name="compression_method">Sıkıştırma yöntemi</string>
     <string name="comment">Yorum</string>
+    <string name="theme_migrated">Başarıyla %d tema geçişi yapıldı</string>
+    <string name="theme_not_found_desc">Bu sayfa kullanılamıyor. Bunun nedeni, yerel bir temanın kaldırılmış olması veya bir mağaza temasının sahibi tarafından kayıt defterinden silinmiş olması olabilir.</string>
+    <string name="icon_pack_not_found_desc">Bu sayfa kullanılamıyor. Bu durum, yerel bir ikon paketinin kaldırılması veya bir mağaza ikon paketinin sahibi tarafından kayıt defterinden silinmesi nedeniyle oluşabilir.</string>
+    <string name="browse_themes">Temalara göz at</string>
+    <string name="browse_icon_packs">İkon paketlerine göz at</string>
+    <string name="theme_not_found">Tema bulunamadı</string>
+    <string name="icon_pack_not_found">İkon paketi bulunamadı</string>
+    <string name="uninstall_theme_dialog">Temayı kaldırmak istiyor musunuz?</string>
+    <string name="uninstall_theme_dialog_desc">\'%s\' öğesini kaldırmak istediğinizden emin misiniz?</string>
+    <string name="uninstall_icon_pack_dialog">İkon paketini kaldırmak istiyor musunuz?</string>
+    <string name="uninstall_icon_pack_dialog_desc">\'%s\' öğesini kaldırmak istediğinizden emin misiniz?</string>
+    <string name="preview">Önizleme</string>
+    <string name="xed_package">Xed paketi</string>
+    <string name="migrating_themes">Temalar taşınıyor…</string>
 </resources>
