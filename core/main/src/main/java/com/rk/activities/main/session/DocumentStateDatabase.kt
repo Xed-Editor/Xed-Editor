@@ -30,6 +30,11 @@ interface DocumentStateDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertState(state: DocumentState)
 
+    @Query(
+        "DELETE FROM document_state WHERE path NOT IN (SELECT path FROM document_state ORDER BY lastOpened DESC LIMIT :limit)"
+    )
+    suspend fun deleteOldestRecords(limit: Int)
+
     @Query("DELETE FROM document_state WHERE path = :path") suspend fun deleteByPath(path: String)
 
     @Query("DELETE FROM document_state WHERE lastOpened < :timestamp") suspend fun deleteOlderThan(timestamp: Long)

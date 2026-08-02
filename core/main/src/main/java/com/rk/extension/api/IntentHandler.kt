@@ -16,10 +16,12 @@ fun interface IntentHandler {
 object IntentHandleRegistry {
     private val handlers = mutableListOf<IntentHandler>()
 
+    @XedExtensionPoint
     fun register(handler: IntentHandler) {
         handlers.add(handler)
     }
 
+    @XedExtensionPoint
     fun unregister(handler: IntentHandler) {
         handlers.remove(handler)
     }
