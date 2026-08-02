@@ -743,4 +743,18 @@
     <string name="compression_ratio">Kompressionsverhältnis</string>
     <string name="compression_method">Kompressionsverfahren</string>
     <string name="comment">Kommentar</string>
+    <string name="theme_migrated">%d Themen erfolgreich migriert</string>
+    <string name="theme_not_found_desc">Diese Seite ist nicht verfügbar. Dies kann vorkommen, wenn ein lokales Thema deinstalliert oder ein Store-Thema vom Besitzer aus der Registrierung entfernt wurde.</string>
+    <string name="icon_pack_not_found_desc">Diese Seite ist nicht verfügbar. Dies kann vorkommen, wenn ein lokales Icon-Paket deinstalliert oder ein Store-Icon-Paket vom Besitzer aus der Registrierung entfernt wurde.</string>
+    <string name="browse_themes">Themen durchstöbern</string>
+    <string name="browse_icon_packs">Icon-Pakete durchstöbern</string>
+    <string name="theme_not_found">Thema nicht gefunden</string>
+    <string name="icon_pack_not_found">Icon-Paket nicht gefunden</string>
+    <string name="uninstall_theme_dialog">Thema deinstallieren?</string>
+    <string name="uninstall_theme_dialog_desc">Bist du sicher, dass du \'%s\' deinstallieren möchtest?</string>
+    <string name="uninstall_icon_pack_dialog">Icon-Paket deinstallieren?</string>
+    <string name="uninstall_icon_pack_dialog_desc">Bist du sicher, dass du \'%s\' deinstallieren möchtest?</string>
+    <string name="preview">Vorschau</string>
+    <string name="xed_package">Xed-Paket</string>
+    <string name="migrating_themes">Themen werden migriert…</string>
 </resources>
