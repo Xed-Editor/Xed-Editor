@@ -23,7 +23,6 @@ import com.rk.file.themeDir
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
@@ -317,6 +316,11 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         listFiles?.forEach { file ->
             if (file.isFile) {
                 runCatching {
+                    if (migratedCount == 0) {
+                        withContext(Dispatchers.Main) {
+                            toast(strings.migrating_themes.getString())
+                        }
+                    }
                     ObjectInputStream(FileInputStream(file)).use { input ->
                         val oldConfig = input.readObject()
                         if (oldConfig is ThemeConfig) {
@@ -333,16 +337,6 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                             finishThemeInstall(manifest, null)
                             migratedCount++
                             file.delete()
-
-                            if (oldConfig.id != null && Settings.theme == oldConfig.id) {
-                                Settings.theme = manifest.id
-                            }
-
-                            loadedThemes
-                                .find { it.id == Settings.theme }
-                                ?.let {
-                                    currentTheme.value = it
-                                }
                         }
                     }
                 }

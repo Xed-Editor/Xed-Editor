@@ -49,11 +49,9 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
-import com.rk.theme.amoled
 import com.rk.theme.blueberry
 import com.rk.theme.builtInThemes
 import com.rk.theme.currentTheme
-import com.rk.theme.dynamicTheme
 import kotlinx.coroutines.launch
 
 @Composable
@@ -79,7 +77,6 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                 state = amoledState,
                 sideEffect = {
                     Settings.amoled = it
-                    amoled.value = it
                     refreshEditors()
                 },
             )
@@ -92,7 +89,6 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                 state = monetState,
                 sideEffect = {
                     Settings.monet = it
-                    dynamicTheme.value = it
                     refreshEditors()
                 },
             )
@@ -101,7 +97,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
         PreferenceGroup(heading = stringResource(strings.themes)) {
             themeManager.loadedThemes.forEach { theme ->
                 SettingsItem(
-                    isEnabled = !dynamicTheme.value,
+                    isEnabled = !Settings.monet,
                     label = theme.name,
                     description = null,
                     showSwitch = false,
@@ -109,14 +105,13 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                     startWidget = {
                         RadioButton(
                             modifier = Modifier.padding(start = 16.dp),
-                            enabled = !dynamicTheme.value,
-                            selected = currentTheme.value?.id == theme.id,
+                            enabled = !Settings.monet,
+                            selected = currentTheme.value.id == theme.id,
                             onClick = null,
                         )
                     },
                     sideEffect = {
                         val oldTheme = currentTheme.value
-                        currentTheme.value = theme
                         Settings.theme = theme.id
                         refreshEditors()
                         DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(theme, oldTheme)) }
@@ -125,9 +120,8 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                         if (!builtInThemes.contains(theme)) {
                             IconButton(
                                 onClick = {
-                                    if (currentTheme.value?.id == theme.id) {
+                                    if (currentTheme.value.id == theme.id) {
                                         val oldTheme = currentTheme.value
-                                        currentTheme.value = blueberry
                                         Settings.theme = blueberry.id
                                         refreshEditors()
                                         DefaultScope.launch {

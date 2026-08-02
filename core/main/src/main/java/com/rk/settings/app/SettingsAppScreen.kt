@@ -36,9 +36,7 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
-import com.rk.theme.amoled
 import com.rk.theme.currentTheme
-import com.rk.theme.dynamicTheme
 import com.rk.utils.application
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
@@ -228,9 +226,6 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                                 // Update theme in the UI if the setting changed
                                 withContext(Dispatchers.Main) {
                                     AppCompatDelegate.setDefaultNightMode(Settings.theme_mode)
-                                    dynamicTheme.value = Settings.monet
-                                    amoled.value = Settings.amoled
-                                    currentTheme.value = null
                                     refreshEditors()
                                 }
 
