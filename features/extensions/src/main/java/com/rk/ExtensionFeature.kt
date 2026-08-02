@@ -58,12 +58,6 @@ class ExtensionFeature : Feature {
     override fun init(application: Application) {
         extensionManager = ExtensionManager(application)
 
-        dialogProvider =
-            DialogProvider {
-                MainActivity.instance?.let { XedInstallDialog(viewModel = it.viewModel) }
-            }
-                .also { DialogRegistry.register(it) }
-
         intentHandler =
             IntentHandler { file ->
                 if (!file.isXedPackage()) return@IntentHandler false
@@ -100,6 +94,18 @@ class ExtensionFeature : Feature {
                 return@IntentHandler true
             }
                 .also { IntentHandleRegistry.register(it) }
+
+        dialogProvider =
+            DialogProvider {
+                MainActivity.instance?.let {
+                    val viewModel = it.viewModel
+                    val manifest = viewModel.pendingExtensionManifest ?: return@let
+                    val packageFile = viewModel.pendingExtensionPackage ?: return@let
+                    val icon = viewModel.pendingExtensionIcon ?: return@let
+                    XedInstallDialog(manifest, icon, packageFile, viewModel::closeExtensionIntentDialog)
+                }
+            }
+                .also { DialogRegistry.register(it) }
 
         // Initialize and load extensions
         GlobalScope.launch(Dispatchers.IO) {

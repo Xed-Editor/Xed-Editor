@@ -15,12 +15,12 @@ import com.rk.file.FileObject
 import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
+import java.io.File
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.File
 
 fun List<Tab>.filterEditorTabs() = filterIsInstance<EditorTab>()
 
@@ -70,7 +70,7 @@ class MainViewModel : ViewModel() {
     var pendingExtensionManifest by mutableStateOf<ExtensionManifest?>(null)
         private set
 
-    var pendingExtensionFile by mutableStateOf<File?>(null)
+    var pendingExtensionPackage by mutableStateOf<File?>(null)
         private set
 
     var pendingExtensionIcon by mutableStateOf<File?>(null)
@@ -78,19 +78,22 @@ class MainViewModel : ViewModel() {
 
     fun openExtensionIntentDialog(manifest: ExtensionManifest, file: File, icon: File) {
         pendingExtensionManifest = manifest
-        pendingExtensionFile = file
+        pendingExtensionPackage = file
         pendingExtensionIcon = icon
     }
 
     fun closeExtensionIntentDialog() {
-        viewModelScope.launch(Dispatchers.IO) {
-            pendingExtensionIcon?.delete()
-            pendingExtensionFile?.delete()
+        val icon = pendingExtensionIcon
+        val file = pendingExtensionPackage
 
-            withContext(Dispatchers.Main) {
-                pendingExtensionManifest = null
-                pendingExtensionFile = null
-                pendingExtensionIcon = null
+        viewModelScope.launch(Dispatchers.Main) {
+            pendingExtensionManifest = null
+            pendingExtensionPackage = null
+            pendingExtensionIcon = null
+
+            withContext(Dispatchers.IO) {
+                icon?.delete()
+                file?.delete()
             }
         }
     }

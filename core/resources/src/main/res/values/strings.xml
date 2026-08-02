@@ -73,6 +73,7 @@
     <string name="app">Application</string>
     <string name="oled_desc">Applies a pure black theme</string>
     <string name="themes">Themes</string>
+    <string name="theme_migrated">Successfully migrated %d themes</string>
     <string name="editor">Editor</string>
     <string name="smooth_tabs">Smooth tabs</string>
     <string name="smooth_tab_desc">Smoothly switch between tabs</string>

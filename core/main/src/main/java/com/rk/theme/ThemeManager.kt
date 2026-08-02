@@ -23,6 +23,7 @@ import com.rk.file.themeDir
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
@@ -310,8 +311,9 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
     }
 
     @Deprecated("Migration from old theme format for backwards compatibility")
-    private fun migrateOldThemes(themeDir: File) {
+    private suspend fun migrateOldThemes(themeDir: File) {
         val listFiles = themeDir.listFiles()
+        var migratedCount = 0
         listFiles?.forEach { file ->
             if (file.isFile) {
                 runCatching {
@@ -327,17 +329,32 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                                     light = oldConfig.light?.let { ThemePaletteNew.fromLegacyPalette(it) },
                                     dark = oldConfig.dark?.let { ThemePaletteNew.fromLegacyPalette(it) },
                                 )
-                            launch(Dispatchers.IO) {
-                                finishThemeInstall(manifest, null)
-                                indexLocalThemes()
-                            }
+
+                            finishThemeInstall(manifest, null)
+                            migratedCount++
                             file.delete()
+
+                            if (oldConfig.id != null && Settings.theme == oldConfig.id) {
+                                Settings.theme = manifest.id
+                            }
+
+                            loadedThemes
+                                .find { it.id == Settings.theme }
+                                ?.let {
+                                    currentTheme.value = it
+                                }
                         }
                     }
                 }
                     .onFailure {
                         file.delete()
                     }
+            }
+        }
+
+        if (migratedCount > 0) {
+            withContext(Dispatchers.Main) {
+                toast(strings.theme_migrated.getFilledString(migratedCount))
             }
         }
     }

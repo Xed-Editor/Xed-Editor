@@ -24,10 +24,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.rk.activities.main.MainViewModel
 import com.rk.extension.InstallResult
 import com.rk.extension.extensionManager
 import com.rk.extension.loader.loadAfterInstall
+import com.rk.extension.model.ExtensionManifest
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.extension.ExtensionAuthorIcon
@@ -35,17 +35,16 @@ import com.rk.settings.extension.handleInstallResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 @Composable
-fun XedInstallDialog(viewModel: MainViewModel) {
-    val manifest = viewModel.pendingExtensionManifest ?: return
-
+fun XedInstallDialog(manifest: ExtensionManifest, icon: File, packageFile: File, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
 
     AlertDialog(
-        onDismissRequest = { viewModel.closeExtensionIntentDialog() },
+        onDismissRequest = onDismiss,
         title = { Text(stringResource(strings.install_from_storage)) },
         text = {
             Column {
@@ -53,7 +52,7 @@ fun XedInstallDialog(viewModel: MainViewModel) {
                     AsyncImage(
                         model =
                             ImageRequest.Builder(context)
-                                .data(viewModel.pendingExtensionIcon)
+                                .data(icon)
                                 .fallback(drawables.extension)
                                 .placeholder(drawables.extension)
                                 .error(drawables.extension)
@@ -99,19 +98,16 @@ fun XedInstallDialog(viewModel: MainViewModel) {
         confirmButton = {
             TextButton(
                 onClick = {
-                    val file = viewModel.pendingExtensionFile
-                    if (file != null) {
-                        scope.launch(Dispatchers.IO) {
-                            val result = extensionManager.installExtensionFromZip(file)
+                    scope.launch(Dispatchers.IO) {
+                        val result = extensionManager.installExtensionFromZip(packageFile)
 
-                            withContext(Dispatchers.Main) {
-                                handleInstallResult(result, activity)
-                                viewModel.closeExtensionIntentDialog()
-                            }
+                        withContext(Dispatchers.Main) {
+                            handleInstallResult(result, activity)
+                            onDismiss()
+                        }
 
-                            if (result is InstallResult.Success) {
-                                result.extension.loadAfterInstall(result, activity)
-                            }
+                        if (result is InstallResult.Success) {
+                            result.extension.loadAfterInstall(result, activity)
                         }
                     }
                 }
@@ -120,11 +116,7 @@ fun XedInstallDialog(viewModel: MainViewModel) {
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = {
-                    viewModel.closeExtensionIntentDialog()
-                }
-            ) {
+            TextButton(onClick = onDismiss) {
                 Text(stringResource(strings.cancel))
             }
         },
