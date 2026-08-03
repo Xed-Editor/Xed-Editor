@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModelProvider
 import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.commands.CommandProvider
 import com.rk.components.DialogProvider
 import com.rk.components.DialogRegistry
 import com.rk.drawer.AddProjectCategory
@@ -91,6 +92,8 @@ class GitFeature : Feature {
 
         FileDecorationRegistry.register(GitFileDecorationProvider)
         FilePropertiesRegistry.register(GitProperty)
+
+        CommandProvider.registerCommand(GitInitCommand)
 
         serviceTabProvider =
             ServiceTabProvider { owner ->
@@ -174,6 +177,7 @@ class GitFeature : Feature {
         settingsRoute?.let { SettingsRegistry.unregisterRoute(it) }
         FileDecorationRegistry.unregister(GitFileDecorationProvider)
         FilePropertiesRegistry.unregister(GitProperty)
+        CommandProvider.unregisterCommand(GitInitCommand)
         serviceTabProvider?.let { ServiceTabRegistry.unregister(it) }
         subscriptions.forEach { it.unsubscribe() }
         subscriptions.clear()

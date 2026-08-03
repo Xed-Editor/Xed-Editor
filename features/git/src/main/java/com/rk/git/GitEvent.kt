@@ -5,8 +5,10 @@ import com.rk.file.FileObject
 
 /** Events related to Git version control operations. */
 sealed interface GitEvent : Event {
-    // TODO: Implement repo init, branch deletion, stash management, rebase, merge, conflicts
-    // data class RepositoryInitialized(val path: String) : GitEvent
+    // TODO: Implement branch deletion, stash management, rebase, merge, conflicts
+
+    /** Event triggered when a Git repository has been successfully initialized. */
+    data class RepositoryInitialized(val root: FileObject) : GitEvent
 
     /** Event triggered when a Git repository has been successfully cloned. */
     data class RepositoryCloned(

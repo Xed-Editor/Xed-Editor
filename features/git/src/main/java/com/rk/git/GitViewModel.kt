@@ -189,6 +189,22 @@ class GitViewModel : ViewModel() {
         }
     }
 
+    fun initRepository(root: File, onInit: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                Git.init().setDirectory(root).call()
+                toast(strings.git_init_success)
+                Events.publish(GitEvent.RepositoryInitialized(FileWrapper(root)))
+                onInit()
+            } catch (e: Exception) {
+                toast(strings.git_init_error.getFilledString(e.message ?: strings.unknown_error))
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
+    }
+
     fun checkout(branchName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }

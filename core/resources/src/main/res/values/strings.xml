@@ -522,6 +522,10 @@
     <string name="advanced">Advanced</string>
     <string name="git" translatable="false">Git</string>
     <string name="git_desc">Configure version control system</string>
+    <string name="git_init">Initialize repository</string>
+    <string name="git_init_desc">Initialize a new git repository in the current project</string>
+    <string name="git_init_success">Repository initialized</string>
+    <string name="git_init_error">Failed to initialize repository: %s</string>
     <string name="credentials">Credentials</string>
     <string name="credentials_desc">Credentials for accessing remote repositories</string>
     <string name="user_data">User data</string>
