@@ -727,4 +727,6 @@
     <string name="description">Descrizione</string>
     <string name="display_name">Nome visualizzato</string>
     <string name="github_username">Nome utente GitHub</string>
+    <string name="theme_migrated">%d temi migrati correttamente</string>
+    <string name="incompatible_icon_pack_warning">Questo pacchetto icone non è compatibile con la versione attuale di Xed-Editor. Vuoi procedere comunque?</string>
 </resources>
