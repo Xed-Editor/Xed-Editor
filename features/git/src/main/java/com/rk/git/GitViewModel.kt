@@ -651,6 +651,95 @@ class GitViewModel : ViewModel() {
         }
     }
 
+    fun deleteBranch(branchName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    git.branchDelete().setBranchNames(branchName).setForce(true).call()
+                    toast(strings.delete_complete)
+                }
+                Events.publish(GitEvent.BranchDeleted(FileWrapper(currentRoot.value!!), branchName))
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    syncChanges(currentRoot.value!!)
+                }
+            }
+        }
+    }
+
+    fun renameBranch(oldName: String, newName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    git.branchRename().setOldName(oldName).setNewName(newName).call()
+                    toast(strings.rename_complete)
+                }
+                Events.publish(GitEvent.BranchRenamed(FileWrapper(currentRoot.value!!), oldName, newName))
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    currentBranch = Git.open(currentRoot.value).currentHead()
+                    syncChanges(currentRoot.value!!)
+                }
+            }
+        }
+    }
+
+    fun merge(branchName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    val result = git.merge().include(git.repository.resolve(branchName)).call()
+                    if (result.mergeStatus.isSuccessful) {
+                        toast(strings.merge_complete)
+                        Events.publish(GitEvent.Merged(FileWrapper(currentRoot.value!!), currentBranch, branchName))
+                    } else {
+                        toast("Merge failed: ${result.mergeStatus}")
+                    }
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    syncChanges(currentRoot.value!!)
+                }
+            }
+        }
+    }
+
+    fun rebase(branchName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    val result = git.rebase().setUpstream(branchName).call()
+                    if (result.status.isSuccessful) {
+                        toast(strings.rebase_complete)
+                        Events.publish(GitEvent.Rebased(FileWrapper(currentRoot.value!!), currentBranch, branchName))
+                    } else {
+                        toast("Rebase failed: ${result.status}")
+                    }
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    syncChanges(currentRoot.value!!)
+                }
+            }
+        }
+    }
+
     companion object {
         private const val BRANCH_PREFIX = Constants.R_HEADS // refs/heads/
         private const val REMOTE_PREFIX = Constants.R_REMOTES // refs/remotes/

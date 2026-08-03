@@ -762,4 +762,15 @@
     <string name="preview">Preview</string>
     <string name="xed_package">Xed package</string>
     <string name="migrating_themes">Migrating themes…</string>
+    <string name="checkout">Checkout</string>
+    <string name="merge">Merge</string>
+    <string name="rebase">Rebase</string>
+    <string name="rename_branch">Rename branch</string>
+    <string name="rename_branch_label">New name for branch \'%1$s\'</string>
+    <string name="delete_branch">Delete branch?</string>
+    <string name="delete_branch_msg">Are you sure you want to permanently delete the branch \'%s\'?</string>
+    <string name="merge_complete">Merge complete</string>
+    <string name="rebase_complete">Rebase complete</string>
+    <string name="rename_complete">Rename complete</string>
+    <string name="delete_complete">Delete complete</string>
 </resources>

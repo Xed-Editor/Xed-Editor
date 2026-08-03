@@ -25,22 +25,30 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TriStateCheckbox
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -58,11 +66,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.filesByTab
 import com.rk.activities.main.ui.drawerStateRef
 import com.rk.activities.main.ui.fileTreeViewModel
-import com.rk.activities.main.filesByTab
 import com.rk.components.SingleInputDialog
 import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.addIf
@@ -87,10 +96,19 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content(modifier: Modifier) {
         var showBranchesMenu by remember { mutableStateOf(false) }
         var showNewBranchDialog by remember { mutableStateOf(false) }
+
+        var showDeleteBranchDialog by remember { mutableStateOf(false) }
+        var branchToDelete by remember { mutableStateOf("") }
+
+        var showRenameBranchDialog by remember { mutableStateOf(false) }
+        var branchToRename by remember { mutableStateOf("") }
+        var newBranchName by remember { mutableStateOf("") }
+        var renameBranchError by remember { mutableStateOf<String?>(null) }
 
         var showPushConfirmDialog by remember { mutableStateOf(false) }
         var force by remember { mutableStateOf(false) }
@@ -166,19 +184,113 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
                     DropdownMenu(expanded = showBranchesMenu, onDismissRequest = { showBranchesMenu = false }) {
                         viewModel.getBranchList().forEach { branch ->
-                            XedDropdownMenuItem(
-                                text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        RadioButton(selected = branch == viewModel.currentBranch, onClick = null)
-                                        Spacer(Modifier.width(12.dp))
-                                        Text(branch)
-                                    }
-                                },
-                                onClick = {
-                                    viewModel.checkout(branch)
-                                    showBranchesMenu = false
-                                },
-                            )
+                            var showBranchOptions by remember { mutableStateOf(false) }
+
+                            Box {
+                                XedDropdownMenuItem(
+                                    text = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            RadioButton(
+                                                selected = branch == viewModel.currentBranch,
+                                                onClick = null,
+                                            )
+                                            Spacer(Modifier.width(12.dp))
+                                            Text(branch, modifier = Modifier.weight(1f))
+                                        }
+                                    },
+                                    onClick = { showBranchOptions = true },
+                                    trailingIcon = {
+                                        Icon(
+                                            painterResource(drawables.chevron_right),
+                                            contentDescription = null,
+                                        )
+                                    },
+                                )
+
+                                DropdownMenu(
+                                    expanded = showBranchOptions,
+                                    onDismissRequest = { showBranchOptions = false },
+                                    offset = DpOffset(x = 220.dp, y = 0.dp),
+                                ) {
+                                    XedDropdownMenuItem(
+                                        leadingIcon = {
+                                            Icon(painterResource(drawables.commit), contentDescription = null)
+                                        },
+                                        text = { Text(stringResource(strings.checkout)) },
+                                        onClick = {
+                                            viewModel.checkout(branch)
+                                            showBranchOptions = false
+                                            showBranchesMenu = false
+                                        },
+                                    )
+                                    XedDropdownMenuItem(
+                                        leadingIcon = {
+                                            Icon(painterResource(drawables.merge), contentDescription = null)
+                                        },
+                                        text = { Text(stringResource(strings.merge)) },
+                                        onClick = {
+                                            viewModel.merge(branch)
+                                            showBranchOptions = false
+                                            showBranchesMenu = false
+                                        },
+                                    )
+                                    XedDropdownMenuItem(
+                                        leadingIcon = {
+                                            Icon(painterResource(drawables.rebase), contentDescription = null)
+                                        },
+                                        text = { Text(stringResource(strings.rebase)) },
+                                        onClick = {
+                                            viewModel.rebase(branch)
+                                            showBranchOptions = false
+                                            showBranchesMenu = false
+                                        },
+                                    )
+
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                                    XedDropdownMenuItem(
+                                        leadingIcon = {
+                                            Icon(painterResource(drawables.edit), contentDescription = null)
+                                        },
+                                        text = { Text(stringResource(strings.rename)) },
+                                        onClick = {
+                                            branchToRename = branch
+                                            newBranchName = branch
+                                            showRenameBranchDialog = true
+                                            showBranchOptions = false
+                                            showBranchesMenu = false
+                                        },
+                                    )
+                                    XedDropdownMenuItem(
+                                        enabled = branch != viewModel.currentBranch,
+                                        colors =
+                                            MenuDefaults.itemColors()
+                                                .copy(
+                                                    textColor = MaterialTheme.colorScheme.error,
+                                                    leadingIconColor = MaterialTheme.colorScheme.error,
+                                                    disabledTextColor =
+                                                        MaterialTheme.colorScheme.error.copy(alpha = 0.4f),
+                                                    disabledLeadingIconColor =
+                                                        MaterialTheme.colorScheme.error.copy(alpha = 0.4f),
+                                                ),
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Delete,
+                                                contentDescription = stringResource(strings.delete),
+                                            )
+                                        },
+                                        text = {
+                                            Text(stringResource(strings.delete))
+                                        },
+                                        onClick = {
+                                            branchToDelete = branch
+                                            showDeleteBranchDialog = true
+                                            showBranchOptions = false
+                                            showBranchesMenu = false
+                                        },
+                                    )
+                                }
+                            }
                         }
                         XedDropdownMenuItem(
                             text = {
@@ -197,30 +309,49 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = {
-                            scope.launch {
-                                viewModel.pull().join()
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Below),
+                        tooltip = { PlainTooltip { Text(stringResource(strings.pull)) } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    viewModel.pull().join()
 
-                                val mainViewModel = MainActivity.instance?.viewModel ?: return@launch
-                                mainViewModel.editorTabs.filesByTab().forEach { (tab, file) ->
-                                    findGitRoot(file.getAbsolutePath())?.let {
-                                        tab.refresh()
+                                    val mainViewModel = MainActivity.instance?.viewModel ?: return@launch
+                                    mainViewModel.editorTabs.filesByTab().forEach { (tab, file) ->
+                                        findGitRoot(file.getAbsolutePath())?.let { tab.refresh() }
                                     }
                                 }
-                            }
-                        },
-                        enabled = !viewModel.isLoading,
+                            },
+                            enabled = !viewModel.isLoading,
+                        ) {
+                            Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
+                        }
+                    }
+
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Below),
+                        tooltip = { PlainTooltip { Text(stringResource(strings.fetch)) } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
+                        IconButton(onClick = { viewModel.fetch() }, enabled = !viewModel.isLoading) {
+                            Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
+                        }
                     }
 
-                    IconButton(onClick = { viewModel.fetch() }, enabled = !viewModel.isLoading) {
-                        Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
-                    }
-
-                    IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
-                        Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Below),
+                        tooltip = { PlainTooltip { Text(stringResource(strings.push)) } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
+                            Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
+                        }
                     }
                 }
             }
@@ -360,6 +491,42 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     showNewBranchDialog = false
                 },
                 confirmEnabled = newBranchError == null && newBranch.isNotBlank(),
+            )
+        }
+
+        if (showDeleteBranchDialog) {
+            DeleteBranchConfirmDialog(
+                branch = branchToDelete,
+                onDismiss = { showDeleteBranchDialog = false },
+                onConfirm = {
+                    viewModel.deleteBranch(branchToDelete)
+                    showDeleteBranchDialog = false
+                },
+            )
+        }
+
+        if (showRenameBranchDialog) {
+            SingleInputDialog(
+                title = stringResource(id = strings.rename_branch),
+                inputLabel = stringResource(id = strings.rename_branch_label, branchToRename),
+                inputValue = newBranchName,
+                errorMessage = renameBranchError,
+                confirmText = stringResource(strings.ok),
+                onInputValueChange = {
+                    newBranchName = it
+                    renameBranchError =
+                        when {
+                            newBranchName.isBlank() -> strings.value_empty_err.getString()
+                            else -> null
+                        }
+                },
+                onConfirm = { viewModel.renameBranch(branchToRename, newBranchName) },
+                onFinish = {
+                    newBranchName = ""
+                    renameBranchError = null
+                    showRenameBranchDialog = false
+                },
+                confirmEnabled = renameBranchError == null && newBranchName.isNotBlank(),
             )
         }
 
@@ -688,6 +855,21 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 }
             }
         }
+    }
+
+    @Composable
+    private fun DeleteBranchConfirmDialog(branch: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(strings.delete_branch)) },
+            text = { Text(stringResource(strings.delete_branch_msg, branch)) },
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text(stringResource(strings.delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) } },
+        )
     }
 
     @Composable
