@@ -28,6 +28,7 @@ import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
+import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
@@ -38,12 +39,22 @@ import org.eclipse.jgit.treewalk.filter.PathFilter
 import java.io.ByteArrayOutputStream
 import java.io.File
 
+data class GitCommit(
+    val hash: String,
+    val author: String,
+    val date: Long,
+    val message: String,
+    val parents: List<String>,
+    val lane: Int,
+)
+
 class GitViewModel : ViewModel() {
     var currentRoot = mutableStateOf<File?>(null)
     var currentBranch by mutableStateOf("")
     var changes = mutableStateMapOf<String, List<GitChange>>()
     var commitMessages = mutableStateMapOf<String, String>()
     var amends = mutableStateMapOf<String, Boolean>()
+    var commitHistory by mutableStateOf<List<GitCommit>>(emptyList())
 
     var isLoading by mutableStateOf(false)
 
@@ -52,6 +63,7 @@ class GitViewModel : ViewModel() {
             currentRoot.value = File(root)
             currentBranch = Git.open(currentRoot.value).currentHead()
             syncChanges(currentRoot.value!!)
+            loadHistory()
             if (!amends.containsKey(root)) {
                 amends[root] = false
             }
@@ -740,9 +752,82 @@ class GitViewModel : ViewModel() {
         }
     }
 
+    fun loadHistory() {
+        val root = currentRoot.value ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+
+            try {
+                val commits =
+                    Git.open(root).use { git ->
+                        RevWalk(git.repository).use { walk ->
+                            walk.sort(RevSort.COMMIT_TIME_DESC)
+                            walk.sort(RevSort.TOPO)
+
+                            git.repository.refDatabase.refs.forEach { ref ->
+                                // Some refs might not be commits
+                                runCatching {
+                                    walk.markStart(walk.parseCommit(ref.objectId))
+                                }
+                            }
+
+                            val laneTracker = LaneTracker()
+
+                            buildList {
+                                walk.forEach { revCommit ->
+                                    val hash = revCommit.name
+                                    val lane = laneTracker.laneFor(hash)
+                                    val parents = revCommit.parents.map { it.name }
+
+                                    add(
+                                        GitCommit(
+                                            hash = hash,
+                                            author = revCommit.authorIdent.name,
+                                            date = revCommit.commitTime.toLong() * 1000,
+                                            message = revCommit.shortMessage,
+                                            parents = parents,
+                                            lane = lane,
+                                        )
+                                    )
+
+                                    laneTracker.update(lane, parents)
+                                }
+                            }
+                        }
+                    }
+
+                withContext(Dispatchers.Main) { commitHistory = commits }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
+    }
+
     companion object {
         private const val BRANCH_PREFIX = Constants.R_HEADS // refs/heads/
         private const val REMOTE_PREFIX = Constants.R_REMOTES // refs/remotes/
         private const val GIT_ORIGIN = Constants.DEFAULT_REMOTE_NAME // origin
+    }
+}
+
+class LaneTracker {
+    private val lanes = mutableListOf<String?>()
+
+    fun laneFor(hash: String): Int {
+        return lanes.indexOf(hash).takeIf { it >= 0 }
+            ?: lanes.indexOf(null).takeIf { it >= 0 }
+            ?: lanes.also { it.add(null) }.lastIndex
+    }
+
+    fun update(lane: Int, parents: List<String>) {
+        if (parents.isEmpty()) {
+            lanes[lane] = null
+            return
+        }
+
+        lanes[lane] = parents.first()
+        parents.drop(1).filter { it !in lanes }.forEach(lanes::add)
     }
 }

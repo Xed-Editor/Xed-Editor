@@ -25,7 +25,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,12 +38,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipAnchorPosition
@@ -50,9 +55,9 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -111,6 +116,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var renameBranchError by remember { mutableStateOf<String?>(null) }
 
         var showPushConfirmDialog by remember { mutableStateOf(false) }
+        var selectedTabIndex by remember { mutableIntStateOf(0) }
+
         var force by remember { mutableStateOf(false) }
 
         val interactionSource = remember { MutableInteractionSource() }
@@ -120,44 +127,41 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
         val gitChanges = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
-        val hasCheckedChanges by
-            remember(gitChanges) { derivedStateOf { gitChanges.count { change -> change.isChecked } > 0 } }
+        val hasCheckedChanges by remember(gitChanges) { derivedStateOf { gitChanges.count { it.isChecked } > 0 } }
 
-        var changes by remember { mutableStateOf(listOf<GitChange>()) }
-        var conflicts by remember { mutableStateOf(listOf<GitChange>()) }
-        var untracked by remember { mutableStateOf(listOf<GitChange>()) }
+        val changes by
+            remember(gitChanges) {
+                derivedStateOf {
+                    gitChanges.filter {
+                        it.type in
+                            listOf(
+                                ChangeType.ADDED,
+                                ChangeType.MODIFIED,
+                                ChangeType.RENAMED,
+                                ChangeType.DELETED,
+                            )
+                    }
+                }
+            }
+        val conflicts by
+            remember(gitChanges) {
+                derivedStateOf { gitChanges.filter { it.type == ChangeType.CONFLICTING } }
+            }
+        val untracked by
+            remember(gitChanges) {
+                derivedStateOf { gitChanges.filter { it.type == ChangeType.UNTRACKED } }
+            }
 
         var changesExpanded by remember { mutableStateOf(true) }
         var untrackedExpanded by remember { mutableStateOf(true) }
         var conflictsExpanded by remember { mutableStateOf(true) }
-
-        LaunchedEffect(gitChanges) {
-            val trackedChanges = mutableListOf<GitChange>()
-            val conflictingChanges = mutableListOf<GitChange>()
-            val untrackedChanges = mutableListOf<GitChange>()
-
-            for (change in gitChanges) {
-                when (change.type) {
-                    ChangeType.ADDED,
-                    ChangeType.MODIFIED,
-                    ChangeType.RENAMED,
-                    ChangeType.DELETED -> trackedChanges.add(change)
-                    ChangeType.CONFLICTING -> conflictingChanges.add(change)
-                    ChangeType.UNTRACKED -> untrackedChanges.add(change)
-                }
-            }
-
-            changes = trackedChanges
-            conflicts = conflictingChanges
-            untracked = untrackedChanges
-        }
 
         val commitMessage = viewModel.currentRoot.value?.absolutePath?.let { viewModel.commitMessages[it] } ?: ""
         val amend = viewModel.currentRoot.value?.absolutePath?.let { viewModel.amends[it] } ?: false
 
         Column(modifier = modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(modifier = Modifier.weight(1f)) {
@@ -186,7 +190,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         viewModel.getBranchList().forEach { branch ->
                             var showBranchOptions by remember { mutableStateOf(false) }
 
-                            Box {
+                            Box(modifier = Modifier.fillMaxWidth()) {
                                 XedDropdownMenuItem(
                                     text = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -214,7 +218,10 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                 ) {
                                     XedDropdownMenuItem(
                                         leadingIcon = {
-                                            Icon(painterResource(drawables.commit), contentDescription = null)
+                                            Icon(
+                                                imageVector = Icons.Outlined.Check,
+                                                contentDescription = null,
+                                            )
                                         },
                                         text = { Text(stringResource(strings.checkout)) },
                                         onClick = {
@@ -250,7 +257,10 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
                                     XedDropdownMenuItem(
                                         leadingIcon = {
-                                            Icon(painterResource(drawables.edit), contentDescription = null)
+                                            Icon(
+                                                imageVector = Icons.Outlined.Edit,
+                                                contentDescription = null,
+                                            )
                                         },
                                         text = { Text(stringResource(strings.rename)) },
                                         onClick = {
@@ -356,6 +366,40 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 }
             }
 
+            SecondaryTabRow(
+                selectedTabIndex = selectedTabIndex,
+                modifier = Modifier.fillMaxWidth(),
+                divider = {},
+            ) {
+                Tab(
+                    selected = selectedTabIndex == 0,
+                    onClick = { selectedTabIndex = 0 },
+                    selectedContentColor = MaterialTheme.colorScheme.primary,
+                    unselectedContentColor = LocalContentColor.current,
+                    text = {
+                        Text(
+                            stringResource(strings.changes),
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                    },
+                )
+                Tab(
+                    selected = selectedTabIndex == 1,
+                    onClick = {
+                        selectedTabIndex = 1
+                        viewModel.loadHistory()
+                    },
+                    selectedContentColor = MaterialTheme.colorScheme.primary,
+                    unselectedContentColor = LocalContentColor.current,
+                    text = {
+                        Text(
+                            stringResource(strings.history),
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                    },
+                )
+            }
+
             Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
                 if (viewModel.isLoading) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxSize())
@@ -364,108 +408,112 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 }
             }
 
-            if (gitChanges.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.weight(1f, fill = true).horizontalScroll(rememberScrollState()),
-                    state = rememberLazyListState(),
-                    contentPadding = PaddingValues(top = 8.dp),
+            if (selectedTabIndex == 0) {
+                if (gitChanges.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f, fill = true).horizontalScroll(rememberScrollState()),
+                        state = rememberLazyListState(),
+                        contentPadding = PaddingValues(top = 8.dp),
+                    ) {
+                        item { ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded } }
+                        item { ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded } }
+                        item { UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded } }
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxSize().weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            painter = painterResource(drawables.file),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(stringResource(strings.no_changes), color = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+
+                HorizontalDivider()
+
+                Row(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(40.dp)
+                            .toggleable(
+                                value = amend,
+                                enabled = !viewModel.isLoading,
+                                onValueChange = { viewModel.toggleAmend(it) },
+                                role = Role.Checkbox,
+                                indication = null,
+                                interactionSource = interactionSource,
+                            )
+                            .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    item { ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded } }
-                    item { ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded } }
-                    item { UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded } }
+                    Checkbox(
+                        checked = amend,
+                        enabled = !viewModel.isLoading,
+                        interactionSource = interactionSource,
+                        onCheckedChange = null,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(strings.amend))
+                }
+                OutlinedTextField(
+                    enabled = !viewModel.isLoading,
+                    modifier = Modifier.fillMaxWidth().height(120.dp),
+                    value = commitMessage,
+                    onValueChange = { viewModel.changeCommitMessage(it) },
+                    placeholder = { Text(stringResource(strings.commit_message)) },
+                )
+
+                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                    Button(
+                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { viewModel.commit() },
+                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                    ) {
+                        Icon(
+                            painterResource(drawables.commit),
+                            contentDescription = stringResource(strings.commit),
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
+                        )
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text(
+                            stringResource(if (amend) strings.amend_commit else strings.commit),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    OutlinedButton(
+                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            scope.launch {
+                                viewModel.commit().join()
+                                showPushConfirmDialog = true
+                            }
+                        },
+                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                    ) {
+                        Icon(
+                            painterResource(drawables.push),
+                            contentDescription = stringResource(strings.push),
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
+                        )
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text(
+                            stringResource(if (amend) strings.amend_commit_and_push else strings.commit_and_push),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             } else {
-                Column(
-                    modifier = Modifier.fillMaxSize().weight(1f),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Icon(
-                        painter = painterResource(drawables.file),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(stringResource(strings.no_changes), color = MaterialTheme.colorScheme.onSurface)
-                }
-            }
-
-            HorizontalDivider()
-
-            Row(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .height(40.dp)
-                        .toggleable(
-                            value = amend,
-                            enabled = !viewModel.isLoading,
-                            onValueChange = { viewModel.toggleAmend(it) },
-                            role = Role.Checkbox,
-                            indication = null,
-                            interactionSource = interactionSource,
-                        )
-                        .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Checkbox(
-                    checked = amend,
-                    enabled = !viewModel.isLoading,
-                    interactionSource = interactionSource,
-                    onCheckedChange = null,
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(strings.amend))
-            }
-            OutlinedTextField(
-                enabled = !viewModel.isLoading,
-                modifier = Modifier.fillMaxWidth().height(120.dp),
-                value = commitMessage,
-                onValueChange = { viewModel.changeCommitMessage(it) },
-                placeholder = { Text(stringResource(strings.commit_message)) },
-            )
-
-            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                Button(
-                    enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { viewModel.commit() },
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                ) {
-                    Icon(
-                        painterResource(drawables.commit),
-                        contentDescription = stringResource(strings.commit),
-                        modifier = Modifier.size(ButtonDefaults.IconSize),
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text(
-                        stringResource(if (amend) strings.amend_commit else strings.commit),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                OutlinedButton(
-                    enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        scope.launch {
-                            viewModel.commit().join()
-                            showPushConfirmDialog = true
-                        }
-                    },
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                ) {
-                    Icon(
-                        painterResource(drawables.push),
-                        contentDescription = stringResource(strings.push),
-                        modifier = Modifier.size(ButtonDefaults.IconSize),
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text(
-                        stringResource(if (amend) strings.amend_commit_and_push else strings.commit_and_push),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+                GitGraphView(commits = viewModel.commitHistory, modifier = Modifier.weight(1f))
             }
         }
 

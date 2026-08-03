@@ -773,4 +773,7 @@
     <string name="rebase_complete">Rebase complete</string>
     <string name="rename_complete">Rename complete</string>
     <string name="delete_complete">Delete complete</string>
+    <string name="history">History</string>
+    <string name="copy_hash">Copy hash</string>
+    <string name="no_commits">No commits</string>
 </resources>
