@@ -1,7 +1,6 @@
 package com.rk.git
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,10 +9,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.theme.harmonize
-import com.rk.utils.copyToClipboard
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -69,12 +70,43 @@ fun GitGraphView(commits: List<GitCommit>, modifier: Modifier = Modifier) {
             Color(harmonize(0xFF8BC34A)),
         )
 
-    val maxLane = remember(commits) { commits.maxOfOrNull { it.lane } ?: 0 }
-    val dateFormatter = remember { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()) }
+    val laneByHash =
+        remember(commits) {
+            commits.associate { it.hash to it.lane }
+        }
+
+    val indexByHash =
+        remember(commits) {
+            commits
+                .mapIndexed { index, commit ->
+                    commit.hash to index
+                }
+                .toMap()
+        }
+
+    val maxLane =
+        remember(commits) {
+            commits.maxOfOrNull { it.lane } ?: 0
+        }
+
+    val dateFormatter = remember {
+        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    }
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
-        items(commits, key = { it.hash }) { commit ->
-            CommitItem(commit, colors, maxLane, dateFormatter)
+        itemsIndexed(
+            items = commits,
+            key = { _, commit -> commit.hash },
+        ) { index, commit ->
+            CommitItem(
+                commit = commit,
+                index = index,
+                laneByHash = laneByHash,
+                indexByHash = indexByHash,
+                colors = colors,
+                maxLane = maxLane,
+                dateFormatter = dateFormatter,
+            )
         }
     }
 }
@@ -82,45 +114,106 @@ fun GitGraphView(commits: List<GitCommit>, modifier: Modifier = Modifier) {
 @Composable
 private fun CommitItem(
     commit: GitCommit,
+    index: Int,
+    laneByHash: Map<String, Int>,
+    indexByHash: Map<String, Int>,
     colors: List<Color>,
     maxLane: Int,
     dateFormatter: SimpleDateFormat,
 ) {
-    Row(modifier = Modifier.fillMaxWidth().height(48.dp)) {
-        Canvas(modifier = Modifier.width(((maxLane + 1) * 16).dp).fillMaxHeight()) {
-            val laneWidth = 16.dp.toPx()
+    Row(modifier = Modifier.fillMaxWidth().height(42.dp)) {
+        val currentLaneWidth = ((commit.lane + 1) * 20).dp
+        val totalLaneWidth = ((maxLane + 1) * 20).dp
+
+        Canvas(modifier = Modifier.width(totalLaneWidth).fillMaxHeight()) {
+            val laneWidth = 20.dp.toPx()
             val centerOffset = laneWidth / 2
-            val y = size.height / 2
+            val centerY = size.height / 2
+            val strokeWidth = 2.dp.toPx()
 
-            val color = colors[commit.lane % colors.size]
-            val x = commit.lane * laneWidth + centerOffset
+            fun xFor(lane: Int): Float {
+                return lane * laneWidth + centerOffset
+            }
 
-            // Vertical line through the lane
-            drawLine(
-                color = color.copy(alpha = 0.4f),
-                start = Offset(x, 0f),
-                end = Offset(x, size.height),
-                strokeWidth = 2.dp.toPx(),
+            val currentX = xFor(commit.lane)
+            val currentColor = colors[commit.lane % colors.size]
+
+            // Draw connections to parents.
+            commit.parentHashes.forEach { parentHash ->
+                val parentLane = laneByHash[parentHash] ?: return@forEach
+                val parentIndex = indexByHash[parentHash] ?: return@forEach
+                val rowsBetween = parentIndex - index
+
+                val parentX = xFor(parentLane)
+
+                val path =
+                    Path().apply {
+                        moveTo(currentX, centerY)
+
+                        val endY = centerY + size.height * rowsBetween
+
+                        if (currentX == parentX) {
+                            // No lane change
+                            lineTo(parentX, centerY + size.height * rowsBetween)
+                        } else if (currentX < parentX) {
+                            // Lane change to the right
+                            val bendEndY = centerY + size.height
+
+                            cubicTo(
+                                currentX,
+                                centerY + size.height * 0.5f,
+                                parentX,
+                                centerY + size.height * 0.5f,
+                                parentX,
+                                bendEndY,
+                            )
+
+                            if (rowsBetween > 1) {
+                                lineTo(parentX, endY)
+                            }
+                        } else {
+                            // Lane change to the left
+                            val bendStartY = centerY + size.height * (rowsBetween - 1)
+
+                            if (rowsBetween > 1) {
+                                lineTo(currentX, bendStartY)
+                            }
+
+                            cubicTo(
+                                currentX,
+                                endY - size.height * 0.5f,
+                                parentX,
+                                endY - size.height * 0.5f,
+                                parentX,
+                                endY,
+                            )
+                        }
+                    }
+
+                drawPath(
+                    path = path,
+                    color = currentColor.copy(alpha = 0.5f),
+                    style = Stroke(width = strokeWidth),
+                )
+            }
+
+            // Draw commit node.
+            drawCircle(
+                color = currentColor,
+                radius = 5.dp.toPx(),
+                center = Offset(currentX, centerY),
             )
-
-            // Commit node
-            drawCircle(color = color, radius = 4.dp.toPx(), center = Offset(x, y))
         }
 
         Column(
             modifier =
                 Modifier.weight(1f)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .clickable(
-                        onClick = {
-                            copyToClipboard("Commit hash", commit.hash)
-                        }
-                    )
+                    .offset(x = -totalLaneWidth + currentLaneWidth)
         ) {
             Text(
                 text = commit.message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -129,12 +222,11 @@ private fun CommitItem(
             Text(
                 text =
                     buildString {
-                        commit.author
-                            .takeIf { it.isNotBlank() }
-                            ?.let {
-                                append(it)
-                                append(" • ")
-                            }
+                        if (commit.author.isNotBlank()) {
+                            append(commit.author)
+                            append(" • ")
+                        }
+
                         append(dateFormatter.format(Date(commit.date)))
                         append(" • ")
                         append(commit.hash.take(7))

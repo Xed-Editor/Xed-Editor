@@ -28,6 +28,9 @@ import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
+import org.eclipse.jgit.revplot.PlotCommitList
+import org.eclipse.jgit.revplot.PlotLane
+import org.eclipse.jgit.revplot.PlotWalk
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteRefUpdate
@@ -44,7 +47,7 @@ data class GitCommit(
     val author: String,
     val date: Long,
     val message: String,
-    val parents: List<String>,
+    val parentHashes: List<String>,
     val lane: Int,
 )
 
@@ -760,37 +763,31 @@ class GitViewModel : ViewModel() {
             try {
                 val commits =
                     Git.open(root).use { git ->
-                        RevWalk(git.repository).use { walk ->
+                        val repo = git.repository
+                        PlotWalk(repo).use { walk ->
                             walk.sort(RevSort.COMMIT_TIME_DESC)
                             walk.sort(RevSort.TOPO)
 
-                            git.repository.refDatabase.refs.forEach { ref ->
-                                // Some refs might not be commits
-                                runCatching {
-                                    walk.markStart(walk.parseCommit(ref.objectId))
-                                }
-                            }
+                            val headId = repo.resolve(Constants.HEAD) ?: return@use emptyList()
+                            val headCommit = walk.parseCommit(headId)
+                            walk.markStart(headCommit)
 
-                            val laneTracker = LaneTracker()
+                            val plotCommitList = PlotCommitList<PlotLane>()
+                            plotCommitList.source(walk)
+                            plotCommitList.fillTo(Integer.MAX_VALUE)
 
                             buildList {
-                                walk.forEach { revCommit ->
-                                    val hash = revCommit.name
-                                    val lane = laneTracker.laneFor(hash)
-                                    val parents = revCommit.parents.map { it.name }
-
+                                plotCommitList.forEach { plotCommit ->
                                     add(
                                         GitCommit(
-                                            hash = hash,
-                                            author = revCommit.authorIdent.name,
-                                            date = revCommit.commitTime.toLong() * 1000,
-                                            message = revCommit.shortMessage,
-                                            parents = parents,
-                                            lane = lane,
+                                            hash = plotCommit.name,
+                                            author = plotCommit.authorIdent.name,
+                                            date = plotCommit.commitTime.toLong() * 1000,
+                                            message = plotCommit.shortMessage,
+                                            parentHashes = plotCommit.parents.map { it.name },
+                                            lane = plotCommit.lane?.position ?: 0,
                                         )
                                     )
-
-                                    laneTracker.update(lane, parents)
                                 }
                             }
                         }
@@ -799,6 +796,7 @@ class GitViewModel : ViewModel() {
                 withContext(Dispatchers.Main) { commitHistory = commits }
             } catch (e: Exception) {
                 toast(e.message)
+                e.printStackTrace()
             } finally {
                 withContext(Dispatchers.Main) { isLoading = false }
             }
@@ -809,25 +807,5 @@ class GitViewModel : ViewModel() {
         private const val BRANCH_PREFIX = Constants.R_HEADS // refs/heads/
         private const val REMOTE_PREFIX = Constants.R_REMOTES // refs/remotes/
         private const val GIT_ORIGIN = Constants.DEFAULT_REMOTE_NAME // origin
-    }
-}
-
-class LaneTracker {
-    private val lanes = mutableListOf<String?>()
-
-    fun laneFor(hash: String): Int {
-        return lanes.indexOf(hash).takeIf { it >= 0 }
-            ?: lanes.indexOf(null).takeIf { it >= 0 }
-            ?: lanes.also { it.add(null) }.lastIndex
-    }
-
-    fun update(lane: Int, parents: List<String>) {
-        if (parents.isEmpty()) {
-            lanes[lane] = null
-            return
-        }
-
-        lanes[lane] = parents.first()
-        parents.drop(1).filter { it !in lanes }.forEach(lanes::add)
     }
 }
