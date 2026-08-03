@@ -740,4 +740,18 @@
     <string name="compression_ratio">Rasio kompresi</string>
     <string name="compression_method">Metode kompresi</string>
     <string name="comment">Komentar</string>
+    <string name="theme_migrated">%d tema telah berhasil dipindahkan</string>
+    <string name="theme_not_found_desc">Halaman ini tidak tersedia. Hal ini dapat terjadi jika tema lokal telah dihapus atau tema toko telah dihapus dari daftar oleh pemiliknya.</string>
+    <string name="icon_pack_not_found_desc">Halaman ini tidak tersedia. Hal ini dapat terjadi jika paket ikon lokal telah dihapus atau paket ikon toko telah dihapus dari registri oleh pemiliknya.</string>
+    <string name="browse_themes">Jelajahi tema</string>
+    <string name="browse_icon_packs">Jelajahi paket ikon</string>
+    <string name="theme_not_found">Tema tidak ditemukan</string>
+    <string name="icon_pack_not_found">Paket ikon tidak ditemukan</string>
+    <string name="uninstall_theme_dialog">Hapus instalasi tema?</string>
+    <string name="uninstall_theme_dialog_desc">Apakah Anda yakin ingin menghapus instalasi \'%s\'?</string>
+    <string name="uninstall_icon_pack_dialog">Hapus instalasi paket ikon?</string>
+    <string name="uninstall_icon_pack_dialog_desc">Apakah Anda yakin ingin menghapus instalasi \'%s\'?</string>
+    <string name="preview">Pratinjau</string>
+    <string name="xed_package">Paket Xed</string>
+    <string name="migrating_themes">Sedang memindahkan tema…</string>
 </resources>
