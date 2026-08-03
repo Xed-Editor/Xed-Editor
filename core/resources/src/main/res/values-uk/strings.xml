@@ -760,5 +760,5 @@
     <string name="uninstall_icon_pack_dialog_desc">Ви точно хочете видалити \'%s\"?</string>
     <string name="xed_package">Пакет Xed</string>
     <string name="migrating_themes">Переносимо теми…</string>
-    <string name="preview">Огляд</string>
+    <string name="preview">Перегляд</string>
 </resources>
