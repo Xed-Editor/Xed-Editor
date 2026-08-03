@@ -752,9 +752,9 @@
     <string name="theme_not_found">Theme not found</string>
     <string name="icon_pack_not_found">Icon pack not found</string>
     <string name="uninstall_theme_dialog">Uninstall theme?</string>
-    <string name="uninstall_theme_dialog_desc">Are you sure you want to uninstall \'%s\'?</string>
+    <string name="uninstall_theme_dialog_desc">Are you sure you want to uninstall the theme \'%s\'?</string>
     <string name="uninstall_icon_pack_dialog">Uninstall icon pack?</string>
-    <string name="uninstall_icon_pack_dialog_desc">Are you sure you want to uninstall \'%s\'?</string>
+    <string name="uninstall_icon_pack_dialog_desc">Are you sure you want to uninstall the icon pack \'%s\'?</string>
     <string name="preview">Preview</string>
     <string name="xed_package">Xed package</string>
     <string name="migrating_themes">Migrating themes…</string>

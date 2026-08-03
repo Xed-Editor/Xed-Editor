@@ -52,6 +52,7 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.App
+import com.rk.App.Companion.themeManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.common.PackageType
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
@@ -66,7 +67,6 @@ import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.App.Companion.themeManager
 import com.rk.theme.Typography
 import com.rk.utils.formatFileSize
 import com.rk.utils.formatNumberCompact
@@ -88,6 +88,13 @@ fun PackageDetail(pkg: Package?, navController: NavController) {
             PackageType.THEME -> strings.theme_not_found
             PackageType.ICON_PACK -> strings.icon_pack_not_found
             else -> strings.ext_not_found
+        }
+
+    val notFoundDescRes =
+        when (pkg?.type) {
+            PackageType.THEME -> strings.theme_not_found_desc
+            PackageType.ICON_PACK -> strings.icon_pack_not_found_desc
+            else -> strings.ext_not_found_desc
         }
 
     RefreshablePreferenceLayout(
@@ -122,7 +129,7 @@ fun PackageDetail(pkg: Package?, navController: NavController) {
         ExtensionDialogRenderer(dialogManager)
 
         if (pkg == null) {
-            Text(stringResource(notFoundRes), modifier = Modifier.padding(horizontal = 16.dp))
+            Text(stringResource(notFoundDescRes), modifier = Modifier.padding(horizontal = 16.dp))
         } else {
             val installState = rememberPackageInstallState(pkg)
 
@@ -132,13 +139,13 @@ fun PackageDetail(pkg: Package?, navController: NavController) {
                     refreshKey = refreshKey,
                     installState = installState,
                     updateInstallState = {
-                        if (pkg.type == PackageType.EXTENSION && extensionManager.getExtension(pkg.id) == null) {
-                            navController.popBackStack()
-                        } else if (pkg.type == PackageType.THEME && themeManager.getTheme(pkg.id) == null) {
-                            navController.popBackStack()
-                        } else if (
+                        val extensionMissing =
+                            pkg.type == PackageType.EXTENSION && extensionManager.getExtension(pkg.id) == null
+                        val themeMissing = pkg.type == PackageType.THEME && themeManager.getTheme(pkg.id) == null
+                        val iconPackMissing =
                             pkg.type == PackageType.ICON_PACK && App.iconPackManager.getIconPackPackage(pkg.id) == null
-                        ) {
+
+                        if (extensionMissing || themeMissing || iconPackMissing) {
                             navController.popBackStack()
                         }
                     },
@@ -239,11 +246,10 @@ private fun AboutSection(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                val newVersion = (pkg as? UpdatablePackage)?.newVersion
-
-                newVersion?.let {
+                val isUpdatable = pkg is UpdatablePackage && pkg.hasUpdate()
+                if (isUpdatable) {
                     Text(
-                        text = " → v$it",
+                        text = " → v${pkg.newVersion}",
                         style = Typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         maxLines = 1,

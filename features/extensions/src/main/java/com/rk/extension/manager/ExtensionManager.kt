@@ -48,7 +48,7 @@ data class LoadedExtension(val api: ExtensionAPI, val scope: CoroutineScope)
 
 open class ExtensionManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
     private val mutex = Mutex()
-    val localExtensions = mutableStateMapOf<ExtensionId, LocalExtension>()
+    val installedExtensions = mutableStateMapOf<ExtensionId, LocalExtension>()
     val storeExtension = mutableStateMapOf<ExtensionId, StoreExtension>()
     val json = Json {
         ignoreUnknownKeys = true
@@ -74,10 +74,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         }
     }
 
-    fun isInstalled(extensionId: ExtensionId) = localExtensions.containsKey(extensionId)
+    fun isInstalled(extensionId: ExtensionId) = installedExtensions.containsKey(extensionId)
 
     fun getExtension(extensionId: ExtensionId): Extension? {
-        val local = localExtensions[extensionId]
+        val local = installedExtensions[extensionId]
         val store = storeExtension[extensionId]
 
         return when {
@@ -89,7 +89,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     fun getSyncedExtensions(): List<Extension> {
-        val allIds = localExtensions.keys + storeExtension.keys
+        val allIds = installedExtensions.keys + storeExtension.keys
         return allIds.mapNotNull { id -> getExtension(id) }
     }
 
@@ -135,7 +135,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             writeCache(dir, cache.copy(size = newSize))
 
             withContext(Dispatchers.Main) {
-                localExtensions[extension.id]?.size = newSize
+                installedExtensions[extension.id]?.size = newSize
             }
         }
     }
@@ -175,9 +175,9 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 map
             }
         withContext(Dispatchers.Main) {
-            val toRemove = localExtensions.keys.filter { it !in newExtensions }
-            toRemove.forEach { localExtensions.remove(it) }
-            localExtensions.putAll(newExtensions)
+            val toRemove = installedExtensions.keys.filter { it !in newExtensions }
+            toRemove.forEach { installedExtensions.remove(it) }
+            installedExtensions.putAll(newExtensions)
         }
     }
 
@@ -282,7 +282,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                     createdAt = newExtensionCache.createdAt,
                     updatedAt = newExtensionCache.updatedAt,
                 )
-            localExtensions[extensionInfo.id] = extension
+            installedExtensions[extensionInfo.id] = extension
 
             Events.publish(ExtensionEvent.Installed(extension))
 
@@ -293,7 +293,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         withContext(Dispatchers.IO) {
             try {
                 val extension =
-                    localExtensions[extensionId] ?: return@withContext Result.failure(Exception("Extension not found"))
+                    installedExtensions[extensionId]
+                        ?: return@withContext Result.failure(Exception("Extension not found"))
 
                 val loadedExtension = loadedExtensions[extension]
                 runCatching {
@@ -313,7 +314,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 }
 
                 extensionDir.deleteRecursively()
-                localExtensions.remove(extensionId)
+                installedExtensions.remove(extensionId)
 
                 DefaultScope.launch { Events.publish(ExtensionEvent.Uninstalled(extension, update)) }
 

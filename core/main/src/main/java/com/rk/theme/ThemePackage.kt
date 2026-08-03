@@ -9,7 +9,6 @@ import com.rk.extension.model.Package
 import com.rk.extension.model.PackageAuthor
 import com.rk.extension.model.Review
 import com.rk.extension.model.UpdatablePackage
-import io.github.z4kn4fein.semver.toVersionOrNull
 
 interface ThemePackage : Package {
     override val type: PackageType
@@ -217,10 +216,4 @@ data class UpdatableTheme(val installed: LocalTheme, val store: StoreTheme) : Th
         get() = store.updatedAt
 
     override suspend fun getReviews() = store.getReviews()
-
-    override fun hasUpdate(): Boolean {
-        val installedVersion = installed.version.toVersionOrNull() ?: return false
-        val storeVersion = store.version.toVersionOrNull() ?: return false
-        return installedVersion < storeVersion
-    }
 }

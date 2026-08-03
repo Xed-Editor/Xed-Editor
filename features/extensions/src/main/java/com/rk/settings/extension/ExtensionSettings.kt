@@ -6,14 +6,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.extension.LocalExtension
 import com.rk.extension.extensionManager
-import com.rk.extension.Extension
 import com.rk.resources.strings
 
 @Composable
-fun ExtensionSettings(extension: Extension?) {
+fun ExtensionSettings(extension: LocalExtension?) {
     val api = extensionManager.loadedExtensions[extension]?.api
 
     PreferenceLayout(label = extension?.name ?: stringResource(strings.ext_not_found)) {
