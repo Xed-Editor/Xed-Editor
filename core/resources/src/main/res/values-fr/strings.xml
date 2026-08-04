@@ -614,7 +614,7 @@
     <string name="terminal_font_warning">Le fichier de police \"etc/font.ttf\" prend le pas sur la police choisie ci-dessous. Supprimez le fichier dans la sandbox du terminal pour appliquer les polices personnalisées.</string>
     <string name="manifest_missing_fields">Le fichier manifest.json contient des propriétés manquantes ou invalides :\n%s\n\nVérifiez le fichier, s\'il vous plait, et réessayez.</string>
     <string name="ext_not_found">Extension non trouvée</string>
-    <string name="ext_not_found_desc">Cette page n\'est pas disponible. Cela peut se produire si une extension locale a été désinstallée ou si une extension officielle a été supprimée du registre par son propriétaire.</string>
+    <string name="ext_not_found_desc">Cette page n\'est pas disponible. Cela peut se produire si une extension locale a été désinstallée ou si l\'extension d\'un dépôt a été supprimée du registre par son propriétaire.</string>
     <string name="downloads">Téléchargements</string>
     <string name="rating">Notation</string>
     <string name="overview">Aperçu</string>
@@ -748,4 +748,18 @@
     <string name="compression_ratio">Taux de compression</string>
     <string name="compression_method">Méthode de compression</string>
     <string name="comment">Commentaire</string>
+    <string name="theme_migrated">Migration de %d thèmes réalisée avec succès</string>
+    <string name="theme_not_found_desc">Cette page n\'est pas disponible. Cela peut survenir si un thème local a été désinstallé ou si le banque de thème a été supprimé du registre par son propriétaire.</string>
+    <string name="icon_pack_not_found_desc">Cette page n\'est pas disponible. Cela peut survenir si un lot d\'icônes local a été désinstallé ou si le lot d\'icônes d\'un dépôt a été supprimé du registre par son propriétaire.</string>
+    <string name="browse_themes">Parcourir les thèmes</string>
+    <string name="browse_icon_packs">Parcourir les lots d\'icônes</string>
+    <string name="theme_not_found">Thème non trouvé</string>
+    <string name="icon_pack_not_found">Lot d\'icône non trouvé</string>
+    <string name="uninstall_theme_dialog">Désinstaller le thème ?</string>
+    <string name="uninstall_theme_dialog_desc">Êtes-vous sûr de vouloir désinstaller \'%s\' ?</string>
+    <string name="uninstall_icon_pack_dialog">Déinstaller le lot d\'icônes ?</string>
+    <string name="uninstall_icon_pack_dialog_desc">Êtes-vous sûr de vouloir désinstaller \'%s\' ?</string>
+    <string name="preview">Aperçu</string>
+    <string name="xed_package">Paquetage Xed</string>
+    <string name="migrating_themes">Migration des thèmes…</string>
 </resources>
