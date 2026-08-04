@@ -29,6 +29,8 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -88,6 +90,7 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.theme.greenStatus
 import com.rk.utils.getUnderlineColor
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
@@ -333,7 +336,15 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             },
                             enabled = !viewModel.isLoading,
                         ) {
-                            Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
+                            BadgedBox(
+                                badge = {
+                                    if (viewModel.behindCount > 0) {
+                                        Badge(containerColor = MaterialTheme.colorScheme.primary)
+                                    }
+                                }
+                            ) {
+                                Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
+                            }
                         }
                     }
 
@@ -354,8 +365,16 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         tooltip = { PlainTooltip { Text(stringResource(strings.push)) } },
                         state = rememberTooltipState(),
                     ) {
-                        IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
-                            Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
+                        BadgedBox(
+                            badge = {
+                                if (viewModel.aheadCount > 0) {
+                                    Badge(containerColor = MaterialTheme.colorScheme.greenStatus)
+                                }
+                            }
+                        ) {
+                            IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
+                                Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
+                            }
                         }
                     }
                 }
@@ -600,7 +619,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         }
 
         if (showPushConfirmDialog) {
-            val commitCount = viewModel.getCommitCount()
+            val commitCount = viewModel.aheadCount
             AlertDialog(
                 onDismissRequest = {
                     showPushConfirmDialog = false

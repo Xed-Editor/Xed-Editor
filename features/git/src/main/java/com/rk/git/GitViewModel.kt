@@ -1,6 +1,7 @@
 package com.rk.git
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -62,6 +63,8 @@ class GitViewModel : ViewModel() {
     var commitHistory by mutableStateOf<List<GitCommit>?>(null)
 
     var isLoading by mutableStateOf(false)
+    var aheadCount by mutableIntStateOf(0)
+    var behindCount by mutableIntStateOf(0)
 
     fun loadRepository(root: String) {
         try {
@@ -423,6 +426,7 @@ class GitViewModel : ViewModel() {
                         newChanges
                     }
                 changes[gitRoot] = mergedChanges
+                updateAheadBehindCounts()
                 viewModelScope.launch {
                     Events.publish(GitEvent.WorkingTreeUpdated(FileWrapper(root), mergedChanges))
                 }
@@ -488,30 +492,6 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun getCommitCount(): Int {
-        try {
-            Git.open(currentRoot.value).use { git ->
-                val repo = git.repository
-                val branch = repo.branch
-                val localRef = repo.findRef(BRANCH_PREFIX + branch)
-                val remoteRef = repo.findRef("$REMOTE_PREFIX$GIT_ORIGIN/$branch")
-
-                RevWalk(repo).use { walk ->
-                    val localCommit = walk.parseCommit(localRef!!.objectId)
-                    walk.markStart(localCommit)
-                    if (remoteRef != null) {
-                        val remoteCommit = walk.parseCommit(remoteRef.objectId)
-                        walk.markUninteresting(remoteCommit)
-                    }
-                    return walk.count()
-                }
-            }
-        } catch (e: Exception) {
-            toast(e.message)
-            return -1
-        }
-    }
-
     fun push(force: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
@@ -546,6 +526,7 @@ class GitViewModel : ViewModel() {
                         toast(strings.push_complete)
                     }
                 }
+                updateAheadBehindCounts()
                 Events.publish(
                     GitEvent.PushCompleted(
                         root = FileWrapper(currentRoot.value!!),
@@ -891,6 +872,57 @@ class GitViewModel : ViewModel() {
                 e.printStackTrace()
             } finally {
                 withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
+    }
+
+    fun updateAheadBehindCounts() {
+        val root = currentRoot.value ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                Git.open(root).use { git ->
+                    val repo = git.repository
+                    val branch = repo.branch
+                    val localRef = repo.findRef(BRANCH_PREFIX + branch)
+                    val remoteRef = repo.findRef("$REMOTE_PREFIX$GIT_ORIGIN/$branch")
+
+                    if (localRef == null) {
+                        withContext(Dispatchers.Main) {
+                            aheadCount = 0
+                            behindCount = 0
+                        }
+                        return@launch
+                    }
+
+                    RevWalk(repo).use { walk ->
+                        val localCommit = walk.parseCommit(localRef.objectId)
+                        val remoteCommit = remoteRef?.let { walk.parseCommit(it.objectId) }
+
+                        val ahead =
+                            if (remoteCommit != null) {
+                                walk.reset()
+                                walk.markStart(localCommit)
+                                walk.markUninteresting(remoteCommit)
+                                walk.count()
+                            } else 0
+
+                        val behind =
+                            if (remoteCommit != null) {
+                                walk.reset()
+                                walk.markStart(remoteCommit)
+                                walk.markUninteresting(localCommit)
+                                walk.count()
+                            } else 0
+
+                        withContext(Dispatchers.Main) {
+                            aheadCount = ahead
+                            behindCount = behind
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+                e.printStackTrace()
             }
         }
     }
