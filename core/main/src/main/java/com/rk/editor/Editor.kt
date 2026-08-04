@@ -193,6 +193,10 @@ class Editor : CodeEditor {
         insertFinalNewline = finalNewline
         trimTrailingWhitespace = trailingWhitespace
 
+        props.indicatorWaveLength = 8f
+        props.indicatorWaveWidth = 1.5f
+        props.indicatorWaveAmplitude = 2f
+
         val minScaleSize: Float = 6f * resources.displayMetrics.scaledDensity
         val maxScaleSize: Float = 100f * resources.displayMetrics.scaledDensity
         setScaleTextSizes(minScaleSize, maxScaleSize)

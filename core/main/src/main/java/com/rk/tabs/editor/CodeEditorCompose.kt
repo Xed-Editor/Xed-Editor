@@ -290,7 +290,11 @@ private suspend fun Editor.connectLsp(
 
     // Language servers fail with content URIs
     if (file !is FileWrapper) {
-        logWarn("File ${file.getName()} is not a file wrapper. Skipping language server connection.")
+        servers = servers.filter { Preference.getBoolean("lsp_${it.id}_run_external", false) }
+    }
+
+    if (servers.isEmpty()) {
+        logWarn("No suitable servers available for ${file.getName()}. Skipping language server connection.")
         return
     }
 

@@ -63,6 +63,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object LspServerDetail : SettingsRoutes("lsp_server_detail")
 
+    data object LspInitializationOptions : SettingsRoutes("lsp_initialization_options")
+
     data object LspServerLogs : SettingsRoutes("lsp_server_logs")
 
     data object Git : SettingsRoutes("git")

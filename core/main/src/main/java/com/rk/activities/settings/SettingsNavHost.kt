@@ -25,6 +25,7 @@ import com.rk.settings.editor.FormatterSettings
 import com.rk.settings.editor.SettingsEditorScreen
 import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
+import com.rk.settings.lsp.LspInitializationOptions
 import com.rk.settings.lsp.LspServerDetail
 import com.rk.settings.lsp.LspServerLogs
 import com.rk.settings.lsp.LspSettings
@@ -74,6 +75,14 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             val serverId = backStackEntry.arguments?.getString("serverId")!!
             val server = LspRegistry.getForId(serverId)!!
             LspServerDetail(navController, server)
+        }
+        composable(
+            "${SettingsRoutes.LspInitializationOptions.route}/{serverId}",
+            arguments = listOf(navArgument("serverId", builder = { type = NavType.StringType })),
+        ) { backStackEntry ->
+            val serverId = backStackEntry.arguments?.getString("serverId")!!
+            val server = LspRegistry.getForId(serverId)!!
+            LspInitializationOptions(server)
         }
         composable(
             "${SettingsRoutes.LspServerLogs.route}/{serverId}/{instanceId}",

@@ -291,7 +291,7 @@ fun getUnderlineColor(context: Context, fileTreeViewModel: FileTreeViewModel, fi
 }
 
 fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
-    val strokeWidth = 3f
+    val strokeWidth = 4f
     val waveOffset = 5f
     val waveHeight = 6f
     val waveLength = 20f

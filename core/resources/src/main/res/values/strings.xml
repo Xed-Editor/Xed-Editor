@@ -776,4 +776,10 @@
     <string name="history">History</string>
     <string name="copy_hash">Copy hash</string>
     <string name="no_commits">No commits</string>
+    <string name="initialization_options">Initialization options</string>
+    <string name="initialization_options_desc">Edit JSON initialization options</string>
+    <string name="run_lsp_external">Run for external files</string>
+    <string name="run_lsp_external_desc">Allows language server to run for external files. Servers run in the built-in terminal, therefore features may not work as expected in these locations.</string>
+    <string name="startup_timeout">Startup timeout</string>
+    <string name="startup_timeout_desc">Time to wait for the server to start</string>
 </resources>
