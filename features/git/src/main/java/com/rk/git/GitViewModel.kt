@@ -66,7 +66,6 @@ class GitViewModel : ViewModel() {
             currentRoot.value = File(root)
             currentBranch = Git.open(currentRoot.value).currentHead()
             syncChanges(currentRoot.value!!)
-            loadHistory()
             if (!amends.containsKey(root)) {
                 amends[root] = false
             }
@@ -761,6 +760,8 @@ class GitViewModel : ViewModel() {
             withContext(Dispatchers.Main) { isLoading = true }
 
             try {
+                withContext(Dispatchers.Main) { commitHistory = emptyList() }
+
                 val commits =
                     Git.open(root).use { git ->
                         val repo = git.repository

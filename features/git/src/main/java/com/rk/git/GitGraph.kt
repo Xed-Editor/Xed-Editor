@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +37,18 @@ import com.rk.theme.harmonize
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+/**
+ * Connection from a child commit to one of its parents. Stored with row indices so any row can render its own visible
+ * part of the connection.
+ */
+private data class GitLine(
+    val childIndex: Int,
+    val parentIndex: Int,
+    val childLane: Int,
+    val parentLane: Int,
+    val color: Color,
+)
 
 @Composable
 fun GitGraphView(commits: List<GitCommit>, modifier: Modifier = Modifier) {
@@ -77,16 +90,52 @@ fun GitGraphView(commits: List<GitCommit>, modifier: Modifier = Modifier) {
 
     val indexByHash =
         remember(commits) {
-            commits
-                .mapIndexed { index, commit ->
-                    commit.hash to index
-                }
-                .toMap()
+            commits.mapIndexed { index, commit -> commit.hash to index }.toMap()
         }
 
     val maxLane =
         remember(commits) {
             commits.maxOfOrNull { it.lane } ?: 0
+        }
+
+    // Pre-compute all child -> parent connections
+    val edges =
+        remember(commits, colors) {
+            val list = mutableListOf<GitLine>()
+            commits.forEachIndexed { index, commit ->
+                commit.parentHashes.forEach { parentHash ->
+                    val parentIndex = indexByHash[parentHash] ?: return@forEach
+                    val parentLane = laneByHash[parentHash] ?: return@forEach
+
+                    val maxLane = maxOf(commit.lane, parentLane)
+
+                    list.add(
+                        GitLine(
+                            childIndex = index,
+                            parentIndex = parentIndex,
+                            childLane = commit.lane,
+                            parentLane = parentLane,
+                            color = colors[maxLane % colors.size],
+                        )
+                    )
+                }
+            }
+            list
+        }
+
+    // Group each row to the relevant lines that cross it. Therefore, each visible row can
+    // draw its own segment, even if the child commit is off-screen.
+    val edgesByRow =
+        remember(edges) {
+            val map = HashMap<Int, MutableList<GitLine>>()
+            edges.forEach { edge ->
+                val start = edge.childIndex
+                val end = edge.parentIndex
+                for (row in start..end) {
+                    map.getOrPut(row) { mutableListOf() }.add(edge)
+                }
+            }
+            map
         }
 
     val dateFormatter = remember {
@@ -101,8 +150,7 @@ fun GitGraphView(commits: List<GitCommit>, modifier: Modifier = Modifier) {
             CommitItem(
                 commit = commit,
                 index = index,
-                laneByHash = laneByHash,
-                indexByHash = indexByHash,
+                rowLines = edgesByRow[index].orEmpty(),
                 colors = colors,
                 maxLane = maxLane,
                 dateFormatter = dateFormatter,
@@ -115,15 +163,26 @@ fun GitGraphView(commits: List<GitCommit>, modifier: Modifier = Modifier) {
 private fun CommitItem(
     commit: GitCommit,
     index: Int,
-    laneByHash: Map<String, Int>,
-    indexByHash: Map<String, Int>,
+    rowLines: List<GitLine>,
     colors: List<Color>,
     maxLane: Int,
     dateFormatter: SimpleDateFormat,
 ) {
     Row(modifier = Modifier.fillMaxWidth().height(42.dp)) {
-        val currentLaneWidth = ((commit.lane + 1) * 20).dp
         val totalLaneWidth = ((maxLane + 1) * 20).dp
+
+        // Keep the text right of all lanes occupied in this row,
+        // including lines that only pass through it.
+        var effectiveLane = commit.lane
+        rowLines.forEach { edge ->
+            if (edge.childLane > effectiveLane) {
+                effectiveLane = edge.childLane
+            }
+            if (edge.parentLane > effectiveLane) {
+                effectiveLane = edge.parentLane
+            }
+        }
+        val currentLaneWidth = ((effectiveLane + 1) * 20).dp
 
         Canvas(modifier = Modifier.width(totalLaneWidth).fillMaxHeight()) {
             val laneWidth = 20.dp.toPx()
@@ -135,73 +194,74 @@ private fun CommitItem(
                 return lane * laneWidth + centerOffset
             }
 
-            val currentX = xFor(commit.lane)
-            val currentColor = colors[commit.lane % colors.size]
+            // Draw the full line translated into this row's coordinate space.
+            // clipRect keeps only the visible portion inside this row (to avoid overlaps).
+            clipRect {
+                rowLines.forEach { line ->
+                    val rowsBetween = line.parentIndex - line.childIndex
+                    val rowOffset = index - line.childIndex
 
-            // Draw connections to parents.
-            commit.parentHashes.forEach { parentHash ->
-                val parentLane = laneByHash[parentHash] ?: return@forEach
-                val parentIndex = indexByHash[parentHash] ?: return@forEach
-                val rowsBetween = parentIndex - index
+                    val childCenterY = centerY - rowOffset * size.height
+                    val parentCenterY = childCenterY + size.height * rowsBetween
 
-                val parentX = xFor(parentLane)
+                    val currentX = xFor(line.childLane)
+                    val parentX = xFor(line.parentLane)
 
-                val path =
-                    Path().apply {
-                        moveTo(currentX, centerY)
+                    val path =
+                        Path().apply {
+                            moveTo(currentX, childCenterY)
 
-                        val endY = centerY + size.height * rowsBetween
+                            if (currentX == parentX) {
+                                // No lane change
+                                lineTo(parentX, parentCenterY)
+                            } else if (currentX < parentX) {
+                                // Lane change to the right
+                                val bendEndY = childCenterY + size.height
 
-                        if (currentX == parentX) {
-                            // No lane change
-                            lineTo(parentX, centerY + size.height * rowsBetween)
-                        } else if (currentX < parentX) {
-                            // Lane change to the right
-                            val bendEndY = centerY + size.height
+                                cubicTo(
+                                    currentX,
+                                    childCenterY + size.height * 0.5f,
+                                    parentX,
+                                    childCenterY + size.height * 0.5f,
+                                    parentX,
+                                    bendEndY,
+                                )
 
-                            cubicTo(
-                                currentX,
-                                centerY + size.height * 0.5f,
-                                parentX,
-                                centerY + size.height * 0.5f,
-                                parentX,
-                                bendEndY,
-                            )
+                                if (rowsBetween > 1) {
+                                    lineTo(parentX, parentCenterY)
+                                }
+                            } else {
+                                // Lane change to the left
+                                val bendStartY = childCenterY + size.height * (rowsBetween - 1)
 
-                            if (rowsBetween > 1) {
-                                lineTo(parentX, endY)
+                                if (rowsBetween > 1) {
+                                    lineTo(currentX, bendStartY)
+                                }
+
+                                cubicTo(
+                                    currentX,
+                                    parentCenterY - size.height * 0.5f,
+                                    parentX,
+                                    parentCenterY - size.height * 0.5f,
+                                    parentX,
+                                    parentCenterY,
+                                )
                             }
-                        } else {
-                            // Lane change to the left
-                            val bendStartY = centerY + size.height * (rowsBetween - 1)
-
-                            if (rowsBetween > 1) {
-                                lineTo(currentX, bendStartY)
-                            }
-
-                            cubicTo(
-                                currentX,
-                                endY - size.height * 0.5f,
-                                parentX,
-                                endY - size.height * 0.5f,
-                                parentX,
-                                endY,
-                            )
                         }
-                    }
 
-                drawPath(
-                    path = path,
-                    color = currentColor.copy(alpha = 0.5f),
-                    style = Stroke(width = strokeWidth),
-                )
+                    drawPath(
+                        path = path,
+                        color = line.color.copy(alpha = 0.5f),
+                        style = Stroke(width = strokeWidth),
+                    )
+                }
             }
 
             // Draw commit node.
             drawCircle(
-                color = currentColor,
+                color = colors[commit.lane % colors.size],
                 radius = 5.dp.toPx(),
-                center = Offset(currentX, centerY),
+                center = Offset(xFor(commit.lane), centerY),
             )
         }
 
