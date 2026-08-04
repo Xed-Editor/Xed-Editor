@@ -79,22 +79,15 @@ import com.rk.activities.main.ui.drawerStateRef
 import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.components.SingleInputDialog
 import com.rk.components.XedDropdownMenuItem
-import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
 import com.rk.drawer.DrawerTab
 import com.rk.feature.FeatureRegistry
 import com.rk.file.toFileWrapper
-import com.rk.filetree.FileNameIcon
 import com.rk.filetree.FileTreeTab
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.theme.gitAdded
-import com.rk.theme.gitConflicted
-import com.rk.theme.gitDeleted
-import com.rk.theme.gitModified
-import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getUnderlineColor
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
@@ -158,6 +151,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
         val commitMessage = viewModel.currentRoot.value?.absolutePath?.let { viewModel.commitMessages[it] } ?: ""
         val amend = viewModel.currentRoot.value?.absolutePath?.let { viewModel.amends[it] } ?: false
+
+        var selectedCommit by remember { mutableStateOf<GitCommit?>(null) }
 
         Column(modifier = modifier.fillMaxSize()) {
             Row(
@@ -513,7 +508,11 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     }
                 }
             } else {
-                GitGraphView(commits = viewModel.commitHistory, modifier = Modifier.weight(1f))
+                GitGraphView(
+                    commits = viewModel.commitHistory,
+                    modifier = Modifier.weight(1f),
+                    onCommitClick = { selectedCommit = it },
+                )
             }
         }
 
@@ -575,6 +574,28 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     showRenameBranchDialog = false
                 },
                 confirmEnabled = renameBranchError == null && newBranchName.isNotBlank(),
+            )
+        }
+
+        selectedCommit?.let { commit ->
+            CommitDetailsDialog(
+                commit = commit,
+                viewModel = viewModel,
+                onDismiss = { selectedCommit = null },
+                onOpenFileDiff = { change ->
+                    viewModel.getDiff(change, commit) { diff ->
+                        MainActivity.instance
+                            ?.viewModel
+                            ?.editorManager
+                            ?.addPreviewTab(
+                                title = change.path.substringAfterLast("/"),
+                                content = diff,
+                                extension = "diff",
+                            )
+                    }
+                    selectedCommit = null
+                    scope.launch { drawerStateRef.get()?.close() }
+                },
             )
         }
 
@@ -843,63 +864,27 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 val file = File(change.absolutePath).toFileWrapper()
                 val fileName = change.path.substringAfterLast("/")
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier =
-                        Modifier.width((getDrawerWidth() - 61.dp))
-                            .combinedClickable(
-                                onClick = {
-                                    viewModel.getDiff(change) { diff ->
-                                        MainActivity.instance
-                                            ?.viewModel
-                                            ?.editorManager
-                                            ?.addPreviewTab(
-                                                title = fileName,
-                                                content = diff,
-                                                extension = "diff",
-                                            )
-                                        scope.launch { drawerStateRef.get()?.close() }
-                                    }
-                                },
-                                onLongClick = { showRollbackDialog = true },
-                            )
-                            .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ChangesFileRow(
+                    change = change,
+                    underlineColor = fileTreeViewModel.get()?.let { getUnderlineColor(context, it, file) },
+                    checked = change.isChecked,
+                    onCheckedChange = { viewModel.toggleChange(change) },
+                    enabled = !viewModel.isLoading,
+                    onClick = {
+                        viewModel.getDiff(change) { diff ->
+                            MainActivity.instance
+                                ?.viewModel
+                                ?.editorManager
+                                ?.addPreviewTab(
+                                    title = fileName,
+                                    content = diff,
+                                    extension = "diff",
+                                )
+                            scope.launch { drawerStateRef.get()?.close() }
+                        }
+                    },
                 ) {
-                    Checkbox(
-                        enabled = !viewModel.isLoading,
-                        checked = change.isChecked,
-                        onCheckedChange = { viewModel.toggleChange(change) },
-                        modifier = Modifier.size(20.dp),
-                    )
-
-                    FileNameIcon(fileName = fileName, isDirectory = false)
-
-                    val underlineColor = fileTreeViewModel.get()?.let { getUnderlineColor(context, it, file) }
-                    Text(
-                        text = fileName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color =
-                            when (change.type) {
-                                ChangeType.ADDED,
-                                ChangeType.UNTRACKED -> MaterialTheme.colorScheme.gitAdded
-                                ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
-                                ChangeType.CONFLICTING -> MaterialTheme.colorScheme.gitConflicted
-                                ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
-                                ChangeType.RENAMED -> MaterialTheme.colorScheme.gitModified
-                            },
-                        modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-
-                    Text(
-                        text = change.path,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    showRollbackDialog = true
                 }
             }
         }

@@ -1,6 +1,7 @@
 package com.rk.git
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,7 +53,18 @@ private data class GitLine(
 )
 
 @Composable
-fun GitGraphView(commits: List<GitCommit>, modifier: Modifier = Modifier) {
+fun GitGraphView(commits: List<GitCommit>?, modifier: Modifier = Modifier, onCommitClick: (GitCommit) -> Unit = {}) {
+    if (commits == null) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(48.dp))
+        }
+        return
+    }
+
     if (commits.isEmpty()) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -153,6 +167,7 @@ fun GitGraphView(commits: List<GitCommit>, modifier: Modifier = Modifier) {
                 colors = colors,
                 maxLane = maxLane,
                 dateFormatter = dateFormatter,
+                onClick = { onCommitClick(commit) },
             )
         }
     }
@@ -166,6 +181,7 @@ private fun CommitItem(
     colors: List<Color>,
     maxLane: Int,
     dateFormatter: SimpleDateFormat,
+    onClick: () -> Unit,
 ) {
     val totalLaneWidth = ((maxLane + 1) * 20).dp
 
@@ -182,7 +198,7 @@ private fun CommitItem(
     }
     val currentLaneWidth = ((effectiveLane + 1) * 20).dp
 
-    Box(modifier = Modifier.fillMaxWidth().height(42.dp)) {
+    Box(modifier = Modifier.fillMaxWidth().height(42.dp).clickable(onClick = onClick)) {
         Canvas(modifier = Modifier.width(totalLaneWidth).fillMaxHeight()) {
             val laneWidth = 20.dp.toPx()
             val centerOffset = laneWidth / 2

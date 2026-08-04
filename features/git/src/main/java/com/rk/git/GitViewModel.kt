@@ -24,6 +24,7 @@ import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.api.errors.DetachedHeadException
 import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
+import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
@@ -35,6 +36,7 @@ import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
@@ -57,7 +59,7 @@ class GitViewModel : ViewModel() {
     var changes = mutableStateMapOf<String, List<GitChange>>()
     var commitMessages = mutableStateMapOf<String, String>()
     var amends = mutableStateMapOf<String, Boolean>()
-    var commitHistory by mutableStateOf<List<GitCommit>>(emptyList())
+    var commitHistory by mutableStateOf<List<GitCommit>?>(null)
 
     var isLoading by mutableStateOf(false)
 
@@ -66,6 +68,7 @@ class GitViewModel : ViewModel() {
             currentRoot.value = File(root)
             currentBranch = Git.open(currentRoot.value).currentHead()
             syncChanges(currentRoot.value!!)
+            commitHistory = null
             if (!amends.containsKey(root)) {
                 amends[root] = false
             }
@@ -241,6 +244,7 @@ class GitViewModel : ViewModel() {
                     }
                     withContext(Dispatchers.Main) { currentBranch = git.repository.branch }
                 }
+                loadHistory()
                 Events.publish(
                     GitEvent.BranchCheckedOut(
                         root = FileWrapper(currentRoot.value!!),
@@ -287,6 +291,7 @@ class GitViewModel : ViewModel() {
                         toast(errorMessage)
                     }
                 }
+                loadHistory()
                 GitEvent.PullCompleted(
                     root = FileWrapper(currentRoot.value!!),
                     remote = GIT_ORIGIN,
@@ -334,6 +339,7 @@ class GitViewModel : ViewModel() {
                         .setRemoveDeletedRefs(true)
                         .call()
                 }
+                loadHistory()
                 Events.publish(
                     GitEvent.FetchCompleted(
                         root = FileWrapper(currentRoot.value!!),
@@ -382,7 +388,9 @@ class GitViewModel : ViewModel() {
                 val newChanges = mutableListOf<GitChange>()
                 Git.open(root).use { git ->
                     val status = git.status().call()
+
                     fun fullPath(relativePath: String) = File(root, relativePath).absoluteFile
+
                     newChanges.addAll(status.added.map { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) })
                     newChanges.addAll(
                         status.changed.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) }
@@ -596,7 +604,7 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun getDiff(change: GitChange, onResult: (String) -> Unit) {
+    fun getDiff(change: GitChange, commit: GitCommit? = null, onResult: (String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             try {
@@ -609,17 +617,13 @@ class GitViewModel : ViewModel() {
                             formatter.setRepository(repo)
                             formatter.pathFilter = PathFilter.create(change.path)
 
-                            val headId = repo.resolve(Constants.HEAD + "^{" + Constants.TYPE_TREE + "}")
-                            val oldTree =
-                                if (headId != null) {
-                                    CanonicalTreeParser().apply {
-                                        reset(repo.newObjectReader(), headId)
-                                    }
+                            val (oldTree, newTree) =
+                                if (commit != null) {
+                                    getCommitDiffTrees(repo, commit)
                                 } else {
-                                    EmptyTreeIterator()
+                                    getWorkingDiffTrees(repo)
                                 }
 
-                            val newTree = FileTreeIterator(repo)
                             formatter.scan(oldTree, newTree).forEach(formatter::format)
 
                             withContext(Dispatchers.Main) {
@@ -627,6 +631,90 @@ class GitViewModel : ViewModel() {
                             }
                         }
                     }
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
+            }
+        }
+    }
+
+    private fun getWorkingDiffTrees(repo: Repository): Pair<AbstractTreeIterator, FileTreeIterator> {
+        val headId = repo.resolve(Constants.HEAD + "^{" + Constants.TYPE_TREE + "}")
+
+        val oldTree =
+            if (headId != null) {
+                CanonicalTreeParser().apply {
+                    reset(repo.newObjectReader(), headId)
+                }
+            } else {
+                EmptyTreeIterator()
+            }
+
+        val newTree = FileTreeIterator(repo)
+
+        return oldTree to newTree
+    }
+
+    private fun getCommitDiffTrees(
+        repo: Repository,
+        commit: GitCommit,
+    ): Pair<AbstractTreeIterator, CanonicalTreeParser> =
+        RevWalk(repo).use { revWalk ->
+            val childCommit = revWalk.parseCommit(repo.resolve(commit.hash))
+
+            val old =
+                if (childCommit.parentCount > 0) {
+                    val parentCommit = revWalk.parseCommit(childCommit.getParent(0).id)
+                    CanonicalTreeParser().apply {
+                        reset(repo.newObjectReader(), parentCommit.tree.id)
+                    }
+                } else {
+                    EmptyTreeIterator()
+                }
+
+            val new =
+                CanonicalTreeParser().apply {
+                    reset(repo.newObjectReader(), childCommit.tree.id)
+                }
+
+            old to new
+        }
+
+    fun getChangesForCommit(commit: GitCommit, onResult: (List<GitChange>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+
+            try {
+                val root = currentRoot.value
+                Git.open(root).use { git ->
+                    val repo = git.repository
+
+                    val (oldTree, newTree) = getCommitDiffTrees(repo, commit)
+
+                    val entries =
+                        git.diff().setOldTree(oldTree).setNewTree(newTree).setShowNameAndStatusOnly(true).call()
+
+                    val changes = entries.map { entry ->
+                        val (path, type) =
+                            when (entry.changeType) {
+                                DiffEntry.ChangeType.ADD -> entry.newPath to ChangeType.ADDED
+                                DiffEntry.ChangeType.DELETE -> entry.oldPath to ChangeType.DELETED
+                                DiffEntry.ChangeType.RENAME -> entry.newPath to ChangeType.RENAMED
+                                DiffEntry.ChangeType.COPY -> entry.newPath to ChangeType.ADDED
+                                DiffEntry.ChangeType.MODIFY -> entry.newPath to ChangeType.MODIFIED
+                            }
+
+                        GitChange(
+                            path = path,
+                            absolutePath = File(root, path).absolutePath,
+                            type = type,
+                            isChecked = false,
+                        )
+                    }
+
+                    withContext(Dispatchers.Main) { onResult(changes) }
                 }
             } catch (e: Exception) {
                 toast(e.message)
@@ -652,6 +740,7 @@ class GitViewModel : ViewModel() {
                     }
                     toast(strings.checkout_complete)
                 }
+                loadHistory()
                 Events.publish(GitEvent.BranchCreated(FileWrapper(currentRoot.value!!), branchName, branchBase))
             } catch (e: Exception) {
                 toast(e.message)
@@ -719,6 +808,7 @@ class GitViewModel : ViewModel() {
                         toast("Merge failed: ${result.mergeStatus}")
                     }
                 }
+                loadHistory()
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
@@ -743,6 +833,7 @@ class GitViewModel : ViewModel() {
                         toast("Rebase failed: ${result.status}")
                     }
                 }
+                loadHistory()
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
@@ -760,7 +851,7 @@ class GitViewModel : ViewModel() {
             withContext(Dispatchers.Main) { isLoading = true }
 
             try {
-                withContext(Dispatchers.Main) { commitHistory = emptyList() }
+                withContext(Dispatchers.Main) { commitHistory = null }
 
                 val commits =
                     Git.open(root).use { git ->
