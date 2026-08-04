@@ -2,14 +2,13 @@ package com.rk.git
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -168,22 +167,22 @@ private fun CommitItem(
     maxLane: Int,
     dateFormatter: SimpleDateFormat,
 ) {
-    Row(modifier = Modifier.fillMaxWidth().height(42.dp)) {
-        val totalLaneWidth = ((maxLane + 1) * 20).dp
+    val totalLaneWidth = ((maxLane + 1) * 20).dp
 
-        // Keep the text right of all lanes occupied in this row,
-        // including lines that only pass through it.
-        var effectiveLane = commit.lane
-        rowLines.forEach { edge ->
-            if (edge.childLane > effectiveLane) {
-                effectiveLane = edge.childLane
-            }
-            if (edge.parentLane > effectiveLane) {
-                effectiveLane = edge.parentLane
-            }
+    // Keep the text right of all lanes occupied in this row,
+    // including lines that only pass through it.
+    var effectiveLane = commit.lane
+    rowLines.forEach { edge ->
+        if (edge.childLane > effectiveLane) {
+            effectiveLane = edge.childLane
         }
-        val currentLaneWidth = ((effectiveLane + 1) * 20).dp
+        if (edge.parentLane > effectiveLane) {
+            effectiveLane = edge.parentLane
+        }
+    }
+    val currentLaneWidth = ((effectiveLane + 1) * 20).dp
 
+    Box(modifier = Modifier.fillMaxWidth().height(42.dp)) {
         Canvas(modifier = Modifier.width(totalLaneWidth).fillMaxHeight()) {
             val laneWidth = 20.dp.toPx()
             val centerOffset = laneWidth / 2
@@ -267,9 +266,7 @@ private fun CommitItem(
 
         Column(
             modifier =
-                Modifier.weight(1f)
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .offset(x = -totalLaneWidth + currentLaneWidth)
+                Modifier.fillMaxWidth().padding(start = currentLaneWidth + 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
         ) {
             Text(
                 text = commit.message,
