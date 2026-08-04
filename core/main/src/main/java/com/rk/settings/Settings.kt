@@ -318,6 +318,10 @@ object Preference {
         floatCache.remove(key)
     }
 
+    fun getBoolean(key: String): Boolean? {
+        return if (sharedPreferences.contains(key)) getBoolean(key, false) else null
+    }
+
     fun getBoolean(key: String, default: Boolean): Boolean {
         return boolCache[key]?.get()
             ?: run {
@@ -346,6 +350,10 @@ object Preference {
             }
         }
             .onFailure { it.printStackTrace() }
+    }
+
+    fun getString(key: String): String? {
+        return if (sharedPreferences.contains(key)) getString(key, "") else null
     }
 
     fun getString(key: String, default: String): String {
@@ -378,6 +386,10 @@ object Preference {
             .onFailure { it.printStackTrace() }
     }
 
+    fun getInt(key: String): Int? {
+        return if (sharedPreferences.contains(key)) getInt(key, 0) else null
+    }
+
     fun getInt(key: String, default: Int): Int {
         return intCache[key]?.get()
             ?: run {
@@ -408,6 +420,10 @@ object Preference {
             .onFailure { it.printStackTrace() }
     }
 
+    fun getLong(key: String): Long? {
+        return if (sharedPreferences.contains(key)) getLong(key, 0L) else null
+    }
+
     fun getLong(key: String, default: Long): Long {
         return longCache[key]?.get()
             ?: run {
@@ -436,6 +452,10 @@ object Preference {
             }
         }
             .onFailure { it.printStackTrace() }
+    }
+
+    fun getFloat(key: String): Float? {
+        return if (sharedPreferences.contains(key)) getFloat(key, 0f) else null
     }
 
     fun getFloat(key: String, default: Float): Float {

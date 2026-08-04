@@ -97,7 +97,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
 
     if (showStartupTimeoutDialog) {
         val prefKey = "lsp_${server.id}_startup_timeout"
-        val timeout = Preference.getInt(prefKey, Timeouts.INIT.defaultTimeout)
+        val timeout = Preference.getInt(prefKey, server.customTimeouts[Timeouts.INIT] ?: Timeouts.INIT.defaultTimeout)
         var timeoutValue by remember { mutableStateOf(timeout.toString()) }
         var timeoutError by remember {
             mutableStateOf<String?>(null)

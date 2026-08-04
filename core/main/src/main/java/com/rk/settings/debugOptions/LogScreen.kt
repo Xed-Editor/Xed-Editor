@@ -2,6 +2,7 @@ package com.rk.settings.debugOptions
 
 import android.content.Intent
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -144,9 +145,11 @@ fun LogScreen(
                     }
                 }
 
-                EditorSearchPanel(editorState)
-                if (editorState.isSearching) {
-                    HorizontalDivider()
+                Column(modifier = Modifier.animateContentSize()) {
+                    EditorSearchPanel(editorState)
+                    if (editorState.isSearching) {
+                        HorizontalDivider()
+                    }
                 }
 
                 AndroidView(

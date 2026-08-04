@@ -782,4 +782,5 @@
     <string name="run_lsp_external_desc">Allows language server to run for external files. Servers run in the built-in terminal, therefore features may not work as expected in these locations.</string>
     <string name="startup_timeout">Startup timeout</string>
     <string name="startup_timeout_desc">Time to wait for the server to start</string>
+    <string name="invalid_initialization_options">Initialization options contain invalid JSON and will be ignored.</string>
 </resources>

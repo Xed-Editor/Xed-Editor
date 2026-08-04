@@ -3,6 +3,7 @@ package com.rk.lsp
 import android.content.Intent
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
+import com.google.gson.JsonParser
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.ui.snackbarHostStateRef
@@ -249,8 +250,23 @@ class LspConnector(
                     }
                 }
 
-            override fun getInitializationOptions(uri: URI?): Any? =
-                this@createServerDefinition.getInitializationOptions(uri)
+            override val customTimeouts: Map<Timeouts, Int>
+                get() {
+                    val timeouts = this@createServerDefinition.customTimeouts
+                    val userTimeout =
+                        Preference.getInt(
+                            key = "lsp_${id}_startup_timeout",
+                            default = timeouts[Timeouts.INIT] ?: Timeouts.INIT.defaultTimeout,
+                        )
+                    return timeouts + (Timeouts.INIT to userTimeout)
+                }
+
+            override fun getInitializationOptions(uri: URI?): Any? {
+                val initOptions = this@createServerDefinition.getInitializationOptions(uri)
+                val userOptions = Preference.getString("lsp_${id}_initialization_options") ?: return initOptions
+
+                return runCatching { JsonParser.parseString(userOptions) }.getOrNull()
+            }
 
             override fun callExitForLanguageServer(): Boolean = true
 
