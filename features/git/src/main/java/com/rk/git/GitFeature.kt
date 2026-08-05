@@ -1,6 +1,11 @@
 package com.rk.git
 
 import android.app.Application
+import android.graphics.Canvas
+import android.graphics.ColorFilter
+import android.graphics.Paint
+import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +23,8 @@ import com.rk.drawer.AddProjectOption
 import com.rk.drawer.AddProjectRegistry
 import com.rk.drawer.ServiceTabProvider
 import com.rk.drawer.ServiceTabRegistry
+import com.rk.editor.Editor
+import com.rk.events.EditorEvent
 import com.rk.events.EditorTabEvent
 import com.rk.events.EventSubscription
 import com.rk.events.Events
@@ -46,10 +53,16 @@ import com.rk.settings.Settings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
 import com.rk.settings.git.GitSettings
+import com.rk.tabs.editor.EditorTab
 import com.rk.theme.gitAdded
 import com.rk.theme.gitConflicted
 import com.rk.theme.gitDeleted
 import com.rk.theme.gitModified
+import com.rk.utils.isDarkTheme
+import io.github.rosemoe.sora.lang.styling.ExtraStylesProvider
+import io.github.rosemoe.sora.lang.styling.line.LineAnchorStyle
+import io.github.rosemoe.sora.lang.styling.line.LineGutterBackground
+import io.github.rosemoe.sora.lang.styling.line.LineSideIcon
 import java.lang.ref.WeakReference
 
 // Global reference for gitViewModel
@@ -122,6 +135,21 @@ class GitFeature : Feature {
         subscriptions.add(
             Events.subscribe<EditorTabEvent.Saved> { event ->
                 gitViewModel.get()?.syncChanges(event.file.getAbsolutePath())
+            }
+        )
+
+        subscriptions.add(
+            Events.subscribe<EditorTabEvent.Opened> { event ->
+                event.tab.file?.let {
+                    gitViewModel.get()?.updateLineDiffs(it.getAbsolutePath())
+                }
+            }
+        )
+
+        subscriptions.add(
+            Events.subscribe<EditorEvent.InstanceCreated> { (editor) ->
+                val extraStylesProvider = GitExtraStylesProvider(editor)
+                editor.registerExtraStylesProvider(extraStylesProvider)
             }
         )
 
@@ -218,7 +246,7 @@ object GitProperty : FilePropertiesProvider {
 object GitFileDecorationProvider : FileDecorationProvider {
     @Composable
     override fun provideDecoration(file: FileObject): FileDecoration? {
-        if (!FeatureRegistry.isEnabled("enable_git") || !Settings.git_colorize_names) return null
+        if (!Settings.git_colorize_names) return null
         val changeType = gitViewModel.get()?.getChangeType(file.getAbsolutePath()) ?: return null
         val color =
             when (changeType) {
@@ -231,4 +259,58 @@ object GitFileDecorationProvider : FileDecorationProvider {
             }
         return FileDecoration(color = color)
     }
+}
+
+class GitExtraStylesProvider(private val editor: Editor) : ExtraStylesProvider {
+    override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
+        if (!FeatureRegistry.isEnabled("enable_git")) return
+        val viewModel = gitViewModel.get() ?: return
+        val tab = editor.ownerTab as? EditorTab ?: return
+        val file = tab.file ?: return
+        val path = file.getAbsolutePath()
+
+        val diffs = viewModel.fileLineDiffs[path] ?: return
+        val diffType = diffs[line] ?: return
+
+        val isDark = isDarkTheme(editor.context)
+
+        val colorInt =
+            when (diffType) {
+                LineDiffType.ADDED -> if (isDark) 0xFF81C784.toInt() else 0xFF2E7D32.toInt()
+                LineDiffType.MODIFIED -> if (isDark) 0xFF64B5F6.toInt() else 0xFF1565C0.toInt()
+                LineDiffType.DELETED -> 0xFF808080.toInt()
+            }
+
+        if (diffType == LineDiffType.DELETED) {
+            styles.add(LineSideIcon(line, DotDrawable(colorInt)))
+        } else {
+            styles.add(LineGutterBackground(line) { colorInt })
+        }
+    }
+}
+
+class DotDrawable(color: Int) : Drawable() {
+    private val paint =
+        Paint().apply {
+            this.color = color
+            style = Paint.Style.FILL
+            isAntiAlias = true
+        }
+
+    override fun draw(canvas: Canvas) {
+        val centerX = bounds.centerX().toFloat()
+        val centerY = bounds.centerY().toFloat()
+        val radius = 6f
+        canvas.drawCircle(centerX, centerY, radius, paint)
+    }
+
+    override fun setAlpha(alpha: Int) {
+        paint.alpha = alpha
+    }
+
+    override fun setColorFilter(colorFilter: ColorFilter?) {
+        paint.colorFilter = colorFilter
+    }
+
+    @Deprecated("Deprecated in Java") override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
 }

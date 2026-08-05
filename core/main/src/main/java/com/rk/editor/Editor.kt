@@ -12,10 +12,13 @@ import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
 import com.rk.events.EditorEvent
 import com.rk.events.Events
+import com.rk.extension.api.XedExtensionPoint
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.LineEnding
+import com.rk.tabs.base.Tab
 import com.rk.utils.errorDialog
+import io.github.rosemoe.sora.lang.styling.ExtraStylesProvider
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.editor.LspLanguage
 import io.github.rosemoe.sora.text.CharPosition
@@ -44,6 +47,7 @@ class Editor : CodeEditor {
     var lineEnding = LineEnding.LF
     var insertFinalNewline = false
     var trimTrailingWhitespace = false
+    var ownerTab: Tab? = null
 
     data class PatchArgs(
         val isDarkMode: Boolean,
@@ -61,9 +65,15 @@ class Editor : CodeEditor {
         val errorColor: Int,
     )
 
+    private val extraStylesProviders = mutableListOf<ExtraStylesProvider>()
+
     init {
         applyFont()
         applySettings()
+
+        extraStylesProvider = ExtraStylesProvider { line, styles ->
+            extraStylesProviders.forEach { it.getExtraStyles(line, styles) }
+        }
 
         getComponent(EditorAutoCompletion::class.java).setEnabledAnimation(true)
         scope.launch { Events.publish(EditorEvent.InstanceCreated(this@Editor)) }
@@ -307,6 +317,7 @@ class Editor : CodeEditor {
      *
      * @param item The text action item instance to register.
      */
+    @XedExtensionPoint
     fun registerTextAction(item: TextActionItem) {
         textActionWindow.registerTextAction(item)
     }
@@ -316,6 +327,7 @@ class Editor : CodeEditor {
      *
      * @param item The text action item instance to unregister.
      */
+    @XedExtensionPoint
     fun unregisterTextAction(item: TextActionItem) {
         textActionWindow.unregisterTextAction(item)
     }
@@ -331,6 +343,18 @@ class Editor : CodeEditor {
         val selectionStart = cursorRange.startIndex
         val selectionEnd = cursorRange.endIndex
         return text.substring(selectionStart, selectionEnd)
+    }
+
+    @XedExtensionPoint
+    fun registerExtraStylesProvider(provider: ExtraStylesProvider) {
+        if (!extraStylesProviders.contains(provider)) {
+            extraStylesProviders.add(provider)
+        }
+    }
+
+    @XedExtensionPoint
+    fun unregisterExtraStylesProvider(provider: ExtraStylesProvider) {
+        extraStylesProviders.remove(provider)
     }
 
     companion object {

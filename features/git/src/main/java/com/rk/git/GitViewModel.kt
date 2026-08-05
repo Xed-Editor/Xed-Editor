@@ -27,6 +27,7 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.diff.Edit
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
@@ -42,6 +43,7 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import org.eclipse.jgit.treewalk.filter.PathFilter
+import org.eclipse.jgit.util.io.NullOutputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -54,6 +56,12 @@ data class GitCommit(
     val lane: Int,
 )
 
+enum class LineDiffType {
+    ADDED,
+    MODIFIED,
+    DELETED,
+}
+
 class GitViewModel : ViewModel() {
     var currentRoot = mutableStateOf<File?>(null)
     var currentBranch by mutableStateOf("")
@@ -65,6 +73,7 @@ class GitViewModel : ViewModel() {
     var isLoading by mutableStateOf(false)
     var aheadCount by mutableIntStateOf(0)
     var behindCount by mutableIntStateOf(0)
+    var fileLineDiffs = mutableStateMapOf<String, Map<Int, LineDiffType>>()
 
     fun loadRepository(root: String) {
         try {
@@ -147,10 +156,24 @@ class GitViewModel : ViewModel() {
     }
 
     fun getChangeType(path: String): ChangeType? {
+        return getChangeForPath(path)?.type
+    }
+
+    private fun getChangeForPath(path: String): GitChange? {
+        changes.forEach { (_, changes) ->
+            return changes.find { it.absolutePath == path }
+        }
+        return null
+    }
+
+    private fun getChangeAndRootForPath(path: String): Pair<String, GitChange>? {
         changes.forEach { (gitRoot, changes) ->
-            if (path.startsWith(gitRoot)) {
-                return changes.find { change -> change.absolutePath == path }?.type
-            }
+            val change =
+                changes.find { it.absolutePath == path }
+                    ?: run {
+                        return null
+                    }
+            return gitRoot to change
         }
         return null
     }
@@ -426,6 +449,11 @@ class GitViewModel : ViewModel() {
                         newChanges
                     }
                 changes[gitRoot] = mergedChanges
+
+                newChanges.forEach { change ->
+                    updateLineDiffs(change, gitRoot)
+                }
+
                 updateAheadBehindCounts()
                 viewModelScope.launch {
                     Events.publish(GitEvent.WorkingTreeUpdated(FileWrapper(root), mergedChanges))
@@ -924,6 +952,62 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
                 e.printStackTrace()
             }
+        }
+    }
+
+    fun updateLineDiffs(path: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val (gitRoot, change) = getChangeAndRootForPath(path) ?: return@launch
+            updateLineDiffs(change, gitRoot)
+        }
+    }
+
+    private suspend fun updateLineDiffs(change: GitChange, gitRoot: String) {
+        try {
+            Git.open(File(gitRoot)).use { git ->
+                val repo = git.repository
+
+                val (oldTree, newTree) = getWorkingDiffTrees(repo)
+
+                val diffs = mutableMapOf<Int, LineDiffType>()
+
+                DiffFormatter(NullOutputStream.INSTANCE).use { formatter ->
+                    formatter.setRepository(repo)
+                    formatter.pathFilter = PathFilter.create(change.path)
+
+                    val entries = formatter.scan(oldTree, newTree)
+                    for (entry in entries) {
+                        val fileHeader = formatter.toFileHeader(entry)
+
+                        for (hunk in fileHeader.hunks) {
+                            for (edit in hunk.toEditList()) {
+                                when (edit.type) {
+                                    Edit.Type.INSERT -> {
+                                        for (i in edit.beginB until edit.endB) {
+                                            diffs[i] = LineDiffType.ADDED
+                                        }
+                                    }
+                                    Edit.Type.REPLACE -> {
+                                        for (i in edit.beginB until edit.endB) {
+                                            diffs[i] = LineDiffType.MODIFIED
+                                        }
+                                    }
+                                    Edit.Type.DELETE -> {
+                                        diffs[edit.beginB] = LineDiffType.DELETED
+                                    }
+                                    else -> {}
+                                }
+                            }
+                        }
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    fileLineDiffs[change.absolutePath] = diffs
+                    println(fileLineDiffs)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

@@ -84,6 +84,7 @@ fun EditorTab.CodeEditor(
             factory = { ctx ->
                 Editor(ctx).apply {
                     logInfo("New Editor instance")
+                    ownerTab = this@CodeEditor
 
                     editable = editorState.editable
                     val isTxtFile = file?.getName()?.endsWith(".txt") ?: (fallbackExtension == "txt")
