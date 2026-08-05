@@ -11,6 +11,7 @@ import com.rk.DefaultScope
 import com.rk.events.Events
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileWrapper
+import com.rk.git.GitViewModel.Companion.LINE_DIFF_DEBOUNCE_MS
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -18,6 +19,7 @@ import com.rk.settings.Settings
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -25,9 +27,12 @@ import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.api.errors.DetachedHeadException
 import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
+import org.eclipse.jgit.diff.DiffAlgorithm
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.Edit
+import org.eclipse.jgit.diff.RawText
+import org.eclipse.jgit.diff.RawTextComparator
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
@@ -42,10 +47,11 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
+import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.treewalk.filter.PathFilter
-import org.eclipse.jgit.util.io.NullOutputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 
 data class GitCommit(
     val hash: String,
@@ -73,7 +79,12 @@ class GitViewModel : ViewModel() {
     var isLoading by mutableStateOf(false)
     var aheadCount by mutableIntStateOf(0)
     var behindCount by mutableIntStateOf(0)
-    var fileLineDiffs = mutableStateMapOf<String, Map<Int, LineDiffType>>()
+
+    private var _fileLineDiffs = mutableStateMapOf<String, Map<Int, LineDiffType>>()
+    val fileLineDiffs: Map<String, Map<Int, LineDiffType>>
+        get() = _fileLineDiffs
+
+    private val lineDiffJobs = mutableMapOf<String, Job>()
 
     fun loadRepository(root: String) {
         try {
@@ -318,10 +329,12 @@ class GitViewModel : ViewModel() {
                     }
                 }
                 loadHistory()
-                GitEvent.PullCompleted(
-                    root = FileWrapper(currentRoot.value!!),
-                    remote = GIT_ORIGIN,
-                    branch = currentBranch,
+                Events.publish(
+                    GitEvent.PullCompleted(
+                        root = FileWrapper(currentRoot.value!!),
+                        remote = GIT_ORIGIN,
+                        branch = currentBranch,
+                    )
                 )
             } catch (e: TransportException) {
                 if (
@@ -449,10 +462,6 @@ class GitViewModel : ViewModel() {
                         newChanges
                     }
                 changes[gitRoot] = mergedChanges
-
-                newChanges.forEach { change ->
-                    updateLineDiffs(change, gitRoot)
-                }
 
                 updateAheadBehindCounts()
                 viewModelScope.launch {
@@ -955,65 +964,87 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun updateLineDiffs(path: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val (gitRoot, change) = getChangeAndRootForPath(path) ?: return@launch
-            updateLineDiffs(change, gitRoot)
-        }
-    }
+    /**
+     * Schedules a recomputation of the gutter line-diffs for [absolutePath], comparing [bufferText] (i.e. the editor's
+     * current, possibly-unsaved content) against the file's blob at HEAD. Calls arriving in quick succession for the
+     * same path (e.g. one per keystroke) are coalesced - only the last one within [LINE_DIFF_DEBOUNCE_MS] actually
+     * runs.
+     *
+     * This is the *only* path that populates [fileLineDiffs], and it is only ever invoked for files that are open in an
+     * editor - so files with git changes that aren't currently being viewed are never diffed.
+     */
+    fun requestLineDiffUpdate(absolutePath: String, bufferText: String) {
+        if (!FeatureRegistry.isEnabled("enable_git")) return
 
-    private suspend fun updateLineDiffs(change: GitChange, gitRoot: String) {
-        try {
-            Git.open(File(gitRoot)).use { git ->
-                val repo = git.repository
+        lineDiffJobs[absolutePath]?.cancel()
+        lineDiffJobs[absolutePath] =
+            viewModelScope.launch(Dispatchers.IO) {
+                delay(LINE_DIFF_DEBOUNCE_MS.milliseconds)
+                try {
+                    val (gitRoot, change) =
+                        getChangeAndRootForPath(absolutePath)
+                            ?: run {
+                                withContext(Dispatchers.Main) { _fileLineDiffs.remove(absolutePath) }
+                                return@launch
+                            }
 
-                val (oldTree, newTree) = getWorkingDiffTrees(repo)
+                    Git.open(File(gitRoot)).use { git ->
+                        val repo = git.repository
 
-                val diffs = mutableMapOf<Int, LineDiffType>()
+                        val relativePath = change.path
 
-                DiffFormatter(NullOutputStream.INSTANCE).use { formatter ->
-                    formatter.setRepository(repo)
-                    formatter.pathFilter = PathFilter.create(change.path)
+                        val oldText = getHeadRawText(repo, relativePath)
+                        val newText = RawText(bufferText.toByteArray(Charsets.UTF_8))
+                        val diffs = calculateLineDiffs(oldText, newText)
 
-                    val entries = formatter.scan(oldTree, newTree)
-                    for (entry in entries) {
-                        val fileHeader = formatter.toFileHeader(entry)
-
-                        for (hunk in fileHeader.hunks) {
-                            for (edit in hunk.toEditList()) {
-                                when (edit.type) {
-                                    Edit.Type.INSERT -> {
-                                        for (i in edit.beginB until edit.endB) {
-                                            diffs[i] = LineDiffType.ADDED
-                                        }
-                                    }
-                                    Edit.Type.REPLACE -> {
-                                        for (i in edit.beginB until edit.endB) {
-                                            diffs[i] = LineDiffType.MODIFIED
-                                        }
-                                    }
-                                    Edit.Type.DELETE -> {
-                                        diffs[edit.beginB] = LineDiffType.DELETED
-                                    }
-                                    else -> {}
-                                }
+                        withContext(Dispatchers.Main) {
+                            if (diffs.isEmpty()) {
+                                _fileLineDiffs.remove(absolutePath)
+                            } else {
+                                _fileLineDiffs[absolutePath] = diffs
                             }
                         }
                     }
-                }
-                withContext(Dispatchers.Main) {
-                    fileLineDiffs[change.absolutePath] = diffs
-                    println(fileLineDiffs)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    lineDiffJobs.remove(absolutePath)
                 }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+    }
+
+    /** Reads the given path's content at HEAD, or an empty text if it doesn't exist there (new/untracked file). */
+    private fun getHeadRawText(repo: Repository, relativePath: String): RawText {
+        val headId = repo.resolve(Constants.HEAD) ?: return RawText.EMPTY_TEXT
+        return RevWalk(repo).use { revWalk ->
+            val commit = revWalk.parseCommit(headId)
+            TreeWalk.forPath(repo, relativePath, commit.tree)?.use { treeWalk ->
+                val blobId = treeWalk.getObjectId(0)
+                RawText(repo.open(blobId).bytes)
+            } ?: RawText.EMPTY_TEXT
         }
+    }
+
+    private fun calculateLineDiffs(oldText: RawText, newText: RawText): Map<Int, LineDiffType> {
+        val diffs = mutableMapOf<Int, LineDiffType>()
+        val algorithm = DiffAlgorithm.getAlgorithm(DiffAlgorithm.SupportedAlgorithm.HISTOGRAM)
+        val edits = algorithm.diff(RawTextComparator.DEFAULT, oldText, newText)
+
+        for (edit in edits) {
+            when (edit.type) {
+                Edit.Type.INSERT -> for (i in edit.beginB until edit.endB) diffs[i] = LineDiffType.ADDED
+                Edit.Type.REPLACE -> for (i in edit.beginB until edit.endB) diffs[i] = LineDiffType.MODIFIED
+                Edit.Type.DELETE -> diffs[edit.beginB] = LineDiffType.DELETED
+                else -> {}
+            }
+        }
+        return diffs
     }
 
     companion object {
         private const val BRANCH_PREFIX = Constants.R_HEADS // refs/heads/
         private const val REMOTE_PREFIX = Constants.R_REMOTES // refs/remotes/
         private const val GIT_ORIGIN = Constants.DEFAULT_REMOTE_NAME // origin
+        private const val LINE_DIFF_DEBOUNCE_MS = 50L
     }
 }

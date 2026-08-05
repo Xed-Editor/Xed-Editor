@@ -59,6 +59,7 @@ import com.rk.theme.gitConflicted
 import com.rk.theme.gitDeleted
 import com.rk.theme.gitModified
 import com.rk.utils.isDarkTheme
+import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.lang.styling.ExtraStylesProvider
 import io.github.rosemoe.sora.lang.styling.line.LineAnchorStyle
 import io.github.rosemoe.sora.lang.styling.line.LineGutterBackground
@@ -84,6 +85,7 @@ class GitFeature : Feature {
     private var dialogProvider: DialogProvider? = null
     private var projectCategory: ProjectCategory? = null
     private val subscriptions = mutableListOf<EventSubscription>()
+    private val gitDiffGutterProvider = mutableMapOf<Editor, GitDiffGutterProvider>()
 
     override fun init(application: Application) {
         // Register Git settings category
@@ -139,17 +141,22 @@ class GitFeature : Feature {
         )
 
         subscriptions.add(
-            Events.subscribe<EditorTabEvent.Opened> { event ->
-                event.tab.file?.let {
-                    gitViewModel.get()?.updateLineDiffs(it.getAbsolutePath())
-                }
+            Events.subscribe<EditorEvent.InstanceCreated> { (editor) ->
+                val extraStylesProvider = GitDiffGutterProvider(editor)
+                gitDiffGutterProvider[editor] = extraStylesProvider
+                editor.registerExtraStylesProvider(extraStylesProvider)
             }
         )
 
         subscriptions.add(
-            Events.subscribe<EditorEvent.InstanceCreated> { (editor) ->
-                val extraStylesProvider = GitExtraStylesProvider(editor)
-                editor.registerExtraStylesProvider(extraStylesProvider)
+            Events.subscribe<EditorEvent.InstanceDestroyed> { (editor) ->
+                gitDiffGutterProvider.remove(editor)
+            }
+        )
+
+        subscriptions.add(
+            Events.subscribe<GitEvent.WorkingTreeUpdated> {
+                refreshOpenEditorDiffs()
             }
         )
 
@@ -200,6 +207,13 @@ class GitFeature : Feature {
                 }
     }
 
+    /** Recomputes the gutter line-diffs for every currently open editor with [GitDiffGutterProvider]. */
+    private fun refreshOpenEditorDiffs() {
+        gitDiffGutterProvider.values.forEach { provider ->
+            provider.requestUpdate()
+        }
+    }
+
     override fun dispose(application: Application) {
         settingsCategory?.let { SettingsRegistry.unregisterCategory(it) }
         settingsRoute?.let { SettingsRegistry.unregisterRoute(it) }
@@ -216,6 +230,11 @@ class GitFeature : Feature {
             templates.forEach { template -> ProjectTemplateRegistry.unregisterTemplate(it, template) }
             ProjectTemplateRegistry.unregisterCategory(it)
         }
+        gitDiffGutterProvider.forEach { (editor, provider) ->
+            editor.unregisterExtraStylesProvider(provider)
+            provider.dispose()
+        }
+        gitDiffGutterProvider.clear()
     }
 }
 
@@ -261,10 +280,39 @@ object GitFileDecorationProvider : FileDecorationProvider {
     }
 }
 
-class GitExtraStylesProvider(private val editor: Editor) : ExtraStylesProvider {
-    override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
-        if (!FeatureRegistry.isEnabled("enable_git")) return
+/**
+ * Provides gutter/line-anchor styling for the editor, and is itself responsible for keeping
+ * [GitViewModel.fileLineDiffs] up to date for its editor as the user types. Each instance is tied to an [Editor]
+ * instance and must be [dispose]d when that association ends.
+ */
+class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
+
+    private var contentChangeSubscription =
+        editor.subscribeAlways(ContentChangeEvent::class.java) { _ -> onContentChanged() }
+
+    private fun onContentChanged() {
+        requestUpdate()
+    }
+
+    fun requestUpdate() {
         val viewModel = gitViewModel.get() ?: return
+
+        val tab = editor.ownerTab as? EditorTab ?: return
+        val file = tab.file ?: return
+        val path = file.getAbsolutePath()
+
+        viewModel.requestLineDiffUpdate(path, editor.text.toString())
+    }
+
+    /** Cancels the content-change subscription. Must be called once this provider is no longer in use. */
+    fun dispose() {
+        contentChangeSubscription?.unsubscribe()
+        contentChangeSubscription = null
+    }
+
+    override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
+        val viewModel = gitViewModel.get() ?: return
+
         val tab = editor.ownerTab as? EditorTab ?: return
         val file = tab.file ?: return
         val path = file.getAbsolutePath()
