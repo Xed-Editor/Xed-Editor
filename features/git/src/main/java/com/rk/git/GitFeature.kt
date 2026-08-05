@@ -54,11 +54,25 @@ import com.rk.theme.gitAdded
 import com.rk.theme.gitConflicted
 import com.rk.theme.gitDeleted
 import com.rk.theme.gitModified
+import com.rk.utils.toast
+import com.rk.utils.withAlpha
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.event.InlayHintClickEvent
 import io.github.rosemoe.sora.lang.styling.ExtraStylesProvider
+import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer
+import io.github.rosemoe.sora.lang.styling.inlayHint.TextInlayHint
 import io.github.rosemoe.sora.lang.styling.line.LineAnchorStyle
+import io.github.rosemoe.sora.lang.styling.line.LineBackground
 import io.github.rosemoe.sora.lang.styling.line.LineGutterBackground
+import io.github.rosemoe.sora.text.batchEdit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
+import kotlin.time.Duration.Companion.milliseconds
 
 // Global reference for gitViewModel
 var gitViewModel = WeakReference<GitViewModel?>(null)
@@ -80,6 +94,7 @@ class GitFeature : Feature {
     private var projectCategory: ProjectCategory? = null
     private val subscriptions = mutableListOf<EventSubscription>()
     private val gitDiffGutterProvider = mutableMapOf<Editor, GitDiffGutterProvider>()
+    private val gitConflictStylesProvider = mutableMapOf<Editor, GitConflictStylesProvider>()
 
     override fun init(application: Application) {
         // Register Git settings category
@@ -142,12 +157,17 @@ class GitFeature : Feature {
                 val extraStylesProvider = GitDiffGutterProvider(editor)
                 gitDiffGutterProvider[editor] = extraStylesProvider
                 editor.registerExtraStylesProvider(extraStylesProvider)
+
+                val conflictStylesProvider = GitConflictStylesProvider(editor)
+                gitConflictStylesProvider[editor] = conflictStylesProvider
+                editor.registerExtraStylesProvider(conflictStylesProvider)
             }
         )
 
         subscriptions.add(
             Events.subscribe<EditorEvent.InstanceDestroyed> { (editor) ->
-                gitDiffGutterProvider.remove(editor)
+                gitDiffGutterProvider.remove(editor)?.dispose()
+                gitConflictStylesProvider.remove(editor)?.dispose()
             }
         )
 
@@ -232,6 +252,11 @@ class GitFeature : Feature {
             provider.dispose()
         }
         gitDiffGutterProvider.clear()
+        gitConflictStylesProvider.forEach { (editor, provider) ->
+            editor.unregisterExtraStylesProvider(provider)
+            provider.dispose()
+        }
+        gitConflictStylesProvider.clear()
     }
 }
 
@@ -320,11 +345,193 @@ class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
 
         val colorInt =
             when (diffType) {
-                LineDiffType.ADDED -> editor.colorScheme.getColor(XedColorScheme.GIT_GUTTER_ADDED)
-                LineDiffType.MODIFIED -> editor.colorScheme.getColor(XedColorScheme.GIT_GUTTER_MODIFIED)
-                LineDiffType.DELETED -> editor.colorScheme.getColor(XedColorScheme.GIT_GUTTER_DELETED)
+                LineDiffType.ADDED -> editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_ADDED)
+                LineDiffType.MODIFIED -> editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_MODIFIED)
+                LineDiffType.DELETED -> editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_DELETED)
             }
 
         styles.add(LineGutterBackground(line) { colorInt })
     }
 }
+
+class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvider {
+    private var conflicts = mutableListOf<Conflict>()
+    private val scope = CoroutineScope(Dispatchers.Default + Job())
+    private var updateJob: Job? = null
+
+    companion object {
+        private const val UPDATE_DEBOUNCE_MS = 50L
+        private const val CONFLICT_START_MARKER = "<<<<<<<"
+        private const val CONFLICT_SEPARATOR = "======="
+        private const val CONFLICT_END_MARKER = ">>>>>>>"
+    }
+
+    data class Conflict(
+        val startLine: Int,
+        val middleLine: Int,
+        val endLine: Int,
+    )
+
+    private val contentChangeSubscription = editor.subscribeAlways(ContentChangeEvent::class.java) { requestUpdate() }
+
+    private val inlayHintClickSubscription =
+        editor.subscribeAlways(InlayHintClickEvent::class.java) { event ->
+            (event.inlayHint as? ConflictInlayHint)?.let { hint ->
+                handleConflictAction(hint)
+            }
+        }
+
+    init {
+        requestUpdate()
+    }
+
+    private fun requestUpdate() {
+        updateJob?.cancel()
+        updateJob = scope.launch {
+            delay(UPDATE_DEBOUNCE_MS.milliseconds)
+
+            val text = editor.text
+            val newConflicts = mutableListOf<Conflict>()
+            var currentConflictStart = -1
+            var currentConflictMiddle = -1
+
+            for (i in 0 until text.lineCount) {
+                val line = text.getLineString(i)
+                if (line.startsWith(CONFLICT_START_MARKER)) {
+                    currentConflictStart = i
+                } else if (line.startsWith(CONFLICT_SEPARATOR) && currentConflictStart != -1) {
+                    currentConflictMiddle = i
+                } else if (
+                    line.startsWith(CONFLICT_END_MARKER) && currentConflictStart != -1 && currentConflictMiddle != -1
+                ) {
+                    newConflicts.add(
+                        Conflict(
+                            startLine = currentConflictStart,
+                            middleLine = currentConflictMiddle,
+                            endLine = i,
+                        )
+                    )
+                    currentConflictStart = -1
+                    currentConflictMiddle = -1
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                conflicts = newConflicts
+                updateInlayHints()
+                editor.postInvalidate()
+            }
+        }
+    }
+
+    private fun updateInlayHints() {
+        if (conflicts.isEmpty()) {
+            editor.setInlayHints(null)
+            return
+        }
+
+        val container = InlayHintsContainer()
+        val text = editor.text
+        for (conflict in conflicts) {
+            val baseColumn = text.getColumnCount(conflict.startLine)
+            container.add(
+                ConflictInlayHint(
+                    conflict.startLine,
+                    baseColumn,
+                    conflict,
+                    ConflictAction.ACCEPT_CURRENT,
+                    strings.accept_current_change.getString(),
+                )
+            )
+            container.add(
+                ConflictInlayHint(
+                    conflict.startLine,
+                    baseColumn + 1,
+                    conflict,
+                    ConflictAction.ACCEPT_INCOMING,
+                    strings.accept_incoming_change.getString(),
+                )
+            )
+            container.add(
+                ConflictInlayHint(
+                    conflict.startLine,
+                    baseColumn + 2,
+                    conflict,
+                    ConflictAction.ACCEPT_BOTH,
+                    strings.accept_both_changes.getString(),
+                )
+            )
+        }
+        editor.setInlayHints(container)
+    }
+
+    private fun handleConflictAction(hint: ConflictInlayHint) {
+        val conflict = hint.conflict
+        val text = editor.text
+
+        text.batchEdit {
+            when (hint.action) {
+                ConflictAction.ACCEPT_CURRENT -> {
+                    text.delete(conflict.middleLine, 0, conflict.endLine + 1, 0)
+                    text.delete(conflict.startLine, 0, conflict.startLine + 1, 0)
+                }
+                ConflictAction.ACCEPT_INCOMING -> {
+                    text.delete(conflict.endLine, 0, conflict.endLine + 1, 0)
+                    text.delete(conflict.startLine, 0, conflict.middleLine + 1, 0)
+                }
+                ConflictAction.ACCEPT_BOTH -> {
+                    text.delete(conflict.endLine, 0, conflict.endLine + 1, 0)
+                    text.delete(conflict.middleLine, 0, conflict.middleLine + 1, 0)
+                    text.delete(conflict.startLine, 0, conflict.startLine + 1, 0)
+                }
+            }
+        }
+
+        scope.launch(Dispatchers.Main) {
+            when (hint.action) {
+                ConflictAction.ACCEPT_CURRENT -> toast(strings.accept_current_change)
+                ConflictAction.ACCEPT_INCOMING -> toast(strings.accept_incoming_change)
+                ConflictAction.ACCEPT_BOTH -> toast(strings.accept_both_changes)
+            }
+        }
+    }
+
+    override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
+        val conflict = conflicts.find { line in it.startLine..it.endLine } ?: return
+
+        val addedColor = editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_ADDED)
+        val modifiedColor = editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_MODIFIED)
+
+        val color =
+            when {
+                line == conflict.startLine -> addedColor
+                line < conflict.middleLine -> addedColor withAlpha 0.4f
+                line == conflict.middleLine -> return
+                line < conflict.endLine -> modifiedColor withAlpha 0.4f
+                line == conflict.endLine -> modifiedColor
+                else -> return
+            }
+
+        styles.add(LineBackground(line) { color })
+    }
+
+    fun dispose() {
+        contentChangeSubscription.unsubscribe()
+        inlayHintClickSubscription.unsubscribe()
+        updateJob?.cancel()
+    }
+}
+
+enum class ConflictAction {
+    ACCEPT_CURRENT,
+    ACCEPT_INCOMING,
+    ACCEPT_BOTH,
+}
+
+class ConflictInlayHint(
+    line: Int,
+    column: Int,
+    val conflict: GitConflictStylesProvider.Conflict,
+    val action: ConflictAction,
+    text: String,
+) : TextInlayHint(line, column, text)

@@ -2,6 +2,7 @@ package com.rk.editor
 
 import android.graphics.Color
 import com.rk.theme.currentTheme
+import com.rk.utils.withAlpha
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
@@ -28,16 +29,6 @@ class XedColorScheme(
     }
 
     companion object {
-        private fun setAlpha(color: Int, factor: Float): Int {
-            val a = Color.alpha(color)
-            val r = Color.red(color)
-            val g = Color.green(color)
-            val b = Color.blue(color)
-
-            val newAlpha = (a * factor).toInt().coerceIn(0, 255)
-            return Color.argb(newAlpha, r, g, b)
-        }
-
         fun applyPatchesTo(colorScheme: EditorColorScheme, patchArgs: Editor.PatchArgs) {
             val (
                 isDarkMode,
@@ -74,14 +65,14 @@ class XedColorScheme(
                 TEXT_INLAY_HINT_BACKGROUND,
             )
 
-            setColors(setAlpha(surfaceContainer, 0.4f), MINIMAP_BACKGROUND)
-            setColors(setAlpha(highSurfaceContainer, 0.6f), MINIMAP_VIEWPORT, MINIMAP_VIEWPORT_BORDER)
+            setColors(surfaceContainer withAlpha 0.4f, MINIMAP_BACKGROUND)
+            setColors(highSurfaceContainer withAlpha 0.6f, MINIMAP_VIEWPORT, MINIMAP_VIEWPORT_BORDER)
 
             setColors(highSurfaceContainer, COMPLETION_WND_ITEM_CURRENT, TEXT_HIGHLIGHT_BACKGROUND)
 
             setColors(highestSurfaceContainer, SNIPPET_BACKGROUND_EDITING, TEXT_HIGHLIGHT_STRONG_BACKGROUND)
-            setColors(setAlpha(highestSurfaceContainer, 0.8f), SNIPPET_BACKGROUND_RELATED)
-            setColors(setAlpha(highestSurfaceContainer, 0.6f), SNIPPET_BACKGROUND_INACTIVE)
+            setColors(highestSurfaceContainer withAlpha 0.8f, SNIPPET_BACKGROUND_RELATED)
+            setColors(highestSurfaceContainer withAlpha 0.6f, SNIPPET_BACKGROUND_INACTIVE)
 
             setColors(
                 onSurface,
@@ -110,10 +101,10 @@ class XedColorScheme(
                 COMPLETION_WND_TEXT_MATCHED,
             )
 
-            setColors(setAlpha(onSurface, 0.6f), BLOCK_LINE_CURRENT)
-            setColors(setAlpha(onSurface, 0.4f), NON_PRINTABLE_CHAR, BLOCK_LINE)
-            setColors(setAlpha(onSurface, 0.3f), SCROLL_BAR_THUMB)
-            setColors(setAlpha(onSurface, 0.2f), SCROLL_BAR_THUMB_PRESSED)
+            setColors(onSurface withAlpha 0.6f, BLOCK_LINE_CURRENT)
+            setColors(onSurface withAlpha 0.4f, NON_PRINTABLE_CHAR, BLOCK_LINE)
+            setColors(onSurface withAlpha 0.3f, SCROLL_BAR_THUMB)
+            setColors(onSurface withAlpha 0.2f, SCROLL_BAR_THUMB_PRESSED)
 
             setColors(currentLine, CURRENT_LINE)
             setColors(gutterColor, LINE_NUMBER_BACKGROUND)
@@ -129,10 +120,10 @@ class XedColorScheme(
             setColors(errorColor, PROBLEM_ERROR)
 
             patchArgs.apply {
-                setColors(setAlpha(gitAdded, 0.3f), GIT_GUTTER_ADDED)
-                setColors(setAlpha(gitModified, 0.3f), GIT_GUTTER_MODIFIED)
-                setColors(setAlpha(gitDeleted, 0.3f), GIT_GUTTER_DELETED)
-                setColors(setAlpha(gitConflicted, 0.3f), GIT_GUTTER_CONFLICTED)
+                setColors(gitAdded withAlpha 0.3f, GIT_MARKER_ADDED)
+                setColors(gitModified withAlpha 0.3f, GIT_MARKER_MODIFIED)
+                setColors(gitDeleted withAlpha 0.3f, GIT_MARKER_DELETED)
+                setColors(gitConflicted withAlpha 0.3f, GIT_MARKER_CONFLICTED)
             }
 
             val editorColors =
@@ -147,9 +138,9 @@ class XedColorScheme(
             }
         }
 
-        const val GIT_GUTTER_ADDED = END_COLOR_ID + 1
-        const val GIT_GUTTER_MODIFIED = END_COLOR_ID + 2
-        const val GIT_GUTTER_DELETED = END_COLOR_ID + 3
-        const val GIT_GUTTER_CONFLICTED = END_COLOR_ID + 4
+        const val GIT_MARKER_ADDED = END_COLOR_ID + 1
+        const val GIT_MARKER_MODIFIED = END_COLOR_ID + 2
+        const val GIT_MARKER_DELETED = END_COLOR_ID + 3
+        const val GIT_MARKER_CONFLICTED = END_COLOR_ID + 4
     }
 }

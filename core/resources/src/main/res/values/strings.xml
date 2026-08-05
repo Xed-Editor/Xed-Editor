@@ -785,4 +785,7 @@
     <string name="invalid_initialization_options">Initialization options contain invalid JSON and will be ignored.</string>
     <string name="git_gutter_indication">Gutter indication</string>
     <string name="git_gutter_indication_desc">Show line change indicators for added, modified and deleted lines</string>
+    <string name="accept_current_change">Accept current change</string>
+    <string name="accept_incoming_change">Accept incoming change</string>
+    <string name="accept_both_changes">Accept both changes</string>
 </resources>

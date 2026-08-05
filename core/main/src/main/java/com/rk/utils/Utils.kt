@@ -209,6 +209,16 @@ fun getTempDir(): File {
     return tmp
 }
 
+infix fun Int.withAlpha(factor: Float): Int {
+    val a = android.graphics.Color.alpha(this)
+    val r = android.graphics.Color.red(this)
+    val g = android.graphics.Color.green(this)
+    val b = android.graphics.Color.blue(this)
+
+    val newAlpha = (a * factor).toInt().coerceIn(0, 255)
+    return android.graphics.Color.argb(newAlpha, r, g, b)
+}
+
 /** Converts a [Spanned] text object to an [AnnotatedString]. */
 fun Spanned.toAnnotatedString(): AnnotatedString {
     val builder = AnnotatedString.Builder(this.toString())
