@@ -92,6 +92,7 @@ object Settings {
         set(value) {
             _verbose_error = value
         }
+
     var project_as_pwd by CachedPreference("project_as_pwd", true)
     var terminate_sessions_on_exit by CachedPreference("terminate_sessions_on_exit", false)
     var donated by CachedPreference("donated", false)
@@ -112,6 +113,7 @@ object Settings {
         set(value) {
             _theme_flipper = value
         }
+
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
     var compact_folders_drawer by CachedPreference("compact_folders_drawer", true)
@@ -132,6 +134,7 @@ object Settings {
     var git_colorize_names by CachedPreference("git_colorize_names", true)
     var git_submodules by CachedPreference("git_submodules", true)
     var git_recursive_submodules by CachedPreference("git_recursive_submodules", true)
+    var git_gutter_indication by CachedPreference("git_gutter_indication", true)
     var always_index_projects by CachedPreference("always_index_projects", false)
     var fullscreen by CachedPreference("fullscreen", false)
     var smart_toolbar by CachedPreference("smart_toolbar", false)

@@ -783,4 +783,6 @@
     <string name="startup_timeout">Startup timeout</string>
     <string name="startup_timeout_desc">Time to wait for the server to start</string>
     <string name="invalid_initialization_options">Initialization options contain invalid JSON and will be ignored.</string>
+    <string name="git_gutter_indication">Gutter indication</string>
+    <string name="git_gutter_indication_desc">Show line change indicators for added, modified and deleted lines</string>
 </resources>

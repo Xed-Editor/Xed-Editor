@@ -311,6 +311,7 @@ class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
     }
 
     override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
+        if (!Settings.git_gutter_indication) return
         val viewModel = gitViewModel.get() ?: return
 
         val tab = editor.ownerTab as? EditorTab ?: return

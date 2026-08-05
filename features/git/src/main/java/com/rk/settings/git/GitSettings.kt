@@ -31,6 +31,13 @@ fun GitSettings() {
                 default = Settings.git_colorize_names,
                 sideEffect = { Settings.git_colorize_names = it },
             )
+
+            SettingsItem(
+                label = stringResource(strings.git_gutter_indication),
+                description = stringResource(strings.git_gutter_indication_desc),
+                default = Settings.git_gutter_indication,
+                sideEffect = { Settings.git_gutter_indication = it },
+            )
         }
 
         PreferenceGroup(heading = stringResource(strings.account)) {
