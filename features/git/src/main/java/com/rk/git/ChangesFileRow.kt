@@ -31,8 +31,6 @@ fun ChangesFileRow(
     onClick: () -> Unit = {},
     onLongClick: (() -> Unit)? = null,
 ) {
-    val fileName = change.path.substringAfterLast("/")
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
@@ -53,10 +51,10 @@ fun ChangesFileRow(
             )
         }
 
-        FileNameIcon(fileName = fileName, isDirectory = false)
+        FileNameIcon(fileName = change.fileName, isDirectory = false)
 
         Text(
-            text = fileName,
+            text = change.fileName,
             style = MaterialTheme.typography.bodyMedium,
             color = change.getColor(),
             modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },

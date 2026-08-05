@@ -21,4 +21,7 @@ data class GitChange(
     val absolutePath: String,
     val type: ChangeType,
     val isChecked: Boolean = true,
-)
+) {
+    val fileName: String
+        get() = path.substringAfterLast("/")
+}

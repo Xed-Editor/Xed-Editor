@@ -121,9 +121,12 @@ class GitFeature : Feature {
         // Register file change notification listeners
         subscriptions.add(
             Events.subscribe<FileTreeEvent.Opened> { event ->
+                val viewModel = gitViewModel.get() ?: return@subscribe
                 val gitRoot = findGitRoot(event.projectRoot.getAbsolutePath())
                 if (gitRoot != null) {
-                    gitViewModel.get()?.loadRepository(gitRoot)
+                    viewModel.loadRepository(gitRoot)
+                } else {
+                    viewModel.disposeRepository()
                 }
             }
         )
@@ -331,7 +334,9 @@ class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
             }
 
         if (diffType == LineDiffType.DELETED) {
-            styles.add(LineSideIcon(line, DotDrawable(colorInt)))
+            val drawable = DotDrawable(colorInt)
+            println("Adding line $line")
+            styles.add(LineSideIcon(line, drawable))
         } else {
             styles.add(LineGutterBackground(line) { colorInt })
         }

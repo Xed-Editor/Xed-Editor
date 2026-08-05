@@ -607,7 +607,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             ?.viewModel
                             ?.editorManager
                             ?.addPreviewTab(
-                                title = change.path.substringAfterLast("/"),
+                                title = change.fileName,
                                 content = diff,
                                 extension = "diff",
                             )
@@ -881,7 +881,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 }
 
                 val file = File(change.absolutePath).toFileWrapper()
-                val fileName = change.path.substringAfterLast("/")
 
                 ChangesFileRow(
                     change = change,
@@ -895,7 +894,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                 ?.viewModel
                                 ?.editorManager
                                 ?.addPreviewTab(
-                                    title = fileName,
+                                    title = change.fileName,
                                     content = diff,
                                     extension = "diff",
                                 )
@@ -929,7 +928,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(stringResource(strings.discard_changes)) },
-            text = { Text(stringResource(strings.discard_changes_msg, change.path)) },
+            text = { Text(stringResource(strings.discard_changes_msg, change.fileName)) },
             confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(strings.discard)) } },
             dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) } },
         )

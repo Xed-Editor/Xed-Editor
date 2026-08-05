@@ -88,9 +88,12 @@ class GitViewModel : ViewModel() {
 
     fun loadRepository(root: String) {
         try {
-            currentRoot.value = File(root)
-            currentBranch = Git.open(currentRoot.value).currentHead()
-            syncChanges(currentRoot.value!!)
+            disposeRepository()
+
+            val newRoot = File(root)
+            currentRoot.value = newRoot
+            currentBranch = Git.open(newRoot).use { it.currentHead() }
+            syncChanges(newRoot)
             commitHistory = null
             if (!amends.containsKey(root)) {
                 amends[root] = false
@@ -101,6 +104,13 @@ class GitViewModel : ViewModel() {
         } catch (e: Exception) {
             toast(e.message)
         }
+    }
+
+    fun disposeRepository() {
+        currentRoot.value = null
+        currentBranch = ""
+        changes.clear()
+        commitHistory = null
     }
 
     fun getBranchList(): List<String> {
@@ -171,20 +181,17 @@ class GitViewModel : ViewModel() {
     }
 
     private fun getChangeForPath(path: String): GitChange? {
-        changes.forEach { (_, changes) ->
-            return changes.find { it.absolutePath == path }
+        return changes.values.flatten().find { change ->
+            change.absolutePath == path
         }
-        return null
     }
 
     private fun getChangeAndRootForPath(path: String): Pair<String, GitChange>? {
         changes.forEach { (gitRoot, changes) ->
-            val change =
-                changes.find { it.absolutePath == path }
-                    ?: run {
-                        return null
-                    }
-            return gitRoot to change
+            val change = changes.find { it.absolutePath == path }
+            if (change != null) {
+                return gitRoot to change
+            }
         }
         return null
     }
@@ -411,9 +418,9 @@ class GitViewModel : ViewModel() {
         return viewModelScope.launch {
             if (!FeatureRegistry.isEnabled("enable_git")) return@launch
 
-            val gitRoot = findGitRoot(root)
-            if (gitRoot != null) {
-                syncChanges(File(gitRoot)).join()
+            val gitRoot = currentRoot.value ?: return@launch
+            if (root.startsWith(gitRoot.absolutePath)) {
+                syncChanges(gitRoot)
             }
         }
     }
