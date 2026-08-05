@@ -36,10 +36,11 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorNotice
+import com.rk.theme.GitColorScheme
 import com.rk.utils.isSystemInDarkTheme
 import io.github.rosemoe.sora.event.ContentChangeEvent
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 val DEFAULT_EXCLUDED_FILES_DRAWER = listOf("**/.git", "**/.svn", "**/.hg", "**/.DS_Store", "**/Thumbs.db")
 
@@ -126,6 +127,7 @@ fun ExcludeFiles(isDrawer: Boolean) {
         val selectionColors = LocalTextSelectionColors.current
         val isDarkMode = isSystemInDarkTheme(context)
         val colorScheme = MaterialTheme.colorScheme
+        val gitColorScheme = GitColorScheme.create()
 
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             EditorNotice(
@@ -172,6 +174,7 @@ fun ExcludeFiles(isDrawer: Boolean) {
                             isDarkMode = isDarkMode,
                             selectionColors = selectionColors,
                             colorScheme = colorScheme,
+                            gitColorScheme = gitColorScheme,
                         )
 
                         scope.launch { configureLanguage(BuiltinFileType.IGNORE.textmateScope!!) }

@@ -38,6 +38,7 @@ import com.rk.lsp.LspServer
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.tabs.editor.EditorErrorNotice
+import com.rk.theme.GitColorScheme
 import com.rk.utils.isSystemInDarkTheme
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.launch
@@ -101,6 +102,7 @@ fun LspInitializationOptions(server: LspServer) {
         val selectionColors = LocalTextSelectionColors.current
         val isDarkMode = isSystemInDarkTheme(context)
         val colorScheme = MaterialTheme.colorScheme
+        val gitColorScheme = GitColorScheme.create()
 
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             AnimatedVisibility(visible = isJsonInvalid) {
@@ -130,6 +132,7 @@ fun LspInitializationOptions(server: LspServer) {
                             isDarkMode = isDarkMode,
                             selectionColors = selectionColors,
                             colorScheme = colorScheme,
+                            gitColorScheme = gitColorScheme,
                         )
 
                         scope.launch { configureLanguage(BuiltinFileType.JSON.textmateScope!!) }

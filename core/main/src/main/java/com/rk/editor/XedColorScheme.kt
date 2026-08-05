@@ -128,16 +128,28 @@ class XedColorScheme(
 
             setColors(errorColor, PROBLEM_ERROR)
 
+            patchArgs.apply {
+                setColors(setAlpha(gitAdded, 0.3f), GIT_GUTTER_ADDED)
+                setColors(setAlpha(gitModified, 0.3f), GIT_GUTTER_MODIFIED)
+                setColors(setAlpha(gitDeleted, 0.3f), GIT_GUTTER_DELETED)
+                setColors(setAlpha(gitConflicted, 0.3f), GIT_GUTTER_CONFLICTED)
+            }
+
             val editorColors =
                 if (isDarkMode) {
-                    currentTheme.value?.darkEditorColors
+                    currentTheme.value.darkEditorColors
                 } else {
-                    currentTheme.value?.lightEditorColors
+                    currentTheme.value.lightEditorColors
                 }
 
-            if (editorColors.isNullOrEmpty().not()) {
+            if (editorColors.isNotEmpty()) {
                 editorColors.forEach { colorScheme.setColor(it.key, it.color) }
             }
         }
+
+        const val GIT_GUTTER_ADDED = END_COLOR_ID + 1
+        const val GIT_GUTTER_MODIFIED = END_COLOR_ID + 2
+        const val GIT_GUTTER_DELETED = END_COLOR_ID + 3
+        const val GIT_GUTTER_CONFLICTED = END_COLOR_ID + 4
     }
 }

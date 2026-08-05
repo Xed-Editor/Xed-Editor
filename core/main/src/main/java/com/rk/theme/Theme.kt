@@ -23,7 +23,7 @@ import com.rk.settings.editor.rememberAppTypography
 import com.rk.utils.isDarkTheme
 
 val currentTheme = derivedStateOf {
-     themeManager.loadedThemes.find { it.id == Settings.theme } ?: blueberry
+    themeManager.loadedThemes.find { it.id == Settings.theme } ?: blueberry
 }
 
 val LocalThemeHolder = staticCompositionLocalOf<ThemeHolder> { error("No ThemeHolder state provided") }
@@ -117,3 +117,22 @@ val ColorScheme.gitDeleted: Color
 
 val ColorScheme.gitConflicted: Color
     @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFE57373)) else Color(harmonize(0xFFC62828))
+
+data class GitColorScheme(
+    val added: Color,
+    val modified: Color,
+    val deleted: Color,
+    val conflicted: Color,
+) {
+    companion object {
+        @Composable
+        fun create(): GitColorScheme {
+            return GitColorScheme(
+                added = MaterialTheme.colorScheme.gitAdded,
+                modified = MaterialTheme.colorScheme.gitModified,
+                deleted = MaterialTheme.colorScheme.gitDeleted,
+                conflicted = MaterialTheme.colorScheme.gitConflicted,
+            )
+        }
+    }
+}

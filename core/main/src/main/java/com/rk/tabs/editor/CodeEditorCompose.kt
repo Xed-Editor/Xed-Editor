@@ -43,6 +43,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.theme.GitColorScheme
 import com.rk.utils.logInfo
 import com.rk.utils.logWarn
 import com.rk.utils.toast
@@ -75,6 +76,7 @@ fun EditorTab.CodeEditor(
     val scope = rememberCoroutineScope()
     val isDarkMode = isSystemInDarkTheme()
     val colorScheme = MaterialTheme.colorScheme
+    val gitColorScheme = GitColorScheme.create()
 
     Column(modifier = modifier) {
         AndroidView(
@@ -98,6 +100,7 @@ fun EditorTab.CodeEditor(
                         isDarkMode = isDarkMode,
                         selectionColors = selectionColors,
                         colorScheme = colorScheme,
+                        gitColorScheme = gitColorScheme,
                     )
 
                     editorState.editor = WeakReference(this)

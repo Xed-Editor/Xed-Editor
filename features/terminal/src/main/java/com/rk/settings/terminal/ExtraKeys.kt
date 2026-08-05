@@ -34,11 +34,12 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorNotice
+import com.rk.theme.GitColorScheme
 import com.rk.utils.isSystemInDarkTheme
 import com.rk.utils.openUrl
 import io.github.rosemoe.sora.event.ContentChangeEvent
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 const val DEFAULT_TERMINAL_EXTRA_KEYS =
     ("[" +
@@ -105,6 +106,7 @@ fun TerminalExtraKeys() {
         val selectionColors = LocalTextSelectionColors.current
         val isDarkMode = isSystemInDarkTheme(context)
         val colorScheme = MaterialTheme.colorScheme
+        val gitColorScheme = GitColorScheme.create()
 
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             EditorNotice(
@@ -142,6 +144,7 @@ fun TerminalExtraKeys() {
                             isDarkMode = isDarkMode,
                             selectionColors = selectionColors,
                             colorScheme = colorScheme,
+                            gitColorScheme = gitColorScheme,
                         )
 
                         scope.launch { configureLanguage(BuiltinFileType.JSON.textmateScope!!) }

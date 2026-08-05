@@ -17,6 +17,7 @@ import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.LineEnding
 import com.rk.tabs.base.Tab
+import com.rk.theme.GitColorScheme
 import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.lang.styling.ExtraStylesProvider
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -63,6 +64,10 @@ class Editor : CodeEditor {
         val currentLine: Int,
         val dividerColor: Int,
         val errorColor: Int,
+        val gitAdded: Int,
+        val gitModified: Int,
+        val gitDeleted: Int,
+        val gitConflicted: Int,
     )
 
     private val extraStylesProviders = mutableListOf<ExtraStylesProvider>()
@@ -79,7 +84,12 @@ class Editor : CodeEditor {
         scope.launch { Events.publish(EditorEvent.InstanceCreated(this@Editor)) }
     }
 
-    fun setThemeColors(isDarkMode: Boolean, selectionColors: TextSelectionColors, colorScheme: ColorScheme) {
+    fun setThemeColors(
+        isDarkMode: Boolean,
+        selectionColors: TextSelectionColors,
+        colorScheme: ColorScheme,
+        gitColorScheme: GitColorScheme,
+    ) {
         val surfaceColor = if (isDarkMode) colorScheme.surfaceDim else colorScheme.surface
         val surfaceContainer = colorScheme.surfaceContainer
         val highSurfaceContainer = colorScheme.surfaceContainerHigh
@@ -109,6 +119,10 @@ class Editor : CodeEditor {
             currentLine = currentLineColor.toArgb(),
             dividerColor = divider.toArgb(),
             errorColor = errorColor.toArgb(),
+            gitAdded = gitColorScheme.added.toArgb(),
+            gitModified = gitColorScheme.modified.toArgb(),
+            gitDeleted = gitColorScheme.deleted.toArgb(),
+            gitConflicted = gitColorScheme.conflicted.toArgb(),
         )
     }
 
@@ -126,6 +140,10 @@ class Editor : CodeEditor {
         currentLine: Int,
         dividerColor: Int,
         errorColor: Int,
+        gitAdded: Int,
+        gitModified: Int,
+        gitDeleted: Int,
+        gitConflicted: Int,
     ) {
         val patchArgs =
             PatchArgs(
@@ -142,6 +160,10 @@ class Editor : CodeEditor {
                 currentLine,
                 dividerColor,
                 errorColor,
+                gitAdded,
+                gitModified,
+                gitDeleted,
+                gitConflicted,
             )
 
         XedColorScheme.applyPatchesTo(colorScheme, patchArgs) // pre-apply patches
