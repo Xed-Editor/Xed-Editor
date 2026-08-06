@@ -19,7 +19,8 @@ import com.rk.settings.editor.LineEnding
 import com.rk.tabs.base.Tab
 import com.rk.theme.GitColorScheme
 import com.rk.utils.errorDialog
-import io.github.rosemoe.sora.lang.styling.ExtraStylesProvider
+import io.github.rosemoe.sora.graphics.inlayHint.ColorInlayHintRenderer
+import io.github.rosemoe.sora.graphics.inlayHint.TextInlayHintRenderer
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.editor.LspLanguage
 import io.github.rosemoe.sora.text.CharPosition
@@ -70,18 +71,19 @@ class Editor : CodeEditor {
         val gitConflicted: Int,
     )
 
-    private val extraStylesProviders = mutableListOf<ExtraStylesProvider>()
+    private var defaultColorProvider: DefaultColorProvider? = null
 
     init {
         applyFont()
         applySettings()
-
-        extraStylesProvider = ExtraStylesProvider { line, styles ->
-            extraStylesProviders.forEach { it.getExtraStyles(line, styles) }
-        }
-
         getComponent(EditorAutoCompletion::class.java).setEnabledAnimation(true)
-        scope.launch { Events.publish(EditorEvent.InstanceCreated(this@Editor)) }
+        scope.launch(Dispatchers.Main) { Events.publish(EditorEvent.InstanceCreated(this@Editor)) }
+
+        registerInlayHintRenderers(
+            TextInlayHintRenderer.DefaultInstance,
+            ColorInlayHintRenderer.DefaultInstance,
+        )
+        defaultColorProvider = DefaultColorProvider(this)
     }
 
     fun setThemeColors(
@@ -175,6 +177,8 @@ class Editor : CodeEditor {
     }
 
     override fun release() {
+        defaultColorProvider?.dispose()
+
         scope.cancel()
         super.release()
 
@@ -365,18 +369,6 @@ class Editor : CodeEditor {
         val selectionStart = cursorRange.startIndex
         val selectionEnd = cursorRange.endIndex
         return text.substring(selectionStart, selectionEnd)
-    }
-
-    @XedExtensionPoint
-    fun registerExtraStylesProvider(provider: ExtraStylesProvider) {
-        if (!extraStylesProviders.contains(provider)) {
-            extraStylesProviders.add(provider)
-        }
-    }
-
-    @XedExtensionPoint
-    fun unregisterExtraStylesProvider(provider: ExtraStylesProvider) {
-        extraStylesProviders.remove(provider)
     }
 
     companion object {

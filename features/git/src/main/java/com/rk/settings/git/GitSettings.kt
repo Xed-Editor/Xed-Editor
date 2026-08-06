@@ -12,6 +12,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.editor.refreshEditors
 
 @Composable
 fun GitSettings() {
@@ -37,6 +38,16 @@ fun GitSettings() {
                 description = stringResource(strings.git_gutter_indication_desc),
                 default = Settings.git_gutter_indication,
                 sideEffect = { Settings.git_gutter_indication = it },
+            )
+
+            SettingsItem(
+                label = stringResource(strings.git_conflict_detection),
+                description = stringResource(strings.git_conflict_detection_desc),
+                default = Settings.git_conflict_detection,
+                sideEffect = {
+                    Settings.git_conflict_detection = it
+                    refreshEditors()
+                },
             )
         }
 

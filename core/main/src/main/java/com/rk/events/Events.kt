@@ -7,12 +7,14 @@ import com.rk.file.FileObject
 import com.rk.icons.pack.LocalIconPack
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.LspLogEntry
+import com.rk.lsp.LspServer
 import com.rk.lsp.LspServerInstance
 import com.rk.settings.debugOptions.LogEntry
 import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.ThemeHolder
 import com.rk.utils.logError
+import io.github.rosemoe.sora.lsp.editor.LspProject
 import java.util.Locale
 import kotlin.reflect.KClass
 
@@ -186,6 +188,21 @@ sealed interface LSPEvent : Event {
 
     /** Event triggered when a log entry is written by an LSP server. */
     data class LogEntryWritten(val instance: LspServerInstance, val logEntry: LspLogEntry) : LSPEvent
+
+    /**
+     * Event triggered when the process of connecting to LSP servers for a specific file and editor tab has completed.
+     *
+     * @property servers The list of [LspServer]s to which a connection should be established.
+     * @property failedServers The list of [LspServer]s that failed to connect.
+     */
+    data class ConnectionCompleted(
+        val servers: List<LspServer>,
+        val failedServers: List<LspServer>,
+        val lspProject: LspProject,
+        val fileObject: FileObject,
+        val editorTab: EditorTab,
+        val editor: Editor,
+    ) : LSPEvent
 }
 
 /** General application-level events. */

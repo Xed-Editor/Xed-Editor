@@ -59,6 +59,7 @@ import com.rk.utils.withAlpha
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.InlayHintClickEvent
 import io.github.rosemoe.sora.lang.styling.ExtraStylesProvider
+import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintProvider
 import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer
 import io.github.rosemoe.sora.lang.styling.inlayHint.TextInlayHint
 import io.github.rosemoe.sora.lang.styling.line.LineAnchorStyle
@@ -161,6 +162,7 @@ class GitFeature : Feature {
                 val conflictStylesProvider = GitConflictStylesProvider(editor)
                 gitConflictStylesProvider[editor] = conflictStylesProvider
                 editor.registerExtraStylesProvider(conflictStylesProvider)
+                editor.registerInlayHintProvider(conflictStylesProvider)
             }
         )
 
@@ -254,6 +256,7 @@ class GitFeature : Feature {
         gitDiffGutterProvider.clear()
         gitConflictStylesProvider.forEach { (editor, provider) ->
             editor.unregisterExtraStylesProvider(provider)
+            editor.unregisterInlayHintProvider(provider)
             provider.dispose()
         }
         gitConflictStylesProvider.clear()
@@ -330,6 +333,7 @@ class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
     fun dispose() {
         contentChangeSubscription?.unsubscribe()
         contentChangeSubscription = null
+        editor.unregisterExtraStylesProvider(this)
     }
 
     override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
@@ -354,7 +358,7 @@ class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
     }
 }
 
-class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvider {
+class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvider, InlayHintProvider {
     private var conflicts = mutableListOf<Conflict>()
     private val scope = CoroutineScope(Dispatchers.Default + Job())
     private var updateJob: Job? = null
@@ -390,6 +394,16 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
         updateJob = scope.launch {
             delay(UPDATE_DEBOUNCE_MS.milliseconds)
 
+            if (!Settings.git_conflict_detection) {
+                if (conflicts.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        conflicts = mutableListOf()
+                        editor.invalidateInlayHints()
+                    }
+                }
+                return@launch
+            }
+
             val text = editor.text
             val newConflicts = mutableListOf<Conflict>()
             var currentConflictStart = -1
@@ -418,21 +432,18 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
 
             withContext(Dispatchers.Main) {
                 conflicts = newConflicts
-                updateInlayHints()
-                editor.postInvalidate()
+                editor.invalidateInlayHints()
             }
         }
     }
 
-    private fun updateInlayHints() {
-        if (conflicts.isEmpty()) {
-            editor.setInlayHints(null)
-            return
-        }
-
-        val container = InlayHintsContainer()
+    override fun provideInlayHints(container: InlayHintsContainer) {
+        if (conflicts.isEmpty()) return
         val text = editor.text
+        val lineCount = text.lineCount
         for (conflict in conflicts) {
+            if (conflict.startLine >= lineCount) continue
+
             val baseColumn = text.getColumnCount(conflict.startLine)
             container.add(
                 ConflictInlayHint(
@@ -462,12 +473,16 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
                 )
             )
         }
-        editor.setInlayHints(container)
     }
 
     private fun handleConflictAction(hint: ConflictInlayHint) {
         val conflict = hint.conflict
         val text = editor.text
+        val lineCount = text.lineCount
+
+        if (conflict.endLine >= lineCount) {
+            return
+        }
 
         text.batchEdit {
             when (hint.action) {
@@ -497,6 +512,7 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
     }
 
     override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
+        if (Settings.git_conflict_detection.not()) return
         val conflict = conflicts.find { line in it.startLine..it.endLine } ?: return
 
         val addedColor = editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_ADDED)
@@ -519,6 +535,8 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
         contentChangeSubscription.unsubscribe()
         inlayHintClickSubscription.unsubscribe()
         updateJob?.cancel()
+        editor.unregisterExtraStylesProvider(this)
+        editor.unregisterInlayHintProvider(this)
     }
 }
 

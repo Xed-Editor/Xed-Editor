@@ -198,6 +198,17 @@ class LspConnector(
                         }
                     }
                 }
+
+                Events.publish(
+                    LSPEvent.ConnectionCompleted(
+                        servers = servers,
+                        failedServers = failedConnections,
+                        lspProject = project,
+                        fileObject = fileObject,
+                        editorTab = editorTab,
+                        editor = codeEditor,
+                    )
+                )
             }
         }
 

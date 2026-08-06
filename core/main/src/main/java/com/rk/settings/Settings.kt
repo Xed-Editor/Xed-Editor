@@ -52,6 +52,7 @@ object Settings {
     var show_line_numbers by CachedPreference("show_line_number", true)
     var render_whitespace by CachedPreference("render_whitespace", false)
     var sticky_scroll by CachedPreference("sticky_scroll", true)
+    var show_color_previews by CachedPreference("show_color_previews", true)
     var quick_deletion by CachedPreference("fast_delete", true)
     var auto_save by CachedPreference("auto_save", false)
     var show_suggestions by CachedPreference("show_suggestions", false)
@@ -197,6 +198,7 @@ object Settings {
     var git_password by CachedPreference("git_password", "")
     var git_name by CachedPreference("git_name", "")
     var git_email by CachedPreference("git_email", "")
+    var git_conflict_detection by CachedPreference("git_conflict_detection", true)
     var excluded_files_search by
         CachedPreference("excluded_files_search", DEFAULT_EXCLUDED_FILES_SEARCH.joinToString("\n"))
     var excluded_files_drawer by
