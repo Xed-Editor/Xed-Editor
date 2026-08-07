@@ -70,14 +70,23 @@ fun FormatterSettings(navController: NavController, modifier: Modifier = Modifie
     val reorderState = rememberReorderState<String>(dragAfterLongPress = true)
     val lazyListState = rememberLazyListState()
 
-    val formatterIds = remember { mutableStateListOf(*Settings.formatters.split("|").toTypedArray()) }
+    val formatterIds = remember {
+        mutableStateListOf(
+            *Settings.formatters
+                .split("|")
+                .toSet()
+                .let { formatters ->
+                    formatters + Formatters.providers.map { it.id }
+                }
+                .let { formatters ->
+                    formatters + Formatters.LSP_FORMATTER_ID
+                }
+                .toTypedArray()
+        )
+    }
     val formatterSources by remember {
         derivedStateOf {
-            formatterIds
-                .mapNotNull { id -> Formatters.getSourceForId(id) }
-                .toSet()
-                .let { it + Formatters.providers.map { provider -> FormatterSource.EXTENSION(provider) } }
-                .let { it + FormatterSource.LSP }
+            formatterIds.mapNotNull { id -> Formatters.getSourceForId(id) }
         }
     }
 
@@ -117,7 +126,7 @@ fun FormatterSettings(navController: NavController, modifier: Modifier = Modifie
                         )
                     }
 
-                    items(items = formatterSources.toList(), key = { Formatters.getIdOf(it) }) { formatterSource ->
+                    items(items = formatterSources, key = { Formatters.getIdOf(it) }) { formatterSource ->
                         when (formatterSource) {
                             is FormatterSource.LSP -> {
                                 ReorderableItem(
@@ -149,7 +158,7 @@ fun FormatterSettings(navController: NavController, modifier: Modifier = Modifie
                                 }
                             }
                             is FormatterSource.EXTENSION -> {
-                                val formatter = formatterSource.formatter
+                                val formatter = formatterSource.provider
                                 ReorderableItem(
                                     state = reorderState,
                                     key = formatter.id,
@@ -233,7 +242,11 @@ fun DraggableFormatter(modifier: Modifier = Modifier, formatter: FormatterProvid
                 }
             },
             endWidget = {
-                Switch(interactionSource = interactionSource, checked = checked, onCheckedChange = onCheckedChange)
+                Switch(
+                    interactionSource = interactionSource,
+                    checked = checked,
+                    onCheckedChange = onCheckedChange,
+                )
             },
         )
     }
@@ -248,13 +261,10 @@ fun DraggableLspFormatter(modifier: Modifier = Modifier) {
         checked = it
     }
 
-    val enabled = false // TODO: implement
-
     Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp, modifier = modifier) {
         PreferenceTemplate(
             modifier =
                 Modifier.combinedClickable(
-                    enabled = enabled,
                     interactionSource = interactionSource,
                     onClick = { onCheckedChange(!checked) },
                 ),
@@ -293,7 +303,6 @@ fun DraggableLspFormatter(modifier: Modifier = Modifier) {
             },
             endWidget = {
                 Switch(
-                    enabled = enabled,
                     interactionSource = interactionSource,
                     checked = checked,
                     onCheckedChange = onCheckedChange,

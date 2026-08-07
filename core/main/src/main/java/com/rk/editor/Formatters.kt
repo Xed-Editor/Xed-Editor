@@ -5,8 +5,8 @@ import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.feature.FeatureRegistry
 import io.github.rosemoe.sora.lang.format.Formatter
+import io.github.rosemoe.sora.widget.CodeEditor
 
 abstract class FormatterProvider {
     abstract val id: String
@@ -14,13 +14,23 @@ abstract class FormatterProvider {
     abstract val supportedExtensions: List<String>
     abstract val icon: Icon?
 
-    abstract fun getFormatter(): Formatter
+    open fun getFormatter(): Formatter? {
+        return null
+    }
+
+    open fun getFormatter(fileObject: FileObject): Formatter? {
+        return getFormatter()
+    }
+
+    open fun getFormatter(editor: CodeEditor, fileObject: FileObject): Formatter? {
+        return getFormatter(fileObject)
+    }
 }
 
 sealed class FormatterSource {
     data object LSP : FormatterSource()
 
-    data class EXTENSION(val formatter: FormatterProvider) : FormatterSource()
+    data class EXTENSION(val provider: FormatterProvider) : FormatterSource()
 }
 
 object Formatters {
@@ -56,7 +66,7 @@ object Formatters {
     fun getIdOf(source: FormatterSource): String {
         return when (source) {
             is FormatterSource.LSP -> "lsp"
-            is FormatterSource.EXTENSION -> source.formatter.id
+            is FormatterSource.EXTENSION -> source.provider.id
         }
     }
 
@@ -74,14 +84,33 @@ object Formatters {
 
         for (formatterType in formatters) {
             when (formatterType) {
-                is FormatterSource.LSP -> return formatterType
+                is FormatterSource.LSP -> if (isLspFormatterEnabled()) return formatterType
                 is FormatterSource.EXTENSION -> {
-                    val formatter = formatterType.formatter
+                    val formatter = formatterType.provider
                     val fileExt = file.getExtension()
                     val isSupported = formatter.supportedExtensions.contains(fileExt)
+                    val isEnabled = isProviderEnabled(formatter)
 
-                    if (isSupported) return formatterType
+                    if (isSupported && isEnabled) return formatterType
                 }
+            }
+        }
+
+        return null
+    }
+
+    fun getPreferredSourceForNonLspFile(file: FileObject): FormatterSource.EXTENSION? {
+        val formatterIds = Settings.formatters.split("|").toTypedArray()
+        val formatters = formatterIds.mapNotNull { id -> getSourceForId(id) }
+
+        for (formatterType in formatters) {
+            if (formatterType is FormatterSource.EXTENSION) {
+                val formatter = formatterType.provider
+                val fileExt = file.getExtension()
+                val isSupported = formatter.supportedExtensions.contains(fileExt)
+                val isEnabled = isProviderEnabled(formatter)
+
+                if (isSupported && isEnabled) return formatterType
             }
         }
 
