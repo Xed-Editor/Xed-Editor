@@ -36,6 +36,7 @@ fun SingleInputDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit = {},
     onFinish: () -> Unit = {},
+    message: @Composable (() -> Unit)? = null,
     singleLineMode: Boolean = true,
     confirmText: String = stringResource(strings.apply),
     confirmEnabled: Boolean = true,
@@ -55,6 +56,8 @@ fun SingleInputDialog(
         title = { Text(text = title) },
         text = {
             Column {
+                message?.invoke()
+
                 OutlinedTextField(
                     value = textFieldValue,
                     singleLine = singleLineMode,

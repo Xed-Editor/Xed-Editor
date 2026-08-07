@@ -792,4 +792,5 @@
     <string name="show_color_previews_desc">Show color previews in the editor when no language server is connected</string>
     <string name="git_conflict_detection">Conflict detection</string>
     <string name="git_conflict_detection_desc">Show conflict markers and resolve options in the editor</string>
+    <string name="credentials_github">To connect to GitHub, you must enter a PAT token, not your GitHub account password.</string>
 </resources>

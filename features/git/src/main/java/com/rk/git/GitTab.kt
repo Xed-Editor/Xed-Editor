@@ -365,14 +365,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         tooltip = { PlainTooltip { Text(stringResource(strings.push)) } },
                         state = rememberTooltipState(),
                     ) {
-                        BadgedBox(
-                            badge = {
-                                if (viewModel.aheadCount > 0) {
-                                    Badge(containerColor = MaterialTheme.colorScheme.greenStatus)
+                        IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
+                            BadgedBox(
+                                badge = {
+                                    if (viewModel.aheadCount > 0) {
+                                        Badge(containerColor = MaterialTheme.colorScheme.greenStatus)
+                                    }
                                 }
-                            }
-                        ) {
-                            IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
+                            ) {
                                 Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
                             }
                         }
