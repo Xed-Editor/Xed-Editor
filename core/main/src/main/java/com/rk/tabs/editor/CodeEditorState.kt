@@ -27,6 +27,7 @@ data class CodeEditorState(val initialContent: Content? = null) {
     val updateLock = Mutex()
 
     var editorConfigLoaded: CompletableDeferred<ResourceProperties>? = null
+    var formatDeferred: CompletableDeferred<Boolean>? = null
     val contentLoaded = CompletableDeferred<Unit>()
     val contentRendered = CompletableDeferred<Unit>()
 

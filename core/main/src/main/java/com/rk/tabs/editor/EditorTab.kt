@@ -397,9 +397,15 @@ open class EditorTab(
 
     suspend fun save() = saveMutex.withLock {
         if (isReadOnly) return@withLock
-        if (Settings.format_on_save) {
+        val editor = editorState.editor.get()
+        if (Settings.format_on_save && editor != null && !editor.isFormatting) {
+            val deferred = CompletableDeferred<Boolean>()
+            editorState.formatDeferred = deferred
+
             registerTask(FORMAT_DOCUMENT_TASK_ID)
-            editorState.editor.get()?.formatCodeAsync()
+            editor.formatCodeAsync()
+
+            deferred.await()
         }
 
         if (isTemp) {
@@ -429,10 +435,12 @@ open class EditorTab(
         }
     }
 
+    @XedExtensionPoint
     fun registerTask(id: String) {
         activeTasks.add(id)
     }
 
+    @XedExtensionPoint
     fun unregisterTask(id: String) {
         activeTasks.remove(id)
     }
