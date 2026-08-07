@@ -32,6 +32,7 @@ import com.rk.commands.global.SearchCodeCommand
 import com.rk.commands.global.SearchFileFolderCommand
 import com.rk.commands.global.SettingsCommand
 import com.rk.commands.lsp.FormatDocumentCommand
+import com.rk.commands.lsp.FormatDocumentLspCommand
 import com.rk.commands.lsp.FormatSelectionCommand
 import com.rk.commands.lsp.GoToDefinitionCommand
 import com.rk.commands.lsp.GoToReferencesCommand
@@ -79,6 +80,7 @@ object CommandProvider {
     lateinit var GoToReferencesCommand: GoToReferencesCommand
     lateinit var RenameSymbolCommand: RenameSymbolCommand
     lateinit var FormatDocumentCommand: FormatDocumentCommand
+    lateinit var FormatDocumentLspCommand: FormatDocumentLspCommand
     lateinit var FormatSelectionCommand: FormatSelectionCommand
 
     fun buildCommands() =
@@ -117,6 +119,7 @@ object CommandProvider {
             registerBuiltin(GoToReferencesCommand()) { GoToReferencesCommand = it }
             registerBuiltin(RenameSymbolCommand()) { RenameSymbolCommand = it }
             registerBuiltin(FormatDocumentCommand()) { FormatDocumentCommand = it }
+            registerBuiltin(FormatDocumentLspCommand()) { FormatDocumentLspCommand = it }
             registerBuiltin(FormatSelectionCommand()) { FormatSelectionCommand = it }
         }
 

@@ -34,6 +34,10 @@ import io.github.rosemoe.sora.lsp.events.AsyncEventListener
 import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
 import io.github.rosemoe.sora.widget.CodeEditor
+import java.net.URI
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,10 +62,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.WorkspaceEdit
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.jsonrpc.messages.Either3
-import java.net.URI
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * A utility object to temporarily prevent specific LSP servers from being used for a project.
@@ -136,7 +136,7 @@ class LspConnector(
                 return@withContext
             }
 
-            editorTab.registerTask("lsp")
+            editorTab.registerTask(EditorTab.LSP_CONNECTING_TASK_ID)
 
             val projectPath = projectFile.getAbsolutePath()
             val fileExt = fileObject.getExtension()
@@ -171,7 +171,7 @@ class LspConnector(
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
-                editorTab.unregisterTask("lsp")
+                editorTab.unregisterTask(EditorTab.LSP_CONNECTING_TASK_ID)
 
                 val failedConnections = servers.filter { server ->
                     server.instances.any { instance ->

@@ -18,11 +18,11 @@ abstract class FormatterProvider {
         return null
     }
 
-    open fun getFormatter(fileObject: FileObject): Formatter? {
+    open fun getFormatter(fileObject: FileObject?): Formatter? {
         return getFormatter()
     }
 
-    open fun getFormatter(editor: CodeEditor, fileObject: FileObject): Formatter? {
+    open fun getFormatter(editor: CodeEditor, fileObject: FileObject?): Formatter? {
         return getFormatter(fileObject)
     }
 }
