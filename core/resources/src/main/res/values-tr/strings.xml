@@ -758,4 +758,25 @@
     <string name="preview">Önizleme</string>
     <string name="xed_package">Xed paketi</string>
     <string name="migrating_themes">Temalar taşınıyor…</string>
+    <string name="format_document_lsp">Belgeyi LSP ile biçimlendir</string>
+    <string name="git_init">Repoyu başlat</string>
+    <string name="git_init_desc">Mevcut projede yeni bir git reposu başlat</string>
+    <string name="git_init_success">Repo başlatıldı</string>
+    <string name="git_init_error">Repo başlatılamadı: %s</string>
+    <string name="checkout">Kontrol et</string>
+    <string name="merge">Birleştir</string>
+    <string name="rebase">Yeniden temellendir</string>
+    <string name="rename_branch">Dalı yeniden adlandır</string>
+    <string name="rename_branch_label">Dalın yeni adı \'%1$s\'</string>
+    <string name="delete_branch">Dal silinsin mi?</string>
+    <string name="delete_branch_msg">\'%s\' dalını kalıcı olarak silmek istediğinizden emin misiniz?</string>
+    <string name="merge_complete">Birleştirme tamamlandı</string>
+    <string name="rebase_complete">Yeniden temelleme tamamlandı</string>
+    <string name="rename_complete">Yeniden adlandırma tamamlandı</string>
+    <string name="delete_complete">Silme işlemi tamamlandı</string>
+    <string name="history">Geçmiş</string>
+    <string name="copy_hash">Hash\'i kopyala</string>
+    <string name="no_commits">Hiçbir commit yok</string>
+    <string name="initialization_options">Başlatma seçenekleri</string>
+    <string name="initialization_options_desc">JSON başlatma seçeneklerini düzenle</string>
 </resources>
