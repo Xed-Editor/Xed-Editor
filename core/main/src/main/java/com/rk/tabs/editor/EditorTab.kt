@@ -112,7 +112,7 @@ open class EditorTab(
 
     val scope = CoroutineScope(Dispatchers.Default)
 
-    override var tabTitle by mutableStateOf(customTitle ?: file?.getName() ?: strings.temp_file.getString())
+    override var title by mutableStateOf(customTitle ?: file?.getName() ?: strings.temp_file.getString())
 
     val editorState by mutableStateOf(CodeEditorState(initialContent))
 
@@ -173,11 +173,11 @@ open class EditorTab(
 
             scope.launch(Dispatchers.IO) {
                 val parent = file.getParentFile()
-                val titleAlreadyExists = viewModel.tabs.any { it.tabTitle == tabTitle && it != this@EditorTab }
+                val titleAlreadyExists = viewModel.tabs.any { it.title == title && it != this@EditorTab }
 
                 if (titleAlreadyExists && parent != null) {
                     withContext(Dispatchers.Main) {
-                        tabTitle = "${parent.getName()}/$tabTitle"
+                        title = "${parent.getName()}/$title"
                     }
                 }
             }
@@ -372,13 +372,13 @@ open class EditorTab(
     fun saveAs() {
         val file = file
         val extension = FileTypeManager.fromScope(editorState.textmateScope).extensions.firstOrNull() ?: "txt"
-        val defaultName = file?.getName() ?: "$tabTitle.$extension"
+        val defaultName = file?.getName() ?: "$title.$extension"
 
         MainActivity.instance?.apply {
             fileManager.createNewFile(mimeType = "*/*", title = defaultName) {
                 if (it != null) {
                     this@EditorTab.file = it
-                    tabTitle = it.getName()
+                    title = it.getName()
                     editorState.textmateScope = FileTypeManager.fromFileName(it.getName()).textmateScope
 
                     scope.launch {

@@ -13,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -44,6 +45,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import kotlin.time.Duration.Companion.milliseconds
+
+var mainNavController = WeakReference<NavController?>(null)
 
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
@@ -155,6 +158,7 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val navController = rememberNavController()
+            mainNavController = WeakReference(navController)
             val startDestination = remember {
                 if (Settings.shown_disclaimer) {
                     MainRoutes.Main.route

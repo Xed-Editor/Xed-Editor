@@ -50,10 +50,10 @@ import com.rk.utils.toast
 class TerminalFeature : Feature {
     override val toggle =
         FeatureToggle(
-            nameRes = strings.terminal_feature,
+            name = strings.terminal_feature.getString(),
             key = "feature_terminal",
             default = true,
-            iconRes = drawables.terminal,
+            icon = Icon.ResourceIcon(drawables.terminal),
         )
 
     private var settingsCategory: SettingsCategory? = null
@@ -68,9 +68,9 @@ class TerminalFeature : Feature {
         // Register settings categories
         settingsCategory =
             SettingsCategory(
-                    labelRes = strings.terminal,
-                    descriptionRes = strings.terminal_desc,
-                    iconRes = drawables.terminal,
+                    label = strings.terminal.getString(),
+                    description = strings.terminal_desc.getString(),
+                    icon = Icon.ResourceIcon(drawables.terminal),
                     route = SettingsRoutes.TerminalSettings.route,
                 )
                 .also { SettingsRegistry.registerCategory(it) }

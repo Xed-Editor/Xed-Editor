@@ -76,7 +76,7 @@ fun FileActionDialogs(
                     viewModel.updateCache(parentFile)
 
                     tabsToRename.forEach {
-                        it.tabTitle = newName
+                        it.title = newName
                         it.file = parentFile.getChild(newName)
                     }
                 }

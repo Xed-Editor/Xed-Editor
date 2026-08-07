@@ -231,7 +231,7 @@ private fun TabItem(
     var calculatedTabWidth by
         remember(
             tabState,
-            tabState.tabTitle,
+            tabState.title,
             tabState is EditorTab && tabState.editorState.isDirty,
             tabState is EditorTab && tabState.editorState.editable,
             Settings.show_tab_icons,
@@ -343,7 +343,7 @@ private fun TabItemContent(
             }
 
             Text(
-                text = tab.tabTitle,
+                text = tab.title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },

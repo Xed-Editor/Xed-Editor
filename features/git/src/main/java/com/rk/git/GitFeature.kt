@@ -81,10 +81,10 @@ var gitViewModel = WeakReference<GitViewModel?>(null)
 class GitFeature : Feature {
     override val toggle =
         FeatureToggle(
-            nameRes = strings.git,
+            name = strings.git.getString(),
             key = "enable_git",
             default = true,
-            iconRes = drawables.git,
+            icon = Icon.ResourceIcon(drawables.git),
         )
 
     private var settingsCategory: SettingsCategory? = null
@@ -101,9 +101,9 @@ class GitFeature : Feature {
         // Register Git settings category
         settingsCategory =
             SettingsCategory(
-                    labelRes = strings.git,
-                    descriptionRes = strings.git_desc,
-                    iconRes = drawables.git,
+                    label = strings.git.getString(),
+                    description = strings.git_desc.getString(),
+                    icon = Icon.ResourceIcon(drawables.git),
                     route = SettingsRoutes.Git.route,
                 )
                 .also { SettingsRegistry.registerCategory(it) }

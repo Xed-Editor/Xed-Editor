@@ -3,11 +3,12 @@ package com.rk.settings
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.api.DynamicRoute
 import com.rk.extension.api.XedExtensionPoint
+import com.rk.icons.Icon
 
 data class SettingsCategory(
-    val labelRes: Int,
-    val descriptionRes: Int,
-    val iconRes: Int,
+    val label: String,
+    val description: String,
+    val icon: Icon,
     val route: String,
 )
 

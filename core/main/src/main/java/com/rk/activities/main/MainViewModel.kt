@@ -15,12 +15,12 @@ import com.rk.file.FileObject
 import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
-import java.io.File
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.File
 
 fun List<Tab>.filterEditorTabs() = filterIsInstance<EditorTab>()
 
@@ -157,7 +157,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun getNextUntitledTitle(): String {
-        val titles = tabs.map { it.tabTitle }.toSet()
+        val titles = tabs.map { it.title }.toSet()
         var i = 1
         while (titles.contains("Untitled-$i")) {
             i++

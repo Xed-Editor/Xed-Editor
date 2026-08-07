@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
 import com.rk.events.EditorEvent
 import com.rk.events.Events
-import com.rk.extension.api.XedExtensionPoint
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.LineEnding
@@ -343,7 +342,6 @@ class Editor : CodeEditor {
      *
      * @param item The text action item instance to register.
      */
-    @XedExtensionPoint
     fun registerTextAction(item: TextActionItem) {
         textActionWindow.registerTextAction(item)
     }
@@ -353,7 +351,6 @@ class Editor : CodeEditor {
      *
      * @param item The text action item instance to unregister.
      */
-    @XedExtensionPoint
     fun unregisterTextAction(item: TextActionItem) {
         textActionWindow.unregisterTextAction(item)
     }

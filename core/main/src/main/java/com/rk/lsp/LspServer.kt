@@ -43,8 +43,6 @@ abstract class ScriptedLspServer : LspServer() {
             env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
         )
     }
-
-    override val customTimeouts = mapOf(Timeouts.INIT to 60_000)
 }
 
 abstract class LspServer {

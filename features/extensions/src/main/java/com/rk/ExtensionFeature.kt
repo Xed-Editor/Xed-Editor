@@ -25,7 +25,9 @@ import com.rk.feature.FeatureToggle
 import com.rk.file.FileWrapper
 import com.rk.file.copyToTempDir
 import com.rk.filetree.isXedPackage
+import com.rk.icons.Icon
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
@@ -43,10 +45,10 @@ import java.io.File
 class ExtensionFeature : Feature {
     override val toggle =
         FeatureToggle(
-            nameRes = strings.ext,
+            name = strings.ext.getString(),
             key = "enable_extension",
             default = true,
-            iconRes = drawables.extension,
+            icon = Icon.ResourceIcon(drawables.extension),
         )
 
     private var intentHandler: IntentHandler? = null
@@ -120,9 +122,9 @@ class ExtensionFeature : Feature {
         // Register settings category
         settingsCategory =
             SettingsCategory(
-                    labelRes = strings.store,
-                    descriptionRes = strings.store_desc,
-                    iconRes = drawables.store,
+                    label = strings.store.getString(),
+                    description = strings.store_desc.getString(),
+                    icon = Icon.ResourceIcon(drawables.store),
                     route = SettingsRoutes.Extensions.route,
                 )
                 .also { SettingsRegistry.registerCategory(it) }

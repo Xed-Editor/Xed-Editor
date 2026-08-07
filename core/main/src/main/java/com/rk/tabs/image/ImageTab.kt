@@ -52,7 +52,7 @@ sealed class ImageState {
 
 class ImageTab(override val file: FileObject) : Tab() {
 
-    override var tabTitle by mutableStateOf(file.getName())
+    override var title by mutableStateOf(file.getName())
 
     override val icon: ImageVector
         get() = XedIcons.Photo
