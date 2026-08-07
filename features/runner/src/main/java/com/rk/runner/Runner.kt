@@ -14,9 +14,9 @@ abstract class Runner {
 
     abstract fun getIcon(context: Context): Icon?
 
-    abstract suspend fun isRunning(): Boolean
+    open suspend fun isRunning(): Boolean = false
 
-    abstract suspend fun stop()
+    open suspend fun stop() {}
 
     fun isEnabled(): Boolean {
         return Preference.getBoolean("runner_$id", true)

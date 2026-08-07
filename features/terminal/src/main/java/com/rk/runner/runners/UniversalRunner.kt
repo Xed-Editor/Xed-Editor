@@ -79,10 +79,4 @@ object UniversalRunner : FileRunner() {
     override fun getIcon(context: Context): Icon {
         return Icon.ResourceIcon(drawables.run)
     }
-
-    override suspend fun isRunning(): Boolean {
-        return false
-    }
-
-    override suspend fun stop() {}
 }

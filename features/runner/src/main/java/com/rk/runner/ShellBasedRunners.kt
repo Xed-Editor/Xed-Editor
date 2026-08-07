@@ -13,11 +13,11 @@ import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import com.rk.icons.Icon
 import com.rk.resources.drawables
-import java.io.File
-import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import kotlin.random.Random
 
 object ShellBasedRunners {
     val runners = mutableStateListOf<ShellBasedRunner>()
@@ -91,10 +91,4 @@ data class ShellBasedRunner(override val label: String, val regex: String) : Fil
     override fun getIcon(context: Context): Icon {
         return Icon.ResourceIcon(drawables.bash)
     }
-
-    override suspend fun isRunning(): Boolean {
-        return false
-    }
-
-    override suspend fun stop() {}
 }
