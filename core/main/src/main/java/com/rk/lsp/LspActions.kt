@@ -280,10 +280,6 @@ fun applyFormattingOptions(eventManager: LspEventManager, editorTab: EditorTab) 
     formattingOptions.isTrimTrailingWhitespace = editor.trimTrailingWhitespace
 }
 
-/**
- * A suspendable variant of [formatDocument] for use cases that require formatting to be complete before another action
- * is performed, such as `Format on Save`.
- */
 suspend fun formatDocumentSuspend(editorTab: EditorTab) {
     runCatching {
         val baseLspConnector = editorTab.lspConnector!!
@@ -299,10 +295,6 @@ suspend fun formatDocumentSuspend(editorTab: EditorTab) {
             it.printStackTrace()
             toast(strings.format_document_error)
         }
-}
-
-fun formatDocument(scope: CoroutineScope, editorTab: EditorTab) {
-    scope.launch(Dispatchers.Default) { formatDocumentSuspend(editorTab) }
 }
 
 fun formatDocumentRange(scope: CoroutineScope, editorTab: EditorTab) {

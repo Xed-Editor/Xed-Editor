@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,7 +44,6 @@ import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
 import com.rk.lsp.LspConnector
-import com.rk.lsp.formatDocumentSuspend
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -99,7 +99,7 @@ open class EditorTab(
         get() = file == null && !isReadOnly
 
     private var autoSaveJob: Job? = null
-    private var activeTasks = mutableSetOf<String>()
+    private var activeTasks = mutableStateSetOf<String>()
 
     private var charset = Charset.forName(Settings.encoding)
     var lspConnector: LspConnector? = null
@@ -218,6 +218,10 @@ open class EditorTab(
     companion object {
         private const val BINARY_NOTICE_KEY = "binary_file"
         private const val EDITORCONFIG_NOTICE_KEY = "editorconfig_changed"
+
+        const val FORMAT_DOCUMENT_TASK_ID = "format_document"
+        const val LAYOUT_BUSY_TASK_ID = "layout_busy"
+        const val LSP_CONNECTING_TASK_ID = "connecting_lsp"
     }
 
     @Composable
@@ -393,8 +397,9 @@ open class EditorTab(
 
     suspend fun save() = saveMutex.withLock {
         if (isReadOnly) return@withLock
-        if (Settings.format_on_save && lspConnector?.isFormattingSupported() == true) {
-            formatDocumentSuspend(this@EditorTab)
+        if (Settings.format_on_save) {
+            registerTask(FORMAT_DOCUMENT_TASK_ID)
+            editorState.editor.get()?.formatCodeAsync()
         }
 
         if (isTemp) {

@@ -51,6 +51,7 @@ import com.rk.utils.logInfo
 import com.rk.utils.logWarn
 import com.rk.utils.toast
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.event.EditorFormatEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.InlayHintClickEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
@@ -134,6 +135,8 @@ fun EditorTab.CodeEditor(
 
 fun Editor.registerXedFormatter(editorTab: EditorTab) {
     editorTab.file?.let { file ->
+        // TODO: Allow without file, then fallback to textmateScope
+        // TODO: Add getFormatter(...) method with EditorTab as parameter
         val formatter = Formatters.getPreferredSourceForNonLspFile(file)
         formatterProvider = FormatterProvider {
             runCatching {
@@ -241,10 +244,14 @@ fun Editor.registerXedEvents(
 
     subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
         if (event.isLayoutBusy) {
-            editorTab.registerTask("layout_busy")
+            editorTab.registerTask(EditorTab.LAYOUT_BUSY_TASK_ID)
         } else {
-            editorTab.unregisterTask("layout_busy")
+            editorTab.unregisterTask(EditorTab.LAYOUT_BUSY_TASK_ID)
         }
+    }
+
+    subscribeAlways(EditorFormatEvent::class.java) {
+        editorTab.unregisterTask(EditorTab.FORMAT_DOCUMENT_TASK_ID)
     }
 
     subscribeAlways(EditorKeyEvent::class.java) { event ->
@@ -354,10 +361,7 @@ private suspend fun Editor.connectLsp(
     logInfo("isConnected : ${tab.lspConnector?.isConnected() ?: false}")
 
     val formatter = Formatters.getPreferredSourceForFile(file)
-    val capabilities = tab.lspConnector?.getCapabilities()
-    val supportsFormatting =
-        capabilities?.documentFormattingProvider?.left == true ||
-            capabilities?.documentFormattingProvider?.right != null
+    val supportsFormatting = tab.lspConnector?.isFormattingSupported() ?: false
 
     if (formatter is FormatterSource.LSP && supportsFormatting) {
         formatterProvider = null
