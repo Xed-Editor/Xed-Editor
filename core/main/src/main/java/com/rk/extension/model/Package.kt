@@ -1,6 +1,7 @@
 package com.rk.extension.model
 
 import com.rk.common.PackageType
+import io.github.z4kn4fein.semver.toVersionOrNull
 import kotlinx.serialization.Serializable
 import java.util.Date
 
@@ -43,5 +44,9 @@ interface Package {
 interface UpdatablePackage : Package {
     val newVersion: String
 
-    fun hasUpdate(): Boolean
+    fun hasUpdate(): Boolean {
+        val installedVersion = version.toVersionOrNull() ?: return false
+        val storeVersion = newVersion.toVersionOrNull() ?: return false
+        return installedVersion < storeVersion
+    }
 }

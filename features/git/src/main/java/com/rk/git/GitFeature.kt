@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModelProvider
 import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.commands.CommandProvider
 import com.rk.components.DialogProvider
 import com.rk.components.DialogRegistry
 import com.rk.drawer.AddProjectCategory
@@ -17,6 +18,9 @@ import com.rk.drawer.AddProjectOption
 import com.rk.drawer.AddProjectRegistry
 import com.rk.drawer.ServiceTabProvider
 import com.rk.drawer.ServiceTabRegistry
+import com.rk.editor.Editor
+import com.rk.editor.XedColorScheme
+import com.rk.events.EditorEvent
 import com.rk.events.EditorTabEvent
 import com.rk.events.EventSubscription
 import com.rk.events.Events
@@ -45,11 +49,31 @@ import com.rk.settings.Settings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
 import com.rk.settings.git.GitSettings
+import com.rk.tabs.editor.EditorTab
 import com.rk.theme.gitAdded
 import com.rk.theme.gitConflicted
 import com.rk.theme.gitDeleted
 import com.rk.theme.gitModified
+import com.rk.utils.toast
+import com.rk.utils.withAlpha
+import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.event.InlayHintClickEvent
+import io.github.rosemoe.sora.lang.styling.ExtraStylesProvider
+import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintProvider
+import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer
+import io.github.rosemoe.sora.lang.styling.inlayHint.TextInlayHint
+import io.github.rosemoe.sora.lang.styling.line.LineAnchorStyle
+import io.github.rosemoe.sora.lang.styling.line.LineBackground
+import io.github.rosemoe.sora.lang.styling.line.LineGutterBackground
+import io.github.rosemoe.sora.text.batchEdit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
+import kotlin.time.Duration.Companion.milliseconds
 
 // Global reference for gitViewModel
 var gitViewModel = WeakReference<GitViewModel?>(null)
@@ -57,10 +81,10 @@ var gitViewModel = WeakReference<GitViewModel?>(null)
 class GitFeature : Feature {
     override val toggle =
         FeatureToggle(
-            nameRes = strings.git,
+            name = strings.git.getString(),
             key = "enable_git",
             default = true,
-            iconRes = drawables.git,
+            icon = Icon.ResourceIcon(drawables.git),
         )
 
     private var settingsCategory: SettingsCategory? = null
@@ -70,14 +94,16 @@ class GitFeature : Feature {
     private var dialogProvider: DialogProvider? = null
     private var projectCategory: ProjectCategory? = null
     private val subscriptions = mutableListOf<EventSubscription>()
+    private val gitDiffGutterProvider = mutableMapOf<Editor, GitDiffGutterProvider>()
+    private val gitConflictStylesProvider = mutableMapOf<Editor, GitConflictStylesProvider>()
 
     override fun init(application: Application) {
         // Register Git settings category
         settingsCategory =
             SettingsCategory(
-                    labelRes = strings.git,
-                    descriptionRes = strings.git_desc,
-                    iconRes = drawables.git,
+                    label = strings.git.getString(),
+                    description = strings.git_desc.getString(),
+                    icon = Icon.ResourceIcon(drawables.git),
                     route = SettingsRoutes.Git.route,
                 )
                 .also { SettingsRegistry.registerCategory(it) }
@@ -92,6 +118,8 @@ class GitFeature : Feature {
         FileDecorationRegistry.register(GitFileDecorationProvider)
         FilePropertiesRegistry.register(GitProperty)
 
+        CommandProvider.registerCommand(GitInitCommand)
+
         serviceTabProvider =
             ServiceTabProvider { owner ->
                 val viewModel = ViewModelProvider(owner)[GitViewModel::class.java]
@@ -103,9 +131,12 @@ class GitFeature : Feature {
         // Register file change notification listeners
         subscriptions.add(
             Events.subscribe<FileTreeEvent.Opened> { event ->
+                val viewModel = gitViewModel.get() ?: return@subscribe
                 val gitRoot = findGitRoot(event.projectRoot.getAbsolutePath())
                 if (gitRoot != null) {
-                    gitViewModel.get()?.loadRepository(gitRoot)
+                    viewModel.loadRepository(gitRoot)
+                } else {
+                    viewModel.disposeRepository()
                 }
             }
         )
@@ -119,6 +150,32 @@ class GitFeature : Feature {
         subscriptions.add(
             Events.subscribe<EditorTabEvent.Saved> { event ->
                 gitViewModel.get()?.syncChanges(event.file.getAbsolutePath())
+            }
+        )
+
+        subscriptions.add(
+            Events.subscribe<EditorEvent.InstanceCreated> { (editor) ->
+                val extraStylesProvider = GitDiffGutterProvider(editor)
+                gitDiffGutterProvider[editor] = extraStylesProvider
+                editor.registerExtraStylesProvider(extraStylesProvider)
+
+                val conflictStylesProvider = GitConflictStylesProvider(editor)
+                gitConflictStylesProvider[editor] = conflictStylesProvider
+                editor.registerExtraStylesProvider(conflictStylesProvider)
+                editor.registerInlayHintProvider(conflictStylesProvider)
+            }
+        )
+
+        subscriptions.add(
+            Events.subscribe<EditorEvent.InstanceDestroyed> { (editor) ->
+                gitDiffGutterProvider.remove(editor)?.dispose()
+                gitConflictStylesProvider.remove(editor)?.dispose()
+            }
+        )
+
+        subscriptions.add(
+            Events.subscribe<GitEvent.WorkingTreeUpdated> {
+                refreshOpenEditorDiffs()
             }
         )
 
@@ -169,11 +226,19 @@ class GitFeature : Feature {
                 }
     }
 
+    /** Recomputes the gutter line-diffs for every currently open editor with [GitDiffGutterProvider]. */
+    private fun refreshOpenEditorDiffs() {
+        gitDiffGutterProvider.values.forEach { provider ->
+            provider.requestUpdate()
+        }
+    }
+
     override fun dispose(application: Application) {
         settingsCategory?.let { SettingsRegistry.unregisterCategory(it) }
         settingsRoute?.let { SettingsRegistry.unregisterRoute(it) }
         FileDecorationRegistry.unregister(GitFileDecorationProvider)
         FilePropertiesRegistry.unregister(GitProperty)
+        CommandProvider.unregisterCommand(GitInitCommand)
         serviceTabProvider?.let { ServiceTabRegistry.unregister(it) }
         subscriptions.forEach { it.unsubscribe() }
         subscriptions.clear()
@@ -184,6 +249,17 @@ class GitFeature : Feature {
             templates.forEach { template -> ProjectTemplateRegistry.unregisterTemplate(it, template) }
             ProjectTemplateRegistry.unregisterCategory(it)
         }
+        gitDiffGutterProvider.forEach { (editor, provider) ->
+            editor.unregisterExtraStylesProvider(provider)
+            provider.dispose()
+        }
+        gitDiffGutterProvider.clear()
+        gitConflictStylesProvider.forEach { (editor, provider) ->
+            editor.unregisterExtraStylesProvider(provider)
+            editor.unregisterInlayHintProvider(provider)
+            provider.dispose()
+        }
+        gitConflictStylesProvider.clear()
     }
 }
 
@@ -214,7 +290,7 @@ object GitProperty : FilePropertiesProvider {
 object GitFileDecorationProvider : FileDecorationProvider {
     @Composable
     override fun provideDecoration(file: FileObject): FileDecoration? {
-        if (!FeatureRegistry.isEnabled("enable_git") || !Settings.git_colorize_names) return null
+        if (!Settings.git_colorize_names) return null
         val changeType = gitViewModel.get()?.getChangeType(file.getAbsolutePath()) ?: return null
         val color =
             when (changeType) {
@@ -228,3 +304,252 @@ object GitFileDecorationProvider : FileDecorationProvider {
         return FileDecoration(color = color)
     }
 }
+
+/**
+ * Provides gutter/line-anchor styling for the editor, and is itself responsible for keeping
+ * [GitViewModel.fileLineDiffs] up to date for its editor as the user types. Each instance is tied to an [Editor]
+ * instance and must be [dispose]d when that association ends.
+ */
+class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
+
+    private var contentChangeSubscription =
+        editor.subscribeAlways(ContentChangeEvent::class.java) { _ -> onContentChanged() }
+
+    private fun onContentChanged() {
+        requestUpdate()
+    }
+
+    fun requestUpdate() {
+        val viewModel = gitViewModel.get() ?: return
+
+        val tab = editor.ownerTab as? EditorTab ?: return
+        val file = tab.file ?: return
+        val path = file.getAbsolutePath()
+
+        viewModel.requestLineDiffUpdate(path, editor.text.toString())
+    }
+
+    /** Cancels the content-change subscription. Must be called once this provider is no longer in use. */
+    fun dispose() {
+        contentChangeSubscription?.unsubscribe()
+        contentChangeSubscription = null
+        editor.unregisterExtraStylesProvider(this)
+    }
+
+    override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
+        if (!Settings.git_gutter_indication) return
+        val viewModel = gitViewModel.get() ?: return
+
+        val tab = editor.ownerTab as? EditorTab ?: return
+        val file = tab.file ?: return
+        val path = file.getAbsolutePath()
+
+        val diffs = viewModel.fileLineDiffs[path] ?: return
+        val diffType = diffs[line] ?: return
+
+        val colorInt =
+            when (diffType) {
+                LineDiffType.ADDED -> editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_ADDED)
+                LineDiffType.MODIFIED -> editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_MODIFIED)
+                LineDiffType.DELETED -> editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_DELETED)
+            }
+
+        styles.add(LineGutterBackground(line) { colorInt })
+    }
+}
+
+class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvider, InlayHintProvider {
+    private var conflicts = mutableListOf<Conflict>()
+    private val scope = CoroutineScope(Dispatchers.Default + Job())
+    private var updateJob: Job? = null
+
+    companion object {
+        private const val UPDATE_DEBOUNCE_MS = 50L
+        private const val CONFLICT_START_MARKER = "<<<<<<<"
+        private const val CONFLICT_SEPARATOR = "======="
+        private const val CONFLICT_END_MARKER = ">>>>>>>"
+    }
+
+    data class Conflict(
+        val startLine: Int,
+        val middleLine: Int,
+        val endLine: Int,
+    )
+
+    private val contentChangeSubscription = editor.subscribeAlways(ContentChangeEvent::class.java) { requestUpdate() }
+
+    private val inlayHintClickSubscription =
+        editor.subscribeAlways(InlayHintClickEvent::class.java) { event ->
+            (event.inlayHint as? ConflictInlayHint)?.let { hint ->
+                handleConflictAction(hint)
+            }
+        }
+
+    init {
+        requestUpdate()
+    }
+
+    private fun requestUpdate() {
+        updateJob?.cancel()
+        updateJob = scope.launch {
+            delay(UPDATE_DEBOUNCE_MS.milliseconds)
+
+            if (!Settings.git_conflict_detection) {
+                if (conflicts.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        conflicts = mutableListOf()
+                        editor.invalidateInlayHints()
+                    }
+                }
+                return@launch
+            }
+
+            val text = editor.text
+            val newConflicts = mutableListOf<Conflict>()
+            var currentConflictStart = -1
+            var currentConflictMiddle = -1
+
+            for (i in 0 until text.lineCount) {
+                val line = text.getLineString(i)
+                if (line.startsWith(CONFLICT_START_MARKER)) {
+                    currentConflictStart = i
+                } else if (line.startsWith(CONFLICT_SEPARATOR) && currentConflictStart != -1) {
+                    currentConflictMiddle = i
+                } else if (
+                    line.startsWith(CONFLICT_END_MARKER) && currentConflictStart != -1 && currentConflictMiddle != -1
+                ) {
+                    newConflicts.add(
+                        Conflict(
+                            startLine = currentConflictStart,
+                            middleLine = currentConflictMiddle,
+                            endLine = i,
+                        )
+                    )
+                    currentConflictStart = -1
+                    currentConflictMiddle = -1
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                conflicts = newConflicts
+                editor.invalidateInlayHints()
+            }
+        }
+    }
+
+    override fun provideInlayHints(container: InlayHintsContainer) {
+        if (conflicts.isEmpty()) return
+        val text = editor.text
+        val lineCount = text.lineCount
+        for (conflict in conflicts) {
+            if (conflict.startLine >= lineCount) continue
+
+            val baseColumn = text.getColumnCount(conflict.startLine)
+            container.add(
+                ConflictInlayHint(
+                    conflict.startLine,
+                    baseColumn,
+                    conflict,
+                    ConflictAction.ACCEPT_CURRENT,
+                    strings.accept_current_change.getString(),
+                )
+            )
+            container.add(
+                ConflictInlayHint(
+                    conflict.startLine,
+                    baseColumn + 1,
+                    conflict,
+                    ConflictAction.ACCEPT_INCOMING,
+                    strings.accept_incoming_change.getString(),
+                )
+            )
+            container.add(
+                ConflictInlayHint(
+                    conflict.startLine,
+                    baseColumn + 2,
+                    conflict,
+                    ConflictAction.ACCEPT_BOTH,
+                    strings.accept_both_changes.getString(),
+                )
+            )
+        }
+    }
+
+    private fun handleConflictAction(hint: ConflictInlayHint) {
+        val conflict = hint.conflict
+        val text = editor.text
+        val lineCount = text.lineCount
+
+        if (conflict.endLine >= lineCount) {
+            return
+        }
+
+        text.batchEdit {
+            when (hint.action) {
+                ConflictAction.ACCEPT_CURRENT -> {
+                    text.delete(conflict.middleLine, 0, conflict.endLine + 1, 0)
+                    text.delete(conflict.startLine, 0, conflict.startLine + 1, 0)
+                }
+                ConflictAction.ACCEPT_INCOMING -> {
+                    text.delete(conflict.endLine, 0, conflict.endLine + 1, 0)
+                    text.delete(conflict.startLine, 0, conflict.middleLine + 1, 0)
+                }
+                ConflictAction.ACCEPT_BOTH -> {
+                    text.delete(conflict.endLine, 0, conflict.endLine + 1, 0)
+                    text.delete(conflict.middleLine, 0, conflict.middleLine + 1, 0)
+                    text.delete(conflict.startLine, 0, conflict.startLine + 1, 0)
+                }
+            }
+        }
+
+        scope.launch(Dispatchers.Main) {
+            when (hint.action) {
+                ConflictAction.ACCEPT_CURRENT -> toast(strings.accept_current_change)
+                ConflictAction.ACCEPT_INCOMING -> toast(strings.accept_incoming_change)
+                ConflictAction.ACCEPT_BOTH -> toast(strings.accept_both_changes)
+            }
+        }
+    }
+
+    override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
+        if (Settings.git_conflict_detection.not()) return
+        val conflict = conflicts.find { line in it.startLine..it.endLine } ?: return
+
+        val addedColor = editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_ADDED)
+        val modifiedColor = editor.colorScheme.getColor(XedColorScheme.GIT_MARKER_MODIFIED)
+
+        val color =
+            when {
+                line == conflict.startLine -> addedColor
+                line < conflict.middleLine -> addedColor withAlpha 0.4f
+                line == conflict.middleLine -> return
+                line < conflict.endLine -> modifiedColor withAlpha 0.4f
+                line == conflict.endLine -> modifiedColor
+                else -> return
+            }
+
+        styles.add(LineBackground(line) { color })
+    }
+
+    fun dispose() {
+        contentChangeSubscription.unsubscribe()
+        inlayHintClickSubscription.unsubscribe()
+        updateJob?.cancel()
+        editor.unregisterExtraStylesProvider(this)
+        editor.unregisterInlayHintProvider(this)
+    }
+}
+
+enum class ConflictAction {
+    ACCEPT_CURRENT,
+    ACCEPT_INCOMING,
+    ACCEPT_BOTH,
+}
+
+class ConflictInlayHint(
+    line: Int,
+    column: Int,
+    val conflict: GitConflictStylesProvider.Conflict,
+    val action: ConflictAction,
+    text: String,
+) : TextInlayHint(line, column, text)

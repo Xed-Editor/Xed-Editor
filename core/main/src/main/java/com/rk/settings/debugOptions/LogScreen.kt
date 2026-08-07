@@ -2,6 +2,7 @@ package com.rk.settings.debugOptions
 
 import android.content.Intent
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +43,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.search.EditorSearchPanel
 import com.rk.tabs.editor.CodeEditorState
+import com.rk.theme.GitColorScheme
 import com.rk.theme.XedTheme
 import com.rk.utils.copyToClipboard
 import com.rk.utils.dialogRes
@@ -126,6 +128,8 @@ fun LogScreen(
             val selectionColors = LocalTextSelectionColors.current
             val isDarkMode = isSystemInDarkTheme()
             val colorScheme = MaterialTheme.colorScheme
+            val gitColorScheme = GitColorScheme.create()
+
             Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                 Surface {
                     Column {
@@ -144,9 +148,11 @@ fun LogScreen(
                     }
                 }
 
-                EditorSearchPanel(editorState)
-                if (editorState.isSearching) {
-                    HorizontalDivider()
+                Column(modifier = Modifier.animateContentSize()) {
+                    EditorSearchPanel(editorState)
+                    if (editorState.isSearching) {
+                        HorizontalDivider()
+                    }
                 }
 
                 AndroidView(
@@ -166,6 +172,7 @@ fun LogScreen(
                                 isDarkMode = isDarkMode,
                                 selectionColors = selectionColors,
                                 colorScheme = colorScheme,
+                                gitColorScheme = gitColorScheme,
                             )
 
                             scope.launch { configureLanguage(BuiltinFileType.LOG.textmateScope!!) }

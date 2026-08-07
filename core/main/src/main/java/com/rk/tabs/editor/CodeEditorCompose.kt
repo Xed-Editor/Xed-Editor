@@ -27,6 +27,8 @@ import com.rk.color.ColorFormat
 import com.rk.color.parseUnknownColor
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
+import com.rk.editor.FormatterSource
+import com.rk.editor.Formatters
 import com.rk.editor.LanguageManager
 import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.feature.FeatureRegistry
@@ -43,6 +45,8 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.theme.GitColorScheme
+import com.rk.utils.logError
 import com.rk.utils.logInfo
 import com.rk.utils.logWarn
 import com.rk.utils.toast
@@ -52,6 +56,7 @@ import io.github.rosemoe.sora.event.InlayHintClickEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import io.github.rosemoe.sora.event.PublishDiagnosticsEvent
+import io.github.rosemoe.sora.lang.format.FormatterProvider
 import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
@@ -75,6 +80,7 @@ fun EditorTab.CodeEditor(
     val scope = rememberCoroutineScope()
     val isDarkMode = isSystemInDarkTheme()
     val colorScheme = MaterialTheme.colorScheme
+    val gitColorScheme = GitColorScheme.create()
 
     Column(modifier = modifier) {
         AndroidView(
@@ -84,6 +90,7 @@ fun EditorTab.CodeEditor(
             factory = { ctx ->
                 Editor(ctx).apply {
                     logInfo("New Editor instance")
+                    ownerTab = this@CodeEditor
 
                     editable = editorState.editable
                     val isTxtFile = file?.getName()?.endsWith(".txt") ?: (fallbackExtension == "txt")
@@ -97,10 +104,12 @@ fun EditorTab.CodeEditor(
                         isDarkMode = isDarkMode,
                         selectionColors = selectionColors,
                         colorScheme = colorScheme,
+                        gitColorScheme = gitColorScheme,
                     )
 
                     editorState.editor = WeakReference(this)
 
+                    registerXedFormatter(this@CodeEditor)
                     registerXedActions(scope, viewModel, this@CodeEditor)
                     registerXedEvents(this@CodeEditor, intelligentFeatures, file, onTextChange)
 
@@ -119,6 +128,21 @@ fun EditorTab.CodeEditor(
 
         if (Settings.show_extra_keys) {
             HorizontalDivider()
+        }
+    }
+}
+
+fun Editor.registerXedFormatter(editorTab: EditorTab) {
+    editorTab.file?.let { file ->
+        val formatter = Formatters.getPreferredSourceForNonLspFile(file)
+        formatterProvider = FormatterProvider {
+            runCatching {
+                formatter?.provider?.getFormatter(it, file)
+            }
+                .onFailure { e ->
+                    logError(e, "Error getting formatter")
+                }
+                .getOrNull()
         }
     }
 }
@@ -290,7 +314,11 @@ private suspend fun Editor.connectLsp(
 
     // Language servers fail with content URIs
     if (file !is FileWrapper) {
-        logWarn("File ${file.getName()} is not a file wrapper. Skipping language server connection.")
+        servers = servers.filter { Preference.getBoolean("lsp_${it.id}_run_external", false) }
+    }
+
+    if (servers.isEmpty()) {
+        logWarn("No suitable servers available for ${file.getName()}. Skipping language server connection.")
         return
     }
 
@@ -324,6 +352,16 @@ private suspend fun Editor.connectLsp(
     logInfo("Trying to connect language servers...")
     tab.lspConnector?.connect(wrapperLanguage)
     logInfo("isConnected : ${tab.lspConnector?.isConnected() ?: false}")
+
+    val formatter = Formatters.getPreferredSourceForFile(file)
+    val capabilities = tab.lspConnector?.getCapabilities()
+    val supportsFormatting =
+        capabilities?.documentFormattingProvider?.left == true ||
+            capabilities?.documentFormattingProvider?.right != null
+
+    if (formatter is FormatterSource.LSP && supportsFormatting) {
+        formatterProvider = null
+    }
 }
 
 private fun LspServer.promptLspInstall(activity: Activity, scope: CoroutineScope) {

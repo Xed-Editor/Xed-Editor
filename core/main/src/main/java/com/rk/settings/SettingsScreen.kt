@@ -32,6 +32,7 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
 import com.rk.feature.FeatureRegistry
+import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
@@ -76,9 +77,16 @@ private fun Categories(navController: NavController) {
 
     SettingsRegistry.categories.forEach { category ->
         PreferenceCategory(
-            label = stringResource(id = category.labelRes),
-            description = stringResource(id = category.descriptionRes),
-            iconResource = category.iconRes,
+            label = category.label,
+            description = category.description,
+            startWidget = {
+                XedIcon(
+                    icon = category.icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            },
             onNavigate = { navController.navigate(category.route) },
         )
     }

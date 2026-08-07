@@ -98,10 +98,10 @@ fun PackageCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
-                    val newVersion = (pkg as? UpdatablePackage)?.newVersion
-                    newVersion?.let {
+                    val isUpdatable = pkg is UpdatablePackage && pkg.hasUpdate()
+                    if (isUpdatable) {
                         Text(
-                            text = " → v$it",
+                            text = " → v${pkg.newVersion}",
                             style = Typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                             maxLines = 1,

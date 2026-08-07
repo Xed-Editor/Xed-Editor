@@ -1,17 +1,30 @@
 package com.rk.settings.git
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.rk.components.DoubleInputDialog
 import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.editor.refreshEditors
+import com.rk.utils.openDocs
 
 @Composable
 fun GitSettings() {
@@ -24,12 +37,31 @@ fun GitSettings() {
         var name by remember { mutableStateOf(Settings.git_name) }
         var email by remember { mutableStateOf(Settings.git_email) }
 
+        val context = LocalContext.current
+
         PreferenceGroup(heading = stringResource(strings.general)) {
             SettingsItem(
                 label = stringResource(strings.git_colorize_files),
                 description = stringResource(strings.git_colorize_files_desc),
                 default = Settings.git_colorize_names,
                 sideEffect = { Settings.git_colorize_names = it },
+            )
+
+            SettingsItem(
+                label = stringResource(strings.git_gutter_indication),
+                description = stringResource(strings.git_gutter_indication_desc),
+                default = Settings.git_gutter_indication,
+                sideEffect = { Settings.git_gutter_indication = it },
+            )
+
+            SettingsItem(
+                label = stringResource(strings.git_conflict_detection),
+                description = stringResource(strings.git_conflict_detection_desc),
+                default = Settings.git_conflict_detection,
+                sideEffect = {
+                    Settings.git_conflict_detection = it
+                    refreshEditors()
+                },
             )
         }
 
@@ -76,6 +108,22 @@ fun GitSettings() {
                 secondInputLabel = stringResource(strings.password),
                 secondInputValue = password,
                 onSecondInputValueChange = { password = it },
+                message = {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)) {
+                        Text(stringResource(strings.credentials_github), modifier = Modifier.weight(1f))
+
+                        IconButton(
+                            onClick = {
+                                context.openDocs("git/#connecting-to-github-credentials")
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(drawables.open_in_new),
+                                contentDescription = stringResource(strings.docs),
+                            )
+                        }
+                    }
+                },
                 onConfirm = {
                     Settings.git_username = username
                     Settings.git_password = password

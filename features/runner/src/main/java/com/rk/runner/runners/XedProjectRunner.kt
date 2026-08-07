@@ -37,8 +37,4 @@ object XedProjectRunner : ProjectRunner() {
             workingDir = projectRoot.getAbsolutePath(),
         )
     }
-
-    override suspend fun isRunning(): Boolean = false
-
-    override suspend fun stop() {}
 }

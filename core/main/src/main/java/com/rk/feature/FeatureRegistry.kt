@@ -5,6 +5,7 @@ import android.app.Application
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -23,10 +24,10 @@ interface Feature {
 }
 
 data class FeatureToggle(
-    val nameRes: Int,
+    val name: String,
     val key: String,
     val default: Boolean,
-    val iconRes: Int,
+    val icon: Icon,
     val onSwitch: ((Activity, Boolean, onComplete: (Boolean) -> Unit) -> Unit)? = null,
 ) {
     val state: MutableState<Boolean> by lazy {
@@ -48,10 +49,10 @@ object FeatureRegistry {
     init {
         registerToggle(
             FeatureToggle(
-                nameRes = strings.debug_options,
+                name = strings.debug_options.getString(),
                 key = "debug_mode",
                 default = BuildConfig.DEBUG,
-                iconRes = drawables.build,
+                icon = Icon.ResourceIcon(drawables.build),
                 onSwitch = { activity, checked, onComplete ->
                     if (checked) {
                         dialogRes(

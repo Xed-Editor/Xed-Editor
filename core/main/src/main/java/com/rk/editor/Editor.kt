@@ -15,7 +15,11 @@ import com.rk.events.Events
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.LineEnding
+import com.rk.tabs.base.Tab
+import com.rk.theme.GitColorScheme
 import com.rk.utils.errorDialog
+import io.github.rosemoe.sora.graphics.inlayHint.ColorInlayHintRenderer
+import io.github.rosemoe.sora.graphics.inlayHint.TextInlayHintRenderer
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.editor.LspLanguage
 import io.github.rosemoe.sora.text.CharPosition
@@ -44,6 +48,7 @@ class Editor : CodeEditor {
     var lineEnding = LineEnding.LF
     var insertFinalNewline = false
     var trimTrailingWhitespace = false
+    var ownerTab: Tab? = null
 
     data class PatchArgs(
         val isDarkMode: Boolean,
@@ -59,17 +64,33 @@ class Editor : CodeEditor {
         val currentLine: Int,
         val dividerColor: Int,
         val errorColor: Int,
+        val gitAdded: Int,
+        val gitModified: Int,
+        val gitDeleted: Int,
+        val gitConflicted: Int,
     )
+
+    private var defaultColorProvider: DefaultColorProvider? = null
 
     init {
         applyFont()
         applySettings()
-
         getComponent(EditorAutoCompletion::class.java).setEnabledAnimation(true)
-        scope.launch { Events.publish(EditorEvent.InstanceCreated(this@Editor)) }
+        scope.launch(Dispatchers.Main) { Events.publish(EditorEvent.InstanceCreated(this@Editor)) }
+
+        registerInlayHintRenderers(
+            TextInlayHintRenderer.DefaultInstance,
+            ColorInlayHintRenderer.DefaultInstance,
+        )
+        defaultColorProvider = DefaultColorProvider(this)
     }
 
-    fun setThemeColors(isDarkMode: Boolean, selectionColors: TextSelectionColors, colorScheme: ColorScheme) {
+    fun setThemeColors(
+        isDarkMode: Boolean,
+        selectionColors: TextSelectionColors,
+        colorScheme: ColorScheme,
+        gitColorScheme: GitColorScheme,
+    ) {
         val surfaceColor = if (isDarkMode) colorScheme.surfaceDim else colorScheme.surface
         val surfaceContainer = colorScheme.surfaceContainer
         val highSurfaceContainer = colorScheme.surfaceContainerHigh
@@ -99,6 +120,10 @@ class Editor : CodeEditor {
             currentLine = currentLineColor.toArgb(),
             dividerColor = divider.toArgb(),
             errorColor = errorColor.toArgb(),
+            gitAdded = gitColorScheme.added.toArgb(),
+            gitModified = gitColorScheme.modified.toArgb(),
+            gitDeleted = gitColorScheme.deleted.toArgb(),
+            gitConflicted = gitColorScheme.conflicted.toArgb(),
         )
     }
 
@@ -116,6 +141,10 @@ class Editor : CodeEditor {
         currentLine: Int,
         dividerColor: Int,
         errorColor: Int,
+        gitAdded: Int,
+        gitModified: Int,
+        gitDeleted: Int,
+        gitConflicted: Int,
     ) {
         val patchArgs =
             PatchArgs(
@@ -132,6 +161,10 @@ class Editor : CodeEditor {
                 currentLine,
                 dividerColor,
                 errorColor,
+                gitAdded,
+                gitModified,
+                gitDeleted,
+                gitConflicted,
             )
 
         XedColorScheme.applyPatchesTo(colorScheme, patchArgs) // pre-apply patches
@@ -143,6 +176,8 @@ class Editor : CodeEditor {
     }
 
     override fun release() {
+        defaultColorProvider?.dispose()
+
         scope.cancel()
         super.release()
 
@@ -192,6 +227,10 @@ class Editor : CodeEditor {
         lineSeparator = lineEnding.type
         insertFinalNewline = finalNewline
         trimTrailingWhitespace = trailingWhitespace
+
+        props.indicatorWaveLength = 8f
+        props.indicatorWaveWidth = 1.5f
+        props.indicatorWaveAmplitude = 2f
 
         val minScaleSize: Float = 6f * resources.displayMetrics.scaledDensity
         val maxScaleSize: Float = 100f * resources.displayMetrics.scaledDensity

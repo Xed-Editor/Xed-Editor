@@ -209,6 +209,16 @@ fun getTempDir(): File {
     return tmp
 }
 
+infix fun Int.withAlpha(factor: Float): Int {
+    val a = android.graphics.Color.alpha(this)
+    val r = android.graphics.Color.red(this)
+    val g = android.graphics.Color.green(this)
+    val b = android.graphics.Color.blue(this)
+
+    val newAlpha = (a * factor).toInt().coerceIn(0, 255)
+    return android.graphics.Color.argb(newAlpha, r, g, b)
+}
+
 /** Converts a [Spanned] text object to an [AnnotatedString]. */
 fun Spanned.toAnnotatedString(): AnnotatedString {
     val builder = AnnotatedString.Builder(this.toString())
@@ -266,22 +276,22 @@ fun getUnderlineColor(context: Context, fileTreeViewModel: FileTreeViewModel, fi
     val diagnosticSeverity = file?.let { fileTreeViewModel.getNodeSeverity(it) } ?: -1
     val editorColors =
         if (isDarkTheme(context)) {
-            currentTheme.value?.darkEditorColors
+            currentTheme.value.darkEditorColors
         } else {
-            currentTheme.value?.lightEditorColors
+            currentTheme.value.lightEditorColors
         }
     val underlineColor =
         when (diagnosticSeverity) {
             1 -> {
-                editorColors?.find { it.key == EditorColorScheme.PROBLEM_TYPO }?.color?.let { Color(it) }
+                editorColors.find { it.key == EditorColorScheme.PROBLEM_TYPO }?.color?.let { Color(it) }
                     ?: Color(0x6600ff11) // Color was taken from EditorColorScheme.java
             }
             2 -> {
-                editorColors?.find { it.key == EditorColorScheme.PROBLEM_WARNING }?.color?.let { Color(it) }
+                editorColors.find { it.key == EditorColorScheme.PROBLEM_WARNING }?.color?.let { Color(it) }
                     ?: Color(0xaafff100) // Color was taken from EditorColorScheme.java
             }
             3 -> {
-                editorColors?.find { it.key == EditorColorScheme.PROBLEM_ERROR }?.color?.let { Color(it) }
+                editorColors.find { it.key == EditorColorScheme.PROBLEM_ERROR }?.color?.let { Color(it) }
                     ?: MaterialTheme.colorScheme.error
             }
             else -> null
@@ -291,7 +301,7 @@ fun getUnderlineColor(context: Context, fileTreeViewModel: FileTreeViewModel, fi
 }
 
 fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
-    val strokeWidth = 3f
+    val strokeWidth = 4f
     val waveOffset = 5f
     val waveHeight = 6f
     val waveLength = 20f

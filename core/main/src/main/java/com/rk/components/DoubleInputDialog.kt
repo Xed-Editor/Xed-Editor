@@ -41,6 +41,7 @@ fun DoubleInputDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit = {},
     onFinish: () -> Unit = {},
+    message: @Composable (() -> Unit)? = null,
     singleLineMode: Boolean = true,
     confirmText: String = stringResource(strings.apply),
     confirmEnabled: Boolean = true,
@@ -65,6 +66,8 @@ fun DoubleInputDialog(
         title = { Text(text = title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                message?.invoke()
+
                 OutlinedTextField(
                     value = firstTextFieldValue,
                     singleLine = singleLineMode,

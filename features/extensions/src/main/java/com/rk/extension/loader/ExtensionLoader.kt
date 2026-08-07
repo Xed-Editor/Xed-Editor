@@ -185,7 +185,7 @@ private fun LocalExtension.instantiateAPI(
  */
 suspend fun ExtensionManager.loadAllExtensions() =
     withContext(Dispatchers.IO) {
-        for ((_, extension) in localExtensions) {
+        for ((_, extension) in installedExtensions) {
             if (isExtensionCrashed(extension)) {
                 continue
             }

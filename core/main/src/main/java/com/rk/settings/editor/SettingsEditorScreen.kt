@@ -92,6 +92,16 @@ fun SettingsEditorScreen(navController: NavController) {
                     refreshEditors()
                 },
             )
+
+            EditorSettingsItem(
+                label = stringResource(strings.show_color_previews),
+                description = stringResource(strings.show_color_previews_desc),
+                default = Settings.show_color_previews,
+                sideEffect = {
+                    Settings.show_color_previews = it
+                    refreshEditors()
+                },
+            )
         }
 
         PreferenceGroup(heading = stringResource(strings.content)) {

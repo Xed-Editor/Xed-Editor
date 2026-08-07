@@ -371,7 +371,7 @@ enum class BuiltinFileType(
         markdownNames = listOf("powershell", "ps"),
     ),
     SMALI(extensions = listOf("smali"), textmateScope = "source.smali", icon = null, title = "Smali"),
-    ASSEMBLY(extensions = listOf("asm","s","S"), textmateScope = "source.asm", icon = null, title = "Assembly"),
+    ASSEMBLY(extensions = listOf("asm", "s", "S"), textmateScope = "source.asm", icon = null, title = "Assembly"),
     CMAKE(
         extensions = emptyList(),
         names = listOf("cmakelists.txt"),

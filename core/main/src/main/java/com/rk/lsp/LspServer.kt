@@ -18,6 +18,7 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.greenStatus
 import com.rk.theme.yellowStatus
+import io.github.rosemoe.sora.lsp.requests.Timeouts
 import kotlinx.coroutines.launch
 import org.eclipse.lsp4j.ServerCapabilities
 import java.io.File
@@ -50,6 +51,8 @@ abstract class LspServer {
     abstract val serverName: String
     abstract val supportedExtensions: List<String>
     abstract val icon: Icon?
+
+    open val customTimeouts: Map<Timeouts, Int> = emptyMap()
 
     open val canBeUninstalled = true
 

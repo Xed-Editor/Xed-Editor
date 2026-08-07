@@ -225,7 +225,7 @@ suspend fun installExtensionSequentially(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            errorMsg = e.message ?: "Unknown error"
+            errorMsg = e.message ?: strings.unknown_err.getString()
             withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
         } finally {
             if (tempFile.exists()) {
@@ -345,7 +345,7 @@ fun runExtensionUpdateAction(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            errorMsg = e.message ?: "Unknown error"
+            errorMsg = e.message ?: strings.unknown_err.getString()
             withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
         } finally {
             if (tempFile.exists()) {
@@ -362,7 +362,7 @@ fun runExtensionUpdateAction(
                 } else {
                     showDownloadNotification(context, id, name, 0f, isFinished = true, errorMessage = errorMsg)
                     updateInstallState(InstallState.Idle)
-                    errorDialog(activity, msg = errorMsg ?: "Unknown error")
+                    errorDialog(activity, msg = errorMsg ?: strings.unknown_err.getString())
                 }
             }
         }
@@ -420,7 +420,7 @@ fun runThemeInstallAction(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            errorMsg = e.message ?: "Unknown error"
+            errorMsg = e.message ?: strings.unknown_err.getString()
         } finally {
             if (tempFile.exists()) {
                 tempFile.delete()
@@ -434,7 +434,7 @@ fun runThemeInstallAction(
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
                 } else {
                     showDownloadNotification(context, id, name, 0f, isFinished = true, errorMessage = errorMsg)
-                    errorDialog(activity, msg = errorMsg ?: "Unknown error")
+                    errorDialog(activity, msg = errorMsg ?: strings.unknown_err.getString())
                 }
             }
         }
@@ -492,7 +492,7 @@ fun runIconPackInstallAction(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            errorMsg = e.message ?: "Unknown error"
+            errorMsg = e.message ?: strings.unknown_err.getString()
         } finally {
             if (tempFile.exists()) {
                 tempFile.delete()
@@ -506,7 +506,7 @@ fun runIconPackInstallAction(
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
                 } else {
                     showDownloadNotification(context, id, name, 0f, isFinished = true, errorMessage = errorMsg)
-                    errorDialog(activity, msg = errorMsg ?: "Unknown error")
+                    errorDialog(activity, msg = errorMsg ?: strings.unknown_err.getString())
                 }
             }
         }

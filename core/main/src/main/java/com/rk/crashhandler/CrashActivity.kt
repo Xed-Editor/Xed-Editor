@@ -35,6 +35,7 @@ import com.rk.crashhandler.CrashHandler.logErrorOrExit
 import com.rk.editor.Editor
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.theme.GitColorScheme
 import com.rk.theme.XedTheme
 import com.rk.utils.SourceCodeProvider
 import com.rk.utils.copyToClipboard
@@ -208,6 +209,7 @@ class CrashActivity : ComponentActivity() {
                         val selectionColors = LocalTextSelectionColors.current
                         val isDarkMode = isSystemInDarkTheme()
                         val colorScheme = MaterialTheme.colorScheme
+                        val gitColorScheme = GitColorScheme.create()
 
                         AndroidView(
                             modifier = Modifier.fillMaxSize().padding(paddingValues),
@@ -221,6 +223,7 @@ class CrashActivity : ComponentActivity() {
                                         isDarkMode = isDarkMode,
                                         selectionColors = selectionColors,
                                         colorScheme = colorScheme,
+                                        gitColorScheme = gitColorScheme,
                                     )
                                 }
                             },

@@ -52,6 +52,7 @@ object Settings {
     var show_line_numbers by CachedPreference("show_line_number", true)
     var render_whitespace by CachedPreference("render_whitespace", false)
     var sticky_scroll by CachedPreference("sticky_scroll", true)
+    var show_color_previews by CachedPreference("show_color_previews", true)
     var quick_deletion by CachedPreference("fast_delete", true)
     var auto_save by CachedPreference("auto_save", false)
     var show_suggestions by CachedPreference("show_suggestions", false)
@@ -92,6 +93,7 @@ object Settings {
         set(value) {
             _verbose_error = value
         }
+
     var project_as_pwd by CachedPreference("project_as_pwd", true)
     var terminate_sessions_on_exit by CachedPreference("terminate_sessions_on_exit", false)
     var donated by CachedPreference("donated", false)
@@ -112,6 +114,7 @@ object Settings {
         set(value) {
             _theme_flipper = value
         }
+
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
     var compact_folders_drawer by CachedPreference("compact_folders_drawer", true)
@@ -132,6 +135,7 @@ object Settings {
     var git_colorize_names by CachedPreference("git_colorize_names", true)
     var git_submodules by CachedPreference("git_submodules", true)
     var git_recursive_submodules by CachedPreference("git_recursive_submodules", true)
+    var git_gutter_indication by CachedPreference("git_gutter_indication", true)
     var always_index_projects by CachedPreference("always_index_projects", false)
     var fullscreen by CachedPreference("fullscreen", false)
     var smart_toolbar by CachedPreference("smart_toolbar", false)
@@ -194,6 +198,7 @@ object Settings {
     var git_password by CachedPreference("git_password", "")
     var git_name by CachedPreference("git_name", "")
     var git_email by CachedPreference("git_email", "")
+    var git_conflict_detection by CachedPreference("git_conflict_detection", true)
     var excluded_files_search by
         CachedPreference("excluded_files_search", DEFAULT_EXCLUDED_FILES_SEARCH.joinToString("\n"))
     var excluded_files_drawer by
@@ -318,6 +323,10 @@ object Preference {
         floatCache.remove(key)
     }
 
+    fun getBoolean(key: String): Boolean? {
+        return if (sharedPreferences.contains(key)) getBoolean(key, false) else null
+    }
+
     fun getBoolean(key: String, default: Boolean): Boolean {
         return boolCache[key]?.get()
             ?: run {
@@ -346,6 +355,10 @@ object Preference {
             }
         }
             .onFailure { it.printStackTrace() }
+    }
+
+    fun getString(key: String): String? {
+        return if (sharedPreferences.contains(key)) getString(key, "") else null
     }
 
     fun getString(key: String, default: String): String {
@@ -378,6 +391,10 @@ object Preference {
             .onFailure { it.printStackTrace() }
     }
 
+    fun getInt(key: String): Int? {
+        return if (sharedPreferences.contains(key)) getInt(key, 0) else null
+    }
+
     fun getInt(key: String, default: Int): Int {
         return intCache[key]?.get()
             ?: run {
@@ -408,6 +425,10 @@ object Preference {
             .onFailure { it.printStackTrace() }
     }
 
+    fun getLong(key: String): Long? {
+        return if (sharedPreferences.contains(key)) getLong(key, 0L) else null
+    }
+
     fun getLong(key: String, default: Long): Long {
         return longCache[key]?.get()
             ?: run {
@@ -436,6 +457,10 @@ object Preference {
             }
         }
             .onFailure { it.printStackTrace() }
+    }
+
+    fun getFloat(key: String): Float? {
+        return if (sharedPreferences.contains(key)) getFloat(key, 0f) else null
     }
 
     fun getFloat(key: String, default: Float): Float {

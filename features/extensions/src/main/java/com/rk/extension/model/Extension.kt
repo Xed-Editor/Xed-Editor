@@ -12,7 +12,6 @@ import com.rk.extension.model.Package
 import com.rk.extension.model.Review
 import com.rk.extension.model.UpdatablePackage
 import com.rk.xededitor.BuildConfig
-import io.github.z4kn4fein.semver.toVersionOrNull
 import java.io.File
 
 sealed interface Extension : Package {
@@ -240,12 +239,6 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
         get() = store.updatedAt
 
     override suspend fun getReviews() = store.getReviews()
-
-    override fun hasUpdate(): Boolean {
-        val installedVersion = installed.version.toVersionOrNull() ?: return false
-        val storeVersion = store.version.toVersionOrNull() ?: return false
-        return installedVersion < storeVersion
-    }
 }
 
 val LocalExtension.apkFile: File

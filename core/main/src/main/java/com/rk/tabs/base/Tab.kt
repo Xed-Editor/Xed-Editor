@@ -23,7 +23,7 @@ abstract class Tab {
     /** Can be null if tab should not be restored. */
     open fun getState(): TabState? = null
 
-    abstract val tabTitle: String
+    abstract val title: String
 
     open fun onTabRemoved() {}
 

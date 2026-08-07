@@ -9,7 +9,9 @@ import com.rk.components.DialogProvider
 import com.rk.components.DialogRegistry
 import com.rk.extension.api.DynamicRoute
 import com.rk.feature.Feature
+import com.rk.icons.Icon
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
@@ -35,9 +37,9 @@ class RunnerFeature : Feature {
         // Register settings category
         settingsCategory =
             SettingsCategory(
-                    labelRes = strings.runners,
-                    descriptionRes = strings.runners_desc,
-                    iconRes = drawables.run,
+                    label = strings.runners.getString(),
+                    description = strings.runners_desc.getString(),
+                    icon = Icon.ResourceIcon(drawables.run),
                     route = SettingsRoutes.Runners.route,
                 )
                 .also { SettingsRegistry.registerCategory(it) }

@@ -5,8 +5,9 @@ import com.rk.file.FileObject
 
 /** Events related to Git version control operations. */
 sealed interface GitEvent : Event {
-    // TODO: Implement repo init, branch deletion, stash management, rebase, merge, conflicts
-    // data class RepositoryInitialized(val path: String) : GitEvent
+
+    /** Event triggered when a Git repository has been successfully initialized. */
+    data class RepositoryInitialized(val root: FileObject) : GitEvent
 
     /** Event triggered when a Git repository has been successfully cloned. */
     data class RepositoryCloned(
@@ -22,10 +23,24 @@ sealed interface GitEvent : Event {
         val fromBranch: String?,
     ) : GitEvent
 
-    // data class BranchDeleted(val name: String) : GitEvent
+    /** Event triggered when a Git branch has been deleted. */
+    data class BranchDeleted(val root: FileObject, val name: String) : GitEvent
 
     /** Event triggered when a Git branch has been checked out. */
     data class BranchCheckedOut(val root: FileObject, val name: String) : GitEvent
+
+    /** Event triggered when a Git branch has been renamed. */
+    data class BranchRenamed(
+        val root: FileObject,
+        val oldName: String,
+        val newName: String,
+    ) : GitEvent
+
+    /** Event triggered when a Git branch has been merged. */
+    data class Merged(val root: FileObject, val branch: String, val targetBranch: String) : GitEvent
+
+    /** Event triggered when a Git branch has been rebased. */
+    data class Rebased(val root: FileObject, val branch: String, val targetBranch: String) : GitEvent
 
     /**
      * Event triggered when a new Git commit has been created.

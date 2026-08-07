@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -32,11 +31,11 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.feature.FeatureRegistry
 import com.rk.file.toFileObject
+import com.rk.icons.XedIcon
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
-import com.rk.theme.currentTheme
 import com.rk.utils.application
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
@@ -143,7 +142,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
         PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
             FeatureRegistry.toggles.forEach { toggle ->
                 BasicToggle(
-                    label = stringResource(toggle.nameRes),
+                    label = toggle.name,
                     checked = toggle.state.value,
                     onSwitch = { checked ->
                         if (toggle.onSwitch != null) {
@@ -155,9 +154,9 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         }
                     },
                     startWidget = {
-                        Icon(
-                            painter = painterResource(toggle.iconRes),
-                            contentDescription = stringResource(toggle.nameRes),
+                        XedIcon(
+                            icon = toggle.icon,
+                            contentDescription = null,
                             modifier = Modifier.padding(start = 16.dp),
                         )
                     },

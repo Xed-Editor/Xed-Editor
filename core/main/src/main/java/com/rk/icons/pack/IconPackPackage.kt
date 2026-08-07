@@ -12,7 +12,6 @@ import com.rk.extension.model.UpdatablePackage
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.file.FileTypeManager
-import io.github.z4kn4fein.semver.toVersionOrNull
 import java.io.File
 
 interface IconPackPackage : Package {
@@ -298,10 +297,4 @@ data class UpdatableIconPack(val installed: LocalIconPack, val store: StoreIconP
         get() = store.updatedAt
 
     override suspend fun getReviews() = store.getReviews()
-
-    override fun hasUpdate(): Boolean {
-        val installedVersion = installed.version.toVersionOrNull() ?: return false
-        val storeVersion = store.version.toVersionOrNull() ?: return false
-        return installedVersion < storeVersion
-    }
 }

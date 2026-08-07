@@ -43,6 +43,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,6 +71,7 @@ import com.rk.settings.Settings
 import com.rk.theme.Typography
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 private enum class ExtensionSortOptions(val stringRes: Int) {
     NAME(strings.name),
@@ -85,6 +87,7 @@ private enum class ExtensionFilterOptions(val stringRes: Int) {
     CRASHED(strings.status_crashed),
 }
 
+@Serializable
 private enum class StoreCategory(val stringRes: Int, val drawableRes: Int) {
     EXTENSIONS(strings.ext, drawables.extension),
     THEMES(strings.themes, drawables.palette),
@@ -106,7 +109,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
     var isRefreshing by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
 
-    var selectedCategory by remember {
+    var selectedCategory by rememberSaveable {
         mutableStateOf(category?.let { StoreCategory.fromName(it) } ?: StoreCategory.EXTENSIONS)
     }
 
@@ -124,7 +127,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
 
         val needsLocal =
             when (selectedCategory) {
-                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.localExtensions.isEmpty()
+                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.installedExtensions.isEmpty()
                 StoreCategory.THEMES -> isForceRefresh || themeManager.localThemes.isEmpty()
                 StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.localIconPacks.isEmpty()
             }

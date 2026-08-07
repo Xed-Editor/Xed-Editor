@@ -46,7 +46,7 @@ fun BasicToggle(
 fun SettingsItem(
     modifier: Modifier = Modifier,
     label: String,
-    default: Boolean,
+    default: Boolean = false,
     state: MutableState<Boolean> = remember { mutableStateOf(default) },
     description: String? = null,
     singleLineDescription: Boolean = false,

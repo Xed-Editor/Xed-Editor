@@ -1,7 +1,7 @@
-package com.rk.settings.editor
+package com.rk.settings.lsp
 
-import android.content.Intent
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -19,76 +19,34 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.net.toUri
+import com.google.gson.Gson
+import com.google.gson.JsonParser
 import com.rk.components.ResetButton
 import com.rk.editor.Editor
 import com.rk.file.BuiltinFileType
-import com.rk.resources.drawables
+import com.rk.lsp.LspServer
 import com.rk.resources.strings
 import com.rk.settings.Preference
-import com.rk.settings.Settings
-import com.rk.tabs.editor.EditorNotice
+import com.rk.tabs.editor.EditorErrorNotice
 import com.rk.theme.GitColorScheme
 import com.rk.utils.isSystemInDarkTheme
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-val DEFAULT_EXCLUDED_FILES_DRAWER = listOf("**/.git", "**/.svn", "**/.hg", "**/.DS_Store", "**/Thumbs.db")
-
-val DEFAULT_EXCLUDED_FILES_SEARCH =
-    listOf(
-        "**/node_modules/**",
-        "**/bower_components/**",
-        "**/jspm_packages/**",
-        "**/.npm/**",
-        "**/flow-typed/**",
-        "**/vendor/**",
-        "**/composer/**",
-        "**/venv/**",
-        "**/.virtualenv/**",
-        "**/__pycache__/**",
-        "**/.pytest_cache/**",
-        "**/.eggs/**",
-        "**/*.egg-info/**",
-        "**/.git/**",
-        "**/.svn/**",
-        "**/.hg/**",
-        "**/.vscode/**",
-        "**/.idea/**",
-        "**/.vs/**",
-        "**/.project/**",
-        "**/.settings/**",
-        "**/.classpath/**",
-        "**/dist/**",
-        "**/build/**",
-        "**/out/**",
-        "**/target/**",
-        "**/bin/**",
-        "**/obj/**",
-        "**/coverage/**",
-        "**/.nyc_output/**",
-        "**/htmlcov/**",
-        "**/temp/**",
-        "**/tmp/**",
-        "**/.cache/**",
-        "**/logs/**",
-        "**/.sass-cache/**",
-        "**/.DS_Store/**",
-        "**/Thumbs.db/**",
-    )
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExcludeFiles(isDrawer: Boolean) {
+fun LspInitializationOptions(server: LspServer) {
     val scope = rememberCoroutineScope()
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -104,6 +62,22 @@ fun ExcludeFiles(isDrawer: Boolean) {
         }
     }
 
+    val preferenceKey = "lsp_${server.id}_initialization_options"
+    val defaultInitOptions = server.getInitializationOptions(null)
+    val defaultInitJson =
+        defaultInitOptions?.let {
+            runCatching { Gson().toJson(it) }.getOrNull()
+        } ?: "{}"
+
+    var isJsonInvalid by remember { mutableStateOf(false) }
+
+    fun Editor.validateJson(text: String) {
+        runCatching { JsonParser.parseString(text) }
+            .also {
+                isJsonInvalid = it.isFailure
+            }
+    }
+
     Scaffold(
         topBar = {
             Column {
@@ -113,12 +87,13 @@ fun ExcludeFiles(isDrawer: Boolean) {
                             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
-                    title = {
-                        Text(
-                            stringResource(if (isDrawer) strings.exclude_files_drawer else strings.exclude_files_search)
-                        )
+                    title = { Text(stringResource(strings.initialization_options)) },
+                    actions = {
+                        ResetButton {
+                            Preference.removeKey(preferenceKey)
+                            editorRef.get()?.setText(defaultInitJson)
+                        }
                     },
-                    actions = { ResetButton { resetFiles(editorRef.get(), isDrawer) } },
                 )
                 HorizontalDivider()
             }
@@ -130,23 +105,9 @@ fun ExcludeFiles(isDrawer: Boolean) {
         val gitColorScheme = GitColorScheme.create()
 
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            EditorNotice(
-                text = stringResource(strings.glob_docs),
-                actionButton = {
-                    IconButton(
-                        onClick = {
-                            val url = "https://code.visualstudio.com/docs/editor/glob-patterns"
-                            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                            context.startActivity(intent)
-                        }
-                    ) {
-                        Icon(
-                            painter = painterResource(drawables.open_in_new),
-                            contentDescription = stringResource(strings.open),
-                        )
-                    }
-                },
-            )
+            AnimatedVisibility(visible = isJsonInvalid) {
+                EditorErrorNotice(text = stringResource(strings.invalid_initialization_options))
+            }
 
             AndroidView(
                 modifier = Modifier.fillMaxSize().imePadding(),
@@ -154,20 +115,17 @@ fun ExcludeFiles(isDrawer: Boolean) {
                     Editor(context).apply {
                         editorRef = WeakReference(this)
 
-                        setTextSize(10f)
-                        if (isDrawer) {
-                            setText(Settings.excluded_files_drawer)
-                        } else {
-                            setText(Settings.excluded_files_search)
-                        }
+                        setTextSize(14f)
+                        setText(Preference.getString(preferenceKey, defaultInitJson))
                         isWordwrap = false
 
-                        subscribeAlways(ContentChangeEvent::class.java) {
-                            if (isDrawer) {
-                                Settings.excluded_files_drawer = it.editor.text.toString()
-                            } else {
-                                Settings.excluded_files_search = it.editor.text.toString()
-                            }
+                        validateJson(text.toString())
+
+                        subscribeAlways(ContentChangeEvent::class.java) { event ->
+                            val text = event.editor.text.toString()
+                            Preference.setString(preferenceKey, text)
+
+                            validateJson(text)
                         }
 
                         setThemeColors(
@@ -177,21 +135,10 @@ fun ExcludeFiles(isDrawer: Boolean) {
                             gitColorScheme = gitColorScheme,
                         )
 
-                        scope.launch { configureLanguage(BuiltinFileType.IGNORE.textmateScope!!) }
+                        scope.launch { configureLanguage(BuiltinFileType.JSON.textmateScope!!) }
                     }
                 },
             )
         }
-    }
-}
-
-/** Reset order of commands and symbols to default */
-private fun resetFiles(editor: Editor?, isDrawer: Boolean) {
-    if (isDrawer) {
-        Preference.removeKey("excluded_files_drawer")
-        editor?.setText(DEFAULT_EXCLUDED_FILES_DRAWER.joinToString("\n"))
-    } else {
-        Preference.removeKey("excluded_files_search")
-        editor?.setText(DEFAULT_EXCLUDED_FILES_SEARCH.joinToString("\n"))
     }
 }

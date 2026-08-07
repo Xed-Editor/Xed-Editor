@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import com.rk.settings.Settings
@@ -12,12 +11,12 @@ import com.rk.theme.currentTheme
 import com.rk.utils.isDarkTheme
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
-import java.io.ByteArrayInputStream
-import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
+import java.io.ByteArrayInputStream
+import java.io.InputStreamReader
 
 private var selectionColor: Color? = null
 
@@ -110,7 +109,6 @@ object ThemeManager {
                 val selectedTheme = currentTheme.value
                 val tokenArray =
                     when {
-                        selectedTheme == null -> JsonArray()
                         darkTheme -> selectedTheme.darkTokenColors
                         else -> selectedTheme.lightTokenColors
                     }
@@ -124,11 +122,11 @@ object ThemeManager {
                         "tokenColors"
                     } else null
 
-                selectedTheme?.let { jsonObject.add("name", JsonPrimitive(it.name)) }
+                selectedTheme.let { jsonObject.add("name", JsonPrimitive(it.name)) }
 
                 if (!tokenArray.isEmpty) {
                     if (arrayName != null) {
-                        if (selectedTheme!!.inheritBase) {
+                        if (selectedTheme.inheritBase) {
                             val existingTokenColors = jsonObject[arrayName].asJsonArray
                             existingTokenColors.addAll(tokenArray)
                         } else {

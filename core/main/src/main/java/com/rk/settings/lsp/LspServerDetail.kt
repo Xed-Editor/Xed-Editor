@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -44,8 +45,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavHostController
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.snackbarHostStateRef
+import com.rk.components.NextScreenCard
 import com.rk.components.SettingsItem
+import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -58,6 +62,7 @@ import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import io.github.rosemoe.sora.lsp.requests.Timeouts
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -67,6 +72,14 @@ enum class LspInstallationAction {
     INSTALL,
     UNINSTALL,
     LOADING,
+}
+
+private fun validateTimeoutValue(value: String): String? {
+    return when {
+        value.toIntOrNull() == null -> strings.value_invalid.getString()
+        value.toInt() < 1000 -> strings.value_small.getString()
+        else -> null
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +92,33 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
     var refreshKey by remember { mutableIntStateOf(0) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateAsState()
+
+    var showStartupTimeoutDialog by remember { mutableStateOf(false) }
+
+    if (showStartupTimeoutDialog) {
+        val prefKey = "lsp_${server.id}_startup_timeout"
+        val timeout = Preference.getInt(prefKey, server.customTimeouts[Timeouts.INIT] ?: Timeouts.INIT.defaultTimeout)
+        var timeoutValue by remember { mutableStateOf(timeout.toString()) }
+        var timeoutError by remember {
+            mutableStateOf<String?>(null)
+        }
+
+        SingleInputDialog(
+            title = stringResource(strings.startup_timeout),
+            inputLabel = stringResource(strings.startup_timeout),
+            inputValue = timeoutValue,
+            onInputValueChange = {
+                timeoutValue = it
+                timeoutError = validateTimeoutValue(it)
+            },
+            errorMessage = timeoutError,
+            onConfirm = {
+                Preference.setInt(prefKey, timeoutValue.toInt())
+                showStartupTimeoutDialog = false
+            },
+            onDismiss = { showStartupTimeoutDialog = false },
+        )
+    }
 
     LaunchedEffect(lifecycleState) {
         if (lifecycleState == Lifecycle.State.RESUMED) {
@@ -236,6 +276,34 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
             }
         }
 
+        PreferenceGroup(heading = stringResource(strings.advanced)) {
+            NextScreenCard(
+                label = stringResource(strings.initialization_options),
+                description = stringResource(strings.initialization_options_desc),
+                onClick = {
+                    navController.navigate("${SettingsRoutes.LspInitializationOptions.route}/${server.id}")
+                },
+            )
+
+            SettingsItem(
+                label = stringResource(strings.startup_timeout),
+                description = stringResource(strings.startup_timeout_desc),
+                default = false,
+                showSwitch = false,
+                sideEffect = { showStartupTimeoutDialog = true },
+            )
+
+            SettingsItem(
+                label = stringResource(strings.run_lsp_external),
+                description = stringResource(strings.run_lsp_external_desc),
+                default = Preference.getBoolean("lsp_${server.id}_run_external", false),
+                sideEffect = {
+                    Preference.setBoolean("lsp_${server.id}_run_external", it)
+                    showRestartRequirement(scope, server)
+                },
+            )
+        }
+
         PreferenceGroup(heading = stringResource(strings.features)) {
             LspFeatureToggle(
                 label = stringResource(strings.document_highlight),
@@ -294,17 +362,16 @@ private var snackbarJob: Job? = null
 private fun showRestartRequirement(scope: CoroutineScope, server: LspServer) {
     if (snackbarJob?.isActive == true) return
 
-    snackbarJob =
-        scope.launch {
-            val snackbarHost = snackbarHostStateRef.get() ?: return@launch
-            val result =
-                snackbarHost.showSnackbar(
-                    message = strings.lsp_restart_required.getString(),
-                    actionLabel = strings.restart.getString(),
-                    duration = SnackbarDuration.Indefinite,
-                )
-            if (result == SnackbarResult.ActionPerformed) {
-                server.restartAllInstances()
-            }
+    snackbarJob = scope.launch {
+        val snackbarHost = snackbarHostStateRef.get() ?: return@launch
+        val result =
+            snackbarHost.showSnackbar(
+                message = strings.lsp_restart_required.getString(),
+                actionLabel = strings.restart.getString(),
+                duration = SnackbarDuration.Indefinite,
+            )
+        if (result == SnackbarResult.ActionPerformed) {
+            server.restartAllInstances()
         }
+    }
 }
