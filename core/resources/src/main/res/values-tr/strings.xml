@@ -752,9 +752,9 @@
     <string name="theme_not_found">Tema bulunamadı</string>
     <string name="icon_pack_not_found">İkon paketi bulunamadı</string>
     <string name="uninstall_theme_dialog">Temayı kaldırmak istiyor musunuz?</string>
-    <string name="uninstall_theme_dialog_desc">\'%s\' öğesini kaldırmak istediğinizden emin misiniz?</string>
+    <string name="uninstall_theme_dialog_desc">\'%s\' temasını kaldırmak istediğinizden emin misiniz?</string>
     <string name="uninstall_icon_pack_dialog">İkon paketini kaldırmak istiyor musunuz?</string>
-    <string name="uninstall_icon_pack_dialog_desc">\'%s\' öğesini kaldırmak istediğinizden emin misiniz?</string>
+    <string name="uninstall_icon_pack_dialog_desc">\'%s\' ikon paketini kaldırmak istediğinizden emin misiniz?</string>
     <string name="preview">Önizleme</string>
     <string name="xed_package">Xed paketi</string>
     <string name="migrating_themes">Temalar taşınıyor…</string>
@@ -779,4 +779,19 @@
     <string name="no_commits">Hiçbir commit yok</string>
     <string name="initialization_options">Başlatma seçenekleri</string>
     <string name="initialization_options_desc">JSON başlatma seçeneklerini düzenle</string>
+    <string name="run_lsp_external">Harici dosyalar için çalıştır</string>
+    <string name="run_lsp_external_desc">Dil sunucusunun harici dosyalar için çalışmasına izin verir. Sunucular yerleşik terminalde çalıştığından, bu konumlarda bazı özellikler beklendiği gibi çalışmayabilir.</string>
+    <string name="startup_timeout">Başlangıç zaman aşımı</string>
+    <string name="startup_timeout_desc">Sunucunun başlaması için beklenecek süre</string>
+    <string name="invalid_initialization_options">Başlatma seçenekleri geçersiz JSON içeriyor ve yok sayılacak.</string>
+    <string name="git_gutter_indication">Kenar çubuğu göstergesi</string>
+    <string name="git_gutter_indication_desc">Eklenen, değiştirilen ve silinen satırlar için satır değişikliği göstergelerini göster</string>
+    <string name="accept_current_change">Mevcut değişikliği kabul et</string>
+    <string name="accept_incoming_change">Gelen değişikliği kabul et</string>
+    <string name="accept_both_changes">Her iki değişikliği de kabul et</string>
+    <string name="show_color_previews">Renk önizlemeleri</string>
+    <string name="show_color_previews_desc">Dil sunucusu bağlı olmadığında düzenleyicide renk önizlemelerini göster</string>
+    <string name="git_conflict_detection">Çakışma tespiti</string>
+    <string name="git_conflict_detection_desc">Düzenleyicide çakışma işaretleyicilerini göster ve seçenekleri çöz</string>
+    <string name="credentials_github">GitHub\'a bağlanmak için GitHub hesap şifrenizi değil, bir PAT token\'ı girmeniz gerekir.</string>
 </resources>
