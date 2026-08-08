@@ -741,9 +741,9 @@
     <string name="migrating_themes">Migrace témat…</string>
     <string name="xed_package">Xed balík</string>
     <string name="preview">Náhled</string>
-    <string name="uninstall_icon_pack_dialog_desc">Opravdu chcete odinstalovat \'%s\'?</string>
+    <string name="uninstall_icon_pack_dialog_desc">Opravdu chcete odinstalovat sadu ikon \'%s\'?</string>
     <string name="uninstall_icon_pack_dialog">Odinstalovat sadu ikon?</string>
-    <string name="uninstall_theme_dialog_desc">Opravdu chcete odinstalovat \'%s\'?</string>
+    <string name="uninstall_theme_dialog_desc">Opravdu chcete odinstalovat téma \'%s\'?</string>
     <string name="uninstall_theme_dialog">Odinstalovat téma?</string>
     <string name="icon_pack_not_found">Sada ikon nenalezena</string>
     <string name="theme_not_found">Téma nenalezeno</string>
