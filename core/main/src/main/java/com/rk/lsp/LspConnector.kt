@@ -261,17 +261,6 @@ class LspConnector(
                     }
                 }
 
-            override val customTimeouts: Map<Timeouts, Int>
-                get() {
-                    val timeouts = this@createServerDefinition.customTimeouts
-                    val userTimeout =
-                        Preference.getInt(
-                            key = "lsp_${id}_startup_timeout",
-                            default = timeouts[Timeouts.INIT] ?: Timeouts.INIT.defaultTimeout,
-                        )
-                    return timeouts + (Timeouts.INIT to userTimeout)
-                }
-
             override fun getInitializationOptions(uri: URI?): Any? {
                 val initOptions = this@createServerDefinition.getInitializationOptions(uri)
                 val userOptions = Preference.getString("lsp_${id}_initialization_options") ?: return initOptions

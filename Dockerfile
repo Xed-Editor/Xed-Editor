@@ -29,8 +29,6 @@ RUN yes | sdkmanager --licenses || true
 WORKDIR /app
 
 # Copy the project files
-# Note: Ensure submodules are checked out on host before building:
-#   git submodule update --init --recursive
 COPY . .
 
 # Set up build arguments for release signing (optional)
@@ -42,16 +40,11 @@ ARG RELEASE_PROPERTIES_BASE64=""
 # Set env to match the signing logic in app/build.gradle.kts
 ENV GITHUB_ACTIONS=true
 
-# Decode credentials (if provided), ensure submodules are present, and run the Gradle build task
+# Decode credentials (if provided) and run the Gradle build task
 RUN if [ -n "$RELEASE_KEYSTORE_BASE64" ] && [ -n "$RELEASE_PROPERTIES_BASE64" ]; then \
         echo "Decoding release keys..." && \
         echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > /tmp/xed.keystore && \
         echo "$RELEASE_PROPERTIES_BASE64" | base64 -d > /tmp/signing.properties; \
-    fi && \
-    if [ ! -f soraX/editor/build.gradle.kts ]; then \
-        echo "soraX submodule not found locally, cloning dynamically..." && \
-        rm -rf soraX && \
-        git clone --recursive https://github.com/RohitKushvaha01/soraX.git soraX; \
     fi && \
     chmod +x gradlew && \
     ./gradlew ${BUILD_TASK} --no-daemon

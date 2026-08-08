@@ -65,6 +65,7 @@ regexOnig = "1.0.3"
 regexRe2j = "1.0.2"
 gson = "2.13.2"
 semver = "3.1.0"
+soraEditor = "0.24.6"
 leakcanary = "2.14"
 motionCompose = "2.0.1"
 
@@ -172,6 +173,12 @@ pine-core = { module = "top.canyie.pine:core", version.ref = "coreVersion" }
 utilcode = { module = "com.blankj:utilcodex", version.ref = "utilcode" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 semver = { module = "io.github.z4kn4fein:semver", version.ref = "semver" }
+
+# Sora Editor
+sora-editor-bom = { module = "io.github.rosemoe:editor-bom", version.ref = "soraEditor" }
+sora-editor = { module = "io.github.rosemoe:editor" }
+sora-editor-lsp = { module = "io.github.rosemoe:editor-lsp" }
+sora-language-textmate = { module = "io.github.rosemoe:language-textmate" }
 
 # Tree-sitter / editor
 tree-sitter = { module = "com.itsaky.androidide.treesitter:android-tree-sitter", version.ref = "tsBinding" }

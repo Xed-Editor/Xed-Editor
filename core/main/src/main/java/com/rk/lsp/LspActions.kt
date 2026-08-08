@@ -24,7 +24,7 @@ import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import io.github.rosemoe.sora.lsp.events.format.rangeFormatting
-import io.github.rosemoe.sora.widget.component.TextActionItem
+import com.rk.editor.XedTextActionItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -325,39 +325,42 @@ fun createLspTextActions(
     context: Context,
     viewModel: MainViewModel,
     editorTab: EditorTab,
-): List<TextActionItem> {
+): List<XedTextActionItem> {
     fun isUrlSelected(): Boolean {
         return editorTab.editorState.editor.get()?.isUrlSelected() == true
     }
 
     val goToDefinition =
-        TextActionItem(
+        XedTextActionItem(
             titleRes = strings.go_to_definition,
             iconRes = drawables.jump_to_element,
             shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToDefinitionSupported() == true },
-        ) { _ ->
-            goToDefinition(scope, context, viewModel, editorTab)
-        }
+            onClick = { _ ->
+                goToDefinition(scope, context, viewModel, editorTab)
+            },
+        )
 
     val goToReferences =
-        TextActionItem(
+        XedTextActionItem(
             titleRes = strings.go_to_references,
             iconRes = drawables.manage_search,
             shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToReferencesSupported() == true },
-        ) { _ ->
-            goToReferences(scope, context, viewModel, editorTab)
-        }
+            onClick = { _ ->
+                goToReferences(scope, context, viewModel, editorTab)
+            },
+        )
 
     val renameSymbol =
-        TextActionItem(
+        XedTextActionItem(
             titleRes = strings.rename_symbol,
             iconRes = drawables.edit_note,
             shouldShow = { editor ->
                 !isUrlSelected() && editor.isEditable && editorTab.lspConnector?.isRenameSymbolSupported() == true
             },
-        ) { _ ->
-            renameSymbol(scope, editorTab)
-        }
+            onClick = { _ ->
+                renameSymbol(scope, editorTab)
+            },
+        )
 
     return listOf(goToDefinition, goToReferences, renameSymbol)
 }

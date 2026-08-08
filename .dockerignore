@@ -8,10 +8,6 @@ core/components/build/
 core/resources/build/
 terminal-view/build/
 terminal-emulator/build/
-soraX/editor/build/
-soraX/oniguruma-native/build/
-soraX/editor-lsp/build/
-soraX/language-textmate/build/
 baselineprofile/build/
 benchmark/build/
 benchmark2/build/

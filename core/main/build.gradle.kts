@@ -157,9 +157,10 @@ dependencies {
     // Modules
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
-    implementation(project(":editor"))
-    implementation(project(":editor-lsp"))
-    implementation(project(":language-textmate"))
+    implementation(platform(libs.sora.editor.bom))
+    implementation(libs.sora.editor)
+    implementation(libs.sora.editor.lsp)
+    implementation(libs.sora.language.textmate)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

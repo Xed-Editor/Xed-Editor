@@ -31,8 +31,9 @@ dependencies {
     implementation(project(":core:resources"))
     
     // Editor dependencies for code runner settings and markdown rendering
-    implementation(project(":editor"))
-    implementation(project(":editor-lsp"))
+    implementation(platform(libs.sora.editor.bom))
+    implementation(libs.sora.editor)
+    implementation(libs.sora.editor.lsp)
     
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

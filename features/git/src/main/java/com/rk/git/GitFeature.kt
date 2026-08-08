@@ -58,8 +58,6 @@ import com.rk.utils.toast
 import com.rk.utils.withAlpha
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.InlayHintClickEvent
-import io.github.rosemoe.sora.lang.styling.ExtraStylesProvider
-import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintProvider
 import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer
 import io.github.rosemoe.sora.lang.styling.inlayHint.TextInlayHint
 import io.github.rosemoe.sora.lang.styling.line.LineAnchorStyle
@@ -75,7 +73,6 @@ import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import kotlin.time.Duration.Companion.milliseconds
 
-// Global reference for gitViewModel
 var gitViewModel = WeakReference<GitViewModel?>(null)
 
 class GitFeature : Feature {
@@ -98,7 +95,6 @@ class GitFeature : Feature {
     private val gitConflictStylesProvider = mutableMapOf<Editor, GitConflictStylesProvider>()
 
     override fun init(application: Application) {
-        // Register Git settings category
         settingsCategory =
             SettingsCategory(
                     label = strings.git.getString(),
@@ -108,7 +104,6 @@ class GitFeature : Feature {
                 )
                 .also { SettingsRegistry.registerCategory(it) }
 
-        // Register Git settings route
         settingsRoute =
             DynamicRoute(SettingsRoutes.Git.route) { _, _ -> GitSettings() }
                 .also {
@@ -128,7 +123,6 @@ class GitFeature : Feature {
             }
                 .also { ServiceTabRegistry.register(it) }
 
-        // Register file change notification listeners
         subscriptions.add(
             Events.subscribe<FileTreeEvent.Opened> { event ->
                 val viewModel = gitViewModel.get() ?: return@subscribe
@@ -157,12 +151,9 @@ class GitFeature : Feature {
             Events.subscribe<EditorEvent.InstanceCreated> { (editor) ->
                 val extraStylesProvider = GitDiffGutterProvider(editor)
                 gitDiffGutterProvider[editor] = extraStylesProvider
-                editor.registerExtraStylesProvider(extraStylesProvider)
 
                 val conflictStylesProvider = GitConflictStylesProvider(editor)
                 gitConflictStylesProvider[editor] = conflictStylesProvider
-                editor.registerExtraStylesProvider(conflictStylesProvider)
-                editor.registerInlayHintProvider(conflictStylesProvider)
             }
         )
 
@@ -179,7 +170,6 @@ class GitFeature : Feature {
             }
         )
 
-        // Register Git Clone Overlay and Add Project Sheet action
         var showCloneDialog by mutableStateOf(false)
         if (FeatureRegistry.isEnabled("enable_git")) {
             addProjectOption =
@@ -202,7 +192,6 @@ class GitFeature : Feature {
                     GitCloneDialog(
                         onDismiss = { showCloneDialog = false },
                         onCloneComplete = { destination ->
-                            // Add file tree tab on success
                             MainActivity.instance?.drawerViewModel?.addFileTreeTab(destination)
                         },
                     )
@@ -210,7 +199,6 @@ class GitFeature : Feature {
             }
                 .also { DialogRegistry.register(it) }
 
-        // Register Xed project templates
         projectCategory =
             ProjectCategory(
                     id = "xed_editor",
@@ -226,7 +214,6 @@ class GitFeature : Feature {
                 }
     }
 
-    /** Recomputes the gutter line-diffs for every currently open editor with [GitDiffGutterProvider]. */
     private fun refreshOpenEditorDiffs() {
         gitDiffGutterProvider.values.forEach { provider ->
             provider.requestUpdate()
@@ -249,14 +236,11 @@ class GitFeature : Feature {
             templates.forEach { template -> ProjectTemplateRegistry.unregisterTemplate(it, template) }
             ProjectTemplateRegistry.unregisterCategory(it)
         }
-        gitDiffGutterProvider.forEach { (editor, provider) ->
-            editor.unregisterExtraStylesProvider(provider)
+        gitDiffGutterProvider.forEach { (_, provider) ->
             provider.dispose()
         }
         gitDiffGutterProvider.clear()
-        gitConflictStylesProvider.forEach { (editor, provider) ->
-            editor.unregisterExtraStylesProvider(provider)
-            editor.unregisterInlayHintProvider(provider)
+        gitConflictStylesProvider.forEach { (_, provider) ->
             provider.dispose()
         }
         gitConflictStylesProvider.clear()
@@ -305,12 +289,7 @@ object GitFileDecorationProvider : FileDecorationProvider {
     }
 }
 
-/**
- * Provides gutter/line-anchor styling for the editor, and is itself responsible for keeping
- * [GitViewModel.fileLineDiffs] up to date for its editor as the user types. Each instance is tied to an [Editor]
- * instance and must be [dispose]d when that association ends.
- */
-class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
+class GitDiffGutterProvider(private val editor: Editor) {
 
     private var contentChangeSubscription =
         editor.subscribeAlways(ContentChangeEvent::class.java) { _ -> onContentChanged() }
@@ -329,14 +308,12 @@ class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
         viewModel.requestLineDiffUpdate(path, editor.text.toString())
     }
 
-    /** Cancels the content-change subscription. Must be called once this provider is no longer in use. */
     fun dispose() {
         contentChangeSubscription?.unsubscribe()
         contentChangeSubscription = null
-        editor.unregisterExtraStylesProvider(this)
     }
 
-    override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
+    fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
         if (!Settings.git_gutter_indication) return
         val viewModel = gitViewModel.get() ?: return
 
@@ -358,7 +335,7 @@ class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
     }
 }
 
-class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvider, InlayHintProvider {
+class GitConflictStylesProvider(private val editor: Editor) {
     private var conflicts = mutableListOf<Conflict>()
     private val scope = CoroutineScope(Dispatchers.Default + Job())
     private var updateJob: Job? = null
@@ -376,13 +353,20 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
         val endLine: Int,
     )
 
+    private data class ConflictActionData(
+        val conflict: Conflict,
+        val action: ConflictAction,
+    )
+
+    private val inlayClickActions = mutableMapOf<Int, ConflictActionData>()
+
     private val contentChangeSubscription = editor.subscribeAlways(ContentChangeEvent::class.java) { requestUpdate() }
 
     private val inlayHintClickSubscription =
         editor.subscribeAlways(InlayHintClickEvent::class.java) { event ->
-            (event.inlayHint as? ConflictInlayHint)?.let { hint ->
-                handleConflictAction(hint)
-            }
+            val hint = event.inlayHint as? TextInlayHint ?: return@subscribeAlways
+            val actionData = inlayClickActions[hint.line] ?: return@subscribeAlways
+            handleConflictAction(actionData.conflict, actionData.action)
         }
 
     init {
@@ -398,7 +382,8 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
                 if (conflicts.isNotEmpty()) {
                     withContext(Dispatchers.Main) {
                         conflicts = mutableListOf()
-                        editor.invalidateInlayHints()
+                        inlayClickActions.clear()
+                        editor.inlayHints = InlayHintsContainer()
                     }
                 }
                 return@launch
@@ -432,51 +417,48 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
 
             withContext(Dispatchers.Main) {
                 conflicts = newConflicts
-                editor.invalidateInlayHints()
+                inlayClickActions.clear()
+                val container = InlayHintsContainer()
+
+                if (conflicts.isNotEmpty()) {
+                    val lineCount = text.lineCount
+                    for (conflict in conflicts) {
+                        if (conflict.startLine >= lineCount) continue
+
+                        val baseColumn = text.getColumnCount(conflict.startLine)
+
+                        val acceptCurrent = TextInlayHint(
+                            conflict.startLine,
+                            baseColumn,
+                            strings.accept_current_change.getString(),
+                        )
+                        container.add(acceptCurrent)
+                        inlayClickActions[conflict.startLine * 3 + baseColumn] = ConflictActionData(conflict, ConflictAction.ACCEPT_CURRENT)
+
+                        val acceptIncoming = TextInlayHint(
+                            conflict.startLine,
+                            baseColumn + 1,
+                            strings.accept_incoming_change.getString(),
+                        )
+                        container.add(acceptIncoming)
+                        inlayClickActions[conflict.startLine * 3 + baseColumn + 1] = ConflictActionData(conflict, ConflictAction.ACCEPT_INCOMING)
+
+                        val acceptBoth = TextInlayHint(
+                            conflict.startLine,
+                            baseColumn + 2,
+                            strings.accept_both_changes.getString(),
+                        )
+                        container.add(acceptBoth)
+                        inlayClickActions[conflict.startLine * 3 + baseColumn + 2] = ConflictActionData(conflict, ConflictAction.ACCEPT_BOTH)
+                    }
+                }
+
+                editor.inlayHints = container
             }
         }
     }
 
-    override fun provideInlayHints(container: InlayHintsContainer) {
-        if (conflicts.isEmpty()) return
-        val text = editor.text
-        val lineCount = text.lineCount
-        for (conflict in conflicts) {
-            if (conflict.startLine >= lineCount) continue
-
-            val baseColumn = text.getColumnCount(conflict.startLine)
-            container.add(
-                ConflictInlayHint(
-                    conflict.startLine,
-                    baseColumn,
-                    conflict,
-                    ConflictAction.ACCEPT_CURRENT,
-                    strings.accept_current_change.getString(),
-                )
-            )
-            container.add(
-                ConflictInlayHint(
-                    conflict.startLine,
-                    baseColumn + 1,
-                    conflict,
-                    ConflictAction.ACCEPT_INCOMING,
-                    strings.accept_incoming_change.getString(),
-                )
-            )
-            container.add(
-                ConflictInlayHint(
-                    conflict.startLine,
-                    baseColumn + 2,
-                    conflict,
-                    ConflictAction.ACCEPT_BOTH,
-                    strings.accept_both_changes.getString(),
-                )
-            )
-        }
-    }
-
-    private fun handleConflictAction(hint: ConflictInlayHint) {
-        val conflict = hint.conflict
+    private fun handleConflictAction(conflict: Conflict, action: ConflictAction) {
         val text = editor.text
         val lineCount = text.lineCount
 
@@ -485,7 +467,7 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
         }
 
         text.batchEdit {
-            when (hint.action) {
+            when (action) {
                 ConflictAction.ACCEPT_CURRENT -> {
                     text.delete(conflict.middleLine, 0, conflict.endLine + 1, 0)
                     text.delete(conflict.startLine, 0, conflict.startLine + 1, 0)
@@ -503,7 +485,7 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
         }
 
         scope.launch(Dispatchers.Main) {
-            when (hint.action) {
+            when (action) {
                 ConflictAction.ACCEPT_CURRENT -> toast(strings.accept_current_change)
                 ConflictAction.ACCEPT_INCOMING -> toast(strings.accept_incoming_change)
                 ConflictAction.ACCEPT_BOTH -> toast(strings.accept_both_changes)
@@ -511,7 +493,7 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
         }
     }
 
-    override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
+    fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
         if (Settings.git_conflict_detection.not()) return
         val conflict = conflicts.find { line in it.startLine..it.endLine } ?: return
 
@@ -535,8 +517,7 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
         contentChangeSubscription.unsubscribe()
         inlayHintClickSubscription.unsubscribe()
         updateJob?.cancel()
-        editor.unregisterExtraStylesProvider(this)
-        editor.unregisterInlayHintProvider(this)
+        editor.inlayHints = InlayHintsContainer()
     }
 }
 
@@ -545,11 +526,3 @@ enum class ConflictAction {
     ACCEPT_INCOMING,
     ACCEPT_BOTH,
 }
-
-class ConflictInlayHint(
-    line: Int,
-    column: Int,
-    val conflict: GitConflictStylesProvider.Conflict,
-    val action: ConflictAction,
-    text: String,
-) : TextInlayHint(line, column, text)

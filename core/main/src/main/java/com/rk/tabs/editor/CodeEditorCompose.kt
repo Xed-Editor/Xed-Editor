@@ -30,6 +30,7 @@ import com.rk.editor.Editor
 import com.rk.editor.FormatterSource
 import com.rk.editor.Formatters
 import com.rk.editor.LanguageManager
+import com.rk.editor.XedTextActionItem
 import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileObject
@@ -57,11 +58,9 @@ import io.github.rosemoe.sora.event.InlayHintClickEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import io.github.rosemoe.sora.event.PublishDiagnosticsEvent
-import io.github.rosemoe.sora.lang.format.FormatterProvider
 import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
-import io.github.rosemoe.sora.widget.component.TextActionItem
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -135,31 +134,29 @@ fun EditorTab.CodeEditor(
 
 fun Editor.registerXedFormatter(editorTab: EditorTab) {
     editorTab.file?.let { file ->
-        // TODO: Allow without file, then fallback to textmateScope
-        // TODO: Add getFormatter(...) method with EditorTab as parameter
-        val formatter = Formatters.getPreferredSourceForNonLspFile(file)
-        formatterProvider = FormatterProvider {
-            runCatching {
-                formatter?.provider?.getFormatter(it, file)
-            }
-                .onFailure { e ->
-                    logError(e, "Error getting formatter")
+        val formatterSource = Formatters.getPreferredSourceForNonLspFile(file)
+        if (formatterSource != null) {
+            val formatter = formatterSource.provider.getFormatter(this, file)
+            if (formatter != null) {
+                val language = editorLanguage
+                if (language != null) {
+                    setEditorLanguage(LanguageManager.wrapWithFormatter(language, formatter))
                 }
-                .getOrNull()
+            }
         }
     }
 }
 
 fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, editorTab: EditorTab) {
     registerTextAction(
-        TextActionItem(
+        XedTextActionItem(
             strings.open,
             drawables.open_in_new,
             shouldShow = { isUrlSelected() },
-            onClick = {
-                val text = getSelectedText() ?: return@TextActionItem
+            onClick = { editor ->
+                val text = (editor as Editor).getSelectedText() ?: return@XedTextActionItem
                 val intent = Intent(Intent.ACTION_VIEW, text.toUri())
-                context.startActivity(intent)
+                editor.context.startActivity(intent)
             },
         )
     )
@@ -366,7 +363,7 @@ private suspend fun Editor.connectLsp(
     val supportsFormatting = tab.lspConnector?.isFormattingSupported() ?: false
 
     if (formatter is FormatterSource.LSP && supportsFormatting) {
-        formatterProvider = null
+        // LSP handles its own formatting, no action needed
     }
 }
 

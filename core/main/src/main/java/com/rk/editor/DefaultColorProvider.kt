@@ -6,7 +6,6 @@ import com.rk.settings.Settings
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.lang.styling.color.ConstColor
 import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
-import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintProvider
 import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer
 import io.github.rosemoe.sora.lsp.editor.LspLanguage
 import io.github.rosemoe.sora.lsp.utils.ColorUtils
@@ -21,7 +20,7 @@ import kotlinx.coroutines.withContext
 import java.util.regex.Pattern
 import kotlin.time.Duration.Companion.milliseconds
 
-class DefaultColorProvider(private val editor: Editor) : InlayHintProvider {
+class DefaultColorProvider(private val editor: Editor) {
     private val scope = CoroutineScope(Dispatchers.Default + Job())
     private var updateJob: Job? = null
     private val colorPattern =
@@ -40,7 +39,6 @@ class DefaultColorProvider(private val editor: Editor) : InlayHintProvider {
         }
 
     init {
-        editor.registerInlayHintProvider(this)
         requestUpdate()
     }
 
@@ -53,7 +51,7 @@ class DefaultColorProvider(private val editor: Editor) : InlayHintProvider {
                 if (cachedInlayHints != null) {
                     withContext(Dispatchers.Main) {
                         cachedInlayHints = null
-                        editor.invalidateInlayHints()
+                        editor.inlayHints = InlayHintsContainer()
                     }
                 }
                 return@launch
@@ -65,10 +63,9 @@ class DefaultColorProvider(private val editor: Editor) : InlayHintProvider {
                 if (lspEditor.isConnected) {
                     val capabilities = lspEditor.requestManager.capabilities
                     if (capabilities?.colorProvider?.left == true || capabilities?.colorProvider?.right != null) {
-                        // LSP provides colors, so we skip
                         withContext(Dispatchers.Main) {
                             cachedInlayHints = null
-                            editor.invalidateInlayHints()
+                            editor.inlayHints = InlayHintsContainer()
                         }
                         return@launch
                     }
@@ -99,20 +96,21 @@ class DefaultColorProvider(private val editor: Editor) : InlayHintProvider {
             }
 
             withContext(Dispatchers.Main) {
-                cachedInlayHints = if (container.isEmpty()) null else container
-                editor.invalidateInlayHints()
+                if (container.getLineNumbers().isEmpty()) {
+                    cachedInlayHints = null
+                    editor.inlayHints = InlayHintsContainer()
+                } else {
+                    cachedInlayHints = container
+                    editor.inlayHints = container
+                }
             }
         }
-    }
-
-    override fun provideInlayHints(container: InlayHintsContainer) {
-        cachedInlayHints?.let { container.addAll(it) }
     }
 
     fun dispose() {
         contentChangeSubscription.unsubscribe()
         lspConnectionSubscription.unsubscribe()
         updateJob?.cancel()
-        editor.unregisterInlayHintProvider(this)
+        editor.inlayHints = InlayHintsContainer()
     }
 }

@@ -26,7 +26,7 @@ import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
-import io.github.rosemoe.sora.widget.component.TextActionItem
+import io.github.rosemoe.sora.widget.component.EditorTextActionWindow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -71,8 +71,11 @@ class Editor : CodeEditor {
     )
 
     private var defaultColorProvider: DefaultColorProvider? = null
+    private val xedTextActionWindow: XedTextActionWindow
 
     init {
+        xedTextActionWindow = XedTextActionWindow(this)
+        replaceComponent(EditorTextActionWindow::class.java, xedTextActionWindow)
         applyFont()
         applySettings()
         getComponent(EditorAutoCompletion::class.java).setEnabledAnimation(true)
@@ -342,8 +345,8 @@ class Editor : CodeEditor {
      *
      * @param item The text action item instance to register.
      */
-    fun registerTextAction(item: TextActionItem) {
-        textActionWindow.registerTextAction(item)
+    fun registerTextAction(item: XedTextActionItem) {
+        xedTextActionWindow.registerAction(item)
     }
 
     /**
@@ -351,8 +354,8 @@ class Editor : CodeEditor {
      *
      * @param item The text action item instance to unregister.
      */
-    fun unregisterTextAction(item: TextActionItem) {
-        textActionWindow.unregisterTextAction(item)
+    fun unregisterTextAction(item: XedTextActionItem) {
+        xedTextActionWindow.unregisterAction(item)
     }
 
     /**
