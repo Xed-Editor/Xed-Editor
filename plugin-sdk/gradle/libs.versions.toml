@@ -2,9 +2,9 @@
 
 # kotlin and agp must be compatible with each other after update
 agp = "9.2.1"
-kotlin = "2.4.0"
+kotlin = "2.4.10"
 ksp = "2.3.2"
-kotlinReflect = "2.4.0"
+kotlinReflect = "2.4.10"
 
 annotation = "1.9.1"
 anrwatchdog = "1.4.0"
