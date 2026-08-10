@@ -189,7 +189,7 @@
     <string name="edit_mode">Mode édition</string>
     <string name="no_folder_opened">Aucun répertoire ouvert</string>
     <string name="cut">Couper</string>
-    <string name="timeout">Téléchargement annulé à cause du délai. Assurez-vous que votre connexion internet est stable</string>
+    <string name="timeout">Délai maximal de téléchargement dépassé. Assurez-vous que votre connexion internet est stable</string>
     <string name="more">Plus</string>
     <string name="theme_settings">Paramètres d\'apparence</string>
     <string name="add_theme">Ajouter une apparence</string>
@@ -390,7 +390,7 @@
     <string name="extra_key_bg_desc">Affiche l\'arrière-plan pour les touches additionnelles</string>
     <string name="actions">Actions</string>
     <string name="enjoying_xed">Vous appréciez Xed Editor ?</string>
-    <string name="support_message">Vous avez enregistré %s fichiers et fait tourner %s fois du code avec Xed. \n\nJe suis un développeur indépendant, gardant ce logiciel libre et attentif à la vie privée. Si Xed a facilité votre travail de codage, pourriez-vous soutenir son développement ?\n\nVotre soutien m\'aidera à :\n• Développer plus rapidement des fonctionnalités \n• Gardez Xed sans publicité pour toujours\n• Réagir rapidement à des bugs</string>
+    <string name="support_message">Vous avez enregistré %s fichiers et exécuté %s fois du code avec Xed. \n\nXed est une application open source et attentive à la vie privée, construite avec l\'aide de contributeurs de la communauté. Si Xed vous a aidé dans vos activités, pourriez-vous envisager de soutenir son développement ?\n\nVotre soutien m\'aidera à :\n• Développer plus rapidement des fonctionnalités \n• Gardez Xed sans publicité pour toujours\n• Réagir rapidement à des bugs</string>
     <string name="yes_support">Oui, je vais soutenir ! ❤️</string>
     <string name="not_for_me">Non merci</string>
     <string name="sponsor_desc">Devenir sponsor et prendre part au projet</string>
@@ -797,4 +797,5 @@
     <string name="git_conflict_detection">Détection de conflit</string>
     <string name="git_conflict_detection_desc">Affiche des marqueurs de conflit et les possibilités de résolution dans l\'éditeur</string>
     <string name="credentials_github">Pour vous connecter à GitHub, vous devez entrer un jeton PAT, et pas votre mot de passe de compte GitHub.</string>
+    <string name="git_gutter_indication">Indicateur d\'espacement</string>
 </resources>
