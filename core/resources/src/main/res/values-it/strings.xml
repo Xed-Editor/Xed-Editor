@@ -754,10 +754,16 @@
     <string name="theme_not_found">Tema non trovato</string>
     <string name="icon_pack_not_found">Pacchetto icone non trovato</string>
     <string name="uninstall_theme_dialog">Disinstallare il tema?</string>
-    <string name="uninstall_theme_dialog_desc">Sei sicuro di voler disinstallare \'%s\'?</string>
+    <string name="uninstall_theme_dialog_desc">Sei sicuro di voler disinstallare il tema \'%s\'?</string>
     <string name="uninstall_icon_pack_dialog">Disinstallare il pacchetto icone?</string>
-    <string name="uninstall_icon_pack_dialog_desc">Sei sicuro di voler disinstallare \'%s\'?</string>
+    <string name="uninstall_icon_pack_dialog_desc">Sei sicuro di voler disinstallare il pacchetto icone \'%s\'?</string>
     <string name="preview">Anteprima</string>
     <string name="xed_package">Pacchetto Xed</string>
     <string name="migrating_themes">Migrazione temi…</string>
+    <string name="git_init">Inizializza repository</string>
+    <string name="git_init_desc">Inizializza un nuovo repository git nel progetto attuale</string>
+    <string name="git_init_success">Repository inizializzato</string>
+    <string name="git_init_error">Impossibile inizializzare il repository: %s</string>
+    <string name="checkout">Checkout</string>
+    <string name="merge">Unisci</string>
 </resources>
