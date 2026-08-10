@@ -787,7 +787,7 @@
     <string name="startup_timeout">Час очікування запуску</string>
     <string name="startup_timeout_desc">Скільки часу чекати, поки сервер запуститься</string>
     <string name="invalid_initialization_options">Параметри ініціалізації містять неправильний JSON, тому будуть знехтувані.</string>
-    <string name="git_gutter_indication">Індикація кишківника Git</string>
+    <string name="git_gutter_indication">Індикація в кишківнику</string>
     <string name="git_gutter_indication_desc">Показувати індикатори доданих, змінених і видалених рядків</string>
     <string name="accept_current_change">Прийняти поточну зміну</string>
     <string name="accept_incoming_change">Прийняти прийдешню зміну</string>
