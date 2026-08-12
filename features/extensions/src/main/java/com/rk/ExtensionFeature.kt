@@ -101,10 +101,13 @@ class ExtensionFeature : Feature {
             DialogProvider {
                 MainActivity.instance?.let {
                     val viewModel = it.viewModel
-                    val manifest = viewModel.pendingExtensionManifest ?: return@let
-                    val packageFile = viewModel.pendingExtensionPackage ?: return@let
-                    val icon = viewModel.pendingExtensionIcon ?: return@let
-                    XedInstallDialog(manifest, icon, packageFile, viewModel::closeExtensionIntentDialog)
+                    val pendingInstall = viewModel.pendingExtensionInstall ?: return@let
+                    XedInstallDialog(
+                        pendingInstall.manifest,
+                        pendingInstall.icon,
+                        pendingInstall.packageFile,
+                        viewModel::closeExtensionIntentDialog,
+                    )
                 }
             }
                 .also { DialogRegistry.register(it) }
