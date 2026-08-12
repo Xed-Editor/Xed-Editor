@@ -37,6 +37,12 @@ fun List<EditorTab>.filterWithFiles(predicate: (EditorTab, FileObject) -> Boolea
         .map { it.key }
 }
 
+data class PendingExtensionInstall(
+    val manifest: ExtensionManifest,
+    val packageFile: File,
+    val icon: File,
+)
+
 class MainViewModel : ViewModel() {
     val tabManager = TabManager()
     val editorManager = EditorManager(this)
@@ -67,33 +73,22 @@ class MainViewModel : ViewModel() {
     var commandPaletteInitialPlaceholder by mutableStateOf<String?>(null)
         private set
 
-    var pendingExtensionManifest by mutableStateOf<ExtensionManifest?>(null)
-        private set
-
-    var pendingExtensionPackage by mutableStateOf<File?>(null)
-        private set
-
-    var pendingExtensionIcon by mutableStateOf<File?>(null)
+    var pendingExtensionInstall by mutableStateOf<PendingExtensionInstall?>(null)
         private set
 
     fun openExtensionIntentDialog(manifest: ExtensionManifest, file: File, icon: File) {
-        pendingExtensionManifest = manifest
-        pendingExtensionPackage = file
-        pendingExtensionIcon = icon
+        pendingExtensionInstall = PendingExtensionInstall(manifest, file, icon)
     }
 
     fun closeExtensionIntentDialog() {
-        val icon = pendingExtensionIcon
-        val file = pendingExtensionPackage
+        val pendingInstall = pendingExtensionInstall
 
         viewModelScope.launch(Dispatchers.Main) {
-            pendingExtensionManifest = null
-            pendingExtensionPackage = null
-            pendingExtensionIcon = null
+            pendingExtensionInstall = null
 
             withContext(Dispatchers.IO) {
-                icon?.delete()
-                file?.delete()
+                pendingInstall?.icon?.delete()
+                pendingInstall?.packageFile?.delete()
             }
         }
     }

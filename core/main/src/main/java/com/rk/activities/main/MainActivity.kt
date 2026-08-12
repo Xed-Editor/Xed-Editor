@@ -152,6 +152,7 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         instance = this
+        initializeViewModelsBeforeComposition()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
@@ -190,5 +191,13 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         FilePermission.onRequestPermissionsResult(requestCode, grantResults, lifecycleScope, this)
+    }
+
+    private fun initializeViewModelsBeforeComposition() {
+        // Dialog providers are registered globally and can read MainViewModel state during the
+        // first composition. Force the activity ViewModels to be created before Compose takes its
+        // initial snapshot so their mutableStateOf fields are not created mid-snapshot.
+        viewModel
+        drawerViewModel
     }
 }
