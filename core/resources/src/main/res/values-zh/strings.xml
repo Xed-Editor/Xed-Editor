@@ -746,8 +746,8 @@
     <string name="git_init_desc">在当前项目初始化新的 Git 仓库</string>
     <string name="git_init_success">仓库已初始化</string>
     <string name="git_init_error">仓库初始化失败：%s</string>
-    <string name="theme_not_found_desc">此页面不可用。这可能是因为本地主题被卸载，或商店作者从注册表移除了他的主题。</string>
-    <string name="icon_pack_not_found_desc">此页面不可用。这可能是因为本地图标包被卸载，或商店作者从注册表移除了他的图标包。</string>
+    <string name="theme_not_found_desc">此页面不可用。这可能是因为本地主题被卸载，也可能是来自商店的主题被所有者下架。</string>
+    <string name="icon_pack_not_found_desc">此页面不可用。这可能是因为本地图标包被卸载，也可能是来自商店的图标包被所有者下架。</string>
     <string name="browse_themes">浏览主题</string>
     <string name="browse_icon_packs">浏览图标包</string>
     <string name="theme_not_found">主题未找到</string>
@@ -777,4 +777,18 @@
     <string name="show_color_previews_desc">未连接语言服务器时，在编辑器中显示颜色预览</string>
     <string name="git_conflict_detection">冲突检测</string>
     <string name="credentials_github">若要连接至 GitHub，你必须输入 PAT 令牌，而不是 GitHub 账号密码。</string>
+    <string name="run_lsp_external">运行外部文件</string>
+    <string name="theme_migrated">成功迁移 %d 个主题</string>
+    <string name="xed_package">Xed 包</string>
+    <string name="migrating_themes">迁移主题 …</string>
+    <string name="checkout">检出</string>
+    <string name="rename_branch_label">%1$s 分支的新名称</string>
+    <string name="delete_branch_msg">是否永久删除 \'%s\' 分支？</string>
+    <string name="run_lsp_external_desc">允许语言服务器运行外部文件。由于服务器运行在内置的终端中，部分功能可能无法在这些外部文件所处的位置 中正常工作。</string>
+    <string name="startup_timeout_desc">在服务器启动前等待的时间</string>
+    <string name="accept_both_changes">接受两侧的变更</string>
+    <string name="accept_incoming_change">接受从外部引入的变更</string>
+    <string name="git_conflict_detection_desc">在编辑器中显示冲突标记和解决冲突的选项</string>
+    <string name="git_gutter_indication">变更标识</string>
+    <string name="git_gutter_indication_desc">对发生增删改的行显示变更标识</string>
 </resources>
