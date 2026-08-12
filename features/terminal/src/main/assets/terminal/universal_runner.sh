@@ -1,12 +1,12 @@
 set -e
 file="$1"
 
+source "$LOCAL/bin/utils"
+
 if [ ! -f "$file" ]; then
   error "Error: File not found -> $file"
   exit 1
 fi
-
-source "$LOCAL/bin/utils"
 
 run_code() {
     echo -e "\e[32;1m[✓]\e[37m Compilation successful! Running...\e[0m"
