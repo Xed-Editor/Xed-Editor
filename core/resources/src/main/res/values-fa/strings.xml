@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="unsupported_content">محتوای پشتیبانی نشده</string>
-    <string name="restart_required">نیاز به ری استارت</string>
+    <string name="restart_required">شروع مجدد نیاز است</string>
     <string name="save">ذخیره</string>
     <string name="open_directory">باز کردن پوشه</string>
     <string name="new_file">فایل جدید</string>
