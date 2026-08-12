@@ -58,6 +58,8 @@
     <string name="ok">OK</string>
     <string name="clone_repo">Clone repository</string>
     <string name="clone_repo_desc">Clone remote repository</string>
+    <string name="clone_destination">Destination folder</string>
+    <string name="select_folder">Select folder</string>
     <string name="repo_url">Repository URL</string>
     <string name="branch">Branch</string>
     <string name="private_files">Private files</string>

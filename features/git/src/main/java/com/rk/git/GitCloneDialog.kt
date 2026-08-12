@@ -1,6 +1,7 @@
 package com.rk.git
 
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.components.DoubleInputDialog
 import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -60,6 +63,8 @@ fun GitCloneDialog(
 
     var repoURL by remember { mutableStateOf("") }
     var repoBranch by remember { mutableStateOf("main") }
+    var destinationUri by remember { mutableStateOf<Uri?>(null) }
+    var destinationName by remember { mutableStateOf<String?>(null) }
 
     var repoURLError by remember { mutableStateOf<String?>(null) }
     var repoBranchError by remember { mutableStateOf<String?>(null) }
@@ -107,7 +112,32 @@ fun GitCloneDialog(
         }
     }
 
-    val cloneGitRepo =
+    fun cloneInto() {
+        val destination = destinationUri?.toFileObject(expectedIsFile = false) ?: FileWrapper(sandboxHomeDir())
+        scope.launch {
+            val repositoryName = repoURL.substringAfterLast("/").substringBeforeLast(".")
+            val repositoryFolder = destination.createChild(false, repositoryName) ?: return@launch
+
+            gitViewModel
+                .get()
+                ?.cloneRepository(
+                    repoURL = normalizeRepoUrl(repoURL),
+                    repoBranch = repoBranch,
+                    targetDir = File(repositoryFolder.getAbsolutePath()),
+                    progressCoordinator = monitor,
+                    onComplete = { success ->
+                        repoURL = ""
+                        repoBranch = "main"
+                        repoURLError = null
+                        repoBranchError = null
+                        onDismiss()
+                        if (success) onCloneComplete(repositoryFolder)
+                    },
+                )
+        }
+    }
+
+    val selectDestinationFolder =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocumentTree(),
             onResult = { uri ->
@@ -119,36 +149,9 @@ fun GitCloneDialog(
                         )
                     }
                         .onFailure { it.printStackTrace() }
-                    scope.launch {
-                        val fileObject =
-                            it.toFileObject(expectedIsFile = false)
-                                .createChild(
-                                    false,
-                                    repoURL.substringAfterLast("/").substringBeforeLast("."),
-                                )
-                        gitViewModel
-                            .get()
-                            ?.cloneRepository(
-                                repoURL = normalizeRepoUrl(repoURL),
-                                repoBranch = repoBranch,
-                                targetDir = File(fileObject!!.getAbsolutePath()),
-                                progressCoordinator = monitor,
-                                onComplete = { success ->
-                                    repoURL = ""
-                                    repoBranch = "main"
-                                    repoURLError = null
-                                    repoBranchError = null
-                                    onDismiss()
-                                    if (success) {
-                                        onCloneComplete(fileObject)
-                                    }
-                                },
-                            )
-                    }
+                    destinationUri = it
+                    destinationName = it.toFileObject(expectedIsFile = false).getName()
                 }
-                    ?: run {
-                        onDismiss()
-                    }
             },
         )
 
@@ -172,7 +175,7 @@ fun GitCloneDialog(
             firstErrorMessage = repoURLError,
             secondErrorMessage = repoBranchError,
             onConfirm = {
-                cloneGitRepo.launch(null)
+                cloneInto()
             },
             onDismiss = {
                 onDismiss()
@@ -183,6 +186,13 @@ fun GitCloneDialog(
             },
             confirmText = stringResource(strings.ok),
             confirmEnabled = repoURLError == null && repoBranchError == null && repoURL.isNotBlank(),
+            message = {
+                val displayedDestination = destinationName ?: stringResource(strings.terminal_home)
+                Text("${stringResource(strings.clone_destination)}: $displayedDestination")
+                TextButton(onClick = { selectDestinationFolder.launch(null) }) {
+                    Text(stringResource(strings.select_folder))
+                }
+            },
         )
     }
 }
