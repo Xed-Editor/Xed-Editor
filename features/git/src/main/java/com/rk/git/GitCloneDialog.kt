@@ -1,5 +1,9 @@
 package com.rk.git
 
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
@@ -14,12 +18,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.components.DoubleInputDialog
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.sandboxHomeDir
+import com.rk.file.toFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import kotlinx.coroutines.launch
@@ -52,10 +58,13 @@ fun GitCloneDialog(
     onDismiss: () -> Unit,
     onCloneComplete: (FileObject) -> Unit,
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var repoURL by remember { mutableStateOf("") }
     var repoBranch by remember { mutableStateOf("main") }
+    var destinationUri by remember { mutableStateOf<Uri?>(null) }
+    var destinationName by remember { mutableStateOf<String?>(null) }
 
     var repoURLError by remember { mutableStateOf<String?>(null) }
     var repoBranchError by remember { mutableStateOf<String?>(null) }
@@ -104,7 +113,7 @@ fun GitCloneDialog(
     }
 
     fun cloneInto() {
-        val destination = FileWrapper(sandboxHomeDir())
+        val destination = destinationUri?.toFileObject(expectedIsFile = false) ?: FileWrapper(sandboxHomeDir())
         scope.launch {
             val repositoryName = repoURL.substringAfterLast("/").substringBeforeLast(".")
             val repositoryFolder = destination.createChild(false, repositoryName) ?: return@launch
@@ -128,6 +137,23 @@ fun GitCloneDialog(
         }
     }
 
+    val selectDestinationFolder =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocumentTree(),
+            onResult = { uri ->
+                uri?.let {
+                    runCatching {
+                        context.contentResolver.takePersistableUriPermission(
+                            it,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                        )
+                    }
+                        .onFailure { it.printStackTrace() }
+                    destinationUri = it
+                    destinationName = it.toFileObject(expectedIsFile = false).getName()
+                }
+            },
+        )
 
     if (showCloneProgressDialog) {
         GitCloneProgressDialog(progressMessage, progress, maxProgress, monitor, onDismiss)
@@ -160,7 +186,13 @@ fun GitCloneDialog(
             },
             confirmText = stringResource(strings.ok),
             confirmEnabled = repoURLError == null && repoBranchError == null && repoURL.isNotBlank(),
-            message = { Text("${stringResource(strings.clone_destination)}: ${stringResource(strings.terminal_home)}") },
+            message = {
+                val displayedDestination = destinationName ?: stringResource(strings.terminal_home)
+                Text("${stringResource(strings.clone_destination)}: $displayedDestination")
+                TextButton(onClick = { selectDestinationFolder.launch(null) }) {
+                    Text(stringResource(strings.select_folder))
+                }
+            },
         )
     }
 }
