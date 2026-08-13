@@ -20,6 +20,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 
 fun List<Tab>.filterEditorTabs() = filterIsInstance<EditorTab>()
@@ -73,18 +75,19 @@ class MainViewModel : ViewModel() {
     var commandPaletteInitialPlaceholder by mutableStateOf<String?>(null)
         private set
 
-    var pendingExtensionInstall by mutableStateOf<PendingExtensionInstall?>(null)
-        private set
+    private val _pendingExtensionInstall = MutableStateFlow<PendingExtensionInstall?>(null)
+
+    val pendingExtensionInstall: StateFlow<PendingExtensionInstall?> = _pendingExtensionInstall
 
     fun openExtensionIntentDialog(manifest: ExtensionManifest, file: File, icon: File) {
-        pendingExtensionInstall = PendingExtensionInstall(manifest, file, icon)
+        _pendingExtensionInstall.value = PendingExtensionInstall(manifest, file, icon)
     }
 
     fun closeExtensionIntentDialog() {
-        val pendingInstall = pendingExtensionInstall
+        val pendingInstall = _pendingExtensionInstall.value
 
         viewModelScope.launch(Dispatchers.Main) {
-            pendingExtensionInstall = null
+            _pendingExtensionInstall.value = null
 
             withContext(Dispatchers.IO) {
                 pendingInstall?.icon?.delete()

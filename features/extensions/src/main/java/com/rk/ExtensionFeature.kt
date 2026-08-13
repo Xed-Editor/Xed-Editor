@@ -40,6 +40,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.io.File
 
 class ExtensionFeature : Feature {
@@ -101,7 +102,7 @@ class ExtensionFeature : Feature {
             DialogProvider {
                 MainActivity.instance?.let {
                     val viewModel = it.viewModel
-                    val pendingInstall = viewModel.pendingExtensionInstall ?: return@let
+                    val pendingInstall = viewModel.pendingExtensionInstall.collectAsStateWithLifecycle().value ?: return@let
                     XedInstallDialog(
                         pendingInstall.manifest,
                         pendingInstall.icon,
