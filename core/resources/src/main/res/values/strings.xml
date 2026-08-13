@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name" translatable="false">Xed-Editor</string>
     <string name="unsupported_content">Unsupported content</string>
+    <string name="unsupported_folder_for_feature">Unsupported folder for this feature</string>
     <string name="restart_required">Restart required</string>
     <string name="save">Save</string>
     <string name="open_directory">Open a directory</string>

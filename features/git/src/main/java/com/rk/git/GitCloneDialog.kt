@@ -30,6 +30,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import kotlinx.coroutines.launch
 import java.io.File
+import android.widget.Toast
 
 private fun validateValue(value: String): String? {
     return when {
@@ -63,7 +64,7 @@ fun GitCloneDialog(
 
     var repoURL by remember { mutableStateOf("") }
     var repoBranch by remember { mutableStateOf("main") }
-    var destinationUri by remember { mutableStateOf<Uri?>(null) }
+    var destinationFolder by remember { mutableStateOf<FileObject?>(null) }
     var destinationName by remember { mutableStateOf<String?>(null) }
 
     var repoURLError by remember { mutableStateOf<String?>(null) }
@@ -113,7 +114,7 @@ fun GitCloneDialog(
     }
 
     fun cloneInto() {
-        val destination = destinationUri?.toFileObject(expectedIsFile = false) ?: FileWrapper(sandboxHomeDir())
+        val destination = destinationFolder ?: FileWrapper(sandboxHomeDir())
         scope.launch {
             val repositoryName = repoURL.substringAfterLast("/").substringBeforeLast(".")
             val repositoryFolder = destination.createChild(false, repositoryName) ?: return@launch
@@ -149,8 +150,13 @@ fun GitCloneDialog(
                         )
                     }
                         .onFailure { it.printStackTrace() }
-                    destinationUri = it
-                    destinationName = it.toFileObject(expectedIsFile = false).getName()
+
+                    val folder = uri.toFileObject(expectedIsFile = false)
+                    destinationFolder = folder
+                    destinationName = folder.getName()
+                } ?: run {
+                    destinationFolder = null
+                    destinationName = null
                 }
             },
         )
@@ -175,7 +181,11 @@ fun GitCloneDialog(
             firstErrorMessage = repoURLError,
             secondErrorMessage = repoBranchError,
             onConfirm = {
-                cloneInto()
+                if (destinationFolder is FileWrapper) {
+                    Toast.makeText(context, strings.unsupported_folder_for_feature, Toast.LENGTH_SHORT).show()
+                } else {
+                    cloneInto()
+                }
             },
             onDismiss = {
                 onDismiss()
