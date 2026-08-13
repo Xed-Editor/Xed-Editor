@@ -131,6 +131,8 @@ fun GitCloneDialog(
                         repoBranch = "main"
                         repoURLError = null
                         repoBranchError = null
+                        destinationName = null
+                        destinationFolder = null
                         onDismiss()
                         if (success) onCloneComplete(repositoryFolder)
                     },
@@ -181,7 +183,7 @@ fun GitCloneDialog(
             firstErrorMessage = repoURLError,
             secondErrorMessage = repoBranchError,
             onConfirm = {
-                if (destinationFolder is FileWrapper) {
+                if (destinationFolder !is FileWrapper) {
                     Toast.makeText(context, strings.unsupported_folder_for_feature, Toast.LENGTH_SHORT).show()
                 } else {
                     cloneInto()
@@ -193,6 +195,8 @@ fun GitCloneDialog(
                 repoBranch = "main"
                 repoURLError = null
                 repoBranchError = null
+                destinationName = null
+                destinationFolder = null
             },
             confirmText = stringResource(strings.ok),
             confirmEnabled = repoURLError == null && repoBranchError == null && repoURL.isNotBlank(),
