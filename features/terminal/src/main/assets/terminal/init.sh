@@ -10,13 +10,15 @@ source "$LOCAL/bin/utils"
 
 SDK="$(getprop ro.build.version.sdk 2>/dev/null)"
 
-if [ "$SDK" -le 29 ] 2>/dev/null; then
+# Use ${SDK:-999} to default to 999 if $SDK is empty, preventing syntax errors.
+if [ "${SDK:-999}" -le 29 ]; then
     rm -f "$LOCAL/bin/xed"
     cp "$NATIVE_LIB_DIR/libxed_cli.so" "$LOCAL/bin/xed"
     chmod +x "$LOCAL/bin/xed"
 else
     ln -sfn "$NATIVE_LIB_DIR/libxed_cli.so" "$LOCAL/bin/xed"
 fi
+
 
 if [ -f "$LOCAL/.sandbox_degraded" ]; then
     warn "Running in degraded mode. Some features may not work. Please reinstall the terminal"
