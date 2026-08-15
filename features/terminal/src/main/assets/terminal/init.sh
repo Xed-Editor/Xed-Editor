@@ -8,7 +8,9 @@ export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
 
 source "$LOCAL/bin/utils"
 
-if [ "$(getprop ro.build.version.release | cut -d. -f1)" -le 10 ]; then
+SDK="$(getprop ro.build.version.sdk 2>/dev/null)"
+
+if [ "$SDK" -le 29 ] 2>/dev/null; then
     rm -f "$LOCAL/bin/xed"
     cp "$NATIVE_LIB_DIR/libxed_cli.so" "$LOCAL/bin/xed"
     chmod +x "$LOCAL/bin/xed"
