@@ -422,7 +422,7 @@
     <string name="status_starting">Iniciando…</string>
     <string name="status_not_running">Não está rodando</string>
     <string name="status_not_running_forced">Não está rodando (forçado)</string>
-    <string name="status_crashed">Crashou</string>
+    <string name="status_crashed">Travou</string>
     <string name="status_timeout">Tempo esgotado</string>
     <string name="status_restarting">Reiniciando…</string>
     <string name="status_stopping">Parando…</string>
@@ -432,4 +432,12 @@
     <string name="hover_information_desc">Exibir documentação ao passar o cursor sobre ela</string>
     <string name="signature_help">Ajuda com assinaturas</string>
     <string name="signature_help_desc">Exibir informações do parâmetro</string>
+    <string name="theme_migrated">Tema %d themes migrado com sucesso</string>
+    <string name="advanced">Avançado</string>
+    <string name="fullscreen">Tela cheia</string>
+    <string name="fullscreen_desc">Iniciar em tela cheia</string>
+    <string name="sort_by_date">Ordenar por data</string>
+    <string name="sort_by_name">Ordenar por nome</string>
+    <string name="sort_by_size">Ordenar por tamanho</string>
+    <string name="source_code">Código fonte</string>
 </resources>
