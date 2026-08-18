@@ -1,3 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="unsupported_content">Conținut nesuportat</string>
+    <string name="restart_required">Repornire necesară</string>
+    <string name="save">Salvează</string>
+    <string name="open_directory">Deschide un folder</string>
+    <string name="new_file">Fișier nou</string>
+    <string name="wait">Vă rugăm să așteptați…</string>
+    <string name="report_issue">Raportează o problemă</string>
+    <string name="copy">Copiază</string>
+    <string name="save_all">Salvează tot</string>
+    <string name="undo">Reface</string>
+    <string name="settings">Setări</string>
+    <string name="search">Caută</string>
+    <string name="go_next">Următorul</string>
+    <string name="go_prev">Provizoriu</string>
+    <string name="replace">Înlocuiește</string>
+    <string name="share">Partajare</string>
+    <string name="open_file">Deschide fișier</string>
 </resources>
