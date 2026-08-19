@@ -400,4 +400,18 @@
     <string name="unzip_success">تم فك الضغط بنجاح</string>
     <string name="unzip_failed">فشل فك الضغط: %s</string>
     <string name="compressed_size">الحجم المضغوط</string>
+    <string name="show_hidden_files_search_desc">اظهر الملفات او المجلدات المخفية في نتائج البحث</string>
+    <string name="theme_migrated">تم نقل سمات %d بنجاح</string>
+    <string name="show_hidden_files_drawer_desc">اظهر الملفات او المجلدات المخفية مثل .git في الدرج</string>
+    <string name="data_loss_risk">خطر فقد البيانات</string>
+    <string name="no_warranty">لا ضمان</string>
+    <string name="decline">رفظ</string>
+    <string name="i_accept">اوافق</string>
+    <string name="press_key">اضغط مجموعة المفاتيح (يجب ان تحتوي على زر Ctrl او زر Alt)</string>
+    <string name="reset_all">اعادة تعيين الكل</string>
+    <string name="reset_consent">اعادة تعيين حالة الموافقة</string>
+    <string name="logs">سجلات</string>
+    <string name="logs_too_long">السجلات طويلة حداً</string>
+    <string name="logs_too_long_desc">ملف السجلات اللذي اردت الابلاغ عنه طويل جداً. الرجاء نسخ الملف يدوياً و لصقه في خانة البلاغ</string>
+    <string name="complete_on_enter">اكمل عند الإدخال</string>
 </resources>
