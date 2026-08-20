@@ -217,21 +217,6 @@ object DeleteAction : MultiFileAction() {
 
 
     override suspend fun isEnabled(files: List<FileObject>,root: FileObject?): Boolean {
-
-
-        /*
-        * check if any of the selected file contains any file/folder that has no read or write permission
-        * if we find even a single fileObject that has missing permission we will stop immediately
-        *
-        * */
-        val canNotDelete = files.any{
-            it.canWrite().not() || it.canRead().not()
-        }
-
-        if (canNotDelete){
-            return false
-        }
-
         val deletingProtected = files.any {
             isProtected(it)
         }
