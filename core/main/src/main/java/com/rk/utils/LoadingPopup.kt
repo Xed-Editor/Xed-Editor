@@ -23,7 +23,9 @@ import com.rk.resources.strings
 import com.rk.theme.XedTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
+@Deprecated("This loading popup is ancient and should not be used anymore")
 class LoadingPopup(private val activity: AppCompatActivity?, hideAfterMillis: Long? = null) {
     private var dialog: AlertDialog? = null
     private var message: String = strings.wait.getString()
@@ -36,7 +38,7 @@ class LoadingPopup(private val activity: AppCompatActivity?, hideAfterMillis: Lo
                 hideAfterMillis?.let { delayMillis ->
                     show()
                     activity.lifecycleScope.launch {
-                        delay(delayMillis)
+                        delay(delayMillis.milliseconds)
                         hide()
                     }
                 }

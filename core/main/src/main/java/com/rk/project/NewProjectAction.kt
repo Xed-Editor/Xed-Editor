@@ -16,7 +16,7 @@ object NewProjectAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.folder_managed)
     override val title = strings.new_project.getString()
 
-    override fun action(context: FileActionContext) {
+    override suspend fun action(context: FileActionContext) {
         DefaultScope.launch {
             val intent =
                 Intent(context.context, ProjectCreatorActivity::class.java).apply {
@@ -26,7 +26,7 @@ object NewProjectAction : FileAction() {
         }
     }
 
-    override fun isSupported(file: FileObject): Boolean {
+    override suspend fun isSupported(file: FileObject, root: FileObject?): Boolean {
         return ProjectTemplateRegistry.categories.any { it.templates.isNotEmpty() }
     }
 

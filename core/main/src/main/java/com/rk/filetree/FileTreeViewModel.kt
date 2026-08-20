@@ -1,5 +1,6 @@
 package com.rk.filetree
 
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -12,11 +13,13 @@ import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.ui.searchViewModel
 import com.rk.events.Events
 import com.rk.events.FileTreeEvent
+import com.rk.extension.ActivityProvider
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.file.ZipFileObject
 import com.rk.search.utils.GlobExcluder
 import com.rk.settings.Settings
+import com.rk.utils.LoadingPopup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

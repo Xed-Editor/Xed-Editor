@@ -171,7 +171,7 @@ object TerminalAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.terminal)
     override val title = strings.open_in_terminal.getString()
 
-    override fun action(context: FileActionContext) {
+    override suspend fun action(context: FileActionContext) {
         val file = context.file
         val ctx = context.context
 
@@ -180,7 +180,7 @@ object TerminalAction : FileAction() {
         ctx.startActivity(intent)
     }
 
-    override fun isSupported(file: FileObject): Boolean {
+    override suspend fun isSupported(file: FileObject, root: FileObject?): Boolean {
         return file is FileWrapper && FeatureRegistry.isEnabled("feature_terminal")
     }
 
