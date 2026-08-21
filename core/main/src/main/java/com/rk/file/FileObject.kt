@@ -327,13 +327,13 @@ fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
         return NetWrapper(URL(toString()))
     }
 
-    // First, try to resolve to a real File (for direct access when possible)
-    val file = File(this.toPath())
-
     // On Android 11+, force Uri if we lack full storage access (scoped storage rules)
     if (needsUriFallback()) {
         return UriWrapper(this, !expectedIsFile)
     }
+
+    // Try to resolve to a real File (for direct access when possible)
+    val file = File(this.toPath())
 
     // If File access works and matches expectations (file vs. dir), use it
     if (file.exists() && file.canRead() && file.canWrite() && expectedIsFile == file.isFile) {

@@ -198,16 +198,6 @@ object DeleteAction : MultiFileAction() {
             }
         }
 
-        //Don't allow deletion of folders with these names
-        val protectedName = when(fileObject.getName()){
-            "DCIM" -> true
-            else -> false
-        }
-
-        if (protectedName){
-            return true
-        }
-
         return if (fileObject is FileWrapper){
             switchProtected(fileObject.getCanonicalPath()) || switchProtected(fileObject.getAbsolutePath())
         }else{
