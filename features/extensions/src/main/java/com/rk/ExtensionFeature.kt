@@ -1,8 +1,6 @@
 package com.rk
 
 import android.app.Application
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.rk.App.Companion.iconPackManager
@@ -42,6 +40,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.io.File
 
 class ExtensionFeature : Feature {
@@ -103,12 +102,11 @@ class ExtensionFeature : Feature {
             DialogProvider {
                 MainActivity.instance?.let {
                     val viewModel = it.viewModel
-                    val pendingInstall by viewModel.pendingExtensionInstall.collectAsState()
-                    val install = pendingInstall ?: return@let
+                    val pendingInstall = viewModel.pendingExtensionInstall.collectAsStateWithLifecycle().value ?: return@let
                     XedInstallDialog(
-                        install.manifest,
-                        install.icon,
-                        install.packageFile,
+                        pendingInstall.manifest,
+                        pendingInstall.icon,
+                        pendingInstall.packageFile,
                         viewModel::closeExtensionIntentDialog,
                     )
                 }

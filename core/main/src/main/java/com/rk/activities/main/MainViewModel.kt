@@ -15,6 +15,7 @@ import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
@@ -75,7 +76,8 @@ class MainViewModel : ViewModel() {
     val commandPaletteInitialPlaceholder = _commandPaletteInitialPlaceholder.asStateFlow()
 
     private val _pendingExtensionInstall = MutableStateFlow<PendingExtensionInstall?>(null)
-    val pendingExtensionInstall = _pendingExtensionInstall.asStateFlow()
+
+    val pendingExtensionInstall: StateFlow<PendingExtensionInstall?> = _pendingExtensionInstall
 
     fun setShowTopBar(value: Boolean) {
         _showTopBar.value = value
