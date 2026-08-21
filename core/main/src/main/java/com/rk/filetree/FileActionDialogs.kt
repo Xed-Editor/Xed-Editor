@@ -8,6 +8,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.filterWithFiles
@@ -37,25 +39,43 @@ fun FileActionDialogs(
     scope: CoroutineScope,
     context: Context,
 ) {
-    if (viewModel.showRenameDialog) {
-        val file = viewModel.renameFile ?: return
+    val showRenameDialog by viewModel.showRenameDialog.collectAsState()
+    val renameFile by viewModel.renameFile.collectAsState()
+    val renameValue by viewModel.renameValue.collectAsState()
+    val renameError by viewModel.renameError.collectAsState()
+    val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsState()
+    val deleteFiles by viewModel.deleteFiles.collectAsState()
+    val deleteRoot by viewModel.deleteRoot.collectAsState()
+    val showPropertiesDialog by viewModel.showPropertiesDialog.collectAsState()
+    val propertyFile by viewModel.propertyFile.collectAsState()
+    val showCreateDialog by viewModel.showCreateDialog.collectAsState()
+    val createParentFile by viewModel.createParentFile.collectAsState()
+    val createRoot by viewModel.createRoot.collectAsState()
+    val isCreateFile by viewModel.isCreateFile.collectAsState()
+    val createValue by viewModel.createValue.collectAsState()
+    val createError by viewModel.createError.collectAsState()
+    val showCloseProjectConfirmation by viewModel.showCloseProjectConfirmation.collectAsState()
+    val projectConfirmationRoot by viewModel.projectConfirmationRoot.collectAsState()
+
+    if (showRenameDialog) {
+        val file = renameFile ?: return
         SingleInputDialog(
             title = if (file.isFile()) stringResource(strings.rename_file) else stringResource(strings.rename_folder),
             inputLabel = stringResource(id = strings.new_name),
-            inputValue = viewModel.renameValue,
-            errorMessage = viewModel.renameError,
-            confirmEnabled = viewModel.renameValue.isNotBlank() && viewModel.renameValue != file.getName(),
+            inputValue = renameValue,
+            errorMessage = renameError,
+            confirmEnabled = renameValue.isNotBlank() && renameValue != file.getName(),
             confirmText = stringResource(strings.rename),
             onInputValueChange = {
-                viewModel.renameValue = it
-                viewModel.renameError = null
+                viewModel.setRenameValue(it)
+                viewModel.setRenameError(null)
 
                 if (it.contains(FileValidation.INVALID_NAME_CHARS)) {
-                    viewModel.renameError = context.getString(strings.invalid_characters)
+                    viewModel.setRenameError(context.getString(strings.invalid_characters))
                 }
             },
             onConfirm = {
-                val newName = viewModel.renameValue
+                val newName = renameValue
                 scope.launch {
                     val oldPath = file.getAbsolutePath()
                     val mainViewModel = MainActivity.instance?.viewModel
@@ -85,9 +105,9 @@ fun FileActionDialogs(
         )
     }
 
-    if (viewModel.showDeleteConfirmation) {
-        val files = viewModel.deleteFiles ?: return
-        val root = viewModel.deleteRoot
+    if (showDeleteConfirmation) {
+        val files = deleteFiles ?: return
+        val root = deleteRoot
         DeleteConfirmationDialog(
             files = files,
             onConfirm = {
@@ -135,33 +155,33 @@ fun FileActionDialogs(
         )
     }
 
-    if (viewModel.showPropertiesDialog) {
-        val file = viewModel.propertyFile ?: return
+    if (showPropertiesDialog) {
+        val file = propertyFile ?: return
         PropertiesDialog(file = file, onDismiss = { viewModel.closePropertiesDialog() })
     }
 
-    if (viewModel.showCreateDialog) {
-        val file = viewModel.createParentFile ?: return
-        val root = viewModel.createRoot
+    if (showCreateDialog) {
+        val file = createParentFile ?: return
+        val root = createRoot
         SingleInputDialog(
             title =
-                if (viewModel.isCreateFile) stringResource(strings.new_file) else stringResource(strings.new_folder),
+                if (isCreateFile) stringResource(strings.new_file) else stringResource(strings.new_folder),
             inputLabel =
-                if (viewModel.isCreateFile) stringResource(id = strings.file_name)
+                if (isCreateFile) stringResource(id = strings.file_name)
                 else stringResource(id = strings.folder_name),
-            inputValue = viewModel.createValue,
-            errorMessage = viewModel.createError,
-            confirmEnabled = viewModel.createValue.isNotBlank(),
+            inputValue = createValue,
+            errorMessage = createError,
+            confirmEnabled = createValue.isNotBlank(),
             confirmText = stringResource(strings.create),
             onInputValueChange = {
-                viewModel.createValue = it
-                viewModel.createError = null
+                viewModel.setCreateValue(it)
+                viewModel.setCreateError(null)
 
                 if (
-                    viewModel.isCreateFile && it.contains(FileValidation.INVALID_NAME_CHARS) ||
-                        !viewModel.isCreateFile && it.contains(FileValidation.INVALID_FOLDER_PATH_CHARS)
+                    isCreateFile && it.contains(FileValidation.INVALID_NAME_CHARS) ||
+                        !isCreateFile && it.contains(FileValidation.INVALID_FOLDER_PATH_CHARS)
                 ) {
-                    viewModel.createError = context.getString(strings.invalid_characters)
+                    viewModel.setCreateError(context.getString(strings.invalid_characters))
                 }
             },
             onConfirm = {
@@ -171,11 +191,11 @@ fun FileActionDialogs(
                             toast(strings.permission_denied)
                             return@launch
                         }
-                        if (!file.hasChild(viewModel.createValue)) {
-                            val newChild = file.createChild(viewModel.isCreateFile, viewModel.createValue)
+                        if (!file.hasChild(createValue)) {
+                            val newChild = file.createChild(isCreateFile, createValue)
 
                             if (newChild == null) {
-                                if (viewModel.isCreateFile) {
+                                if (isCreateFile) {
                                     toast(strings.file_creation_failed)
                                 } else {
                                     toast(strings.folder_creation_failed)
@@ -184,7 +204,7 @@ fun FileActionDialogs(
                                 Events.publish(FileEvent.Created(newChild))
                             }
 
-                            if (viewModel.isCreateFile && newChild != null && Settings.auto_open_new_files) {
+                            if (isCreateFile && newChild != null && Settings.auto_open_new_files) {
                                 MainActivity.instance
                                     ?.viewModel
                                     ?.editorManager
@@ -198,13 +218,13 @@ fun FileActionDialogs(
                             }
                         } else {
                             val msg =
-                                if (viewModel.isCreateFile) strings.file_already_exists
+                                if (isCreateFile) strings.file_already_exists
                                 else strings.folder_already_exists
-                            toast(msg.getFilledString(viewModel.createValue))
+                            toast(msg.getFilledString(createValue))
                         }
 
                         viewModel.updateCache(file)
-                        viewModel.createValue = ""
+                        viewModel.setCreateValue("")
                     }
                         .onFailure { errorDialog(throwable = it) }
                 }
@@ -213,8 +233,8 @@ fun FileActionDialogs(
         )
     }
 
-    if (viewModel.showCloseProjectConfirmation) {
-        val root = viewModel.projectConfirmationRoot ?: return
+    if (showCloseProjectConfirmation) {
+        val root = projectConfirmationRoot ?: return
         ProjectCloseConfirmationDialog(
             projectName = root.getAppropriateName(),
             onConfirm = {

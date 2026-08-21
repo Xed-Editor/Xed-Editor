@@ -4,7 +4,7 @@ import android.view.KeyEvent
 import com.rk.commands.ActionContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
-import com.rk.components.fileSearchDialog
+import com.rk.components.GlobalDialogs
 import com.rk.filetree.FileTreeTab
 import com.rk.icons.Icon
 import com.rk.resources.drawables
@@ -17,7 +17,7 @@ class SearchFileFolderCommand : GlobalCommand() {
     override fun getLabel(): String = strings.search_file_folder.getString()
 
     override fun action(context: ActionContext) {
-        fileSearchDialog = true
+        GlobalDialogs.fileSearchDialog.value = true
     }
 
     override fun isEnabled(): Boolean {

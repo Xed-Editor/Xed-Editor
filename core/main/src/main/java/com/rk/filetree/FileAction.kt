@@ -331,7 +331,7 @@ object OpenAsProjectAction : FileAction() {
 
     override suspend fun isEnabled(file: FileObject, root: FileObject?): Boolean {
         val drawerViewModel = MainActivity.instance?.drawerViewModel ?: return false
-        return drawerViewModel.drawerTabs.none { it is FileTreeTab && it.root == file }
+        return drawerViewModel.drawerTabs.value.none { it is FileTreeTab && it.root == file }
     }
 
     override val type = FileActionType(file = false, folder = true, rootFolder = true)

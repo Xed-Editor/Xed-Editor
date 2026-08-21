@@ -9,12 +9,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,11 +37,16 @@ import com.rk.search.CodeSearchDialog
 import com.rk.search.FileSearchDialog
 import com.rk.utils.application
 import com.rk.utils.errorDialog
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-var addDialog by mutableStateOf(false)
-var fileSearchDialog by mutableStateOf(false)
-var codeSearchDialog by mutableStateOf(false)
+object GlobalDialogs {
+    val addDialog = MutableStateFlow(false)
+
+    val fileSearchDialog = MutableStateFlow(false)
+
+    val codeSearchDialog = MutableStateFlow(false)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +55,14 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     val scope = rememberCoroutineScope()
 
     val commands by remember { derivedStateOf { ToolbarConfiguration.globalCommands } }
+
+    val drawerTabs by drawerViewModel.drawerTabs.collectAsState()
+    val currentDrawerTabIndex by drawerViewModel.currentDrawerTabIndex.collectAsState()
+    val currentDrawerTab = drawerTabs.getOrNull(currentDrawerTabIndex)
+
+    val addDialog by GlobalDialogs.addDialog.collectAsState()
+    val fileSearchDialog by GlobalDialogs.fileSearchDialog.collectAsState()
+    val codeSearchDialog by GlobalDialogs.codeSearchDialog.collectAsState()
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         for (command in commands) {
@@ -69,12 +81,12 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
         }
     }
 
-    if (fileSearchDialog && drawerViewModel.currentDrawerTab is FileTreeTab) {
+    if (fileSearchDialog && currentDrawerTab is FileTreeTab) {
         FileSearchDialog(
             mainViewModel = viewModel,
             searchViewModel = searchViewModel.get()!!,
-            projectFile = (drawerViewModel.currentDrawerTab as FileTreeTab).root,
-            onFinish = { fileSearchDialog = false },
+            projectFile = currentDrawerTab.root,
+            onFinish = { GlobalDialogs.fileSearchDialog.value = false },
             onSelect = { projectFile, fileObject ->
                 scope.launch {
                     if (fileObject.isFile()) {
@@ -94,20 +106,20 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
         )
     }
 
-    if (codeSearchDialog && drawerViewModel.currentDrawerTab is FileTreeTab) {
+    if (codeSearchDialog && currentDrawerTab is FileTreeTab) {
         CodeSearchDialog(
             mainViewModel = viewModel,
             searchViewModel = searchViewModel.get()!!,
-            projectFile = (drawerViewModel.currentDrawerTab as FileTreeTab).root,
-            onFinish = { codeSearchDialog = false },
+            projectFile = currentDrawerTab.root,
+            onFinish = { GlobalDialogs.codeSearchDialog.value = false },
         )
     }
 
     if (addDialog) {
-        ModalBottomSheet(onDismissRequest = { addDialog = false }) {
+        ModalBottomSheet(onDismissRequest = { GlobalDialogs.addDialog.value = false }) {
             Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
                 AddDialogItem(resId = drawables.file, title = stringResource(strings.temp_file)) {
-                    addDialog = false
+                    GlobalDialogs.addDialog.value = false
 
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -127,7 +139,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
                 }
 
                 AddDialogItem(icon = XedIcons.CreateNewFile, title = stringResource(strings.new_file)) {
-                    addDialog = false
+                    GlobalDialogs.addDialog.value = false
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
                     intent.type = "application/octet-stream"
@@ -156,7 +168,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
                 }
 
                 AddDialogItem(resId = drawables.file_symlink, title = stringResource(strings.open_file)) {
-                    addDialog = false
+                    GlobalDialogs.addDialog.value = false
                     MainActivity.instance?.apply {
                         fileManager.requestOpenFile(mimeType = "*/*") {
                             if (it != null) {

@@ -23,6 +23,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -89,15 +90,20 @@ fun MainContent(
 
     FileActionDialogs(drawerViewModel, fileTreeViewModel, scope, context)
 
-    if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
+    val isDraggingPalette by mainViewModel.isDraggingPalette.collectAsState()
+    val showCommandPalette by mainViewModel.showCommandPalette.collectAsState()
+    val initialChildCommands by mainViewModel.commandPaletteInitialChildCommands.collectAsState()
+    val initialPlaceholder by mainViewModel.commandPaletteInitialPlaceholder.collectAsState()
+
+    if (isDraggingPalette || showCommandPalette) {
         val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command)
 
         CommandPalette(
-            progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
+            progress = if (showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
             commands = CommandProvider.commandList,
             lastUsedCommand = lastUsedCommand,
-            initialChildCommands = mainViewModel.commandPaletteInitialChildCommands,
-            initialPlaceholder = mainViewModel.commandPaletteInitialPlaceholder,
+            initialChildCommands = initialChildCommands,
+            initialPlaceholder = initialPlaceholder,
             onDismissRequest = { scope.launch { mainViewModel.closeCommandPalette() } },
         )
     }

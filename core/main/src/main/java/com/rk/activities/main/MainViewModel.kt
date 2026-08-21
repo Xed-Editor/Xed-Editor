@@ -1,9 +1,6 @@
 package com.rk.activities.main
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.session.EditorManager
@@ -17,6 +14,8 @@ import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -59,32 +58,42 @@ class MainViewModel : ViewModel() {
     val editorTabs
         get() = editorManager.tabs
 
-    var showTopBar by mutableStateOf(true)
+    private val _showTopBar = MutableStateFlow(true)
+    val showTopBar = _showTopBar.asStateFlow()
 
-    var showCommandPalette by mutableStateOf(false)
-        private set
+    private val _showCommandPalette = MutableStateFlow(false)
+    val showCommandPalette = _showCommandPalette.asStateFlow()
 
-    var isDraggingPalette by mutableStateOf(false)
+    private val _isDraggingPalette = MutableStateFlow(false)
+    val isDraggingPalette = _isDraggingPalette.asStateFlow()
     var draggingPaletteProgress = Animatable(0f)
 
-    var commandPaletteInitialChildCommands by mutableStateOf<List<Command>?>(null)
-        private set
+    private val _commandPaletteInitialChildCommands = MutableStateFlow<List<Command>?>(null)
+    val commandPaletteInitialChildCommands = _commandPaletteInitialChildCommands.asStateFlow()
 
-    var commandPaletteInitialPlaceholder by mutableStateOf<String?>(null)
-        private set
+    private val _commandPaletteInitialPlaceholder = MutableStateFlow<String?>(null)
+    val commandPaletteInitialPlaceholder = _commandPaletteInitialPlaceholder.asStateFlow()
 
-    var pendingExtensionInstall by mutableStateOf<PendingExtensionInstall?>(null)
-        private set
+    private val _pendingExtensionInstall = MutableStateFlow<PendingExtensionInstall?>(null)
+    val pendingExtensionInstall = _pendingExtensionInstall.asStateFlow()
+
+    fun setShowTopBar(value: Boolean) {
+        _showTopBar.value = value
+    }
+
+    fun setDraggingPalette(value: Boolean) {
+        _isDraggingPalette.value = value
+    }
 
     fun openExtensionIntentDialog(manifest: ExtensionManifest, file: File, icon: File) {
-        pendingExtensionInstall = PendingExtensionInstall(manifest, file, icon)
+        _pendingExtensionInstall.value = PendingExtensionInstall(manifest, file, icon)
     }
 
     fun closeExtensionIntentDialog() {
-        val pendingInstall = pendingExtensionInstall
+        val pendingInstall = _pendingExtensionInstall.value
 
         viewModelScope.launch(Dispatchers.Main) {
-            pendingExtensionInstall = null
+            _pendingExtensionInstall.value = null
 
             withContext(Dispatchers.IO) {
                 pendingInstall?.icon?.delete()
@@ -94,23 +103,23 @@ class MainViewModel : ViewModel() {
     }
 
     fun showCommandPalette() {
-        showCommandPalette = true
-        commandPaletteInitialChildCommands = null
-        commandPaletteInitialPlaceholder = null
+        _showCommandPalette.value = true
+        _commandPaletteInitialChildCommands.value = null
+        _commandPaletteInitialPlaceholder.value = null
     }
 
     fun showCommandPaletteWithChildren(placeholder: String? = null, childCommands: List<Command>) {
-        showCommandPalette = true
-        commandPaletteInitialChildCommands = childCommands
-        commandPaletteInitialPlaceholder = placeholder
+        _showCommandPalette.value = true
+        _commandPaletteInitialChildCommands.value = childCommands
+        _commandPaletteInitialPlaceholder.value = placeholder
     }
 
     suspend fun closeCommandPalette() {
-        isDraggingPalette = false
+        _isDraggingPalette.value = false
         draggingPaletteProgress.snapTo(0f)
-        showCommandPalette = false
-        commandPaletteInitialChildCommands = null
-        commandPaletteInitialPlaceholder = null
+        _showCommandPalette.value = false
+        _commandPaletteInitialChildCommands.value = null
+        _commandPaletteInitialPlaceholder.value = null
     }
 
     private val sessionRestored = CompletableDeferred<Unit>()

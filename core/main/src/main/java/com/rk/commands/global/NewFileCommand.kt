@@ -4,7 +4,7 @@ import android.view.KeyEvent
 import com.rk.commands.ActionContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
-import com.rk.components.addDialog
+import com.rk.components.GlobalDialogs
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -16,7 +16,7 @@ class NewFileCommand : GlobalCommand() {
     override fun getLabel(): String = strings.new_file.getString()
 
     override fun action(context: ActionContext) {
-        addDialog = true
+        GlobalDialogs.addDialog.value = true
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.add)

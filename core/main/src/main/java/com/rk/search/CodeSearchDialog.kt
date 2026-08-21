@@ -38,6 +38,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -89,28 +90,43 @@ fun CodeSearchDialog(
     val context = LocalContext.current
     val viewportHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
 
+    val codeSearchQuery by searchViewModel.codeSearchQuery.collectAsState()
+    val codeReplaceQuery by searchViewModel.codeReplaceQuery.collectAsState()
+    val isReplaceShown by searchViewModel.isReplaceShown.collectAsState()
+    val showOptionsMenu by searchViewModel.showOptionsMenu.collectAsState()
+    val ignoreCase by searchViewModel.ignoreCase.collectAsState()
+    val isSearchingCode by searchViewModel.isSearchingCode.collectAsState()
+    val totalCodeSearchResults by searchViewModel.totalCodeSearchResults.collectAsState()
+    val codeSearchResultsOrder by searchViewModel.codeSearchResultsOrder.collectAsState()
+    val codeSearchResults by searchViewModel.codeSearchResults.collectAsState()
+    val collapsedFiles by searchViewModel.collapsedFiles.collectAsState()
+    val fileMaskText by searchViewModel.fileMaskText.collectAsState()
+    val showFileMaskDialog by searchViewModel.showFileMaskDialog.collectAsState()
+    val isIndexingMap by searchViewModel.isIndexing.collectAsState()
+    val isIndexingProject = isIndexingMap[projectFile] == true
+
     val editorTab = mainViewModel.currentTab as? EditorTab
     val textFieldSearchState =
         rememberTextFieldState(
-            editorTab?.editorState?.editor?.get()?.getSelectedText() ?: searchViewModel.codeSearchQuery
+            editorTab?.editorState?.editor?.get()?.getSelectedText() ?: codeSearchQuery
         )
-    LaunchedEffect(textFieldSearchState.text) { searchViewModel.codeSearchQuery = textFieldSearchState.text.toString() }
+    LaunchedEffect(textFieldSearchState.text) { searchViewModel.setCodeSearchQuery(textFieldSearchState.text.toString()) }
 
-    val textFieldReplaceState = rememberTextFieldState(searchViewModel.codeReplaceQuery)
+    val textFieldReplaceState = rememberTextFieldState(codeReplaceQuery)
     LaunchedEffect(textFieldReplaceState.text) {
-        searchViewModel.codeReplaceQuery = textFieldReplaceState.text.toString()
+        searchViewModel.setCodeReplaceQuery(textFieldReplaceState.text.toString())
     }
 
     LaunchedEffect(
-        searchViewModel.isIndexing(projectFile),
-        searchViewModel.codeSearchQuery,
-        searchViewModel.ignoreCase,
-        searchViewModel.fileMaskText,
+        isIndexingProject,
+        codeSearchQuery,
+        ignoreCase,
+        fileMaskText,
     ) {
         searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
     }
 
-    if (searchViewModel.showFileMaskDialog) {
+    if (showFileMaskDialog) {
         ExcludeFilesDialog(searchViewModel)
     }
 
@@ -137,7 +153,7 @@ fun CodeSearchDialog(
                     IconButton(modifier = Modifier, onClick = { searchViewModel.toggleReplaceShown() }) {
                         Icon(
                             imageVector =
-                                if (searchViewModel.isReplaceShown) {
+                                if (isReplaceShown) {
                                     Icons.Outlined.KeyboardArrowUp
                                 } else {
                                     Icons.Outlined.KeyboardArrowDown
@@ -148,26 +164,26 @@ fun CodeSearchDialog(
                 },
                 trailingIcon = {
                     Box {
-                        IconButton(onClick = { searchViewModel.showOptionsMenu = true }) {
+                        IconButton(onClick = { searchViewModel.setShowOptionsMenu(true) }) {
                             Icon(imageVector = Icons.Outlined.MoreVert, stringResource(strings.more))
                         }
 
                         DropdownMenu(
-                            expanded = searchViewModel.showOptionsMenu,
-                            onDismissRequest = { searchViewModel.showOptionsMenu = false },
+                            expanded = showOptionsMenu,
+                            onDismissRequest = { searchViewModel.setShowOptionsMenu(false) },
                         ) {
                             XedDropdownMenuItem(
                                 text = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Checkbox(checked = searchViewModel.ignoreCase, onCheckedChange = null)
+                                        Checkbox(checked = ignoreCase, onCheckedChange = null)
                                         Spacer(Modifier.width(12.dp))
                                         Text(stringResource(strings.ignore_case))
                                         Spacer(Modifier.width(8.dp))
                                     }
                                 },
                                 onClick = {
-                                    searchViewModel.ignoreCase = !searchViewModel.ignoreCase
-                                    searchViewModel.showOptionsMenu = false
+                                    searchViewModel.setIgnoreCase(!ignoreCase)
+                                    searchViewModel.setShowOptionsMenu(false)
                                 },
                             )
 
@@ -181,8 +197,8 @@ fun CodeSearchDialog(
                                     }
                                 },
                                 onClick = {
-                                    searchViewModel.showFileMaskDialog = true
-                                    searchViewModel.showOptionsMenu = false
+                                    searchViewModel.setShowFileMaskDialog(true)
+                                    searchViewModel.setShowOptionsMenu(false)
                                 },
                             )
                         }
@@ -191,7 +207,7 @@ fun CodeSearchDialog(
                 keyboardOptions =
                     KeyboardOptions(
                         imeAction =
-                            if (searchViewModel.isReplaceShown) {
+                            if (isReplaceShown) {
                                 ImeAction.Next
                             } else {
                                 ImeAction.Search
@@ -200,7 +216,7 @@ fun CodeSearchDialog(
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                 placeholder = { Text(text = stringResource(strings.search)) },
                 supportingText =
-                    if (!searchViewModel.isReplaceShown) {
+                    if (!isReplaceShown) {
                         {
                             Text(
                                 text =
@@ -214,7 +230,7 @@ fun CodeSearchDialog(
                     } else null,
             )
 
-            if (searchViewModel.isReplaceShown) {
+            if (isReplaceShown) {
                 TextField(
                     state = textFieldReplaceState,
                     lineLimits = TextFieldLineLimits.SingleLine,
@@ -224,8 +240,8 @@ fun CodeSearchDialog(
                     shape = RectangleShape,
                     trailingIcon = {
                         IconButton(
-                            enabled = searchViewModel.totalCodeSearchResults != 0,
-                            onClick = { replaceAll(searchViewModel.codeSearchResults.values.flatten()) },
+                            enabled = totalCodeSearchResults != 0,
+                            onClick = { replaceAll(codeSearchResults.values.flatten()) },
                         ) {
                             Icon(
                                 painter = painterResource(drawables.find_replace),
@@ -256,13 +272,13 @@ fun CodeSearchDialog(
                         bottom = 8.dp,
                     ),
             ) {
-                if (searchViewModel.isIndexing(projectFile) || searchViewModel.isSearchingCode) {
+                if (isIndexingProject || isSearchingCode) {
                     CircularProgressIndicator(modifier = Modifier.size(9.dp), strokeWidth = 2.dp)
                 }
                 val numberFormatter = rememberNumberFormatter()
                 val resultCount by remember {
                     derivedStateOf {
-                        val amount = searchViewModel.totalCodeSearchResults
+                        val amount = totalCodeSearchResults
                         val suffix = if (amount == SearchViewModel.MAX_CODE_RESULTS) "+" else ""
                         numberFormatter.format(amount) + suffix
                     }
@@ -270,8 +286,8 @@ fun CodeSearchDialog(
                 Text(
                     stringResource(
                             when {
-                                searchViewModel.isIndexing(projectFile) -> strings.indexing
-                                searchViewModel.totalCodeSearchResults != 0 -> strings.results
+                                isIndexingProject -> strings.indexing
+                                totalCodeSearchResults != 0 -> strings.results
                                 else -> strings.no_results
                             }
                         )
@@ -281,11 +297,11 @@ fun CodeSearchDialog(
 
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
-            if (searchViewModel.codeSearchQuery.isNotEmpty()) {
+            if (codeSearchQuery.isNotEmpty()) {
                 LazyColumn {
-                    searchViewModel.codeSearchResultsOrder.forEachIndexed { _, fileObject ->
-                        val codeItems = searchViewModel.codeSearchResults[fileObject] ?: return@forEachIndexed
-                        val isCollapsed = searchViewModel.isCollapsed(fileObject)
+                    codeSearchResultsOrder.forEachIndexed { _, fileObject ->
+                        val codeItems = codeSearchResults[fileObject] ?: return@forEachIndexed
+                        val isCollapsed = fileObject in collapsedFiles
 
                         item {
                             Row(
@@ -328,7 +344,7 @@ fun CodeSearchDialog(
                                     modifier = Modifier.weight(1f),
                                 )
 
-                                if (searchViewModel.isReplaceShown) {
+                                if (isReplaceShown) {
                                     CompositionLocalProvider(
                                         LocalContentColor provides MaterialTheme.colorScheme.primary
                                     ) {
@@ -361,7 +377,7 @@ fun CodeSearchDialog(
                                 CodeItemRow(
                                     item = codeItem,
                                     leadingIcon =
-                                        if (searchViewModel.isReplaceShown) {
+                                        if (isReplaceShown) {
                                             {
                                                 Icon(
                                                     painter = painterResource(drawables.find_replace),
@@ -407,7 +423,7 @@ fun CodeSearchDialog(
 
 @Composable
 fun ExcludeFilesDialog(searchViewModel: SearchViewModel) {
-    var fileMaskText by remember { mutableStateOf(searchViewModel.fileMaskText) }
+    var fileMaskText by remember { mutableStateOf(searchViewModel.fileMaskText.value) }
 
     SingleInputDialog(
         title = stringResource(id = strings.file_mask),
@@ -415,12 +431,12 @@ fun ExcludeFilesDialog(searchViewModel: SearchViewModel) {
         inputValue = fileMaskText,
         onInputValueChange = { fileMaskText = it },
         onConfirm = {
-            searchViewModel.fileMaskText = fileMaskText
+            searchViewModel.setFileMaskText(fileMaskText)
             Settings.file_mask = fileMaskText
         },
         onFinish = {
-            searchViewModel.fileMaskText = Settings.file_mask
-            searchViewModel.showFileMaskDialog = false
+            searchViewModel.setFileMaskText(Settings.file_mask)
+            searchViewModel.setShowFileMaskDialog(false)
         },
     )
 }

@@ -9,6 +9,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -22,10 +24,11 @@ import com.rk.resources.strings
 @OptIn(ExperimentalMaterial3Api::class)
 fun RunnerSheet() {
     val context = LocalContext.current
+    val runnersToShow by RunnerUI.runnersToShow.collectAsState()
     ModalBottomSheet(
         onDismissRequest = {
-            RunnerUI.showRunnerDialog = false
-            RunnerUI.runnersToShow = emptyList()
+            RunnerUI.showRunnerDialog.value = false
+            RunnerUI.runnersToShow.value = emptyList()
         }
     ) {
         Column(
@@ -35,7 +38,7 @@ fun RunnerSheet() {
             Text(text = stringResource(strings.choose_runner), style = MaterialTheme.typography.titleLarge)
 
             Column {
-                RunnerUI.runnersToShow.forEach { runner ->
+                runnersToShow.forEach { runner ->
                     val activity = LocalActivity.current
 
                     AddDialogItem(
@@ -43,8 +46,8 @@ fun RunnerSheet() {
                         title = runner.label,
                     ) {
                         activity?.let { runner.run(it) }
-                        RunnerUI.showRunnerDialog = false
-                        RunnerUI.runnersToShow = emptyList()
+                        RunnerUI.showRunnerDialog.value = false
+                        RunnerUI.runnersToShow.value = emptyList()
                     }
                 }
             }

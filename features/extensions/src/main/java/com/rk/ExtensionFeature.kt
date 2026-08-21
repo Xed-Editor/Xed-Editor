@@ -1,6 +1,8 @@
 package com.rk
 
 import android.app.Application
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.rk.App.Companion.iconPackManager
@@ -101,11 +103,12 @@ class ExtensionFeature : Feature {
             DialogProvider {
                 MainActivity.instance?.let {
                     val viewModel = it.viewModel
-                    val pendingInstall = viewModel.pendingExtensionInstall ?: return@let
+                    val pendingInstall by viewModel.pendingExtensionInstall.collectAsState()
+                    val install = pendingInstall ?: return@let
                     XedInstallDialog(
-                        pendingInstall.manifest,
-                        pendingInstall.icon,
-                        pendingInstall.packageFile,
+                        install.manifest,
+                        install.icon,
+                        install.packageFile,
                         viewModel::closeExtensionIntentDialog,
                     )
                 }

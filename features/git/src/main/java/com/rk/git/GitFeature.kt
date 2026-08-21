@@ -3,6 +3,7 @@ package com.rk.git
 import android.app.Application
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -266,7 +267,10 @@ class GitFeature : Feature {
 object GitProperty : FilePropertiesProvider {
     @Composable
     override fun provideProperties(file: FileObject): List<FileProperty> {
-        val changeType = gitViewModel.get()?.getChangeType(file.getAbsolutePath()) ?: return emptyList()
+        val viewModel = gitViewModel.get() ?: return emptyList()
+        val changes by viewModel.changes.collectAsState(initial = emptyMap())
+        val changeType = changes.values.flatten().find { it.absolutePath == file.getAbsolutePath() }?.type
+            ?: return emptyList()
         val gitStatus = changeType.name.lowercase().replaceFirstChar { it.uppercase() }
         val color =
             when (changeType) {
@@ -291,7 +295,10 @@ object GitFileDecorationProvider : FileDecorationProvider {
     @Composable
     override fun provideDecoration(file: FileObject): FileDecoration? {
         if (!Settings.git_colorize_names) return null
-        val changeType = gitViewModel.get()?.getChangeType(file.getAbsolutePath()) ?: return null
+        val viewModel = gitViewModel.get() ?: return null
+        val changes by viewModel.changes.collectAsState(initial = emptyMap())
+        val changeType = changes.values.flatten().find { it.absolutePath == file.getAbsolutePath() }?.type
+            ?: return null
         val color =
             when (changeType) {
                 ChangeType.ADDED,
