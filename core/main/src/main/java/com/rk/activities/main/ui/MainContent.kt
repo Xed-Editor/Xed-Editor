@@ -52,6 +52,7 @@ import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.addIf
 import com.rk.drawer.DrawerViewModel
 import com.rk.editor.preloadSelectionColor
+import com.rk.filetree.BaseFileAction
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext
 import com.rk.filetree.FileActionDialogs
@@ -394,7 +395,23 @@ private fun TabItemContent(
         tab.file?.let {
             DropdownMenu(expanded = showFileActionMenu, onDismissRequest = { showFileActionMenu = false }) {
                 val root = (tab as? EditorTab)?.projectRoot
-                val actions = remember(it) { FileActionProvider.getActions(it, root) }
+                val scope = rememberCoroutineScope()
+                var actions by remember(it) { mutableStateOf<List<BaseFileAction>>(emptyList()) }
+                var enabledActions by remember(it) { mutableStateOf<Set<BaseFileAction>>(emptySet()) }
+
+                LaunchedEffect(it, root) { actions = FileActionProvider.getActions(it, root) }
+                LaunchedEffect(actions, it, root) {
+                    enabledActions =
+                        actions
+                            .filter { action ->
+                                when (action) {
+                                    is FileAction -> action.isEnabled(it, root)
+                                    is MultiFileAction -> action.isEnabled(listOf(it), root)
+                                    else -> true
+                                }
+                            }
+                            .toSet()
+                }
 
                 actions.forEach { action ->
                     when (action) {
@@ -402,11 +419,11 @@ private fun TabItemContent(
                             XedDropdownMenuItem(
                                 text = { Text(action.title) },
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
-                                enabled = action.isEnabled(it),
+                                enabled = action in enabledActions,
                                 onClick = {
                                     val context =
                                         FileActionContext(it, root, fileTreeViewModel, drawerViewModel, context)
-                                    action.action(context)
+                                    scope.launch { action.execute(context) }
                                     showFileActionMenu = false
                                 },
                             )
@@ -416,11 +433,11 @@ private fun TabItemContent(
                             XedDropdownMenuItem(
                                 text = { Text(action.title) },
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
-                                enabled = action.isEnabled(files),
+                                enabled = action in enabledActions,
                                 onClick = {
                                     val context =
                                         MultiFileActionContext(files, root, fileTreeViewModel, drawerViewModel, context)
-                                    action.action(context)
+                                    scope.launch { action.execute(context) }
                                     showFileActionMenu = false
                                 },
                             )

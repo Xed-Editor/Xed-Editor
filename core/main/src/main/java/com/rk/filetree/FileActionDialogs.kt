@@ -96,12 +96,22 @@ fun FileActionDialogs(
                         val path = file.getAbsolutePath()
                         viewModel.withFileOperation {
                             FileOperations.deleteFile(file)
-                                .onFailure { toast(it.message ?: strings.delete_failed.getString()) }
+                                .onFailure {
+                                    toast(it.message ?: strings.delete_failed.getString())
+                                    val parentFile = file.getParentFile()
+                                    if (parentFile != null) {
+                                        viewModel.updateCache(file.getParentFile()!!)
+                                    }else{
+                                        viewModel.updateCache(file)
+                                    }
+                                }
                                 .onSuccess {
                                     Events.publish(FileEvent.Deleted(path))
                                     val parentFile = file.getParentFile()
                                     if (parentFile != null) {
                                         viewModel.updateCache(file.getParentFile()!!)
+                                    }else{
+                                        viewModel.updateCache(file)
                                     }
 
                                     if (file == root) {

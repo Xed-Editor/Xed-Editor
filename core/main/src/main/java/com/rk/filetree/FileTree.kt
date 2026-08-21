@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -155,8 +156,26 @@ fun FileTree(
 @Composable
 private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: DrawerViewModel, rootNode: FileTreeNode) {
     val selectedFiles = viewModel.getSelectedFiles(rootNode.file)
-    val actions = remember(selectedFiles, rootNode.file) { FileActionProvider.getActions(selectedFiles, rootNode.file) }
+    val scope = rememberCoroutineScope()
+    var actions by remember(selectedFiles, rootNode.file) { mutableStateOf<List<BaseFileAction>>(emptyList()) }
+    var enabledActions by remember(selectedFiles, rootNode.file) { mutableStateOf<Set<BaseFileAction>>(emptySet()) }
     var expanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(selectedFiles, rootNode.file) {
+        actions = FileActionProvider.getActions(selectedFiles, rootNode.file)
+    }
+    LaunchedEffect(actions, selectedFiles, rootNode.file) {
+        enabledActions =
+            actions
+                .filter { action ->
+                    when (action) {
+                        is FileAction -> action.isEnabled(selectedFiles.first(), rootNode.file)
+                        is MultiFileAction -> action.isEnabled(selectedFiles, rootNode.file)
+                        else -> true
+                    }
+                }
+                .toSet()
+    }
 
     val context = LocalContext.current
 
@@ -182,11 +201,11 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                     is FileAction -> {
                         val file = selectedFiles.first() // Is safe because of the check in getActions()
                         IconButton(
-                            enabled = action.isEnabled(file),
+                            enabled = action in enabledActions,
                             onClick = {
                                 val context =
                                     FileActionContext(file, rootNode.file, viewModel, drawerViewModel, context)
-                                action.action(context)
+                                scope.launch { action.execute(context) }
 
                                 viewModel.unselectAllFiles(rootNode.file)
                             },
@@ -196,7 +215,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                     }
                     is MultiFileAction -> {
                         IconButton(
-                            enabled = action.isEnabled(selectedFiles),
+                            enabled = action in enabledActions,
                             onClick = {
                                 val context =
                                     MultiFileActionContext(
@@ -206,7 +225,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                         drawerViewModel,
                                         context,
                                     )
-                                action.action(context)
+                                scope.launch { action.execute(context) }
 
                                 viewModel.unselectAllFiles(rootNode.file)
                             },
@@ -231,7 +250,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                     XedDropdownMenuItem(
                                         text = { Text(action.title) },
                                         leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
-                                        enabled = action.isEnabled(file),
+                                        enabled = action in enabledActions,
                                         onClick = {
                                             val context =
                                                 FileActionContext(
@@ -241,7 +260,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                                     drawerViewModel,
                                                     context,
                                                 )
-                                            action.action(context)
+                                            scope.launch { action.execute(context) }
 
                                             viewModel.unselectAllFiles(rootNode.file)
                                             expanded = false
@@ -252,7 +271,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                     XedDropdownMenuItem(
                                         text = { Text(action.title) },
                                         leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
-                                        enabled = action.isEnabled(selectedFiles),
+                                        enabled = action in enabledActions,
                                         onClick = {
                                             val context =
                                                 MultiFileActionContext(
@@ -262,7 +281,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                                     drawerViewModel,
                                                     context,
                                                 )
-                                            action.action(context)
+                                            scope.launch { action.execute(context) }
 
                                             viewModel.unselectAllFiles(rootNode.file)
                                             expanded = false
