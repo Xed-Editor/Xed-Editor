@@ -100,7 +100,7 @@ fun MainContent(
 
         CommandPalette(
             progress = if (showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
-            commands = CommandProvider.commandList,
+            commands = CommandProvider.commandList.value,
             lastUsedCommand = lastUsedCommand,
             initialChildCommands = initialChildCommands,
             initialPlaceholder = initialPlaceholder,

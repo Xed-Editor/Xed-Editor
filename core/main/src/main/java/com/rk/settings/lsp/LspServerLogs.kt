@@ -56,7 +56,7 @@ fun LspServerLogs(server: LspServer, id: String) {
     }
     var sourceDropdownExpanded by remember { mutableStateOf(false) }
 
-    val instance = server.instances.find { it.id == id }
+    val instance = server.instances.value.find { it.id == id }
     val logText =
         instance?.let { buildLogs(server, it, messageType, messageSources) } ?: strings.instance_not_found.getString()
 
@@ -129,9 +129,9 @@ fun LspServerLogs(server: LspServer, id: String) {
         }
 
         val isRunning =
-            instance?.status != LspConnectionStatus.NOT_RUNNING &&
-                instance?.status != LspConnectionStatus.CRASHED &&
-                instance?.status != LspConnectionStatus.TIMEOUT
+            instance?.status?.value != LspConnectionStatus.NOT_RUNNING &&
+                instance?.status?.value != LspConnectionStatus.CRASHED &&
+                instance?.status?.value != LspConnectionStatus.TIMEOUT
         if (isRunning) {
             IconButton(
                 enabled = instance != null,
@@ -193,7 +193,7 @@ private fun buildLogs(
 
         append("[REPORT] Server name: ").append(server.serverName).appendLine()
         append("[REPORT] Server id: ").append(server.id).appendLine()
-        append("[REPORT] Server status: ").append(instance.status.name).appendLine()
+        append("[REPORT] Server status: ").append(instance.status.value.name).appendLine()
         append("[REPORT] Supported extensions: ").append(server.supportedExtensions).appendLine()
 
         appendLine()

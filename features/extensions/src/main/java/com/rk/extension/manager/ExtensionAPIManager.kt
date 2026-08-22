@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 object ExtensionAPIManager : Application.ActivityLifecycleCallbacks, CoroutineScope by DefaultScope {
 
     private fun runForAll(block: ExtensionAPI.() -> Unit) {
-        extensionManager.loadedExtensions.values.forEach { loaded -> loaded?.api?.block() }
+        extensionManager.loadedExtensions.value.values.forEach { loaded -> loaded?.api?.block() }
     }
 
     private fun runForAllAsync(block: ExtensionAPI.() -> Unit) {

@@ -3,7 +3,6 @@ package com.rk.feature
 import android.app.Activity
 import android.app.Application
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.rk.icons.Icon
 import com.rk.resources.drawables
@@ -13,6 +12,10 @@ import com.rk.settings.Preference
 import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.xededitor.BuildConfig
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 interface Feature {
     fun init(application: Application)
@@ -44,7 +47,8 @@ data class FeatureToggle(
 object FeatureRegistry {
     private val features = mutableMapOf<String, Feature>()
     private val featuresWithoutToggles = mutableListOf<Feature>()
-    val toggles = mutableStateListOf<FeatureToggle>()
+    private val _toggles = MutableStateFlow<List<FeatureToggle>>(emptyList())
+    val toggles: StateFlow<List<FeatureToggle>> = _toggles.asStateFlow()
 
     init {
         registerToggle(
@@ -100,11 +104,11 @@ object FeatureRegistry {
     }
 
     fun registerToggle(toggle: FeatureToggle) {
-        if (toggles.any { it.key == toggle.key }) return
-        toggles.add(toggle)
+        if (_toggles.value.any { it.key == toggle.key }) return
+        _toggles.update { it + toggle }
     }
 
     fun isEnabled(key: String): Boolean {
-        return toggles.find { it.key == key }?.state?.value ?: false
+        return _toggles.value.find { it.key == key }?.state?.value ?: false
     }
 }

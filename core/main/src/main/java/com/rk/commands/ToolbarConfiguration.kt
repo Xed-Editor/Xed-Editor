@@ -1,9 +1,11 @@
 package com.rk.commands
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.settings.Settings
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 object ToolbarConfiguration {
     const val DEFAULT_EDITOR_TOOLBAR_COMMANDS =
@@ -55,31 +57,34 @@ object ToolbarConfiguration {
         removeEditorToolbarCommand(command.id)
     }
 
-    private var _globalCommands: SnapshotStateList<Command> =
-        mutableStateListOf(
-            CommandProvider.NewFileCommand,
-            CommandProvider.SettingsCommand,
+    private val _globalCommands =
+        MutableStateFlow<List<Command>>(
+            listOf(
+                CommandProvider.NewFileCommand,
+                CommandProvider.SettingsCommand,
+            )
         )
 
-    val globalCommands: List<Command>
-        get() = _globalCommands
+    val globalCommands: StateFlow<List<Command>> = _globalCommands.asStateFlow()
 
     @XedExtensionPoint
     fun addGlobalToolbarCommand(command: Command, index: Int? = null) {
-        val existingIndex = _globalCommands.indexOf(command)
+        val existingIndex = _globalCommands.value.indexOf(command)
 
         if (existingIndex != -1) {
-            _globalCommands.removeAt(existingIndex)
+            _globalCommands.update { it - command }
         }
 
         val insertIndex =
             when {
                 index != null -> index
                 existingIndex != -1 -> existingIndex
-                else -> _globalCommands.size
+                else -> _globalCommands.value.size
             }
 
-        _globalCommands.add(insertIndex.coerceIn(0, _globalCommands.size), command)
+        _globalCommands.update { list ->
+            list.toMutableList().also { it.add(insertIndex.coerceIn(0, it.size), command) }
+        }
     }
 
     @XedExtensionPoint
@@ -90,7 +95,7 @@ object ToolbarConfiguration {
 
     @XedExtensionPoint
     fun removeGlobalToolbarCommand(command: Command) {
-        _globalCommands.remove(command)
+        _globalCommands.update { it - command }
     }
 
     @XedExtensionPoint

@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -92,6 +93,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
     var refreshKey by remember { mutableIntStateOf(0) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateAsState()
+    val instances by server.instances.collectAsState()
 
     var showStartupTimeoutDialog by remember { mutableStateOf(false) }
 
@@ -234,7 +236,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp),
         ) {
-            val hasRunningInstances = server.instances.map { it.status }.contains(LspConnectionStatus.RUNNING)
+            val hasRunningInstances = instances.map { it.status.value }.contains(LspConnectionStatus.RUNNING)
             RestartAllButton(hasRunningInstances)
 
             when (status) {
@@ -252,8 +254,8 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             val visibleInstances =
-                server.instances.filter {
-                    it.status != LspConnectionStatus.NOT_RUNNING ||
+                instances.filter {
+                    it.status.value != LspConnectionStatus.NOT_RUNNING ||
                         DefinitionPrevention.isServerPrevented(it.lspProject, it.server)
                 }
             if (visibleInstances.isNotEmpty()) {

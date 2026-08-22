@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 composable(MainRoutes.Disclaimer.route) { DisclaimerScreen(navController) { finishAffinity() } }
 
-                MainRouteRegistry.routes.forEach { customRoute ->
+                MainRouteRegistry.routes.value.forEach { customRoute ->
                     composable(customRoute.route, arguments = customRoute.arguments) { backStackEntry ->
                         customRoute.content(navController, backStackEntry)
                     }

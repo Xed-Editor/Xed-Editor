@@ -4,8 +4,6 @@ import android.app.Application
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.graphics.toColorInt
@@ -30,6 +28,10 @@ import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -60,15 +62,18 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         allowTrailingComma = true
     }
 
-    val loadedThemes = mutableStateListOf<ThemeHolder>().apply { addAll(builtInThemes) }
-    val localThemes = mutableStateMapOf<String, LocalTheme>()
-    val storeThemes = mutableStateMapOf<String, StoreTheme>()
+    private val _loadedThemes = MutableStateFlow<List<ThemeHolder>>(builtInThemes)
+    val loadedThemes: StateFlow<List<ThemeHolder>> = _loadedThemes.asStateFlow()
+    private val _localThemes = MutableStateFlow<Map<String, LocalTheme>>(emptyMap())
+    val localThemes: StateFlow<Map<String, LocalTheme>> = _localThemes.asStateFlow()
+    private val _storeThemes = MutableStateFlow<Map<String, StoreTheme>>(emptyMap())
+    val storeThemes: StateFlow<Map<String, StoreTheme>> = _storeThemes.asStateFlow()
 
-    fun isInstalled(id: String) = localThemes.containsKey(id)
+    fun isInstalled(id: String) = localThemes.value.containsKey(id)
 
     fun getTheme(id: String): ThemePackage? {
-        val local = localThemes[id]
-        val store = storeThemes[id]
+        val local = localThemes.value[id]
+        val store = storeThemes.value[id]
 
         return when {
             (local != null && store != null) -> UpdatableTheme(local, store)
@@ -79,15 +84,20 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
     }
 
     fun getSyncedThemes(): List<ThemePackage> {
-        val allIds = localThemes.keys + storeThemes.keys
+        val allIds = localThemes.value.keys + storeThemes.value.keys
         return allIds.mapNotNull { getTheme(it) }
     }
 
     fun uninstallTheme(theme: ThemeHolder) {
-        val localTheme = localThemes[theme.id] ?: return
+        val localTheme = localThemes.value[theme.id] ?: return
         File(localTheme.installPath).deleteRecursively()
 
-        loadedThemes.remove(theme)
+        _loadedThemes.update { it - theme }
+    }
+
+    fun removeLocalTheme(id: String) {
+        _localThemes.update { it - id }
+        _loadedThemes.update { list -> list.filterNot { it.id == id } }
     }
 
     private suspend fun calcSize(dir: File): Long {
@@ -124,7 +134,7 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             writeCache(dir, cache.copy(size = newSize))
 
             withContext(Dispatchers.Main) {
-                localThemes[pkg.id]?.size = newSize
+                localThemes.value[pkg.id]?.size = newSize
             }
         }
     }
@@ -256,8 +266,7 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             val themesList = runCatching { StoreManager.fetchThemes() }.getOrNull() ?: return@withContext
             val newThemes = themesList.associateBy({ it.id }, { StoreTheme(it) })
             withContext(Dispatchers.Main) {
-                storeThemes.clear()
-                storeThemes.putAll(newThemes)
+                _storeThemes.value = newThemes
             }
         }
 
@@ -299,12 +308,8 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                 }
             }
             withContext(Dispatchers.Main) {
-                localThemes.clear()
-                localThemes.putAll(newLocalThemes)
-
-                loadedThemes.clear()
-                loadedThemes.addAll(builtInThemes)
-                loadedThemes.addAll(newLoadedThemes)
+                _localThemes.value = newLocalThemes
+                _loadedThemes.value = builtInThemes + newLoadedThemes
             }
         }
     }

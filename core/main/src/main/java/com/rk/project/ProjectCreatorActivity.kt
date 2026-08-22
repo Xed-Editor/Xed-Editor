@@ -115,7 +115,7 @@ class ProjectCreatorActivity : ComponentActivity() {
     @Composable
     private fun ProjectCreatorContent(parentFolder: FileObject?) {
 
-        val categories = ProjectTemplateRegistry.categories
+        val categories = ProjectTemplateRegistry.categories.value
         val categoryPagerState =
             rememberPagerState(
                 initialPage = 0,

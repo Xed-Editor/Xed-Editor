@@ -75,7 +75,7 @@ suspend fun LocalExtension.load(
         }
         instance.onExtensionLoaded()
 
-        extensionManager.loadedExtensions[this] = LoadedExtension(instance, scope)
+        extensionManager.registerLoadedExtension(this, LoadedExtension(instance, scope))
 
         DefaultScope.launch {
             Events.publish(ExtensionEvent.Loaded(this@load))
@@ -185,7 +185,7 @@ private fun LocalExtension.instantiateAPI(
  */
 suspend fun ExtensionManager.loadAllExtensions() =
     withContext(Dispatchers.IO) {
-        for ((_, extension) in installedExtensions) {
+        for ((_, extension) in installedExtensions.value) {
             if (isExtensionCrashed(extension)) {
                 continue
             }
@@ -215,12 +215,12 @@ suspend fun ExtensionManager.loadAllExtensions() =
  * their associated coroutine scopes, and clears them from the [extensionManager].
  */
 fun ExtensionManager.unloadAllExtensions() {
-    loadedExtensions.values.forEach { loaded ->
+    loadedExtensions.value.values.forEach { loaded ->
         runCatching {
             loaded?.api?.onDispose()
             loaded?.scope?.cancel()
         }
     }
-    loadedExtensions.clear()
+    clearLoadedExtensions()
     cancel()
 }

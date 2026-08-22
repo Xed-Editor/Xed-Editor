@@ -54,7 +54,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
 
-    val commands by remember { derivedStateOf { ToolbarConfiguration.globalCommands } }
+    val commands by ToolbarConfiguration.globalCommands.collectAsState()
 
     val drawerTabs by drawerViewModel.drawerTabs.collectAsState()
     val currentDrawerTabIndex by drawerViewModel.currentDrawerTabIndex.collectAsState()

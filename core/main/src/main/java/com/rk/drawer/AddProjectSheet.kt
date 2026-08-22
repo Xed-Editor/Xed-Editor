@@ -136,7 +136,7 @@ fun AddProjectSheet(
             val createOptions = remember {
                 AddProjectRegistry.options.filter { it.category == AddProjectCategory.CREATE }
             }
-            val hasTemplates = remember { ProjectTemplateRegistry.categories.any { it.templates.isNotEmpty() } }
+            val hasTemplates = remember { ProjectTemplateRegistry.categories.value.any { it.templates.isNotEmpty() } }
 
             if (hasTemplates || createOptions.isNotEmpty()) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

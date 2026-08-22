@@ -2,7 +2,6 @@ package com.rk.tabs.editor
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -14,6 +13,10 @@ import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.TextRange
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import org.ec4j.core.ResourceProperties
 import java.lang.ref.WeakReference
@@ -31,7 +34,16 @@ data class CodeEditorState(val initialContent: Content? = null) {
     val contentLoaded = CompletableDeferred<Unit>()
     val contentRendered = CompletableDeferred<Unit>()
 
-    val notices = mutableStateMapOf<String, @Composable (String) -> Unit>()
+    private val _notices = MutableStateFlow<Map<String, @Composable (String) -> Unit>>(emptyMap())
+    val notices: StateFlow<Map<String, @Composable (String) -> Unit>> = _notices.asStateFlow()
+
+    fun addNotice(id: String, notice: @Composable (String) -> Unit) {
+        _notices.update { it + (id to notice) }
+    }
+
+    fun removeNotice(id: String) {
+        _notices.update { it - id }
+    }
 
     var isSearching by mutableStateOf(false)
     var isReplaceShown by mutableStateOf(false)

@@ -95,7 +95,7 @@ fun LspInstanceCard(instance: LspServerInstance, navController: NavHostControlle
                 }
             }
 
-            val uptime = timeAgo(now, instance.startupTime) ?: strings.offline.getString()
+            val uptime = timeAgo(now, instance.startupTime.value) ?: strings.offline.getString()
             Text(
                 text = stringResource(strings.uptime).fillPlaceholders(uptime),
                 maxLines = 1,
@@ -124,9 +124,9 @@ fun LspInstanceCard(instance: LspServerInstance, navController: NavHostControlle
                 }
 
                 val isRunning =
-                    instance.status != LspConnectionStatus.NOT_RUNNING &&
-                        instance.status != LspConnectionStatus.CRASHED &&
-                        instance.status != LspConnectionStatus.TIMEOUT
+                    instance.status.value != LspConnectionStatus.NOT_RUNNING &&
+                        instance.status.value != LspConnectionStatus.CRASHED &&
+                        instance.status.value != LspConnectionStatus.TIMEOUT
                 if (isRunning) {
                     IconButton(onClick = { scope.launch { instance.restart() } }) {
                         Icon(
