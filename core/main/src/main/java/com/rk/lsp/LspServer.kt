@@ -4,7 +4,8 @@ import android.app.Activity
 import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import com.rk.DefaultScope
 import com.rk.TerminalLauncher
@@ -19,6 +20,10 @@ import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.greenStatus
 import com.rk.theme.yellowStatus
 import io.github.rosemoe.sora.lsp.requests.Timeouts
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.eclipse.lsp4j.ServerCapabilities
 import java.io.File
@@ -60,20 +65,20 @@ abstract class LspServer {
 
     suspend fun startAllInstances(): List<EditorTab> {
         val connectedEditors = mutableListOf<EditorTab>()
-        _instances.forEach { connectedEditors.addAll(it.start()) }
+        _instances.value.forEach { connectedEditors.addAll(it.start()) }
         return connectedEditors
     }
 
     suspend fun stopAllInstances() {
-        _instances.forEach { it.stop() }
+        _instances.value.forEach { it.stop() }
     }
 
     suspend fun disconnectAllInstances() {
-        _instances.forEach { it.disconnect() }
+        _instances.value.forEach { it.disconnect() }
     }
 
     suspend fun restartAllInstances() {
-        _instances.forEach { it.restart() }
+        _instances.value.forEach { it.restart() }
     }
 
     fun connectAllSuitableEditors(excludedEditors: List<EditorTab> = emptyList()) {
@@ -85,19 +90,18 @@ abstract class LspServer {
         suitableTabs.forEach { it.applyHighlightingAndConnectLSP() }
     }
 
-    private val _instances = mutableStateListOf<LspServerInstance>()
-    val instances: List<LspServerInstance>
-        get() = _instances.toList()
+    private val _instances = MutableStateFlow<List<LspServerInstance>>(emptyList())
+    val instances: StateFlow<List<LspServerInstance>> = _instances.asStateFlow()
 
     fun addInstance(instance: LspServerInstance) {
-        _instances.add(instance)
+        _instances.update { it + instance }
         DefaultScope.launch {
             Events.publish(LSPEvent.InstanceCreated(instance))
         }
     }
 
     fun removeInstance(instance: LspServerInstance) {
-        _instances.remove(instance)
+        _instances.update { it - instance }
     }
 
     abstract suspend fun isInstalled(context: Context): Boolean
@@ -140,10 +144,11 @@ abstract class LspServer {
 
 @Composable
 fun LspServer.getDominantStatusColor(): Color? {
-    val hasAnyError = instances.any { it.hasError }
+    val instances by this.instances.collectAsState()
+    val hasAnyError = instances.any { it.hasError.value }
     if (hasAnyError) return MaterialTheme.colorScheme.error
 
-    val dominantStatus = instances.maxByOrNull { it.status.ordinal }?.status ?: LspConnectionStatus.NOT_RUNNING
+    val dominantStatus = instances.maxByOrNull { it.status.value.ordinal }?.status?.value ?: LspConnectionStatus.NOT_RUNNING
     return when (dominantStatus) {
         LspConnectionStatus.CRASHED,
         LspConnectionStatus.TIMEOUT -> MaterialTheme.colorScheme.error

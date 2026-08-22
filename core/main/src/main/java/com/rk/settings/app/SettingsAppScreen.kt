@@ -140,7 +140,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
         }
 
         PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
-            FeatureRegistry.toggles.forEach { toggle ->
+            FeatureRegistry.toggles.value.forEach { toggle ->
                 BasicToggle(
                     label = toggle.name,
                     checked = toggle.state.value,

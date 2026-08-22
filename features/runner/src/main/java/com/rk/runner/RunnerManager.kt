@@ -2,7 +2,6 @@ package com.rk.runner
 
 import android.app.Activity
 import android.content.Context
-import androidx.compose.runtime.mutableStateListOf
 import com.rk.DefaultScope
 import com.rk.events.Events
 import com.rk.extension.api.XedExtensionPoint
@@ -13,42 +12,44 @@ import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkdownRunner
 import com.rk.settings.Settings
 import com.rk.utils.errorDialog
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
 
 object RunnerManager {
 
-    private val _extensionRunners = mutableStateListOf<Runner>()
+    private val _extensionRunners = MutableStateFlow<List<Runner>>(emptyList())
 
-    val extensionRunners: List<Runner>
-        get() = _extensionRunners.toList()
+    val extensionRunners = _extensionRunners.asStateFlow()
 
-    private val _builtinRunners = mutableStateListOf(HtmlRunner, MarkdownRunner, XedProjectRunner)
-    val builtinRunners: List<Runner>
-        get() = _builtinRunners.toList()
+    private val _builtinRunners =
+        MutableStateFlow<List<Runner>>(listOf(HtmlRunner, MarkdownRunner, XedProjectRunner))
+    val builtinRunners = _builtinRunners.asStateFlow()
 
     @XedExtensionPoint
     fun registerRunner(runner: Runner) {
-        if (!_extensionRunners.contains(runner)) {
-            _extensionRunners.add(runner)
+        if (!_extensionRunners.value.contains(runner)) {
+            _extensionRunners.update { it + runner }
         }
     }
 
     @ApiStatus.Internal
     // TODO: Temp
     fun addBuiltInRunner(vararg servers: Runner) {
-        _builtinRunners.addAll(servers)
+        _builtinRunners.update { it + servers }
     }
 
     @ApiStatus.Internal
     // TODO: Temp
     fun removeBuiltInRunner(vararg servers: Runner) {
-        _builtinRunners.removeAll(servers.toSet())
+        _builtinRunners.update { list -> list.filterNot { runner -> runner in servers } }
     }
 
     @XedExtensionPoint
     fun unregisterRunner(runner: Runner) {
-        _extensionRunners.remove(runner)
+        _extensionRunners.update { it - runner }
     }
 
     fun isRunnable(fileObject: FileObject?, projectRoot: FileObject?): Boolean {
@@ -58,7 +59,7 @@ object RunnerManager {
     fun getAvailableRunners(fileObject: FileObject?, projectRoot: FileObject?): List<Runner> {
         val result = mutableListOf<Runner>()
 
-        val runners = builtinRunners + extensionRunners + ShellBasedRunners.runners
+        val runners = builtinRunners.value + extensionRunners.value + ShellBasedRunners.runners.value
         runners.forEach { runner ->
             if (runner.isEnabled()) {
                 when (runner) {

@@ -1,7 +1,6 @@
 package com.rk.extension.manager
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateMapOf
 import com.rk.extension.EXTENSION_API_BASE
 import com.rk.extension.ICONPACKS_API_BASE
 import com.rk.extension.InstallState
@@ -11,6 +10,10 @@ import com.rk.icons.pack.IconPackEntry
 import com.rk.theme.ThemeEntry
 import com.rk.utils.okHttpClient
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -49,8 +52,23 @@ object StoreManager {
 
     private val client: OkHttpClient = okHttpClient
 
-    val downloadProgress = mutableStateMapOf<String, Float>()
-    val activeInstalls = mutableStateMapOf<String, InstallState>()
+    private val _downloadProgress = MutableStateFlow<Map<String, Float>>(emptyMap())
+    val downloadProgress: StateFlow<Map<String, Float>> = _downloadProgress.asStateFlow()
+    private val _activeInstalls = MutableStateFlow<Map<String, InstallState>>(emptyMap())
+    val activeInstalls: StateFlow<Map<String, InstallState>> = _activeInstalls.asStateFlow()
+
+    fun setActiveInstall(id: String, state: InstallState) {
+        _activeInstalls.update { it + (id to state) }
+    }
+
+    fun setDownloadProgress(id: String, progress: Float) {
+        _downloadProgress.update { it + (id to progress) }
+    }
+
+    fun clearInstall(id: String) {
+        _activeInstalls.update { it - id }
+        _downloadProgress.update { it - id }
+    }
 
     private val json = Json {
         ignoreUnknownKeys = true

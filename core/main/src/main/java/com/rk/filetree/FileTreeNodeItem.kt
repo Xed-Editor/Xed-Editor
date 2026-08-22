@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -59,14 +60,21 @@ fun FileTreeNodeItem(
     val isHidden = file.getName().startsWith(".")
     if (isHidden && !Settings.show_hidden_files_drawer) return
 
-    val isExpanded = viewModel.isNodeExpanded(root, file)
+    val expandedNodes by viewModel.expandedNodes.collectAsState()
+    val loadingStates by viewModel.loadingStates.collectAsState()
+    val cutNodes by viewModel.cutNodes.collectAsState()
+    val selectedFiles by viewModel.selectedFiles.collectAsState()
+    val focusedFile by viewModel.focusedFile.collectAsState()
+    val fileListCache by viewModel.fileListCache.collectAsState()
+
+    val isExpanded = expandedNodes[root]?.contains(file) ?: false
     val horizontalPadding = (depth * 16).dp
 
-    val isLoading = viewModel.isNodeLoading(file)
-    val isCut = viewModel.isNodeCut(file)
+    val isLoading = loadingStates[file] == true
+    val isCut = file in cutNodes
 
-    val isFileSelected = viewModel.isFileSelected(root, file)
-    val isFileFocused = viewModel.isFileFocused(root, file)
+    val isFileSelected = selectedFiles[root]?.contains(file) == true
+    val isFileFocused = focusedFile[root] == file
 
     val context = LocalContext.current
     val surfaceColor =
@@ -97,7 +105,7 @@ fun FileTreeNodeItem(
         remember(file, isExpanded) {
             derivedStateOf {
                 if (node.isExpandable && isExpanded) {
-                    viewModel.getNodeChildren(node)
+                    fileListCache[node.file] ?: emptyList()
                 } else {
                     emptyList()
                 }

@@ -75,7 +75,7 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.Keybindings.route) },
     )
 
-    SettingsRegistry.categories.forEach { category ->
+    SettingsRegistry.categories.value.forEach { category ->
         PreferenceCategory(
             label = category.label,
             description = category.description,

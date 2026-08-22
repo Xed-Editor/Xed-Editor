@@ -410,7 +410,7 @@ private suspend fun FileObject.getExtensionServers(
     scope: CoroutineScope,
 ): List<LspServer> {
     val servers =
-        (LspRegistry.extensionServers + LspRegistry.builtInServers).filter { server -> server.isSupported(this) }
+        (LspRegistry.extensionServers.value + LspRegistry.builtInServers.value).filter { server -> server.isSupported(this) }
     return servers.filterActiveLspServers(activity, scope)
 }
 
@@ -449,5 +449,5 @@ private suspend fun List<LspServer>.filterActiveLspServers(
 }
 
 private fun FileObject.getExternalServers(): List<LspServer> {
-    return LspRegistry.externalServers.filter { server -> server.isSupported(this) }
+    return LspRegistry.externalServers.value.filter { server -> server.isSupported(this) }
 }

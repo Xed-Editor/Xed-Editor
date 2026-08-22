@@ -1,10 +1,9 @@
 package com.rk.runner
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import kotlinx.coroutines.flow.MutableStateFlow
 
 object RunnerUI {
-    var runnersToShow by mutableStateOf<List<RunnableOption>>(emptyList())
-    var showRunnerDialog by mutableStateOf(false)
+    val runnersToShow = MutableStateFlow<List<RunnableOption>>(emptyList())
+
+    val showRunnerDialog = MutableStateFlow(false)
 }

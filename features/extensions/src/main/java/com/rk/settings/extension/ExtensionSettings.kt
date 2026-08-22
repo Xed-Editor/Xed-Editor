@@ -3,6 +3,8 @@ package com.rk.settings.extension
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -13,7 +15,8 @@ import com.rk.resources.strings
 
 @Composable
 fun ExtensionSettings(extension: LocalExtension?) {
-    val api = extensionManager.loadedExtensions[extension]?.api
+    val loadedExtensions by extensionManager.loadedExtensions.collectAsState()
+    val api = loadedExtensions[extension]?.api
 
     PreferenceLayout(label = extension?.name ?: stringResource(strings.ext_not_found)) {
         if (extension == null || api == null) {

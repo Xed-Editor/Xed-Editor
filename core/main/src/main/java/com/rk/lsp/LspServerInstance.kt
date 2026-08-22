@@ -7,11 +7,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -32,6 +29,10 @@ import com.rk.theme.yellowStatus
 import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.LanguageServerWrapper
 import io.github.rosemoe.sora.lsp.editor.LspProject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.MessageParams
@@ -68,10 +69,14 @@ data class LspServerInstance(
 ) {
     val id = "${server.id}_${projectRoot.getAbsolutePath().hashCode()}"
 
-    var status by mutableStateOf(LspConnectionStatus.NOT_RUNNING)
-    var startupTime by mutableLongStateOf(-1)
-    private val logs = mutableStateListOf<LspLogEntry>()
-    var hasError by mutableStateOf(false)
+    private val _status = MutableStateFlow(LspConnectionStatus.NOT_RUNNING)
+    val status: StateFlow<LspConnectionStatus> = _status.asStateFlow()
+    private val _startupTime = MutableStateFlow(-1L)
+    val startupTime: StateFlow<Long> = _startupTime.asStateFlow()
+    private val _logs = MutableStateFlow<List<LspLogEntry>>(emptyList())
+    val logs: StateFlow<List<LspLogEntry>> = _logs.asStateFlow()
+    private val _hasError = MutableStateFlow(false)
+    val hasError: StateFlow<Boolean> = _hasError.asStateFlow()
 
     fun addLog(messageParams: MessageParams) {
         addLog(
@@ -85,29 +90,36 @@ data class LspServerInstance(
 
     fun addLog(lspLogEntry: LspLogEntry) {
         if (lspLogEntry.type == MessageType.Error) {
-            hasError = true
+            _hasError.value = true
         }
 
-        logs.add(lspLogEntry)
-
-        if (logs.size > Settings.lsp_log_limit) {
-            val removeCount = logs.size - Settings.lsp_log_limit
-            logs.removeRange(0, removeCount)
-        }
+        _logs.update { it.plus(lspLogEntry).takeLast(Settings.lsp_log_limit) }
 
         DefaultScope.launch {
             Events.publish(LSPEvent.LogEntryWritten(this@LspServerInstance, lspLogEntry))
         }
     }
 
-    fun getLspLogs() = logs.toList()
+    fun getLspLogs() = _logs.value
+
+    fun setStatus(value: LspConnectionStatus) {
+        _status.value = value
+    }
+
+    fun setHasError(value: Boolean) {
+        _hasError.value = value
+    }
+
+    fun setStartupTime(value: Long) {
+        _startupTime.value = value
+    }
 
     fun getWrapper(): LanguageServerWrapper? {
         return server.supportedExtensions.firstOrNull()?.let {
             lspProject.getLanguageServerWrapper(it, server.serverName)
         }
             ?: run {
-                hasError = true
+                _hasError.value = true
                 addLog(
                     LspLogEntry(
                         MessageSource.Client,
@@ -173,7 +185,7 @@ data class LspServerInstance(
                 )
             )
             val wrapper = getWrapper() ?: return@withContext emptyList()
-            hasError = false
+            _hasError.value = false
             DefinitionPrevention.unregister(lspProject, server)
             try {
                 wrapper.start()
@@ -216,6 +228,8 @@ data class LspServerInstance(
 
 @Composable
 fun LspServerInstance.getStatusColor(): Color? {
+    val status by this.status.collectAsState()
+    val hasError by this.hasError.collectAsState()
     return if (status == LspConnectionStatus.CRASHED || status == LspConnectionStatus.TIMEOUT || hasError) {
         MaterialTheme.colorScheme.error
     } else if (
@@ -231,6 +245,8 @@ fun LspServerInstance.getStatusColor(): Color? {
 
 @Composable
 fun LspServerInstance.getStatusText(): String {
+    val status by this.status.collectAsState()
+    val hasError by this.hasError.collectAsState()
     return when {
         status == LspConnectionStatus.CRASHED -> stringResource(strings.status_crashed)
         status == LspConnectionStatus.TIMEOUT -> stringResource(strings.status_timeout)
@@ -250,6 +266,8 @@ fun LspServerInstance.getStatusText(): String {
 
 @Composable
 fun LspServerInstance.StatusIcon() {
+    val status by this.status.collectAsState()
+    val hasError by this.hasError.collectAsState()
     when {
         status == LspConnectionStatus.CRASHED || status == LspConnectionStatus.TIMEOUT || hasError -> {
             Icon(

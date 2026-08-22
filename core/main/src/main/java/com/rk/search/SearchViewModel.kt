@@ -1,14 +1,6 @@
 package com.rk.search
 
 import android.content.Context
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainViewModel
@@ -38,72 +30,132 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
 
 class SearchViewModel : ViewModel() {
     private val projectIndexers = mutableMapOf<FileObject, ProjectIndexer>()
-    private var isIndexing = mutableStateMapOf<FileObject, Boolean>()
+    private val _isIndexing = MutableStateFlow<Map<FileObject, Boolean>>(emptyMap())
+    val isIndexing = _isIndexing.asStateFlow()
 
     // File search dialog
-    var fileSearchQuery by mutableStateOf("")
-    var isSearchingFiles by mutableStateOf(false)
-    var fileSearchResults by mutableStateOf<List<FileMeta>>(emptyList())
+    private val _fileSearchQuery = MutableStateFlow("")
+    val fileSearchQuery = _fileSearchQuery.asStateFlow()
+
+    private val _isSearchingFiles = MutableStateFlow(false)
+    val isSearchingFiles = _isSearchingFiles.asStateFlow()
+
+    private val _fileSearchResults = MutableStateFlow<List<FileMeta>>(emptyList())
+    val fileSearchResults = _fileSearchResults.asStateFlow()
+
     private var fileSearchJob: Job? = null
 
     // Code search dialog
-    var showFileMaskDialog by mutableStateOf(false)
-    var fileMaskText by mutableStateOf(Settings.file_mask)
-    var fileMask = derivedStateOf { parseExtensions(fileMaskText) }
-    private val excluder by derivedStateOf { GlobExcluder(Settings.excluded_files_search) }
+    private val _showFileMaskDialog = MutableStateFlow(false)
+    val showFileMaskDialog = _showFileMaskDialog.asStateFlow()
 
-    var isSearchingCode by mutableStateOf(false)
-    var totalCodeSearchResults by mutableIntStateOf(0)
-    val codeSearchResultsOrder = mutableStateListOf<FileObject>()
-    val codeSearchResults = mutableStateMapOf<FileObject, SnapshotStateList<CodeItem>>()
-    val collapsedFiles = mutableStateListOf<FileObject>()
+    private val _fileMaskText = MutableStateFlow(Settings.file_mask)
+    val fileMaskText = _fileMaskText.asStateFlow()
+
+    private val fileMask: List<String>
+        get() = parseExtensions(_fileMaskText.value)
+
+    private val excluder: GlobExcluder
+        get() = GlobExcluder(Settings.excluded_files_search)
+
+    private val _isSearchingCode = MutableStateFlow(false)
+    val isSearchingCode = _isSearchingCode.asStateFlow()
+
+    private val _totalCodeSearchResults = MutableStateFlow(0)
+    val totalCodeSearchResults = _totalCodeSearchResults.asStateFlow()
+
+    private val _codeSearchResultsOrder = MutableStateFlow<List<FileObject>>(emptyList())
+    val codeSearchResultsOrder = _codeSearchResultsOrder.asStateFlow()
+
+    private val _codeSearchResults = MutableStateFlow<Map<FileObject, List<CodeItem>>>(emptyMap())
+    val codeSearchResults = _codeSearchResults.asStateFlow()
+
+    private val _collapsedFiles = MutableStateFlow<List<FileObject>>(emptyList())
+    val collapsedFiles = _collapsedFiles.asStateFlow()
+
     private var codeSearchJob: Job? = null
 
-    var codeSearchQuery by mutableStateOf("")
-    var codeReplaceQuery by mutableStateOf("")
-    var showOptionsMenu by mutableStateOf(false)
-    var ignoreCase by mutableStateOf(true)
-    var isReplaceShown by mutableStateOf(false)
-        private set
+    private val _codeSearchQuery = MutableStateFlow("")
+    val codeSearchQuery = _codeSearchQuery.asStateFlow()
 
-    fun toggleCollapsed(file: FileObject) {
-        if (collapsedFiles.contains(file)) {
-            collapsedFiles.remove(file)
-        } else {
-            collapsedFiles.add(file)
-        }
+    private val _codeReplaceQuery = MutableStateFlow("")
+    val codeReplaceQuery = _codeReplaceQuery.asStateFlow()
+
+    private val _showOptionsMenu = MutableStateFlow(false)
+    val showOptionsMenu = _showOptionsMenu.asStateFlow()
+
+    private val _ignoreCase = MutableStateFlow(true)
+    val ignoreCase = _ignoreCase.asStateFlow()
+
+    private val _isReplaceShown = MutableStateFlow(false)
+    val isReplaceShown = _isReplaceShown.asStateFlow()
+
+    private val _isReplacing = MutableStateFlow(false)
+    val isReplacing = _isReplacing.asStateFlow()
+
+    fun setFileSearchQuery(value: String) {
+        _fileSearchQuery.value = value
     }
 
-    fun isCollapsed(file: FileObject): Boolean = collapsedFiles.contains(file)
+    fun setFileMaskText(value: String) {
+        _fileMaskText.value = value
+    }
+
+    fun setShowFileMaskDialog(value: Boolean) {
+        _showFileMaskDialog.value = value
+    }
+
+    fun setShowOptionsMenu(value: Boolean) {
+        _showOptionsMenu.value = value
+    }
+
+    fun setIgnoreCase(value: Boolean) {
+        _ignoreCase.value = value
+    }
+
+    fun setCodeSearchQuery(value: String) {
+        _codeSearchQuery.value = value
+    }
+
+    fun setCodeReplaceQuery(value: String) {
+        _codeReplaceQuery.value = value
+    }
+
+    fun toggleCollapsed(file: FileObject) {
+        _collapsedFiles.update { list -> if (list.contains(file)) list - file else list + file }
+    }
+
+    fun isCollapsed(file: FileObject): Boolean = _collapsedFiles.value.contains(file)
 
     companion object {
         // TODO: Occurrence that are between the borders of two chunks won't be found, this is a known issue
         const val MAX_CODE_RESULTS = 10_000 // Cap at 10k entries for code search results
     }
 
-    var isReplacing by mutableStateOf(false)
-
     fun cancelFileSearch() {
         fileSearchJob?.cancel()
         fileSearchJob = null
-        isSearchingFiles = false
+        _isSearchingFiles.value = false
     }
 
     fun matchesFileMask(fileExt: String): Boolean {
-        if (fileMask.value.isEmpty()) return true
-        return fileMask.value.any { it == fileExt }
+        if (fileMask.isEmpty()) return true
+        return fileMask.any { it == fileExt }
     }
 
     fun launchFileSearch(context: Context, projectRoot: FileObject) {
         cancelFileSearch()
 
-        isSearchingFiles = true
+        _isSearchingFiles.value = true
         fileSearchJob = viewModelScope.launch {
             try {
                 val useIndex =
@@ -119,14 +171,14 @@ class SearchViewModel : ViewModel() {
                         FileSearchDirect(excluder)
                     }
 
-                fileSearchResults = strategy.search(fileSearchQuery, projectRoot)
+                _fileSearchResults.value = strategy.search(_fileSearchQuery.value, projectRoot)
             } catch (_: CancellationException) {
                 logDebug("File search cancelled")
             } catch (e: Exception) {
                 logError(e, "Error during file search")
-                fileSearchResults = emptyList()
+                _fileSearchResults.value = emptyList()
             } finally {
-                isSearchingFiles = false
+                _isSearchingFiles.value = false
             }
         }
     }
@@ -136,23 +188,23 @@ class SearchViewModel : ViewModel() {
         codeSearchJob?.cancel()
         codeSearchJob = null
 
-        totalCodeSearchResults = 0
-        codeSearchResults.clear()
-        codeSearchResultsOrder.clear()
-        collapsedFiles.clear()
-        isSearchingCode = false
+        _totalCodeSearchResults.value = 0
+        _codeSearchResults.value = emptyMap()
+        _codeSearchResultsOrder.value = emptyList()
+        _collapsedFiles.value = emptyList()
+        _isSearchingCode.value = false
     }
 
     fun launchCodeSearch(context: Context, mainViewModel: MainViewModel, projectRoot: FileObject) {
         cancelCodeSearch()
 
-        if (codeSearchQuery.isBlank()) {
-            totalCodeSearchResults = 0
-            codeSearchResults.clear()
+        if (_codeSearchQuery.value.isBlank()) {
+            _totalCodeSearchResults.value = 0
+            _codeSearchResults.value = emptyMap()
             return
         }
 
-        isSearchingCode = true
+        _isSearchingCode.value = true
         codeSearchJob = viewModelScope.launch {
             try {
                 val useIndex =
@@ -175,7 +227,7 @@ class SearchViewModel : ViewModel() {
                             projectRoot = projectRoot,
                             mainViewModel = mainViewModel,
                             fileMaskFilter = ::matchesFileMask,
-                            ignoreCase = ignoreCase,
+                            ignoreCase = _ignoreCase.value,
                             openPaths = openPaths,
                         )
                     } else {
@@ -185,17 +237,17 @@ class SearchViewModel : ViewModel() {
                             mainViewModel = mainViewModel,
                             fileMaskFilter = ::matchesFileMask,
                             excluder = excluder,
-                            ignoreCase = ignoreCase,
+                            ignoreCase = _ignoreCase.value,
                             openPaths = openPaths,
                         )
                     }
 
-                strategy.search(codeSearchQuery).collect { codeItem ->
-                    if (totalCodeSearchResults < MAX_CODE_RESULTS) {
+                strategy.search(_codeSearchQuery.value).collect { codeItem ->
+                    if (_totalCodeSearchResults.value < MAX_CODE_RESULTS) {
                         addCodeResult(codeItem)
-                        totalCodeSearchResults++
+                        _totalCodeSearchResults.update { it + 1 }
                     } else {
-                        isSearchingCode = false
+                        _isSearchingCode.value = false
                         codeSearchJob?.cancel()
                     }
                 }
@@ -204,7 +256,7 @@ class SearchViewModel : ViewModel() {
             } catch (e: Exception) {
                 logError(e, "Error during code search")
             } finally {
-                isSearchingCode = false
+                _isSearchingCode.value = false
             }
         }
     }
@@ -227,7 +279,7 @@ class SearchViewModel : ViewModel() {
                 for (lineIndex in 0 until lineCount) {
 
                     val line = content.getLine(lineIndex).toString()
-                    val indices = SearchUtils.findAllIndices(line, codeSearchQuery, ignoreCase)
+                    val indices = SearchUtils.findAllIndices(line, _codeSearchQuery.value, _ignoreCase.value)
                     for (index in indices) {
                         currentCoroutineContext().ensureActive()
 
@@ -237,7 +289,7 @@ class SearchViewModel : ViewModel() {
                                 mainViewModel = mainViewModel,
                                 text = line,
                                 charIndex = index,
-                                query = codeSearchQuery,
+                                query = _codeSearchQuery.value,
                                 file = file,
                                 projectRoot = projectRoot,
                                 lineIndex = lineIndex,
@@ -245,7 +297,7 @@ class SearchViewModel : ViewModel() {
                             )
 
                         addCodeResult(codeItem)
-                        totalCodeSearchResults++
+                        _totalCodeSearchResults.update { it + 1 }
                     }
                 }
             }
@@ -253,21 +305,22 @@ class SearchViewModel : ViewModel() {
     }
 
     private fun addCodeResult(codeItem: CodeItem) {
-        if (!codeSearchResults.containsKey(codeItem.file)) {
-            codeSearchResultsOrder.add(codeItem.file)
+        _codeSearchResults.update { map ->
+            if (!map.containsKey(codeItem.file)) {
+                _codeSearchResultsOrder.update { it + codeItem.file }
+            }
+            map + (codeItem.file to ((map[codeItem.file] ?: emptyList()) + codeItem))
         }
-        val fileList = codeSearchResults.getOrPut(codeItem.file) { mutableStateListOf() }
-        fileList.add(codeItem)
     }
 
     fun toggleReplaceShown() {
-        isReplaceShown = !isReplaceShown
+        _isReplaceShown.value = !_isReplaceShown.value
     }
 
     suspend fun replaceIn(mainViewModel: MainViewModel, codeItem: CodeItem) {
         // Pause searches while replacing
         cancelCodeSearch()
-        isReplacing = true
+        _isReplacing.value = true
 
         try {
             withContext(Dispatchers.IO) {
@@ -296,14 +349,14 @@ class SearchViewModel : ViewModel() {
         } catch (e: Exception) {
             logError(e, "Error replacing text")
         } finally {
-            isReplacing = false
+            _isReplacing.value = false
         }
     }
 
     suspend fun replaceAllIn(mainViewModel: MainViewModel, codeItems: List<CodeItem>) {
         // Pause searches while replacing
         cancelCodeSearch()
-        isReplacing = true
+        _isReplacing.value = true
 
         try {
             val groupedItems = codeItems.groupBy { it.file }
@@ -343,7 +396,7 @@ class SearchViewModel : ViewModel() {
         } catch (e: Exception) {
             logError(e, "Error replacing all text")
         } finally {
-            isReplacing = false
+            _isReplacing.value = false
         }
     }
 
@@ -354,7 +407,7 @@ class SearchViewModel : ViewModel() {
         val endCol = codeItem.column + diff
 
         val line = lines.getOrNull(lineIndex) ?: return
-        val newLine = line.replaceRange(startCol, endCol, codeReplaceQuery)
+        val newLine = line.replaceRange(startCol, endCol, _codeReplaceQuery.value)
         lines[lineIndex] = newLine
     }
 
@@ -364,12 +417,12 @@ class SearchViewModel : ViewModel() {
             val startCol = codeItem.column
             val diff = codeItem.snippet.highlight.endIndex - codeItem.snippet.highlight.startIndex
             val endCol = codeItem.column + diff
-            editor.text.replace(lineIndex, startCol, lineIndex, endCol, codeReplaceQuery)
+            editor.text.replace(lineIndex, startCol, lineIndex, endCol, _codeReplaceQuery.value)
         }
     }
 
     fun isIndexing(projectRoot: FileObject): Boolean {
-        return isIndexing[projectRoot] ?: false
+        return _isIndexing.value[projectRoot] ?: false
     }
 
     suspend fun index(context: Context, projectRoot: FileObject) {
@@ -386,7 +439,7 @@ class SearchViewModel : ViewModel() {
                     projectIndexers.remove(projectRoot)
                 }
                 IndexDatabase.removeDatabase(context, projectRoot)
-                isIndexing.remove(projectRoot)
+                _isIndexing.update { it - projectRoot }
             } catch (e: Exception) {
                 logError(e, "Error deleting index")
             }
@@ -439,7 +492,7 @@ class SearchViewModel : ViewModel() {
                 }
             }
             projectIndexers.clear()
-            isIndexing.clear()
+            _isIndexing.value = emptyMap()
         }
     }
 
@@ -449,7 +502,7 @@ class SearchViewModel : ViewModel() {
                 context = context,
                 projectRoot = projectRoot,
                 onIndexingStateChanged = { isIndexing ->
-                    this.isIndexing[projectRoot] = isIndexing
+                    _isIndexing.update { it + (projectRoot to isIndexing) }
                 },
                 onError = { errorMessage ->
                     logError("Indexer error: $errorMessage")

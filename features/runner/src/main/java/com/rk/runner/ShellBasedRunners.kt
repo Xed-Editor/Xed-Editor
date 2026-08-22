@@ -2,7 +2,6 @@ package com.rk.runner
 
 import android.app.Activity
 import android.content.Context
-import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rk.DefaultScope
@@ -14,13 +13,17 @@ import com.rk.file.localDir
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.random.Random
 
 object ShellBasedRunners {
-    val runners = mutableStateListOf<ShellBasedRunner>()
+    private val _runners = MutableStateFlow<List<ShellBasedRunner>>(emptyList())
+    val runners = _runners.asStateFlow()
 
     init {
         DefaultScope.launch { indexRunners() }
@@ -28,8 +31,8 @@ object ShellBasedRunners {
 
     suspend fun newRunner(runner: ShellBasedRunner): Boolean {
         return withContext(Dispatchers.IO) {
-            if (runners.find { it.label == runner.label } == null) {
-                withContext(Dispatchers.Main) { runners.add(runner) }
+            if (_runners.value.find { it.label == runner.label } == null) {
+                _runners.update { it + runner }
                 runnerDir()
                     .child("${runner.label}.sh")
                     .createFileIfNot()
@@ -43,12 +46,12 @@ object ShellBasedRunners {
     }
 
     suspend fun saveRunners() {
-        val json = Gson().toJson(runners)
+        val json = Gson().toJson(_runners.value)
         localDir().child("runners.json").writeText(json)
     }
 
     suspend fun deleteRunner(runner: ShellBasedRunner) {
-        runners.remove(runner)
+        _runners.update { it - runner }
         saveRunners()
         runnerDir().child("${runner.label}.sh").createFileIfNot().delete()
     }
@@ -59,8 +62,7 @@ object ShellBasedRunners {
             if (file.exists()) {
                 val content = file.readText()
                 val type = object : TypeToken<List<ShellBasedRunner>>() {}.type
-                runners.clear()
-                runners.addAll(Gson().fromJson<List<ShellBasedRunner>>(content, type))
+                _runners.value = Gson().fromJson<List<ShellBasedRunner>>(content, type)
             }
         }
     }

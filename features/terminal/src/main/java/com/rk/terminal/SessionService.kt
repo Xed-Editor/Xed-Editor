@@ -10,8 +10,6 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.os.PowerManager
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import com.rk.activities.terminal.Terminal
 import com.rk.resources.drawables
@@ -21,12 +19,16 @@ import com.rk.settings.Settings
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class SessionService : Service() {
     private val sessions = hashMapOf<SessionId, TerminalSession>()
     private val sessionWorkDirs = mutableMapOf<SessionId, SessionPwd>()
-    val sessionList = mutableStateListOf<String>()
-    var currentSession = mutableStateOf("main")
+    private val _sessionList = MutableStateFlow<List<SessionId>>(emptyList())
+    val sessionList = _sessionList.asStateFlow()
+    val currentSession = MutableStateFlow<SessionId>("main")
     private var deamonRunning = false
 
     inner class SessionBinder : Binder() {
@@ -45,7 +47,7 @@ class SessionService : Service() {
                     val (session, pwd) = it
                     sessions[id] = session
                     sessionWorkDirs[id] = pwd
-                    sessionList.add(id)
+                    _sessionList.update { list -> list + id }
                     updateNotification()
                     SessionInfo(id, pwd, session)
                 }
@@ -68,7 +70,7 @@ class SessionService : Service() {
                 }
             }
             sessions.remove(id)
-            sessionList.remove(id)
+            _sessionList.update { list -> list - id }
             sessionWorkDirs.remove(id)
 
             if (sessions.isEmpty()) {
@@ -82,7 +84,7 @@ class SessionService : Service() {
         }
 
         fun renameSession(oldId: String, newId: String) {
-            if (oldId == newId || newId.isEmpty() || newId in sessionList) return
+            if (oldId == newId || newId.isEmpty() || newId in _sessionList.value) return
 
             val session = sessions.remove(oldId) ?: return
             val pwd = sessionWorkDirs.remove(oldId) ?: return
@@ -90,14 +92,9 @@ class SessionService : Service() {
             sessions[newId] = session
             sessionWorkDirs[newId] = pwd
 
-            val index = sessionList.indexOf(oldId)
-            if (index != -1) {
-                sessionList[index] = newId
-            }
+            _sessionList.update { list -> list.map { if (it == oldId) newId else it } }
 
-            if (currentSession.value == oldId) {
-                currentSession.value = newId
-            }
+            currentSession.update { if (it == oldId) newId else it }
 
             updateNotification()
         }

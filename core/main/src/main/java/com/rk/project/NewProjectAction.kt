@@ -27,7 +27,7 @@ object NewProjectAction : FileAction() {
     }
 
     override suspend fun isSupported(file: FileObject, root: FileObject?): Boolean {
-        return ProjectTemplateRegistry.categories.any { it.templates.isNotEmpty() }
+        return ProjectTemplateRegistry.categories.value.any { it.templates.isNotEmpty() }
     }
 
     override val type = FileActionType(file = false, folder = true, rootFolder = true)

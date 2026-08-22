@@ -120,10 +120,10 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
             val activity = Terminal.instance ?: return false
             val sessionBinder = activity.sessionBinder?.get() ?: return false
             sessionBinder.terminateSession(sessionBinder.getService().currentSession.value)
-            if (sessionBinder.getService().sessionList.isEmpty()) {
+            if (sessionBinder.getService().sessionList.value.isEmpty()) {
                 activity.finish()
             } else {
-                activity.changeSession(sessionBinder.getService().sessionList.first())
+                activity.changeSession(sessionBinder.getService().sessionList.value.first())
             }
             return true
         }

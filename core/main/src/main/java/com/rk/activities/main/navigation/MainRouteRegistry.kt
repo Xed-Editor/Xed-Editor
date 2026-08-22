@@ -1,21 +1,23 @@
 package com.rk.activities.main.navigation
 
-import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.api.DynamicRoute
 import com.rk.extension.api.XedExtensionPoint
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 object MainRouteRegistry {
-    private val _routes = mutableStateListOf<DynamicRoute>()
-    val routes: List<DynamicRoute>
-        get() = _routes.toList()
+    private val _routes = MutableStateFlow<List<DynamicRoute>>(emptyList())
+    val routes: StateFlow<List<DynamicRoute>> = _routes.asStateFlow()
 
     @XedExtensionPoint
     fun registerRoute(route: DynamicRoute) {
-        _routes.add(route)
+        _routes.update { it + route }
     }
 
     @XedExtensionPoint
     fun unregisterRoute(route: DynamicRoute) {
-        _routes.remove(route)
+        _routes.update { it - route }
     }
 }

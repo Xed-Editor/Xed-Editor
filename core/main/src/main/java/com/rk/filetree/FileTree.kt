@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +73,22 @@ fun FileTree(
     viewModel: FileTreeViewModel,
     drawerViewModel: DrawerViewModel,
 ) {
+    val sortMode by viewModel.sortMode.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val selectedFiles by viewModel.selectedFiles.collectAsState()
+    val fileOperationsCount by viewModel.fileOperationsCount.collectAsState()
+    val searchVM = searchViewModel.get()
+    val isIndexingMap =
+        if (searchVM != null) {
+            searchVM.isIndexing.collectAsState(initial = emptyMap()).value
+        } else {
+            emptyMap()
+        }
+    val isIndexingRoot = isIndexingMap[rootNode.file] == true
+    val isAnyFileSelected = selectedFiles[rootNode.file]?.isNotEmpty() == true
+    val selectionCount = selectedFiles[rootNode.file]?.size ?: 0
+    val isFileOperationInProgress = fileOperationsCount > 0
+
     // Auto-expand root node on first composition
     LaunchedEffect(rootNode.file) {
         if (!viewModel.isNodeExpanded(rootNode.file, rootNode.file)) {
@@ -88,20 +105,20 @@ fun FileTree(
         }
     }
 
-    LaunchedEffect(viewModel.sortMode) { viewModel.refreshEverything() }
+    LaunchedEffect(sortMode) { viewModel.refreshEverything() }
 
     Column(modifier = modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (viewModel.isAnyFileSelected(rootNode.file)) {
+            if (isAnyFileSelected) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = { viewModel.unselectAllFiles(rootNode.file) }) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(strings.go_prev))
                     }
 
-                    Text(viewModel.getSelectionCount(rootNode.file).toString())
+                    Text(selectionCount.toString())
                 }
             }
 
@@ -110,7 +127,7 @@ fun FileTree(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.weight(1f),
             ) {
-                if (viewModel.isAnyFileSelected(rootNode.file)) {
+                if (isAnyFileSelected) {
                     SelectionActions(viewModel, drawerViewModel, rootNode)
                 } else {
                     FileTreeActions(viewModel, onSearchClick)
@@ -119,7 +136,7 @@ fun FileTree(
         }
 
         Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
-            if (viewModel.isFileOperationInProgress() || searchViewModel.get()?.isIndexing(rootNode.file) == true) {
+            if (isFileOperationInProgress || isIndexingRoot) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxSize())
             } else {
                 HorizontalDivider()
@@ -127,7 +144,7 @@ fun FileTree(
         }
 
         PullToRefreshBox(
-            isRefreshing = viewModel.isRefreshing,
+            isRefreshing = isRefreshing,
             onRefresh = { viewModel.viewModelScope.launch { viewModel.refreshEverything(wasPulled = true) } },
             modifier = Modifier.fillMaxWidth().weight(1f),
         ) {
@@ -300,6 +317,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
 @Composable
 private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> Unit) {
     var showOptionsMenu by remember { mutableStateOf(false) }
+    val sortMode by viewModel.sortMode.collectAsState()
 
     IconButton(onClick = { viewModel.viewModelScope.launch { viewModel.refreshEverything() } }) {
         Icon(Icons.Outlined.Refresh, stringResource(strings.refresh))
@@ -344,15 +362,15 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
             XedDropdownMenuItem(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(selected = viewModel.sortMode == SortMode.SORT_BY_NAME, onClick = null)
+                        RadioButton(selected = sortMode == SortMode.SORT_BY_NAME, onClick = null)
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(strings.sort_by_name))
                         Spacer(Modifier.width(8.dp))
                     }
                 },
                 onClick = {
-                    viewModel.sortMode = SortMode.SORT_BY_NAME
-                    Settings.sort_mode = viewModel.sortMode.ordinal
+                    viewModel.setSortMode(SortMode.SORT_BY_NAME)
+                    Settings.sort_mode = SortMode.SORT_BY_NAME.ordinal
                     showOptionsMenu = false
                 },
             )
@@ -360,15 +378,15 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
             XedDropdownMenuItem(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(selected = viewModel.sortMode == SortMode.SORT_BY_SIZE, onClick = null)
+                        RadioButton(selected = sortMode == SortMode.SORT_BY_SIZE, onClick = null)
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(strings.sort_by_size))
                         Spacer(Modifier.width(8.dp))
                     }
                 },
                 onClick = {
-                    viewModel.sortMode = SortMode.SORT_BY_SIZE
-                    Settings.sort_mode = viewModel.sortMode.ordinal
+                    viewModel.setSortMode(SortMode.SORT_BY_SIZE)
+                    Settings.sort_mode = SortMode.SORT_BY_SIZE.ordinal
                     showOptionsMenu = false
                 },
             )
@@ -376,15 +394,15 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
             XedDropdownMenuItem(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(selected = viewModel.sortMode == SortMode.SORT_BY_DATE, onClick = null)
+                        RadioButton(selected = sortMode == SortMode.SORT_BY_DATE, onClick = null)
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(strings.sort_by_date))
                         Spacer(Modifier.width(8.dp))
                     }
                 },
                 onClick = {
-                    viewModel.sortMode = SortMode.SORT_BY_DATE
-                    Settings.sort_mode = viewModel.sortMode.ordinal
+                    viewModel.setSortMode(SortMode.SORT_BY_DATE)
+                    Settings.sort_mode = SortMode.SORT_BY_DATE.ordinal
                     showOptionsMenu = false
                 },
             )
