@@ -327,7 +327,7 @@ fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
     // routed through the SAF-backed UriWrapper, which requires a content:// tree URI and crashes on
     // file:// URIs (DocumentsContract.getTreeDocumentId throws IllegalArgumentException).
     if (this.scheme == "file") {
-        return FileWrapper(File(this.toPath()))
+        return FileWrapper(File(this.path!!))
     }
 
     if (this.scheme == "http" || this.scheme == "https"){
