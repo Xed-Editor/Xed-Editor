@@ -53,6 +53,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.rk.App
 import com.rk.App.Companion.iconPackManager
@@ -119,6 +120,13 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
 
     val dialogManager = remember { ExtensionDialogManager() }
 
+    val installedExtensions by extensionManager.installedExtensions.collectAsStateWithLifecycle()
+    val storeExtensions by extensionManager.storeExtension.collectAsStateWithLifecycle()
+    val localThemes by themeManager.localThemes.collectAsStateWithLifecycle()
+    val storeThemes by themeManager.storeThemes.collectAsStateWithLifecycle()
+    val localIconPacks by iconPackManager.localIconPacks.collectAsStateWithLifecycle()
+    val storeIconPacks by iconPackManager.storeIconPacks.collectAsStateWithLifecycle()
+
     var isIndexing by remember { mutableStateOf(false) }
     var isFetching by remember { mutableStateOf(false) }
 
@@ -182,7 +190,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
             installAutoDetect(scope, uri, activity)
         }
 
-    val extensions by remember {
+    val extensions by remember(installedExtensions, storeExtensions) {
         derivedStateOf {
             val all = extensionManager.getSyncedExtensions()
             val filtered = applyExtensionsFilter(searchQuery, all, currentFilterOption)
@@ -190,7 +198,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
         }
     }
 
-    val sortedThemes by remember {
+    val sortedThemes by remember(localThemes, storeThemes) {
         derivedStateOf {
             val all = themeManager.getSyncedThemes()
             val filtered = applyGenericFilter(searchQuery, all)
@@ -198,7 +206,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
         }
     }
 
-    val sortedIconPacks by remember {
+    val sortedIconPacks by remember(localIconPacks, storeIconPacks) {
         derivedStateOf {
             val all = iconPackManager.getSyncedIconPacks()
             val filtered = applyGenericFilter(searchQuery, all)

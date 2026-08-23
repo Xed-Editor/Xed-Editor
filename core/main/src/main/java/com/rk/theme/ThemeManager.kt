@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.graphics.toColorInt
@@ -64,10 +66,17 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
 
     private val _loadedThemes = MutableStateFlow<List<ThemeHolder>>(builtInThemes)
     val loadedThemes: StateFlow<List<ThemeHolder>> = _loadedThemes.asStateFlow()
+    private val _loadedThemesState = mutableStateOf<List<ThemeHolder>>(builtInThemes)
+    val loadedThemesState: State<List<ThemeHolder>> = _loadedThemesState
     private val _localThemes = MutableStateFlow<Map<String, LocalTheme>>(emptyMap())
     val localThemes: StateFlow<Map<String, LocalTheme>> = _localThemes.asStateFlow()
     private val _storeThemes = MutableStateFlow<Map<String, StoreTheme>>(emptyMap())
     val storeThemes: StateFlow<Map<String, StoreTheme>> = _storeThemes.asStateFlow()
+
+    private fun setLoadedThemes(themes: List<ThemeHolder>) {
+        _loadedThemes.value = themes
+        _loadedThemesState.value = themes
+    }
 
     fun isInstalled(id: String) = localThemes.value.containsKey(id)
 
@@ -92,12 +101,12 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         val localTheme = localThemes.value[theme.id] ?: return
         File(localTheme.installPath).deleteRecursively()
 
-        _loadedThemes.update { it - theme }
+        setLoadedThemes(_loadedThemes.value - theme)
     }
 
     fun removeLocalTheme(id: String) {
         _localThemes.update { it - id }
-        _loadedThemes.update { list -> list.filterNot { it.id == id } }
+        setLoadedThemes(_loadedThemes.value.filterNot { it.id == id })
     }
 
     private suspend fun calcSize(dir: File): Long {
@@ -309,7 +318,7 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             }
             withContext(Dispatchers.Main) {
                 _localThemes.value = newLocalThemes
-                _loadedThemes.value = builtInThemes + newLoadedThemes
+                setLoadedThemes(builtInThemes + newLoadedThemes)
             }
         }
     }

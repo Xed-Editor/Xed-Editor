@@ -23,7 +23,7 @@ import com.rk.settings.editor.rememberAppTypography
 import com.rk.utils.isDarkTheme
 
 val currentTheme = derivedStateOf {
-    themeManager.loadedThemes.value.find { it.id == Settings.theme } ?: blueberry
+    themeManager.loadedThemesState.value.find { it.id == Settings.theme } ?: blueberry
 }
 
 val LocalThemeHolder = staticCompositionLocalOf<ThemeHolder> { error("No ThemeHolder state provided") }
