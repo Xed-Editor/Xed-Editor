@@ -323,12 +323,21 @@ suspend fun FileObject.copyToTempDir() = run {
 }
 
 fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
-    if (this.toString().startsWith("http")) {
+    // file:// URIs represent direct filesystem paths (e.g. app-internal storage). They must never be
+    // routed through the SAF-backed UriWrapper, which requires a content:// tree URI and crashes on
+    // file:// URIs (DocumentsContract.getTreeDocumentId throws IllegalArgumentException).
+    if (this.scheme == "file") {
+        return FileWrapper(File(this.path!!))
+    }
+
+    if (this.scheme == "http" || this.scheme == "https"){
         return NetWrapper(URL(toString()))
     }
 
     // On Android 11+, force Uri if we lack full storage access (scoped storage rules)
     if (needsUriFallback()) {
+        //but what if it's actually a native file, and we are forcing the uri wrapper on it?
+        //just hope this is correct
         return UriWrapper(this, !expectedIsFile)
     }
 
