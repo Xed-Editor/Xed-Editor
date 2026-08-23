@@ -69,21 +69,25 @@ object ToolbarConfiguration {
 
     @XedExtensionPoint
     fun addGlobalToolbarCommand(command: Command, index: Int? = null) {
-        val existingIndex = _globalCommands.value.indexOf(command)
+        _globalCommands.update { current ->
+            val existingIndex = current.indexOf(command)
 
-        if (existingIndex != -1) {
-            _globalCommands.update { it - command }
-        }
-
-        val insertIndex =
-            when {
-                index != null -> index
-                existingIndex != -1 -> existingIndex
-                else -> _globalCommands.value.size
+            val list = if (existingIndex != -1) {
+                current.toMutableList().apply {
+                    removeAt(existingIndex)
+                }
+            } else {
+                current.toMutableList()
             }
 
-        _globalCommands.update { list ->
-            list.toMutableList().also { it.add(insertIndex.coerceIn(0, it.size), command) }
+            val insertIndex = when {
+                index != null -> index.coerceIn(0, list.size)
+                existingIndex != -1 -> existingIndex.coerceIn(0, list.size)
+                else -> list.size
+            }
+
+            list.add(insertIndex, command)
+            list
         }
     }
 
