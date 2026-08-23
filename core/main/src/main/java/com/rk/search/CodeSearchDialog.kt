@@ -38,7 +38,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -90,19 +90,19 @@ fun CodeSearchDialog(
     val context = LocalContext.current
     val viewportHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
 
-    val codeSearchQuery by searchViewModel.codeSearchQuery.collectAsState()
-    val codeReplaceQuery by searchViewModel.codeReplaceQuery.collectAsState()
-    val isReplaceShown by searchViewModel.isReplaceShown.collectAsState()
-    val showOptionsMenu by searchViewModel.showOptionsMenu.collectAsState()
-    val ignoreCase by searchViewModel.ignoreCase.collectAsState()
-    val isSearchingCode by searchViewModel.isSearchingCode.collectAsState()
-    val totalCodeSearchResults by searchViewModel.totalCodeSearchResults.collectAsState()
-    val codeSearchResultsOrder by searchViewModel.codeSearchResultsOrder.collectAsState()
-    val codeSearchResults by searchViewModel.codeSearchResults.collectAsState()
-    val collapsedFiles by searchViewModel.collapsedFiles.collectAsState()
-    val fileMaskText by searchViewModel.fileMaskText.collectAsState()
-    val showFileMaskDialog by searchViewModel.showFileMaskDialog.collectAsState()
-    val isIndexingMap by searchViewModel.isIndexing.collectAsState()
+    val codeSearchQuery by searchViewModel.codeSearchQuery.collectAsStateWithLifecycle()
+    val codeReplaceQuery by searchViewModel.codeReplaceQuery.collectAsStateWithLifecycle()
+    val isReplaceShown by searchViewModel.isReplaceShown.collectAsStateWithLifecycle()
+    val showOptionsMenu by searchViewModel.showOptionsMenu.collectAsStateWithLifecycle()
+    val ignoreCase by searchViewModel.ignoreCase.collectAsStateWithLifecycle()
+    val isSearchingCode by searchViewModel.isSearchingCode.collectAsStateWithLifecycle()
+    val totalCodeSearchResults by searchViewModel.totalCodeSearchResults.collectAsStateWithLifecycle()
+    val codeSearchResultsOrder by searchViewModel.codeSearchResultsOrder.collectAsStateWithLifecycle()
+    val codeSearchResults by searchViewModel.codeSearchResults.collectAsStateWithLifecycle()
+    val collapsedFiles by searchViewModel.collapsedFiles.collectAsStateWithLifecycle()
+    val fileMaskText by searchViewModel.fileMaskText.collectAsStateWithLifecycle()
+    val showFileMaskDialog by searchViewModel.showFileMaskDialog.collectAsStateWithLifecycle()
+    val isIndexingMap by searchViewModel.isIndexing.collectAsStateWithLifecycle()
     val isIndexingProject = isIndexingMap[projectFile] == true
 
     val editorTab = mainViewModel.currentTab as? EditorTab

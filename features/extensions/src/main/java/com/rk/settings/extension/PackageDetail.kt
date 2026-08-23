@@ -30,7 +30,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -335,7 +335,7 @@ private fun AboutSection(
         outdatedWarning = outdatedClient || !supportedArchitecture,
         installState = installState,
         scope = scope,
-        progress = StoreManager.downloadProgress.collectAsState().value[pkg.id] ?: 0f,
+        progress = StoreManager.downloadProgress.collectAsStateWithLifecycle().value[pkg.id] ?: 0f,
         onInstallClick = {
             runPackageInstallAction(pkg, updateInstallState, context, activity, dialogManager)
         },

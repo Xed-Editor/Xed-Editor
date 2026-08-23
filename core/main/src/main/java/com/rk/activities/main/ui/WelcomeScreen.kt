@@ -19,7 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,8 +77,8 @@ fun WelcomeScreen(
 
             Spacer(Modifier.height(4.dp))
 
-            val drawerTabs by drawerViewModel.drawerTabs.collectAsState()
-            val currentDrawerTabIndex by drawerViewModel.currentDrawerTabIndex.collectAsState()
+            val drawerTabs by drawerViewModel.drawerTabs.collectAsStateWithLifecycle()
+            val currentDrawerTabIndex by drawerViewModel.currentDrawerTabIndex.collectAsStateWithLifecycle()
             val currentDrawerTab = drawerTabs.getOrNull(currentDrawerTabIndex)
             val currentProject = if (currentDrawerTab is FileTreeTab) currentDrawerTab.root else null
 

@@ -45,7 +45,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -368,8 +368,8 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
     var renameError by remember { mutableStateOf<String?>(null) }
 
     val service = terminalActivity.sessionBinder?.get()?.getService()
-    val sessionList = service?.sessionList?.collectAsState(initial = emptyList())?.value ?: emptyList()
-    val currentSession = service?.currentSession?.collectAsState(initial = "main")?.value ?: "main"
+    val sessionList = service?.sessionList?.collectAsStateWithLifecycle(initialValue = emptyList())?.value ?: emptyList()
+    val currentSession = service?.currentSession?.collectAsStateWithLifecycle(initialValue = "main")?.value ?: "main"
 
     if (showRenameDialog) {
         SingleInputDialog(

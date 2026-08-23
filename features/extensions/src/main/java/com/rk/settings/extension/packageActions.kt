@@ -7,7 +7,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.core.app.NotificationCompat
@@ -736,7 +736,7 @@ fun handleInstallResult(
 @Composable
 fun rememberPackageInstallState(pkg: Package): InstallState {
     val id = pkg.id
-    val activeInstalls by StoreManager.activeInstalls.collectAsState()
+    val activeInstalls by StoreManager.activeInstalls.collectAsStateWithLifecycle()
     val active = activeInstalls[id]
     if (active != null) return active
 

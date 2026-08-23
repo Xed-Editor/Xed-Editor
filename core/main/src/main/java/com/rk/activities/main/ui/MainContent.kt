@@ -23,7 +23,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -90,10 +90,10 @@ fun MainContent(
 
     FileActionDialogs(drawerViewModel, fileTreeViewModel, scope, context)
 
-    val isDraggingPalette by mainViewModel.isDraggingPalette.collectAsState()
-    val showCommandPalette by mainViewModel.showCommandPalette.collectAsState()
-    val initialChildCommands by mainViewModel.commandPaletteInitialChildCommands.collectAsState()
-    val initialPlaceholder by mainViewModel.commandPaletteInitialPlaceholder.collectAsState()
+    val isDraggingPalette by mainViewModel.isDraggingPalette.collectAsStateWithLifecycle()
+    val showCommandPalette by mainViewModel.showCommandPalette.collectAsStateWithLifecycle()
+    val initialChildCommands by mainViewModel.commandPaletteInitialChildCommands.collectAsStateWithLifecycle()
+    val initialPlaceholder by mainViewModel.commandPaletteInitialPlaceholder.collectAsStateWithLifecycle()
 
     if (isDraggingPalette || showCommandPalette) {
         val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command)

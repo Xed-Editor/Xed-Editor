@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import com.rk.activities.main.MainActivity
@@ -39,23 +39,23 @@ fun FileActionDialogs(
     scope: CoroutineScope,
     context: Context,
 ) {
-    val showRenameDialog by viewModel.showRenameDialog.collectAsState()
-    val renameFile by viewModel.renameFile.collectAsState()
-    val renameValue by viewModel.renameValue.collectAsState()
-    val renameError by viewModel.renameError.collectAsState()
-    val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsState()
-    val deleteFiles by viewModel.deleteFiles.collectAsState()
-    val deleteRoot by viewModel.deleteRoot.collectAsState()
-    val showPropertiesDialog by viewModel.showPropertiesDialog.collectAsState()
-    val propertyFile by viewModel.propertyFile.collectAsState()
-    val showCreateDialog by viewModel.showCreateDialog.collectAsState()
-    val createParentFile by viewModel.createParentFile.collectAsState()
-    val createRoot by viewModel.createRoot.collectAsState()
-    val isCreateFile by viewModel.isCreateFile.collectAsState()
-    val createValue by viewModel.createValue.collectAsState()
-    val createError by viewModel.createError.collectAsState()
-    val showCloseProjectConfirmation by viewModel.showCloseProjectConfirmation.collectAsState()
-    val projectConfirmationRoot by viewModel.projectConfirmationRoot.collectAsState()
+    val showRenameDialog by viewModel.showRenameDialog.collectAsStateWithLifecycle()
+    val renameFile by viewModel.renameFile.collectAsStateWithLifecycle()
+    val renameValue by viewModel.renameValue.collectAsStateWithLifecycle()
+    val renameError by viewModel.renameError.collectAsStateWithLifecycle()
+    val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsStateWithLifecycle()
+    val deleteFiles by viewModel.deleteFiles.collectAsStateWithLifecycle()
+    val deleteRoot by viewModel.deleteRoot.collectAsStateWithLifecycle()
+    val showPropertiesDialog by viewModel.showPropertiesDialog.collectAsStateWithLifecycle()
+    val propertyFile by viewModel.propertyFile.collectAsStateWithLifecycle()
+    val showCreateDialog by viewModel.showCreateDialog.collectAsStateWithLifecycle()
+    val createParentFile by viewModel.createParentFile.collectAsStateWithLifecycle()
+    val createRoot by viewModel.createRoot.collectAsStateWithLifecycle()
+    val isCreateFile by viewModel.isCreateFile.collectAsStateWithLifecycle()
+    val createValue by viewModel.createValue.collectAsStateWithLifecycle()
+    val createError by viewModel.createError.collectAsStateWithLifecycle()
+    val showCloseProjectConfirmation by viewModel.showCloseProjectConfirmation.collectAsStateWithLifecycle()
+    val projectConfirmationRoot by viewModel.projectConfirmationRoot.collectAsStateWithLifecycle()
 
     if (showRenameDialog) {
         val file = renameFile ?: return

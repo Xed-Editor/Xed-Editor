@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import com.rk.DefaultScope
@@ -144,7 +144,7 @@ abstract class LspServer {
 
 @Composable
 fun LspServer.getDominantStatusColor(): Color? {
-    val instances by this.instances.collectAsState()
+    val instances by this.instances.collectAsStateWithLifecycle()
     val hasAnyError = instances.any { it.hasError.value }
     if (hasAnyError) return MaterialTheme.colorScheme.error
 

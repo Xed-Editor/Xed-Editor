@@ -9,7 +9,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -54,15 +54,15 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
 
-    val commands by ToolbarConfiguration.globalCommands.collectAsState()
+    val commands by ToolbarConfiguration.globalCommands.collectAsStateWithLifecycle()
 
-    val drawerTabs by drawerViewModel.drawerTabs.collectAsState()
-    val currentDrawerTabIndex by drawerViewModel.currentDrawerTabIndex.collectAsState()
+    val drawerTabs by drawerViewModel.drawerTabs.collectAsStateWithLifecycle()
+    val currentDrawerTabIndex by drawerViewModel.currentDrawerTabIndex.collectAsStateWithLifecycle()
     val currentDrawerTab = drawerTabs.getOrNull(currentDrawerTabIndex)
 
-    val addDialog by GlobalDialogs.addDialog.collectAsState()
-    val fileSearchDialog by GlobalDialogs.fileSearchDialog.collectAsState()
-    val codeSearchDialog by GlobalDialogs.codeSearchDialog.collectAsState()
+    val addDialog by GlobalDialogs.addDialog.collectAsStateWithLifecycle()
+    val fileSearchDialog by GlobalDialogs.fileSearchDialog.collectAsStateWithLifecycle()
+    val codeSearchDialog by GlobalDialogs.codeSearchDialog.collectAsStateWithLifecycle()
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         for (command in commands) {

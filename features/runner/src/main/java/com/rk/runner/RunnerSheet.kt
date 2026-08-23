@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,7 +24,7 @@ import com.rk.resources.strings
 @OptIn(ExperimentalMaterial3Api::class)
 fun RunnerSheet() {
     val context = LocalContext.current
-    val runnersToShow by RunnerUI.runnersToShow.collectAsState()
+    val runnersToShow by RunnerUI.runnersToShow.collectAsStateWithLifecycle()
     ModalBottomSheet(
         onDismissRequest = {
             RunnerUI.showRunnerDialog.value = false

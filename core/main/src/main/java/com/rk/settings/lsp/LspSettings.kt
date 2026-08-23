@@ -28,7 +28,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -84,9 +84,9 @@ fun LspSettings(navController: NavController) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateAsState()
 
-    val builtInServers by LspRegistry.builtInServers.collectAsState()
-    val extensionServers by LspRegistry.extensionServers.collectAsState()
-    val externalServers by LspRegistry.externalServers.collectAsState()
+    val builtInServers by LspRegistry.builtInServers.collectAsStateWithLifecycle()
+    val extensionServers by LspRegistry.extensionServers.collectAsStateWithLifecycle()
+    val externalServers by LspRegistry.externalServers.collectAsStateWithLifecycle()
 
     LaunchedEffect(lifecycleState) {
         if (lifecycleState == Lifecycle.State.RESUMED) {

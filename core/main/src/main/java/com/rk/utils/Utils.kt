@@ -23,7 +23,7 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -275,7 +275,7 @@ suspend fun handleLazyListScroll(lazyListState: LazyListState, dropIndex: Int): 
 
 @Composable
 fun getUnderlineColor(context: Context, fileTreeViewModel: FileTreeViewModel, file: FileObject?): Color? {
-    val diagnosedNodes by fileTreeViewModel.diagnosedNodes.collectAsState()
+    val diagnosedNodes by fileTreeViewModel.diagnosedNodes.collectAsStateWithLifecycle()
     val diagnosticSeverity = file?.let { diagnosedNodes[it] } ?: -1
     val editorColors =
         if (isDarkTheme(context)) {

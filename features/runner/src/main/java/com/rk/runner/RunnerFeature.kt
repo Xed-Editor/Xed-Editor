@@ -1,7 +1,7 @@
 package com.rk.runner
 
 import android.app.Application
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.commands.CommandProvider
@@ -30,7 +30,7 @@ class RunnerFeature : Feature {
         // Register RunnerSheet overlay
         dialogProvider =
             DialogProvider {
-                val showRunnerDialog by RunnerUI.showRunnerDialog.collectAsState()
+                val showRunnerDialog by RunnerUI.showRunnerDialog.collectAsStateWithLifecycle()
                 if (showRunnerDialog) {
                     RunnerSheet()
                 }

@@ -25,7 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -189,7 +189,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                             val searchVM = searchViewModel.get()
                             val isIndexing =
                                 searchVM?.isIndexing
-                                    ?.collectAsState(initial = emptyMap())
+                                    ?.collectAsStateWithLifecycle(initialValue = emptyMap())
                                     ?.value
                                     ?.get(root) == true
                             LaunchedEffect(isIndexing) {

@@ -33,7 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -73,14 +73,14 @@ fun FileTree(
     viewModel: FileTreeViewModel,
     drawerViewModel: DrawerViewModel,
 ) {
-    val sortMode by viewModel.sortMode.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val selectedFiles by viewModel.selectedFiles.collectAsState()
-    val fileOperationsCount by viewModel.fileOperationsCount.collectAsState()
+    val sortMode by viewModel.sortMode.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val selectedFiles by viewModel.selectedFiles.collectAsStateWithLifecycle()
+    val fileOperationsCount by viewModel.fileOperationsCount.collectAsStateWithLifecycle()
     val searchVM = searchViewModel.get()
     val isIndexingMap =
         if (searchVM != null) {
-            searchVM.isIndexing.collectAsState(initial = emptyMap()).value
+            searchVM.isIndexing.collectAsStateWithLifecycle(initialValue = emptyMap()).value
         } else {
             emptyMap()
         }
@@ -317,7 +317,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
 @Composable
 private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> Unit) {
     var showOptionsMenu by remember { mutableStateOf(false) }
-    val sortMode by viewModel.sortMode.collectAsState()
+    val sortMode by viewModel.sortMode.collectAsStateWithLifecycle()
 
     IconButton(onClick = { viewModel.viewModelScope.launch { viewModel.refreshEverything() } }) {
         Icon(Icons.Outlined.Refresh, stringResource(strings.refresh))

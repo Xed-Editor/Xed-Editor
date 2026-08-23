@@ -22,7 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -65,10 +65,10 @@ fun FileSearchDialog(
     val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
 
-    val fileSearchQuery by searchViewModel.fileSearchQuery.collectAsState()
-    val isSearchingFiles by searchViewModel.isSearchingFiles.collectAsState()
-    val fileSearchResults by searchViewModel.fileSearchResults.collectAsState()
-    val isIndexingMap by searchViewModel.isIndexing.collectAsState()
+    val fileSearchQuery by searchViewModel.fileSearchQuery.collectAsStateWithLifecycle()
+    val isSearchingFiles by searchViewModel.isSearchingFiles.collectAsStateWithLifecycle()
+    val fileSearchResults by searchViewModel.fileSearchResults.collectAsStateWithLifecycle()
+    val isIndexingMap by searchViewModel.isIndexing.collectAsStateWithLifecycle()
     val isIndexingProject = isIndexingMap[projectFile] == true
 
     val editorTab = mainViewModel.currentTab as? EditorTab

@@ -35,7 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,11 +75,11 @@ fun DrawerContent(fullscreen: Boolean) {
     val mainActivity = LocalActivity.current as MainActivity
     val viewModel = mainActivity.drawerViewModel
 
-    val isLoading by viewModel.isLoading.collectAsState()
-    val drawerTabs by viewModel.drawerTabs.collectAsState()
-    val serviceTabs by viewModel.serviceTabs.collectAsState()
-    val currentDrawerTabIndex by viewModel.currentDrawerTabIndex.collectAsState()
-    val currentServiceTabIndex by viewModel.currentServiceTabIndex.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val drawerTabs by viewModel.drawerTabs.collectAsStateWithLifecycle()
+    val serviceTabs by viewModel.serviceTabs.collectAsStateWithLifecycle()
+    val currentDrawerTabIndex by viewModel.currentDrawerTabIndex.collectAsStateWithLifecycle()
+    val currentServiceTabIndex by viewModel.currentServiceTabIndex.collectAsStateWithLifecycle()
     val currentDrawerTab = drawerTabs.getOrNull(currentDrawerTabIndex)
     val currentServiceTab = serviceTabs.getOrNull(currentServiceTabIndex)
 

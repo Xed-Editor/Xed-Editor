@@ -14,7 +14,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -52,7 +52,7 @@ fun PackageCard(
     onClick: (Package) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
-    val downloadProgress by StoreManager.downloadProgress.collectAsState()
+    val downloadProgress by StoreManager.downloadProgress.collectAsStateWithLifecycle()
 
     val xedVersionCode = App.versionCode
     val minAppVersion = pkg.minAppVersion

@@ -20,7 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,9 +74,9 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
 
     var regexFieldValue by remember { mutableStateOf(TextFieldValue("", selection = TextRange(runnerName.length))) }
 
-    val builtinRunners by RunnerManager.builtinRunners.collectAsState()
-    val extensionRunners by RunnerManager.extensionRunners.collectAsState()
-    val shellBasedRunners by ShellBasedRunners.runners.collectAsState()
+    val builtinRunners by RunnerManager.builtinRunners.collectAsStateWithLifecycle()
+    val extensionRunners by RunnerManager.extensionRunners.collectAsStateWithLifecycle()
+    val shellBasedRunners by ShellBasedRunners.runners.collectAsStateWithLifecycle()
 
     // Validation functions
     fun validateName() {

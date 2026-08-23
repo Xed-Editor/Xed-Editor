@@ -17,7 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -561,7 +561,7 @@ open class EditorTab(
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                     }
 
-                    editorState.notices.collectAsState().value.forEach { (id, notice) -> notice(id) }
+                    editorState.notices.collectAsStateWithLifecycle().value.forEach { (id, notice) -> notice(id) }
                 }
 
                 val fileExtension = file?.getExtension() ?: fallbackExtension

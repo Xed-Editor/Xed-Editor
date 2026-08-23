@@ -7,7 +7,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -228,8 +228,8 @@ data class LspServerInstance(
 
 @Composable
 fun LspServerInstance.getStatusColor(): Color? {
-    val status by this.status.collectAsState()
-    val hasError by this.hasError.collectAsState()
+    val status by this.status.collectAsStateWithLifecycle()
+    val hasError by this.hasError.collectAsStateWithLifecycle()
     return if (status == LspConnectionStatus.CRASHED || status == LspConnectionStatus.TIMEOUT || hasError) {
         MaterialTheme.colorScheme.error
     } else if (
@@ -245,8 +245,8 @@ fun LspServerInstance.getStatusColor(): Color? {
 
 @Composable
 fun LspServerInstance.getStatusText(): String {
-    val status by this.status.collectAsState()
-    val hasError by this.hasError.collectAsState()
+    val status by this.status.collectAsStateWithLifecycle()
+    val hasError by this.hasError.collectAsStateWithLifecycle()
     return when {
         status == LspConnectionStatus.CRASHED -> stringResource(strings.status_crashed)
         status == LspConnectionStatus.TIMEOUT -> stringResource(strings.status_timeout)
@@ -266,8 +266,8 @@ fun LspServerInstance.getStatusText(): String {
 
 @Composable
 fun LspServerInstance.StatusIcon() {
-    val status by this.status.collectAsState()
-    val hasError by this.hasError.collectAsState()
+    val status by this.status.collectAsStateWithLifecycle()
+    val hasError by this.hasError.collectAsStateWithLifecycle()
     when {
         status == LspConnectionStatus.CRASHED || status == LspConnectionStatus.TIMEOUT || hasError -> {
             Icon(

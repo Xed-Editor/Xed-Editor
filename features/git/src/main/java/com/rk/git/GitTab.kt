@@ -57,7 +57,7 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -123,15 +123,15 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranch by remember { mutableStateOf("") }
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
-        val currentRoot by viewModel.currentRoot.collectAsState()
-        val changeMap by viewModel.changes.collectAsState()
-        val commitMessages by viewModel.commitMessages.collectAsState()
-        val amends by viewModel.amends.collectAsState()
-        val currentBranch by viewModel.currentBranch.collectAsState()
-        val commitHistory by viewModel.commitHistory.collectAsState()
-        val isLoading by viewModel.isLoading.collectAsState()
-        val aheadCount by viewModel.aheadCount.collectAsState()
-        val behindCount by viewModel.behindCount.collectAsState()
+        val currentRoot by viewModel.currentRoot.collectAsStateWithLifecycle()
+        val changeMap by viewModel.changes.collectAsStateWithLifecycle()
+        val commitMessages by viewModel.commitMessages.collectAsStateWithLifecycle()
+        val amends by viewModel.amends.collectAsStateWithLifecycle()
+        val currentBranch by viewModel.currentBranch.collectAsStateWithLifecycle()
+        val commitHistory by viewModel.commitHistory.collectAsStateWithLifecycle()
+        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+        val aheadCount by viewModel.aheadCount.collectAsStateWithLifecycle()
+        val behindCount by viewModel.behindCount.collectAsStateWithLifecycle()
 
         val gitChanges = currentRoot?.absolutePath?.let { changeMap[it] } ?: emptyList()
         val hasCheckedChanges by remember(gitChanges) { derivedStateOf { gitChanges.count { it.isChecked } > 0 } }
@@ -701,7 +701,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         conflictsExpanded: Boolean,
         onToggleExpansion: () -> Unit,
     ) {
-        val isLoading by viewModel.isLoading.collectAsState()
+        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
         if (conflicts.isEmpty()) return
 
         val conflictsSelectionState =
@@ -761,7 +761,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         changesExpanded: Boolean,
         onToggleExpansion: () -> Unit,
     ) {
-        val isLoading by viewModel.isLoading.collectAsState()
+        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
         if (changes.isEmpty()) return
 
         val changesSelectionState =
@@ -821,7 +821,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         untrackedExpanded: Boolean,
         onToggleExpansion: () -> Unit,
     ) {
-        val isLoading by viewModel.isLoading.collectAsState()
+        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
         if (untracked.isEmpty()) return
 
         val untrackedSelectionState =
@@ -879,7 +879,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     private fun ChangesItemList(items: List<GitChange>) {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
-        val isLoading by viewModel.isLoading.collectAsState()
+        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
         Column(modifier = Modifier.padding(start = 40.dp)) {
             items.forEach { change ->
