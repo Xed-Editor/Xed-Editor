@@ -123,10 +123,10 @@ fun FontScreen(
             var selectedFontCompose by remember {
                 mutableStateOf(
                     if (selectedFontPath.isEmpty()) {
-                        FontRegistry.fonts.find { it.pathOrAsset == defaultFontPath }!!
+                        FontRegistry.fonts.value.find { it.pathOrAsset == defaultFontPath }!!
                     } else {
-                        FontRegistry.fonts.find { selectedFontPath == it.pathOrAsset }
-                            ?: FontRegistry.fonts.find { it.pathOrAsset == defaultFontPath }!!
+                        FontRegistry.fonts.value.find { selectedFontPath == it.pathOrAsset }
+                            ?: FontRegistry.fonts.value.find { it.pathOrAsset == defaultFontPath }!!
                     }
                 )
             }
@@ -158,7 +158,7 @@ fun FontScreen(
                                         inputStream?.copyTo(outputStream)
                                     }
                                 }
-                                FontRegistry.fonts.add(
+                                FontRegistry.addFont(
                                     FontRegistry.Font(
                                         name = fileName.removeSuffix(".ttf"),
                                         isAsset = false,
@@ -176,7 +176,7 @@ fun FontScreen(
                     },
                 )
 
-            FontRegistry.fonts.forEach { font ->
+            FontRegistry.fonts.value.forEach { font ->
                 val interactionSource = remember { MutableInteractionSource() }
                 val isDefault = font.pathOrAsset == defaultFontPath
                 val defaultSuffix = if (isDefault) " (${strings.default_option.getString()})" else ""
@@ -198,7 +198,7 @@ fun FontScreen(
                         if (font.isAsset.not() && selectedFontCompose.pathOrAsset != font.pathOrAsset) {
                             IconButton(
                                 onClick = {
-                                    FontRegistry.fonts.removeIf { it.pathOrAsset == font.pathOrAsset }
+                                    FontRegistry.removeFont(font)
                                     FontRegistry.saveFonts()
                                     File(font.pathOrAsset).delete()
                                 }

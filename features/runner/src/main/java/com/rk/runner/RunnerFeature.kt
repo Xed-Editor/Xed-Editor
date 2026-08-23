@@ -1,6 +1,8 @@
 package com.rk.runner
 
 import android.app.Application
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.getValue
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.commands.CommandProvider
 import com.rk.commands.ToolbarConfiguration
@@ -28,7 +30,8 @@ class RunnerFeature : Feature {
         // Register RunnerSheet overlay
         dialogProvider =
             DialogProvider {
-                if (RunnerUI.showRunnerDialog) {
+                val showRunnerDialog by RunnerUI.showRunnerDialog.collectAsStateWithLifecycle()
+                if (showRunnerDialog) {
                     RunnerSheet()
                 }
             }

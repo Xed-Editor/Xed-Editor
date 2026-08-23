@@ -59,9 +59,7 @@ private fun buildLogs(logLevel: LogLevel): String {
     val entries =
         if (Settings.enable_logcat) {
             val logsCopy =
-                synchronized(LogcatService.logcatLogs) {
-                    LogcatService.logcatLogs.toList()
-                }
+                LogcatService.logcatLogs.value
             logsCopy
                 .filter { line ->
                     line.matchesLogLevel(logLevel)
@@ -69,7 +67,7 @@ private fun buildLogs(logLevel: LogLevel): String {
                 .takeLast(1000)
                 .joinToString("\n")
         } else {
-            LogCollector.logs
+            LogCollector.logs.value
                 .filter { it.level.ordinal <= logLevel.ordinal }
                 .joinToString("\n") { "[${it.level.name.uppercase()}] ${it.message}" }
         }

@@ -4,7 +4,7 @@ import android.view.KeyEvent
 import com.rk.commands.ActionContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
-import com.rk.components.codeSearchDialog
+import com.rk.components.GlobalDialogs
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -16,7 +16,7 @@ class SearchCodeCommand : GlobalCommand() {
     override fun getLabel(): String = strings.search_code.getString()
 
     override fun action(context: ActionContext) {
-        codeSearchDialog = true
+        GlobalDialogs.codeSearchDialog.value = true
     }
 
     override fun isEnabled(): Boolean {

@@ -45,6 +45,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -366,9 +367,11 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
     var renameValue by remember { mutableStateOf("") }
     var renameError by remember { mutableStateOf<String?>(null) }
 
-    if (showRenameDialog) {
-        val service = terminalActivity.sessionBinder?.get()?.getService()
+    val service = terminalActivity.sessionBinder?.get()?.getService()
+    val sessionList = service?.sessionList?.collectAsStateWithLifecycle(initialValue = emptyList())?.value ?: emptyList()
+    val currentSession = service?.currentSession?.collectAsStateWithLifecycle(initialValue = "main")?.value ?: "main"
 
+    if (showRenameDialog) {
         SingleInputDialog(
             title = stringResource(strings.rename_session),
             inputLabel = stringResource(strings.name),
@@ -379,7 +382,7 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                 renameError =
                     if (it.isBlank()) {
                         strings.name_empty_err.getString()
-                    } else if (it != sessionToRename && service?.sessionList?.contains(it) == true) {
+                    } else if (it != sessionToRename && sessionList.contains(it)) {
                         strings.session_name_exists.getString()
                     } else null
             },
@@ -420,7 +423,7 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                                     ?.get()!!
                                     .createSession(
                                         generateUniqueString(
-                                            terminalActivity.sessionBinder?.get()!!.getService().sessionList
+                                            terminalActivity.sessionBinder?.get()!!.getService().sessionList.value
                                         ),
                                         client,
                                         terminalActivity,
@@ -440,11 +443,10 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                 }
             }
 
-            val service = terminalActivity.sessionBinder?.get()?.getService()
-            service?.sessionList?.let {
+            if (service != null && sessionList.isNotEmpty()) {
                 LazyColumn {
-                    items(it) { sessionId ->
-                        val isSelected = sessionId == service.currentSession.value
+                    items(sessionList) { sessionId ->
+                        val isSelected = sessionId == currentSession
                         NavigationDrawerItem(
                             label = { Text(text = sessionId) },
                             selected = isSelected,
@@ -474,16 +476,16 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                                     IconButton(
                                         onClick = {
                                             if (isSelected) {
-                                                val index = service.sessionList.indexOf(sessionId)
-                                                val sessionBefore = service.sessionList.getOrNull(index - 1)
-                                                val sessionAfter = service.sessionList.getOrNull(index + 1)
+                                                val index = sessionList.indexOf(sessionId)
+                                                val sessionBefore = sessionList.getOrNull(index - 1)
+                                                val sessionAfter = sessionList.getOrNull(index + 1)
                                                 val neighborSession = sessionBefore ?: sessionAfter
                                                 neighborSession?.let { terminalActivity.changeSession(it) }
                                             }
 
                                             terminalActivity.sessionBinder?.get()?.terminateSession(sessionId)
 
-                                            if (service.sessionList.isEmpty()) {
+                                            if (sessionList.isEmpty()) {
                                                 terminalActivity.finish()
                                                 service.actionExit()
                                             }

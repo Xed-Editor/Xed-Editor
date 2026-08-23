@@ -101,7 +101,7 @@ fun MainActivity.MainContentHost(
 
             val keyboardShown = WindowInsets.isImeVisible
             LaunchedEffect(keyboardShown, Settings.smart_toolbar) {
-                viewModel.showTopBar = !Settings.smart_toolbar || !keyboardShown
+                viewModel.setShowTopBar(!Settings.smart_toolbar || !keyboardShown)
             }
 
             val scope = rememberCoroutineScope()
@@ -160,7 +160,7 @@ fun MainActivity.MainContentHost(
                             onDrag = { dragAmount ->
                                 accumulator += dragAmount
 
-                                viewModel.isDraggingPalette = true
+                                viewModel.setDraggingPalette(true)
 
                                 scope.launch {
                                     val newProgress = (accumulator / hardThreshold).coerceIn(0f, 1f)
@@ -170,7 +170,7 @@ fun MainActivity.MainContentHost(
                             onDragEnd = {
                                 val shouldOpen = accumulator >= softThreshold
                                 scope.launch {
-                                    viewModel.isDraggingPalette = shouldOpen
+                                    viewModel.setDraggingPalette(shouldOpen)
                                     viewModel.draggingPaletteProgress.animateTo(
                                         if (shouldOpen) 1f else 0f,
                                         animationSpec = spring(stiffness = 800f),
@@ -193,10 +193,10 @@ fun MainActivity.MainContentHost(
 
             val sheetContent: @Composable ColumnScope.() -> Unit = {
                 LaunchedEffect(Unit) {
-                    drawerViewModel.isLoading = true
+                    drawerViewModel.setLoading(true)
                     drawerViewModel.setupBuiltinServices(this@MainContentHost)
                     DrawerPersistence.restoreState(drawerViewModel)
-                    drawerViewModel.isLoading = false
+                    drawerViewModel.setLoading(false)
                 }
                 DrawerContent(Settings.fullscreen)
             }

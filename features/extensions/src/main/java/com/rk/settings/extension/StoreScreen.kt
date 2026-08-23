@@ -127,16 +127,16 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
 
         val needsLocal =
             when (selectedCategory) {
-                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.installedExtensions.isEmpty()
-                StoreCategory.THEMES -> isForceRefresh || themeManager.localThemes.isEmpty()
-                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.localIconPacks.isEmpty()
+                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.installedExtensions.value.isEmpty()
+                StoreCategory.THEMES -> isForceRefresh || themeManager.localThemes.value.isEmpty()
+                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.localIconPacks.value.isEmpty()
             }
 
         val needsStore =
             when (selectedCategory) {
-                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.storeExtension.isEmpty()
-                StoreCategory.THEMES -> isForceRefresh || themeManager.storeThemes.isEmpty()
-                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.storeIconPacks.isEmpty()
+                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.storeExtension.value.isEmpty()
+                StoreCategory.THEMES -> isForceRefresh || themeManager.storeThemes.value.isEmpty()
+                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.storeIconPacks.value.isEmpty()
             }
 
         if (needsLocal || needsStore) {

@@ -35,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,6 +75,14 @@ fun DrawerContent(fullscreen: Boolean) {
     val mainActivity = LocalActivity.current as MainActivity
     val viewModel = mainActivity.drawerViewModel
 
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val drawerTabs by viewModel.drawerTabs.collectAsStateWithLifecycle()
+    val serviceTabs by viewModel.serviceTabs.collectAsStateWithLifecycle()
+    val currentDrawerTabIndex by viewModel.currentDrawerTabIndex.collectAsStateWithLifecycle()
+    val currentServiceTabIndex by viewModel.currentServiceTabIndex.collectAsStateWithLifecycle()
+    val currentDrawerTab = drawerTabs.getOrNull(currentDrawerTabIndex)
+    val currentServiceTab = serviceTabs.getOrNull(currentServiceTabIndex)
+
     val openFolder =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocumentTree(),
@@ -94,7 +103,7 @@ fun DrawerContent(fullscreen: Boolean) {
         )
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        if (viewModel.isLoading) {
+        if (isLoading) {
             CircularProgressIndicator()
         } else {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
@@ -111,13 +120,13 @@ fun DrawerContent(fullscreen: Boolean) {
                 ) {
                     Column(modifier = Modifier.fillMaxHeight()) {
                         LazyColumn(modifier = Modifier.weight(1f, fill = true), state = lazyListState) {
-                            items(items = viewModel.drawerTabs) { tab ->
+                            items(items = drawerTabs) { tab ->
                                 if (!tab.isSupported()) return@items
                                 NavigationRailItem(
-                                    selected = viewModel.currentDrawerTab == tab,
+                                    selected = currentDrawerTab == tab,
                                     icon = { XedIcon(tab.getIcon()) },
                                     onClick = {
-                                        if (viewModel.currentDrawerTab == tab && viewModel.currentServiceTab == null) {
+                                        if (currentDrawerTab == tab && currentServiceTab == null) {
                                             closeProjectDialog = true
                                         } else {
                                             viewModel.selectDrawerTab(tab)
@@ -126,7 +135,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                     label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                                     colors =
                                         NavigationRailItemDefaults.colors().let {
-                                            if (viewModel.currentServiceTab == null) it
+                                            if (currentServiceTab == null) it
                                             else
                                                 it.copy(
                                                     selectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -152,13 +161,13 @@ fun DrawerContent(fullscreen: Boolean) {
                         if (showHorizontalDivider) HorizontalDivider()
 
                         Column(modifier = Modifier.wrapContentHeight().padding(vertical = 8.dp)) {
-                            viewModel.serviceTabs.forEach { tab ->
+                            serviceTabs.forEach { tab ->
                                 if (!tab.isSupported()) return@forEach
                                 NavigationRailItem(
-                                    selected = viewModel.currentServiceTab == tab,
+                                    selected = currentServiceTab == tab,
                                     icon = { XedIcon(icon = tab.getIcon()) },
                                     onClick = {
-                                        if (viewModel.currentServiceTab == tab) {
+                                        if (currentServiceTab == tab) {
                                             viewModel.unselectServiceTab()
                                         } else {
                                             viewModel.selectServiceTab(tab)
@@ -175,8 +184,8 @@ fun DrawerContent(fullscreen: Boolean) {
                 VerticalDivider()
 
                 Surface {
-                    Crossfade(targetState = viewModel.currentDrawerTab, label = "file tree") { tab ->
-                        if (viewModel.currentServiceTab == null) {
+                    Crossfade(targetState = currentDrawerTab, label = "file tree") { tab ->
+                        if (currentServiceTab == null) {
                             if (tab != null) {
                                 tab.Content(modifier = Modifier.fillMaxSize())
                             } else {
@@ -201,7 +210,7 @@ fun DrawerContent(fullscreen: Boolean) {
                         }
                     }
 
-                    Crossfade(targetState = viewModel.currentServiceTab) { tab ->
+                    Crossfade(targetState = currentServiceTab) { tab ->
                         tab?.Content(modifier = Modifier.fillMaxSize())
                     }
                 }
@@ -221,7 +230,6 @@ fun DrawerContent(fullscreen: Boolean) {
                     )
                 }
 
-                val currentDrawerTab = viewModel.currentDrawerTab
                 if (closeProjectDialog && currentDrawerTab != null) {
                     ProjectCloseConfirmationDialog(
                         projectName = currentDrawerTab.getName(),

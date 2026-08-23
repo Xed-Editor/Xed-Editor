@@ -24,7 +24,7 @@ object DrawerPersistence {
     suspend fun saveState(viewModel: DrawerViewModel) {
         saveMutex.withLock {
             val file = FileWrapper(application!!.filesDir.child(DRAWER_TABS))
-            val serializableList = ArrayList(viewModel.drawerTabs)
+            val serializableList = ArrayList(viewModel.drawerTabs.value)
             file.writeObject(serializableList)
 
             val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))

@@ -8,7 +8,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import androidx.compose.runtime.mutableStateListOf
 import androidx.core.app.NotificationCompat
 import com.rk.activities.main.MainActivity
 import com.rk.resources.drawables
@@ -20,7 +19,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LogcatService : Service() {
@@ -31,7 +34,8 @@ class LogcatService : Service() {
     companion object {
         private const val CHANNEL_ID = "logcat_service_channel"
 
-        val logcatLogs = mutableStateListOf<String>()
+        private val _logcatLogs = MutableStateFlow<List<String>>(emptyList())
+        val logcatLogs: StateFlow<List<String>> = _logcatLogs.asStateFlow()
 
         private val _logFlow = MutableSharedFlow<String>(extraBufferCapacity = 512)
         val logFlow = _logFlow.asSharedFlow()
@@ -120,7 +124,7 @@ class LogcatService : Service() {
             try {
                 // Clear any existing logs
                 launch(Dispatchers.Main) {
-                    logcatLogs.clear()
+                    _logcatLogs.value = emptyList()
                 }
 
                 // Run logcat continuously in brief format
@@ -148,13 +152,7 @@ class LogcatService : Service() {
                                     }
                                 lastUpdateTime = now
                                 launch(Dispatchers.Main) {
-                                    synchronized(logcatLogs) {
-                                        logcatLogs.addAll(itemsToAdd)
-                                        if (logcatLogs.size > 1000) {
-                                            val toRemove = logcatLogs.size - 1000
-                                            logcatLogs.removeRange(0, toRemove)
-                                        }
-                                    }
+                                    _logcatLogs.update { it.plus(itemsToAdd).takeLast(1000) }
                                 }
                             }
                         }
@@ -164,13 +162,7 @@ class LogcatService : Service() {
                 // Add any remaining items
                 if (batch.isNotEmpty()) {
                     launch(Dispatchers.Main) {
-                        synchronized(logcatLogs) {
-                            logcatLogs.addAll(batch)
-                            if (logcatLogs.size > 1000) {
-                                val toRemove = logcatLogs.size - 1000
-                                logcatLogs.removeRange(0, toRemove)
-                            }
-                        }
+                        _logcatLogs.update { it.plus(batch).takeLast(1000) }
                     }
                 }
             } catch (e: Exception) {

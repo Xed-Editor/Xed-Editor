@@ -170,7 +170,7 @@ class ExtensionFeature : Feature {
         routes.add(
             DynamicRoute("${SettingsRoutes.ExtensionSettings.route}/{extensionId}") { _, backStackEntry ->
                 val extensionId = backStackEntry.arguments?.getString("extensionId")
-                val extension = extensionId?.let { extensionManager.installedExtensions[it] }
+                val extension = extensionId?.let { extensionManager.installedExtensions.value[it] }
                 ExtensionSettings(extension)
             }
         )
