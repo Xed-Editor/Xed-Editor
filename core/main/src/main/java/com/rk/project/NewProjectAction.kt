@@ -20,7 +20,7 @@ object NewProjectAction : FileAction() {
         DefaultScope.launch {
             val intent =
                 Intent(context.context, ProjectCreatorActivity::class.java).apply {
-                    putExtra("root", context.file.toUri())
+                    putExtra("root", context.file)
                 }
             context.context.startActivity(intent)
         }
