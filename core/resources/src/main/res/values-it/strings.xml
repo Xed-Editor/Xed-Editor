@@ -766,4 +766,19 @@
     <string name="git_init_error">Impossibile inizializzare il repository: %s</string>
     <string name="checkout">Checkout</string>
     <string name="merge">Unisci</string>
+    <string name="format_document_lsp">Formatta il documento con LSP</string>
+    <string name="rename_branch">Rinomina branch</string>
+    <string name="rename_branch_label">Nuovo nome per il branch \'%1$s\'</string>
+    <string name="delete_branch">Eliminare il branch?</string>
+    <string name="delete_branch_msg">Sei sicuro di voler eliminare definitivamente il branch \'%s\'?</string>
+    <string name="merge_complete">Unione completata</string>
+    <string name="rebase_complete">Rebase completato</string>
+    <string name="rename_complete">Rinomina completata</string>
+    <string name="delete_complete">Eliminazione completata</string>
+    <string name="history">Cronologia</string>
+    <string name="copy_hash">Copia hash</string>
+    <string name="no_commits">Nessun commit</string>
+    <string name="initialization_options">Opzioni di inizializzazione</string>
+    <string name="initialization_options_desc">Modifica il JSON delle opzioni di inizializzazione</string>
+    <string name="run_lsp_external">Esegui per file esterni</string>
 </resources>
