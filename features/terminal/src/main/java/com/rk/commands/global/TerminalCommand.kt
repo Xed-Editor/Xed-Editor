@@ -17,7 +17,7 @@ object TerminalCommand : GlobalCommand() {
 
     override fun getLabel(): String = strings.terminal.getString()
 
-    override fun action(context: ActionContext) {
+    override fun execute(context: ActionContext) {
         val activity = context.currentActivity
         val intent = Intent(activity, Terminal::class.java)
         activity.startActivity(intent)

@@ -11,11 +11,6 @@ object PathUtils {
         return path.replace("/document", "/storage").replace(":", "/")
     }
 
-    private fun convertUriToPath(context: Context, uri: Uri?): String {
-        val path = internalConvertUriToPath(context, uri)
-        return path.replace("/document", "/storage").replace(":", "/")
-    }
-
     private fun internalConvertUriToPath(context: Context, uri: Uri?): String {
         uri?.let {
             when {
@@ -23,16 +18,25 @@ object PathUtils {
                     // Handle tree URI
                     val docId = DocumentsContract.getTreeDocumentId(it)
                     return when {
+                        // Our DocumentsProvider uses absolute filesystem paths as document IDs.
+                        docId.startsWith("/") -> docId
+
                         docId.startsWith("primary:") -> {
                             // Internal storage
                             "${Environment.getExternalStorageDirectory()}/${docId.substringAfter("primary:")}"
                         }
 
-                        else -> {
-                            // External storage (SD card)
-                            val split = docId.split(":")
-                            "/storage/${split[0]}/${split.getOrElse(1) { "" }}"
+                        // Other storage volumes, e.g. SD cards.
+                        ":" in docId -> {
+                            val split = docId.split(":", limit = 2)
+                            val volume = split[0]
+                            val relativePath = split.getOrElse(1) { "" }
+
+                            "/storage/$volume/$relativePath"
                         }
+
+                        // Unknown document ID format
+                        else -> docId
                     }
                 }
 
@@ -43,15 +47,15 @@ object PathUtils {
                         isExternalStorageDocument(it) -> {
                             val split = docId.split(":")
                             val type = split[0]
-                            if ("primary".equals(type, ignoreCase = true)) {
-                                return "${Environment.getExternalStorageDirectory()}/${
+                            return if ("primary".equals(type, ignoreCase = true)) {
+                                "${Environment.getExternalStorageDirectory()}/${
                                     split.getOrElse(
                                         1
                                     ) { "" }
                                 }"
                             } else {
                                 // Handle SD card
-                                return "/storage/$type/${split.getOrElse(1) { "" }}"
+                                "/storage/$type/${split.getOrElse(1) { "" }}"
                             }
                         }
 
