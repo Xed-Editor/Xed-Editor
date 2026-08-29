@@ -33,6 +33,7 @@ import com.rk.editor.LanguageManager
 import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileObject
+import com.rk.file.FileTypeManager
 import com.rk.file.FileWrapper
 import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.LspConnector
@@ -62,13 +63,13 @@ import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
 import io.github.rosemoe.sora.widget.component.TextActionItem
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.lang.ref.WeakReference
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -134,13 +135,16 @@ fun EditorTab.CodeEditor(
 }
 
 fun Editor.registerXedFormatter(editorTab: EditorTab) {
-    editorTab.file?.let { file ->
-        // TODO: Allow without file, then fallback to textmateScope
-        // TODO: Add getFormatter(...) method with EditorTab as parameter
-        val formatter = Formatters.getPreferredSourceForNonLspFile(file)
-        formatterProvider = FormatterProvider {
+    val scope = editorTab.editorState.textmateScope
+    val inferredExtension = FileTypeManager.fromScope(scope).extensions.firstOrNull()
+    val fileExtension = editorTab.file?.getExtension()
+    val extension = fileExtension ?: inferredExtension
+
+    extension?.let {
+        val formatter = Formatters.getPreferredSourceForNonLspFile(it)
+        formatterProvider = FormatterProvider { editor ->
             runCatching {
-                formatter?.provider?.getFormatter(it, file)
+                formatter?.provider?.getFormatter(editorTab, editor, editorTab.file)
             }
                 .onFailure { e ->
                     logError(e, "Error getting formatter")
@@ -253,7 +257,6 @@ fun Editor.registerXedEvents(
     subscribeAlways(EditorFormatEvent::class.java) {
         editorTab.editorState.formatDeferred?.complete(it.isSuccess)
         editorTab.editorState.formatDeferred = null
-        editorTab.unregisterTask(EditorTab.FORMAT_DOCUMENT_TASK_ID)
     }
 
     subscribeAlways(EditorKeyEvent::class.java) { event ->
@@ -362,7 +365,7 @@ private suspend fun Editor.connectLsp(
     tab.lspConnector?.connect(wrapperLanguage)
     logInfo("isConnected : ${tab.lspConnector?.isConnected() ?: false}")
 
-    val formatter = Formatters.getPreferredSourceForFile(file)
+    val formatter = Formatters.getPreferredSourceForFile(file.getExtension())
     val supportsFormatting = tab.lspConnector?.isFormattingSupported() ?: false
 
     if (formatter is FormatterSource.LSP && supportsFormatting) {
@@ -410,7 +413,9 @@ private suspend fun FileObject.getExtensionServers(
     scope: CoroutineScope,
 ): List<LspServer> {
     val servers =
-        (LspRegistry.extensionServers.value + LspRegistry.builtInServers.value).filter { server -> server.isSupported(this) }
+        (LspRegistry.extensionServers.value + LspRegistry.builtInServers.value).filter { server ->
+            server.isSupported(this)
+        }
     return servers.filterActiveLspServers(activity, scope)
 }
 

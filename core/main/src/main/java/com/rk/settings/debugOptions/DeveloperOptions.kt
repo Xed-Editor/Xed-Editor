@@ -144,21 +144,6 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 sideEffect = { Settings.record_rpc = it },
             )
 
-            SettingsItem(
-                label = stringResource(strings.enable_logcat),
-                description = stringResource(strings.enable_logcat_desc),
-                showSwitch = true,
-                default = Settings.enable_logcat,
-                sideEffect = {
-                    Settings.enable_logcat = it
-                    if (it) {
-                        LogcatService.start(application!!)
-                    } else {
-                        LogcatService.stop(application!!)
-                    }
-                },
-            )
-
             RoundedValueSlider(
                 label = stringResource(strings.lsp_log_limit),
                 description = stringResource(strings.log_limit_desc),
@@ -177,6 +162,21 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 stepSize = 5_000,
                 default = Settings.app_log_limit,
                 onValueChanged = { Settings.app_log_limit = it },
+            )
+
+            SettingsItem(
+                label = stringResource(strings.enable_logcat),
+                description = stringResource(strings.enable_logcat_desc),
+                showSwitch = true,
+                default = Settings.enable_logcat,
+                sideEffect = {
+                    Settings.enable_logcat = it
+                    if (it) {
+                        LogcatService.start(application!!)
+                    } else {
+                        LogcatService.stop(application!!)
+                    }
+                },
             )
 
             SettingsItem(

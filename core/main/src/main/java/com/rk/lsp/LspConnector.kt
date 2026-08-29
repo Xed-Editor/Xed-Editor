@@ -277,7 +277,7 @@ class LspConnector(
                             if (newStatus == ServerStatus.STARTED) {
                                 instance.setStartupTime(System.currentTimeMillis())
                             } else if (newStatus is ServerStatus.STOPPED) {
-                                instance.setHasError(false)
+                                instance.resetErrorCount()
                                 instance.setStartupTime(-1)
                             }
 
