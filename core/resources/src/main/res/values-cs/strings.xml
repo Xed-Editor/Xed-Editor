@@ -752,4 +752,18 @@
     <string name="icon_pack_not_found_desc">Tato stránka není dostupná. Stát se to může jestli lokální sada ikon byla odinstalována nebo sada ikon v obchodě byla odebrána z registru vlastníkem.</string>
     <string name="theme_not_found_desc">Tato stránka není dostupná. Stát se to může jestli lokální téma bylo odinstalováno nebo téma v obchodě bylo odebráno z registru vlastníkem.</string>
     <string name="theme_migrated">Úspěšně migrovalo %d témat(a)</string>
+    <string name="initialization_options">Možnosti spuštění</string>
+    <string name="initialization_options_desc">Upravit JSON možnosti spuštění</string>
+    <string name="invalid_initialization_options">Možnosti spuštění obsahují neplatný JSON a budou ignorovány.</string>
+    <string name="format_document_lsp">Formátovat soubor s LSP</string>
+    <string name="startup_timeout">Časový limit spuštění</string>
+    <string name="startup_timeout_desc">Maximální časový limit na čekání pro spuštění serveru</string>
+    <string name="git_gutter_indication">Znázornení změn</string>
+    <string name="git_gutter_indication_desc">Znázornit přidané, upravené a odstraněné řádky</string>
+    <string name="accept_current_change">Přijmout aktuální změnu</string>
+    <string name="accept_incoming_change">Přijmout příchozí změnu</string>
+    <string name="accept_both_changes">Přijmout obě změny</string>
+    <string name="git_conflict_detection">Detekce konfliktů</string>
+    <string name="git_conflict_detection_desc">Zvýraznit konflikty a zobrazit jejich vyřešení v editoru</string>
+    <string name="credentials_github">Pro připojení k GitHubu musíte zadat PAT token, ne vaše heslo účtu do GitHubu.</string>
 </resources>
