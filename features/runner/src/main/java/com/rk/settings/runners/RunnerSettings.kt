@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
@@ -189,7 +189,6 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
             } else {
                 if (shellBasedRunners.isEmpty()) {
                     SettingsItem(
-                        modifier = Modifier,
                         label = stringResource(strings.no_runners),
                         default = false,
                         sideEffect = {},
@@ -199,7 +198,6 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                 } else {
                     shellBasedRunners.forEach { runner ->
                         SettingsItem(
-                            modifier = Modifier,
                             label = runner.label,
                             description = null,
                             default = runner.isEnabled(),
