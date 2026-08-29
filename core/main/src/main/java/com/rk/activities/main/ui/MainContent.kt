@@ -23,7 +23,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
@@ -405,8 +405,8 @@ private fun TabItemContent(
                 var actions by remember(it) { mutableStateOf<List<BaseFileAction>>(emptyList()) }
                 var enabledActions by remember(it) { mutableStateOf<Set<BaseFileAction>>(emptySet()) }
 
-                LaunchedEffect(it, root) { actions = FileActionProvider.getActions(it, root) }
-                LaunchedEffect(actions, it, root) {
+                LaunchedEffect(it, root) {
+                    actions = FileActionProvider.getActions(it, root)
                     enabledActions =
                         actions
                             .filter { action ->

@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.eclipse.lsp4j.LogTraceParams
 import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.MessageType
 
@@ -86,6 +87,25 @@ data class LspServerInstance(
                 source = MessageSource.LSP,
             )
         )
+    }
+
+    fun addLog(logTraceParams: LogTraceParams) {
+        addLog(
+            LspLogEntry(
+                type = MessageType.Debug,
+                message = logTraceParams.message,
+                source = MessageSource.LSP,
+            )
+        )
+        logTraceParams.verbose?.let {
+            addLog(
+                LspLogEntry(
+                    type = MessageType.Debug,
+                    message = it,
+                    source = MessageSource.LSP,
+                )
+            )
+        }
     }
 
     fun addLog(lspLogEntry: LspLogEntry) {

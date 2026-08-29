@@ -16,7 +16,7 @@ class SearchFileFolderCommand : GlobalCommand() {
 
     override fun getLabel(): String = strings.search_file_folder.getString()
 
-    override fun action(context: ActionContext) {
+    override fun execute(context: ActionContext) {
         GlobalDialogs.fileSearchDialog.value = true
     }
 

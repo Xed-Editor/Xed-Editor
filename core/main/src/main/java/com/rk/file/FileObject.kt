@@ -330,14 +330,14 @@ fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
         return FileWrapper(File(this.path!!))
     }
 
-    if (this.scheme == "http" || this.scheme == "https"){
+    if (this.scheme == "http" || this.scheme == "https") {
         return NetWrapper(URL(toString()))
     }
 
     // On Android 11+, force Uri if we lack full storage access (scoped storage rules)
     if (needsUriFallback()) {
-        //but what if it's actually a native file, and we are forcing the uri wrapper on it?
-        //just hope this is correct
+        // but what if it's actually a native file, and we are forcing the uri wrapper on it?
+        // just hope this is correct
         return UriWrapper(this, !expectedIsFile)
     }
 

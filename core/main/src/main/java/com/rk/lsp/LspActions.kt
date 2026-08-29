@@ -65,9 +65,8 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
         runCatching {
             val baseLspConnector = editorTab.lspConnector!!
             val editorState = editorTab.editorState
-            val editor = editorState.editor.get()!!
 
-            val eitherDefinitions = baseLspConnector.requestDefinition(editor)
+            val eitherDefinitions = baseLspConnector.requestDefinition()
             val definitions = if (eitherDefinitions.isLeft) eitherDefinitions.left else eitherDefinitions.right
 
             if (definitions.isEmpty()) {
@@ -139,9 +138,8 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
         runCatching {
             val baseLspConnector = editorTab.lspConnector!!
             val editorState = editorTab.editorState
-            val editor = editorState.editor.get()!!
 
-            val references = baseLspConnector.requestReferences(editor)
+            val references = baseLspConnector.requestReferences()
 
             if (references.isEmpty()) {
                 toast(strings.no_references_found)
@@ -208,7 +206,7 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
             val editor = editorState.editor.get()!!
 
             if (baseLspConnector.isPrepareRenameSymbolSupported()) {
-                val prepareRename = baseLspConnector.requestPrepareRenameSymbol(editor)
+                val prepareRename = baseLspConnector.requestPrepareRename()
 
                 if (prepareRename == null) {
                     toast(strings.cannot_rename_symbol)
@@ -239,7 +237,8 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
             editorState.renameConfirm = { newName ->
                 scope.launch(Dispatchers.Default) {
                     runCatching {
-                        val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
+                        val editor = editorState.editor.get()!!
+                        val workspaceEdit = baseLspConnector.requestRename(newName)
 
                         // TODO: Handle documentChanges too
                         val changes = workspaceEdit.changes

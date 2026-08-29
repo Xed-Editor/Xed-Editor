@@ -2,8 +2,7 @@ package com.rk.filetree
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Environment
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
@@ -13,11 +12,11 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.drawer.DrawerViewModel
-import com.rk.extension.ActivityProvider
 import com.rk.extension.api.IntentHandleRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
 import com.rk.file.unzipTo
 import com.rk.icons.CreateNewFile
 import com.rk.icons.CreateNewFolder
@@ -28,14 +27,11 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab
-import com.rk.utils.LoadingPopup
 import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.time.Duration.Companion.seconds
 
 data class FileActionContext(
     val file: FileObject,
@@ -70,21 +66,16 @@ abstract class FileAction : BaseFileAction {
     abstract override val icon: Icon
     abstract override val title: String
 
-    suspend fun execute(context: FileActionContext) {
-        action(context)
-
-    }
-
-    protected abstract suspend fun action(context: FileActionContext)
+    abstract suspend fun execute(context: FileActionContext)
 
     open suspend fun isSupported(
         file: FileObject,
-        root: FileObject?
+        root: FileObject?,
     ): Boolean = true
 
     open suspend fun isEnabled(
         file: FileObject,
-        root: FileObject?
+        root: FileObject?,
     ): Boolean = true
 
     abstract override val type: FileActionType
@@ -95,20 +86,16 @@ abstract class MultiFileAction : BaseFileAction {
     abstract override val icon: Icon
     abstract override val title: String
 
-    suspend fun execute(context: MultiFileActionContext) {
-        action(context)
-    }
-
-    protected abstract suspend fun action(context: MultiFileActionContext)
+    abstract suspend fun execute(context: MultiFileActionContext)
 
     open suspend fun isSupported(
         files: List<FileObject>,
-        root: FileObject?
+        root: FileObject?,
     ): Boolean = true
 
     open suspend fun isEnabled(
         files: List<FileObject>,
-        root: FileObject?
+        root: FileObject?,
     ): Boolean = true
 
     abstract override val type: FileActionType
@@ -119,7 +106,8 @@ object CloseAction : FileAction() {
     override val icon = Icon.VectorIcon(Icons.Outlined.Close)
     override val title = strings.close.getString()
 
-    override suspend fun action(context: FileActionContext) = context.viewModel.showCloseProjectConfirmation(context.file)
+    override suspend fun execute(context: FileActionContext) =
+        context.viewModel.showCloseProjectConfirmation(context.file)
 
     override val type = FileActionType(file = false, folder = false, rootFolder = true)
 }
@@ -128,7 +116,7 @@ object RefreshAction : MultiFileAction() {
     override val icon = Icon.VectorIcon(Icons.Outlined.Refresh)
     override val title = strings.refresh.getString()
 
-    override suspend fun action(context: MultiFileActionContext) {
+    override suspend fun execute(context: MultiFileActionContext) {
         context.files.forEach { context.viewModel.updateCache(it) }
     }
 
@@ -139,7 +127,7 @@ object CreateNewFileAction : FileAction() {
     override val icon = Icon.VectorIcon(XedIcons.CreateNewFile)
     override val title = strings.new_file.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         context.viewModel.showCreateDialog(true, context.file, context.root)
     }
 
@@ -150,7 +138,7 @@ object CreateNewFolderAction : FileAction() {
     override val icon = Icon.VectorIcon(XedIcons.CreateNewFolder)
     override val title = strings.new_folder.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         context.viewModel.showCreateDialog(false, context.file, context.root)
     }
 
@@ -161,7 +149,7 @@ object RenameAction : FileAction() {
     override val icon = Icon.VectorIcon(Icons.Outlined.Edit)
     override val title = strings.rename.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         context.viewModel.showRenameDialog(context.file)
     }
 
@@ -171,58 +159,52 @@ object RenameAction : FileAction() {
 object DeleteAction : MultiFileAction() {
     override val icon = Icon.VectorIcon(Icons.Outlined.Delete)
     override val title = strings.delete.getString()
+    override val type = FileActionType.All
+    override val importance = 3
 
-    override suspend fun action(context: MultiFileActionContext) {
+    override suspend fun execute(context: MultiFileActionContext) {
         context.viewModel.showDeleteConfirmation(context.files, context.root)
     }
 
-
-
     /*
-    * Prevent total stupidity
-    * Some idiots delete their whole storage
-    * In this function we have to determine if this directory is protected or not like root of the internal storage or sdcard
-    * */
-    private suspend fun isProtected(fileObject: FileObject): Boolean{
-        @SuppressLint("SdCardPath")
-        fun switchProtected(path: String): Boolean{
-            return when(path){
-                Environment.getExternalStorageDirectory().path -> true
-                Environment.getExternalStorageDirectory().absolutePath -> true
-                Environment.getExternalStorageDirectory().canonicalPath -> true
-                "/sdcard" -> true
-                "/storage" -> true
-                "/storage/emulated/0" -> true
-                "content://com.android.externalstorage.documents/tree/primary%3A" -> true
-                else -> false
+     * Prevent total stupidity
+     * Some idiots delete their whole storage
+     * In this function we determine if the directory is protected or not (e.g. root of the internal storage or sdcard)
+     * */
+    private suspend fun FileObject.isProtected(): Boolean {
+        return when (this) {
+            is FileWrapper -> {
+                val path = runCatching { getCanonicalPath() }.getOrNull()
+                path in protectedPaths
             }
-        }
-
-        return if (fileObject is FileWrapper){
-            switchProtected(fileObject.getCanonicalPath()) || switchProtected(fileObject.getAbsolutePath())
-        }else{
-            switchProtected(fileObject.toUri().toString())
+            is UriWrapper -> isProtectedUri(toUri())
+            else -> false
         }
     }
 
-
-    override suspend fun isEnabled(files: List<FileObject>,root: FileObject?): Boolean {
-        val deletingProtected = files.any {
-            isProtected(it)
-        }
-
-        return deletingProtected.not()
+    private fun isProtectedUri(uri: Uri): Boolean {
+        return uri.toString() in protectedUris
     }
 
-    override val type = FileActionType.All
-    override val importance = 0
+    override suspend fun isEnabled(files: List<FileObject>, root: FileObject?): Boolean {
+        return files.none { it.isProtected() }
+    }
+
+    private val protectedPaths: Set<String>
+        @SuppressLint("SdCardPath")
+        get() = buildSet {
+            add("/storage/emulated/0")
+            add("/sdcard")
+        }
+
+    private val protectedUris = setOf("content://com.android.externalstorage.documents/tree/primary%3A")
 }
 
 object CopyAction : MultiFileAction() {
     override val icon = Icon.ResourceIcon(drawables.copy)
     override val title = strings.copy.getString()
 
-    override suspend fun action(context: MultiFileActionContext) {
+    override suspend fun execute(context: MultiFileActionContext) {
         FileOperations.copyToClipboard(context.files)
         toast(context.context.getString(strings.copied))
     }
@@ -235,7 +217,7 @@ object CutAction : MultiFileAction() {
     override val icon = Icon.ResourceIcon(drawables.cut)
     override val title = strings.cut.getString()
 
-    override suspend fun action(context: MultiFileActionContext) {
+    override suspend fun execute(context: MultiFileActionContext) {
         FileOperations.copyToClipboard(context.files, isCut = true)
         context.files.forEach { context.viewModel.markNodeAsCut(it) }
     }
@@ -247,7 +229,7 @@ object PasteAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.paste)
     override val title = strings.paste.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         context.viewModel.viewModelScope.launch {
             val isCut = FileOperations.isCut
             val clipboardFiles = FileOperations.clipboard
@@ -292,7 +274,7 @@ object OpenWithAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.open_in_new)
     override val title = strings.open_with.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         context.viewModel.viewModelScope.launch { FileOperations.openWithExternalApp(context.context, context.file) }
     }
 
@@ -303,7 +285,7 @@ object SaveAsAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.file_symlink)
     override val title = strings.save_as.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         FileOperations.saveAs(context.file)
     }
 
@@ -314,7 +296,7 @@ object AddFileAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.arrow_downward)
     override val title = strings.add_file.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         FileOperations.addFile(context.file)
     }
 
@@ -325,7 +307,7 @@ object OpenAsProjectAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.folder_code)
     override val title = strings.open_as_project.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         context.drawerViewModel.addFileTreeTab(context.file, true)
     }
 
@@ -341,7 +323,7 @@ object PropertiesAction : FileAction() {
     override val icon = Icon.VectorIcon(Icons.Outlined.Info)
     override val title = strings.properties.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         context.viewModel.showPropertiesDialog(context.file)
     }
 
@@ -352,7 +334,7 @@ object UnzipAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.archive)
     override val title = strings.unzip.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         context.viewModel.viewModelScope.launch(Dispatchers.IO) {
             val zipFile = File(context.file.getAbsolutePath())
             val targetDir = File(zipFile.parentFile, zipFile.nameWithoutExtension).apply { mkdirs() }
@@ -383,7 +365,7 @@ object InstallPackageAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.download)
     override val title = strings.install.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         context.viewModel.viewModelScope.launch { IntentHandleRegistry.handleIntent(context.file) }
     }
 

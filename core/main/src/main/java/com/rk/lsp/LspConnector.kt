@@ -17,100 +17,41 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.tabs.editor.EditorTab
-import com.rk.utils.dialogRes
-import com.rk.utils.errorDialog
 import com.rk.utils.logInfo
+import com.rk.utils.showSnackbar
+import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.languageserver.LspFeature
 import io.github.rosemoe.sora.lsp.client.languageserver.ServerStatus
 import io.github.rosemoe.sora.lsp.client.languageserver.ShutdownReason
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition
-import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition
 import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.EventHandler
 import io.github.rosemoe.sora.lsp.editor.LspEditor
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.LspProject
 import io.github.rosemoe.sora.lsp.events.AsyncEventListener
-import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
-import io.github.rosemoe.sora.widget.CodeEditor
-import java.net.URI
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
-import kotlin.time.Duration.Companion.milliseconds
+import io.github.rosemoe.sora.text.CharPosition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
-import org.eclipse.lsp4j.DefinitionParams
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.LocationLink
+import org.eclipse.lsp4j.LogTraceParams
 import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.MessageType
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.PrepareRenameDefaultBehavior
-import org.eclipse.lsp4j.PrepareRenameParams
 import org.eclipse.lsp4j.PrepareRenameResult
 import org.eclipse.lsp4j.Range
-import org.eclipse.lsp4j.ReferenceContext
-import org.eclipse.lsp4j.ReferenceParams
-import org.eclipse.lsp4j.RenameParams
 import org.eclipse.lsp4j.ServerCapabilities
-import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.WorkspaceEdit
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.jsonrpc.messages.Either3
-
-/**
- * A utility object to temporarily prevent specific LSP servers from being used for a project.
- *
- * This is useful in scenarios where a server needs to be disabled on-demand without permanently removing its
- * configuration. For example, a user might want to temporarily stop a server that is causing issues.
- *
- * When a server is "prevented" via `register()`:
- * 1. It is added to a list of prevented servers for the given project.
- * 2. Its current [LanguageServerDefinition] is cached.
- * 3. The definition is then removed from the `LspProject`, effectively disabling it.
- *
- * `unregister()` reverses this process by restoring the cached definition to the project.
- */
-object DefinitionPrevention {
-    private val preventedServers = ConcurrentHashMap<LspProject, List<LspServer>>()
-    private val cachedDefinitions = ConcurrentHashMap<LspProject, Map<LspServer, LanguageServerDefinition>>()
-
-    fun register(project: LspProject, server: LspServer) {
-        preventedServers[project] = preventedServers[project]?.plus(server) ?: listOf(server)
-        server.supportedExtensions.firstOrNull()?.let {
-            val currentDefinition = project.getServerDefinition(it, server.serverName) ?: return@let
-            cachedDefinitions[project] =
-                cachedDefinitions[project]?.plus(server to currentDefinition) ?: mapOf(server to currentDefinition)
-        }
-        server.supportedExtensions.forEach { project.removeServerDefinition(it, server.serverName) }
-    }
-
-    fun unregister(project: LspProject, server: LspServer) {
-        val remainingServers = preventedServers[project]?.minus(server) ?: emptyList()
-        if (remainingServers.isEmpty()) {
-            preventedServers.remove(project)
-        } else {
-            preventedServers[project] = remainingServers
-        }
-
-        cachedDefinitions[project]?.get(server)?.let { project.addServerDefinition(it) }
-        val remainingDefinitions = cachedDefinitions[project]?.minus(server) ?: emptyMap()
-        if (remainingDefinitions.isEmpty()) {
-            cachedDefinitions.remove(project)
-        } else {
-            cachedDefinitions[project] = remainingDefinitions
-        }
-    }
-
-    fun isServerPrevented(project: LspProject, server: LspServer): Boolean {
-        return preventedServers[project]?.contains(server) ?: false
-    }
-}
+import java.net.URI
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 
 class LspConnector(
     private val projectFile: FileObject,
@@ -120,6 +61,7 @@ class LspConnector(
     private val servers: List<LspServer>,
 ) {
     var lspEditor: LspEditor? = null
+        private set
 
     companion object {
         private val projectCache = ConcurrentHashMap<String, LspProject>()
@@ -306,26 +248,24 @@ class LspConnector(
                             }
                         }
 
-                        override fun onLogMessage(messageParams: MessageParams?) {
-                            if (messageParams == null) return
-                            logInfo(messageParams.message)
+                        override fun onLogMessage(messageParams: MessageParams) {
                             instance.addLog(messageParams)
                         }
 
-                        override fun onShowMessage(messageParams: MessageParams?) {
-                            if (messageParams == null) return
+                        override fun onShowMessage(messageParams: MessageParams) {
                             instance.addLog(messageParams)
+
                             when (messageParams.type) {
-                                MessageType.Error -> errorDialog(msg = messageParams.message)
-                                MessageType.Warning ->
-                                    dialogRes(title = strings.warning.getString(), msg = messageParams.message)
-
-                                MessageType.Info ->
-                                    dialogRes(title = strings.info.getString(), msg = messageParams.message)
-
-                                MessageType.Log -> logInfo(messageParams.message)
+                                MessageType.Error -> showSnackbar(messageParams.message)
+                                MessageType.Warning -> showSnackbar(messageParams.message)
+                                MessageType.Info -> showSnackbar(messageParams.message)
+                                MessageType.Log -> toast(messageParams.message)
                                 MessageType.Debug -> {}
                             }
+                        }
+
+                        override fun onLogTrace(params: LogTraceParams) {
+                            instance.addLog(params)
                         }
 
                         override fun onStatusChange(newStatus: ServerStatus, oldStatus: ServerStatus) {
@@ -389,7 +329,9 @@ class LspConnector(
                             )
 
                             DefaultScope.launch {
-                                Events.publish(LSPEvent.StatusChanged(instance, instance.status.value, oldConnectionStatus))
+                                Events.publish(
+                                    LSPEvent.StatusChanged(instance, instance.status.value, oldConnectionStatus)
+                                )
                             }
                         }
                     }
@@ -400,36 +342,12 @@ class LspConnector(
         return lspEditor?.eventManager
     }
 
-    fun getCapabilities(): ServerCapabilities? = runBlocking {
-        if (!isConnected()) return@runBlocking null
-        withTimeoutOrNull(100.milliseconds) {
-            runCatching {
-                lspEditor?.requestManager?.capabilities
-            }
-                .getOrNull()
-        }
-    }
+    fun getCapabilities(): ServerCapabilities? = lspEditor?.requestManager?.capabilities
 
     fun isGoToDefinitionSupported(): Boolean {
         val caps = getCapabilities()
         val definitionProvider = caps?.definitionProvider
         return definitionProvider?.left == true || definitionProvider?.right != null
-    }
-
-    @Throws(Exception::class)
-    suspend fun requestDefinition(editor: CodeEditor): Either<List<Location>, List<LocationLink>> {
-        return withContext(Dispatchers.IO) {
-            lspEditor!!
-                .languageServerWrapper
-                .requestManager!!
-                .definition(
-                    DefinitionParams(
-                        TextDocumentIdentifier(fileObject.toUri().toString()),
-                        Position(editor.cursor.leftLine, editor.cursor.leftColumn),
-                    )
-                )!!
-                .get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
-        }
     }
 
     fun isGoToReferencesSupported(): Boolean {
@@ -438,68 +356,16 @@ class LspConnector(
         return referenceProvider?.left == true || referenceProvider?.right != null
     }
 
-    @Throws(Exception::class)
-    suspend fun requestReferences(editor: CodeEditor): List<Location?> {
-        return withContext(Dispatchers.IO) {
-            lspEditor!!
-                .languageServerWrapper
-                .requestManager!!
-                .references(
-                    ReferenceParams(
-                        TextDocumentIdentifier(fileObject.toUri().toString()),
-                        Position(editor.cursor.leftLine, editor.cursor.leftColumn),
-                        ReferenceContext(true),
-                    )
-                )!!
-                .get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
-        }
-    }
-
     fun isRenameSymbolSupported(): Boolean {
         val caps = getCapabilities()
         val renameProvider = caps?.renameProvider
         return renameProvider?.left == true || renameProvider?.right != null
     }
 
-    @Throws(Exception::class)
-    suspend fun requestRenameSymbol(editor: CodeEditor, newName: String): WorkspaceEdit {
-        return withContext(Dispatchers.IO) {
-            lspEditor!!
-                .languageServerWrapper
-                .requestManager!!
-                .rename(
-                    RenameParams(
-                        TextDocumentIdentifier(fileObject.toUri().toString()),
-                        Position(editor.cursor.leftLine, editor.cursor.leftColumn),
-                        newName,
-                    )
-                )!!
-                .get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
-        }
-    }
-
     fun isPrepareRenameSymbolSupported(): Boolean {
         val caps = getCapabilities()
         val renameProvider = caps?.renameProvider
         return renameProvider?.right?.prepareProvider == true
-    }
-
-    @Throws(Exception::class)
-    suspend fun requestPrepareRenameSymbol(
-        editor: CodeEditor
-    ): Either3<Range?, PrepareRenameResult?, PrepareRenameDefaultBehavior?>? {
-        return withContext(Dispatchers.IO) {
-            lspEditor!!
-                .languageServerWrapper
-                .requestManager!!
-                .prepareRename(
-                    PrepareRenameParams(
-                        TextDocumentIdentifier(fileObject.toUri().toString()),
-                        Position(editor.cursor.leftLine, editor.cursor.leftColumn),
-                    )
-                )!!
-                .get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
-        }
     }
 
     fun isFormattingSupported(): Boolean {
@@ -512,6 +378,66 @@ class LspConnector(
         val caps = getCapabilities()
         val rangeFormattingProvider = caps?.documentRangeFormattingProvider
         return rangeFormattingProvider?.left == true || rangeFormattingProvider?.right != null
+    }
+
+    suspend fun requestDefinition(position: Position? = null): Either<List<Location>, List<LocationLink>> {
+        return lspEditor?.requestDefinition(position) ?: Either.forLeft(emptyList())
+    }
+
+    suspend fun requestDefinition(position: CharPosition): Either<List<Location>, List<LocationLink>> {
+        return lspEditor?.requestDefinition(position) ?: Either.forLeft(emptyList())
+    }
+
+    suspend fun requestReferences(
+        position: Position? = null,
+        includeDeclaration: Boolean = true,
+    ): List<Location?> {
+        return lspEditor?.requestReferences(position, includeDeclaration) ?: emptyList()
+    }
+
+    suspend fun requestReferences(
+        position: CharPosition,
+        includeDeclaration: Boolean = true,
+    ): List<Location?> {
+        return lspEditor?.requestReferences(position, includeDeclaration) ?: emptyList()
+    }
+
+    suspend fun requestPrepareRename(
+        position: Position? = null
+    ): Either3<Range, PrepareRenameResult, PrepareRenameDefaultBehavior>? {
+        return lspEditor?.requestPrepareRename(position)
+    }
+
+    suspend fun requestPrepareRename(
+        position: CharPosition
+    ): Either3<Range, PrepareRenameResult, PrepareRenameDefaultBehavior>? {
+        return lspEditor?.requestPrepareRename(position)
+    }
+
+    suspend fun requestRename(
+        newName: String,
+        position: Position? = null,
+    ): WorkspaceEdit {
+        return lspEditor?.requestRename(newName, position) ?: WorkspaceEdit()
+    }
+
+    suspend fun requestRename(
+        newName: String,
+        position: CharPosition,
+    ): WorkspaceEdit {
+        return lspEditor?.requestRename(newName, position) ?: WorkspaceEdit()
+    }
+
+    suspend fun setTrace(value: String) {
+        lspEditor?.setTrace(value)
+    }
+
+    fun notify(method: String, parameter: Any?) {
+        lspEditor?.notify(method, parameter)
+    }
+
+    fun request(method: String, parameter: Any?): CompletableFuture<*>? {
+        return lspEditor?.request(method, parameter)
     }
 
     suspend fun notifySave() {

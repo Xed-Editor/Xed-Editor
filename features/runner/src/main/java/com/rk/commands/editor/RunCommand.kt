@@ -21,7 +21,7 @@ object RunCommand : Command() {
 
     override fun getLabel(): String = strings.run.getString()
 
-    override fun action(context: ActionContext) {
+    override fun execute(context: ActionContext) {
         launchRunner(context, forceSelection = false)
     }
 
@@ -46,7 +46,7 @@ object RunCommand : Command() {
             forceSelection = forceSelection,
             beforeRun = {
                 if (currentTab != null) {
-                    CommandProvider.SaveCommand.action(context)
+                    CommandProvider.SaveCommand.execute(context)
                 }
             },
             onMultipleRunners = {

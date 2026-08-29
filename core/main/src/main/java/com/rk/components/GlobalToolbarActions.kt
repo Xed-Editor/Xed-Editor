@@ -9,14 +9,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
@@ -71,7 +69,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
                     enabled = command.isEnabled(),
                     onClick = {
                         activity?.let {
-                            command.performCommand(ActionContext(it))
+                            command.perform(ActionContext(it))
                         }
                     },
                 ) {

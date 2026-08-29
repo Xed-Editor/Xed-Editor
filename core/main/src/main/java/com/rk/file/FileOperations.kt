@@ -6,12 +6,12 @@ import com.rk.activities.main.MainActivity
 import com.rk.components.ContentProgress
 import com.rk.events.Events
 import com.rk.events.FileEvent
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.utils.logError
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util
-import kotlin.time.Duration.Companion.seconds
 
 object FileOperations {
     var clipboard: List<FileObject> = emptyList()
@@ -108,25 +108,15 @@ object FileOperations {
      * @return A [Result] containing a [Boolean] indicating whether the deletion was successful.
      */
     suspend fun deleteFile(file: FileObject) = runCatching {
-        var size = 0
-        val directory = file.isDirectory()
-        if (directory){
-           size = file.listFiles().size
+        if (file.delete()) {
+            return@runCatching
         }
 
-
-        //NOTE: Deletes everything recursively
-        val success = file.delete()
-        if (!success) {
-
-            if (directory && size != file.listFiles().size){
-                //Something got deleted we will report it as success
-            }else{
-                throw IllegalStateException("Failed to delete file")
-            }
-
-
+        if (file.isDirectory() && file.listFiles().isNotEmpty()) {
+            throw IllegalStateException(strings.delete_incomplete.getString())
         }
+
+        throw IllegalStateException(strings.delete_failed.getString())
     }
 
     /**
