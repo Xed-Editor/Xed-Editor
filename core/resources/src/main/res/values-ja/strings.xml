@@ -700,7 +700,7 @@
     <string name="record_rpc_traffic">RPC 通信を記録</string>
     <string name="record_rpc_traffic_desc">デバッグ用に言語サーバーの RPC 通信をログに記録する</string>
     <string name="lsp_log_limit">LSP ログの上限</string>
-    <string name="lsp_log_limit_desc">上限に達すると、メモリ使用量の増加を避けるため古いログが自動的に削除されます</string>
+    <string name="log_limit_desc">上限に達すると、メモリ使用量の増加を避けるため古いログが自動的に削除されます</string>
     <string name="unsupported_architecture">この拡張機能はお使いのデバイスのアーキテクチャではサポートされていません。</string>
     <string name="view">表示</string>
     <string name="ext_recommendations_msg">こちらのおすすめの拡張機能にも興味があるかもしれません。</string>

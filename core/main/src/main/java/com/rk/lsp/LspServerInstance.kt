@@ -24,6 +24,9 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
+import com.rk.utils.logDebug
+import com.rk.utils.logError
+import com.rk.utils.logInfo
 import com.rk.theme.greenStatus
 import com.rk.theme.yellowStatus
 import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.LanguageServerWrapper
@@ -153,6 +156,7 @@ data class LspServerInstance(
 
     /** Stops this language server instance */
     suspend fun stop() {
+        logInfo("Stopping LSP instance: $id for server: ${server.serverName}")
         withContext(Dispatchers.IO) {
             addLog(
                 LspLogEntry(
@@ -166,13 +170,14 @@ data class LspServerInstance(
             try {
                 wrapper.stop(true)
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
             }
         }
     }
 
     /** Restarts this language server instance */
     suspend fun restart() {
+        logInfo("Restarting LSP instance: $id for server: ${server.serverName}")
         withContext(Dispatchers.IO) {
             addLog(
                 LspLogEntry(
@@ -185,7 +190,7 @@ data class LspServerInstance(
             try {
                 wrapper.restartAndReconnect()
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
             }
         }
     }
@@ -196,6 +201,7 @@ data class LspServerInstance(
      * @return List of editors that were reconnected
      */
     suspend fun start(): List<EditorTab> {
+        logInfo("Starting LSP instance: $id for server: ${server.serverName}")
         return withContext(Dispatchers.IO) {
             addLog(
                 LspLogEntry(
@@ -210,7 +216,7 @@ data class LspServerInstance(
             try {
                 wrapper.start()
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
             }
 
             val reconnectedEditors = mutableListOf<EditorTab>()

@@ -38,6 +38,7 @@ import com.rk.resources.strings
 import com.rk.theme.GitColorScheme
 import com.rk.theme.XedTheme
 import com.rk.utils.SourceCodeProvider
+import com.rk.utils.logError
 import com.rk.utils.copyToClipboard
 import com.rk.utils.openUrl
 import com.rk.utils.origin
@@ -235,7 +236,7 @@ class CrashActivity : ComponentActivity() {
         }
             .onFailure {
                 logErrorOrExit(it)
-                it.printStackTrace()
+                logError(it)
                 runCatching { finishAffinity() }
                 exitProcess(1)
             }

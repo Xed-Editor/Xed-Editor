@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import com.rk.components.XedDropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -18,9 +17,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.components.StyledTextField
+import com.rk.components.XedDropdownMenuItem
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -58,8 +59,7 @@ fun AppLogs() {
 private fun buildLogs(logLevel: LogLevel): String {
     val entries =
         if (Settings.enable_logcat) {
-            val logsCopy =
-                LogcatService.logcatLogs.value
+            val logsCopy = LogcatService.logcatLogs.value
             logsCopy
                 .filter { line ->
                     line.matchesLogLevel(logLevel)
@@ -118,7 +118,7 @@ fun RowScope.LogLevelDropdown(logLevel: LogLevel, onLogLevelChange: (LogLevel) -
         modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
     ) {
         StyledTextField(
-            value = logLevel.label,
+            value = stringResource(logLevel.labelRes),
             onValueChange = {},
             shape = RoundedCornerShape(8.dp),
             maxLines = 1,
@@ -131,7 +131,7 @@ fun RowScope.LogLevelDropdown(logLevel: LogLevel, onLogLevelChange: (LogLevel) -
         ExposedDropdownMenu(expanded = dropdownMenuExpanded, onDismissRequest = { dropdownMenuExpanded = false }) {
             LogLevel.entries.forEach { level ->
                 XedDropdownMenuItem(
-                    text = { Text(text = level.label) },
+                    text = { Text(stringResource(level.labelRes)) },
                     onClick = {
                         onLogLevelChange(level)
                         dropdownMenuExpanded = false

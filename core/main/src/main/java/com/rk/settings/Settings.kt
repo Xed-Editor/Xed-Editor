@@ -16,6 +16,7 @@ import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
 import com.rk.theme.blueberry
 import com.rk.utils.application
+import com.rk.utils.logError
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.Dispatchers
@@ -169,6 +170,7 @@ object Settings {
     var terminal_scrollback_buffer by CachedPreference("terminal_scrollback_buffer", 5000)
     var auto_save_delay by CachedPreference("auto_save_delay", 400L)
     var lsp_log_limit by CachedPreference("lsp_log_limit", 5000)
+    var app_log_limit by CachedPreference("app_log_limit", 5000)
 
     var user_declined_value by CachedPreference("user_declined_value", false)
     var user_said_maybe_later by CachedPreference("user_said_maybe_later", false)
@@ -334,7 +336,7 @@ object Preference {
                     try {
                         sharedPreferences.getBoolean(key, default)
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        logError(e)
                         setBoolean(key, default)
                         default
                     }
@@ -354,7 +356,7 @@ object Preference {
                 )
             }
         }
-            .onFailure { it.printStackTrace() }
+            .onFailure { logError(it) }
     }
 
     fun getString(key: String): String? {
@@ -368,7 +370,7 @@ object Preference {
                     try {
                         sharedPreferences.getString(key, default) ?: default
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        logError(e)
                         setString(key, default)
                         default
                     }
@@ -388,7 +390,7 @@ object Preference {
                 )
             }
         }
-            .onFailure { it.printStackTrace() }
+            .onFailure { logError(it) }
     }
 
     fun getInt(key: String): Int? {
@@ -402,7 +404,7 @@ object Preference {
                     try {
                         sharedPreferences.getInt(key, default)
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        logError(e)
                         setInt(key, default)
                         default
                     }
@@ -422,7 +424,7 @@ object Preference {
                 )
             }
         }
-            .onFailure { it.printStackTrace() }
+            .onFailure { logError(it) }
     }
 
     fun getLong(key: String): Long? {
@@ -436,7 +438,7 @@ object Preference {
                     try {
                         sharedPreferences.getLong(key, default)
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        logError(e)
                         setLong(key, default)
                         default
                     }
@@ -456,7 +458,7 @@ object Preference {
                 )
             }
         }
-            .onFailure { it.printStackTrace() }
+            .onFailure { logError(it) }
     }
 
     fun getFloat(key: String): Float? {
@@ -470,7 +472,7 @@ object Preference {
                     try {
                         sharedPreferences.getFloat(key, default)
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        logError(e)
                         setFloat(key, default)
                         default
                     }
@@ -490,7 +492,7 @@ object Preference {
                 )
             }
         }
-            .onFailure { it.printStackTrace() }
+            .onFailure { logError(it) }
     }
 }
 

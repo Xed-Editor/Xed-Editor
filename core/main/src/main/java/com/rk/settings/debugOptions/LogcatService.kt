@@ -14,6 +14,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.utils.logError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -32,6 +33,7 @@ class LogcatService : Service() {
     private var logcatProcess: Process? = null
 
     companion object {
+        private val LOG_LIMIT = Settings.app_log_limit
         private const val CHANNEL_ID = "logcat_service_channel"
 
         private val _logcatLogs = MutableStateFlow<List<String>>(emptyList())
@@ -152,7 +154,7 @@ class LogcatService : Service() {
                                     }
                                 lastUpdateTime = now
                                 launch(Dispatchers.Main) {
-                                    _logcatLogs.update { it.plus(itemsToAdd).takeLast(1000) }
+                                    _logcatLogs.update { it.plus(itemsToAdd).takeLast(LOG_LIMIT) }
                                 }
                             }
                         }
@@ -162,11 +164,11 @@ class LogcatService : Service() {
                 // Add any remaining items
                 if (batch.isNotEmpty()) {
                     launch(Dispatchers.Main) {
-                        _logcatLogs.update { it.plus(batch).takeLast(1000) }
+                        _logcatLogs.update { it.plus(batch).takeLast(LOG_LIMIT) }
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
             }
         }
     }

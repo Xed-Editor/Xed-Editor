@@ -1,19 +1,17 @@
 package com.rk.terminal
 
 import android.content.Context
-import android.content.Intent
 import android.net.LocalServerSocket
 import android.net.LocalSocket
 import com.rk.activities.main.MainActivity
 import com.rk.file.FileWrapper
+import com.rk.utils.logError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.time.Duration.Companion.milliseconds
 
 object XedCliServer {
     private var localServerSocket: LocalServerSocket? = null
@@ -23,24 +21,26 @@ object XedCliServer {
     fun start(context: Context) {
         if (isRunning) return
         isRunning = true
-        socketJob = GlobalScope.launch(Dispatchers.IO) {
-            try {
-                val server = LocalServerSocket("xed_socket")
-                localServerSocket = server
-                while (isRunning) {
-                    val clientSocket = try {
-                        server.accept()
-                    } catch (e: Exception) {
-                        break
+        socketJob =
+            GlobalScope.launch(Dispatchers.IO) {
+                try {
+                    val server = LocalServerSocket("xed_socket")
+                    localServerSocket = server
+                    while (isRunning) {
+                        val clientSocket =
+                            try {
+                                server.accept()
+                            } catch (e: Exception) {
+                                break
+                            }
+                        launch(Dispatchers.IO) {
+                            handleClientSocket(context, clientSocket)
+                        }
                     }
-                    launch(Dispatchers.IO) {
-                        handleClientSocket(context, clientSocket)
-                    }
+                } catch (e: Exception) {
+                    logError(e)
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
-        }
     }
 
     fun stop() {
@@ -85,7 +85,7 @@ object XedCliServer {
             val cwd = strings[0]
             val arguments = strings.drop(1)
 
-            if (arguments.isEmpty()){
+            if (arguments.isEmpty()) {
                 return
             }
 
@@ -97,16 +97,16 @@ object XedCliServer {
                         if (!file.isAbsolute) {
                             file = File(cwd, arg)
                         }
-                       viewModel.editorManager.openFile(
+                        viewModel.editorManager.openFile(
                             FileWrapper(file),
                             projectRoot = null,
-                            switchToTab = true
-                       )
+                            switchToTab = true,
+                        )
                     }
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
         }
     }
 }

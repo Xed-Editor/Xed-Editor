@@ -17,6 +17,7 @@ import com.rk.resources.strings
 import com.rk.search.CodeItem
 import com.rk.search.utils.SnippetBuilder
 import com.rk.tabs.editor.EditorTab
+import com.rk.utils.logError
 import com.rk.utils.toast
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.getOption
@@ -127,7 +128,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
             editorState.showFindingsDialog = true
         }
             .onFailure {
-                it.printStackTrace()
+                logError(it)
                 toast(strings.find_definitions_error)
             }
     }
@@ -189,7 +190,7 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
             editorState.showFindingsDialog = true
         }
             .onFailure {
-                it.printStackTrace()
+                logError(it)
                 toast(strings.find_references_error)
             }
     }
@@ -257,14 +258,14 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                         }
                     }
                         .onFailure {
-                            it.printStackTrace()
+                            logError(it)
                             toast(strings.rename_symbol_error)
                         }
                 }
             }
         }
             .onFailure {
-                it.printStackTrace()
+                logError(it)
                 toast(strings.rename_symbol_error)
             }
     }
@@ -291,7 +292,7 @@ suspend fun formatDocumentSuspend(editorTab: EditorTab) {
         eventManager.emitAsync(EventType.fullFormatting, editor.text)
     }
         .onFailure {
-            it.printStackTrace()
+            logError(it)
             toast(strings.format_document_error)
         }
 }
@@ -312,7 +313,7 @@ fun formatDocumentRange(scope: CoroutineScope, editorTab: EditorTab) {
             }
         }
             .onFailure {
-                it.printStackTrace()
+                logError(it)
                 toast(strings.format_selection_error)
             }
     }

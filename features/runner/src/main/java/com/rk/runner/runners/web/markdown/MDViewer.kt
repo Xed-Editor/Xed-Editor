@@ -15,6 +15,7 @@ import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 import com.rk.utils.isDarkTheme
+import com.rk.utils.logError
 import com.rk.utils.toast
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
@@ -136,7 +137,7 @@ class MDViewer : WebActivity() {
                     connection.disconnect()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
                 ""
             }
         }

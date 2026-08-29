@@ -8,6 +8,7 @@ import com.rk.extension.THEMES_API_BASE
 import com.rk.extension.model.ExtensionManifest
 import com.rk.icons.pack.IconPackEntry
 import com.rk.theme.ThemeEntry
+import com.rk.utils.logError
 import com.rk.utils.okHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -108,7 +109,7 @@ object StoreManager {
                 true
             }
                 .onFailure {
-                    it.printStackTrace()
+                    logError(it)
                 }
                 .getOrElse { false }
         }
@@ -121,7 +122,7 @@ object StoreManager {
                 response.extensions
             }
                 .onFailure {
-                    it.printStackTrace()
+                    logError(it)
                     throw it
                 }
                 .getOrElse { emptyList() }
@@ -163,7 +164,7 @@ object StoreManager {
                 response.themes
             }
                 .onFailure {
-                    it.printStackTrace()
+                    logError(it)
                 }
                 .getOrElse { emptyList() }
         }
@@ -176,7 +177,7 @@ object StoreManager {
                 response.iconPacks
             }
                 .onFailure {
-                    it.printStackTrace()
+                    logError(it)
                 }
                 .getOrElse { emptyList() }
         }

@@ -709,7 +709,8 @@
     <string name="record_rpc_traffic">Record RPC traffic</string>
     <string name="record_rpc_traffic_desc">Log RPC communication of language servers for debugging</string>
     <string name="lsp_log_limit">LSP log limit</string>
-    <string name="lsp_log_limit_desc">Older logs are automatically removed when the limit is reached to avoid high memory usage</string>
+    <string name="log_limit_desc">Older logs are automatically removed when the limit is reached to avoid high memory usage</string>
+    <string name="app_log_limit">App log limit</string>
     <string name="unsupported_architecture">This extension is not supported on your device architecture.</string>
     <string name="view">View</string>
     <string name="ext_recommendations_msg">You may also be interested in these recommended extensions.</string>

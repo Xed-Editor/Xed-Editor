@@ -691,7 +691,7 @@
     <string name="record_rpc_traffic">Merekam lalu lintas RPC</string>
     <string name="record_rpc_traffic_desc">Mencatat komunikasi RPC server bahasa untuk tujuan debugging</string>
     <string name="lsp_log_limit">Batas catatan LSP</string>
-    <string name="lsp_log_limit_desc">Catatan yang lebih lama akan dihapus secara otomatis saat batas tercapai untuk menghindari penggunaan memori yang tinggi</string>
+    <string name="log_limit_desc">Catatan yang lebih lama akan dihapus secara otomatis saat batas tercapai untuk menghindari penggunaan memori yang tinggi</string>
     <string name="update_date">Tanggal pembaruan</string>
     <string name="enable_logcat">Aktifkan Logcat</string>
     <string name="enable_logcat_desc">Jalankan Logcat dan tampilkan log di layar log</string>

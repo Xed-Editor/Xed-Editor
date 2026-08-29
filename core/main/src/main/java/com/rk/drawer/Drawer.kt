@@ -35,7 +35,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +49,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.file.toFileObject
 import com.rk.filetree.ProjectCloseConfirmationDialog
@@ -58,6 +58,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.dialogRes
+import com.rk.utils.logError
 import kotlinx.coroutines.launch
 
 private fun validateValue(value: String): String? {
@@ -95,7 +96,7 @@ fun DrawerContent(fullscreen: Boolean) {
                             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                         )
                     }
-                        .onFailure { it.printStackTrace() }
+                        .onFailure { logError(it) }
 
                     scope.launch { viewModel.addFileTreeTab(it.toFileObject(expectedIsFile = false)) }
                 }

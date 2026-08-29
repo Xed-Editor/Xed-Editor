@@ -17,6 +17,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.tabs.editor.EditorTab
+import com.rk.utils.logError
 import com.rk.utils.logInfo
 import com.rk.utils.showSnackbar
 import com.rk.utils.toast
@@ -92,7 +93,7 @@ class LspConnector(
                     try {
                         project.addServerDefinition(serverDef)
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        logError(e)
                     }
                 }
             }
@@ -111,7 +112,7 @@ class LspConnector(
             try {
                 lspEditor?.connectWithTimeout()
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
             } finally {
                 editorTab.unregisterTask(EditorTab.LSP_CONNECTING_TASK_ID)
 
@@ -449,6 +450,6 @@ class LspConnector(
             lspEditor?.disposeAsync()
             lspEditor = null
         }
-            .onFailure { it.printStackTrace() }
+            .onFailure { logError(it) }
     }
 }

@@ -45,6 +45,7 @@ import com.rk.settings.Settings
 import com.rk.theme.UpdatableTheme
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
+import com.rk.utils.logError
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
@@ -226,7 +227,7 @@ suspend fun installExtensionSequentially(
                 withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
             errorMsg = e.message ?: strings.unknown_err.getString()
             withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
         } finally {
@@ -345,7 +346,7 @@ fun runExtensionUpdateAction(
                 withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
             errorMsg = e.message ?: strings.unknown_err.getString()
             withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
         } finally {
@@ -419,7 +420,7 @@ fun runThemeInstallAction(
                 errorMsg = "Download failed"
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
             errorMsg = e.message ?: strings.unknown_err.getString()
         } finally {
             if (tempFile.exists()) {
@@ -490,7 +491,7 @@ fun runIconPackInstallAction(
                 errorMsg = "Download failed"
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
             errorMsg = e.message ?: strings.unknown_err.getString()
         } finally {
             if (tempFile.exists()) {
