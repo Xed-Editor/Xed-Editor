@@ -41,8 +41,6 @@ import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.FileInputStream
-import java.io.ObjectInputStream
 import java.util.Properties
 import kotlinx.serialization.json.JsonElement as KJsonElement
 
@@ -149,34 +147,20 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             tempDir.mkdirs()
 
             try {
-                if (file.extension == "json") {
-                    // Legacy single-file JSON
-                    val manifest = validateManifestJson(file.readText())
-                    manifest?.let {
-                        installThemeFromData(it, null)
-                    }
-                    return@withContext
-                }
-
                 XedPackage.extract(file, tempDir)
 
                 val manifestFile = File(tempDir, "manifest.json")
                 val themeFile = File(tempDir, "theme.json")
 
-                val jsonText =
-                    when {
-                        manifestFile.exists() -> manifestFile.readText()
-                        themeFile.exists() -> themeFile.readText()
-                        else -> {
-                            withContext(Dispatchers.Main) { toast("Neither manifest.json nor theme.json found") }
-                            return@withContext
-                        }
-                    }
-
-                jsonText.let {
-                    val manifest = validateManifestJson(it) ?: return@let
-                    installThemeFromData(manifest, tempDir)
+                if (!manifestFile.exists() || !themeFile.exists()) {
+                    withContext(Dispatchers.Main) { toast("Neither manifest.json nor theme.json found") }
+                    return@withContext
                 }
+
+                val manifest = validateManifestJson(manifestFile.readText()) ?: return@withContext
+                validateThemeFile(themeFile.readText()) ?: return@withContext
+
+                installThemeFromData(manifest, tempDir)
             } catch (e: Exception) {
                 errorDialog(e)
             } finally {
@@ -201,6 +185,21 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                     )
                     return null
                 }
+                dialogRes(
+                    SettingsActivity.instance,
+                    strings.theme_install_failed.getString(),
+                    e.localizedMessage ?: strings.unknown_err.getString(),
+                    cancelable = false,
+                )
+                return null
+            }
+    }
+
+    internal fun validateThemeFile(text: String): ThemeFile? {
+        return runCatching {
+            json.decodeFromString<ThemeFile>(text)
+        }
+            .getOrElse { e ->
                 dialogRes(
                     SettingsActivity.instance,
                     strings.theme_install_failed.getString(),
@@ -279,8 +278,6 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             val themeDir = themeDir()
             if (!themeDir.exists()) return@withContext
 
-            migrateOldThemes(themeDir)
-
             val newLocalThemes = mutableMapOf<String, LocalTheme>()
             val newLoadedThemes = mutableListOf<ThemeHolder>()
             themeDir.listFiles()?.forEach { dir ->
@@ -289,7 +286,11 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                         val manifestFile = dir.resolve("manifest.json")
                         if (manifestFile.exists()) {
                             val manifest = json.decodeFromString<ThemeManifest>(manifestFile.readText())
-                            newLoadedThemes.add(manifest.build())
+                            val themeFile =
+                                dir.resolve("theme.json").takeIf { it.exists() }?.let {
+                                    json.decodeFromString<ThemeFile>(it.readText())
+                                }
+                            newLoadedThemes.add(manifest.build(themeFile))
 
                             val cache = resolveCache(dir)
                             val size = cache.size ?: calcSize(dir).also { writeCache(dir, cache.copy(size = it)) }
@@ -318,50 +319,6 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         }
     }
 
-    @Deprecated("Migration from old theme format for backwards compatibility")
-    private suspend fun migrateOldThemes(themeDir: File) {
-        val listFiles = themeDir.listFiles()
-        var migratedCount = 0
-        listFiles?.forEach { file ->
-            if (file.isFile) {
-                runCatching {
-                    if (migratedCount == 0) {
-                        withContext(Dispatchers.Main) {
-                            toast(strings.migrating_themes.getString())
-                        }
-                    }
-                    ObjectInputStream(FileInputStream(file)).use { input ->
-                        val oldConfig = input.readObject()
-                        if (oldConfig is ThemeConfig) {
-                            val manifest =
-                                ThemeManifest(
-                                    id = oldConfig.id ?: file.name,
-                                    name = oldConfig.name ?: file.name,
-                                    minAppVersion = oldConfig.minAppVersion,
-                                    inheritBase = oldConfig.inheritBase ?: true,
-                                    light = oldConfig.light?.let { ThemePaletteNew.fromLegacyPalette(it) },
-                                    dark = oldConfig.dark?.let { ThemePaletteNew.fromLegacyPalette(it) },
-                                )
-
-                            finishThemeInstall(manifest, null)
-                            migratedCount++
-                            file.delete()
-                        }
-                    }
-                }
-                    .onFailure {
-                        file.delete()
-                    }
-            }
-        }
-
-        if (migratedCount > 0) {
-            withContext(Dispatchers.Main) {
-                toast(strings.theme_migrated.getFilledString(migratedCount))
-            }
-        }
-    }
-
     private fun String.toColor(): Color {
         return try {
             Color(this.toColorInt())
@@ -371,12 +328,15 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         }
     }
 
-    fun ThemeManifest.build(): ThemeHolder {
+    fun ThemeManifest.build(themeFile: ThemeFile?): ThemeHolder {
         fun Map<String, String>.toProperties(): Properties {
             val props = Properties()
             for ((k, v) in this) props[k] = v
             return props
         }
+
+        val light = themeFile?.light
+        val dark = themeFile?.dark
 
         val lightTokenColors = light?.tokenColors.toTokenColorArray()
         val darkTokenColors = dark?.tokenColors.toTokenColorArray()
