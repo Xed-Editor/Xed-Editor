@@ -365,8 +365,8 @@
     <string name="extra_key_bg_desc">Zobrazit pozadí pro extra klávesy</string>
     <string name="actions">Akce</string>
     <string name="support_message">Uložili jste %s souborů/y a spustili kód %s krát s Xed.\n\nXed je aplikace s otevřeným zdrojovým kódem a zaměřena na soukromí postavena pomocí přispěvatelů z komunity. Jestli vám Xed ulehčil programování, chtěli byste podpořit jeho vývoj?\n\nVaše podpora pomůže mi:\n• Sestavit funkce rychleji\n• Nechat Xed vždy bez reklam\n• Urychleně odpovítat na chyby</string>
-    <string name="yes_support">Ano, půjdu podpořit tě! ❤️</string>
-    <string name="not_for_me">Ne, děkují</string>
+    <string name="yes_support">Ano, podpořím! ❤️</string>
+    <string name="not_for_me">Ne, děkuji</string>
     <string name="sponsor_desc">Staňte se sponzorem a pomožte utvářet budoucnost projektu</string>
     <string name="coffee_desc">Ukažte vaši lásku kávou - každý šálek pomůže! ☕</string>
     <string name="upi_desc">Podpořit přímo přes vaší oblíbenou UPI aplikaci</string>
@@ -786,4 +786,11 @@
     <string name="no_commits">Žádné commity</string>
     <string name="run_lsp_external">Spustit i pro externí soubory</string>
     <string name="run_lsp_external_desc">Umožňuje jazykovém serveru se spustit i pro externí soubory. Servery jsou spuštěny ve vestavěném terminálu, proto některé funkce nebudou pracovat očekávaně v těchto umístěních.</string>
+    <string name="enable_sticky_scroll">Povolit sticky scroll</string>
+    <string name="enable_sticky_scroll_desc">Ponechat hlavičku současného bloku viditelnou při rolování</string>
+    <string name="socket">Socket</string>
+    <string name="disclaimer_heading">Podmínky použití a vyloučení odpovědnosti</string>
+    <string name="data_loss_risk_content">Tato aplikace je poskytována s vědomím, že ke ztrátě dat může dojít v důsledku nepředvídatelných okolností, včetně, ale nikoli výhradně: nestability softwaru, selhání systému, neočekávaného ukončení nebo problémů s hardwarem úložiště. Uživatelé jsou výhradně zodpovědní za udržování nezávislých, pravidelných záloh všech důležitých dat.</string>
+    <string name="no_warranty_content">Tento software je distribuován pod licencí GNU General Public License v3.0 a je poskytován TAK, JAK JE, BEZ JAKÉKOLI ZÁRUKY, ať už výslovné nebo implicitní, včetně, ale nikoli výhradně, záruk prodejnosti, vhodnosti pro konkrétní účel a neporušení práv.</string>
+    <string name="not_liable_content">Vývojáři ani držitelé autorských práv nenesou v žádném případě odpovědnost za jakékoli nároky, škody nebo ztráty vzniklé v důsledku používání tohoto softwaru. To zahrnuje mimo jiné: ztrátu dat, poruchy systému, ztrátu příjmů nebo jakékoli náhodné či následné škody, a to i v případě, že byli na možnost takových škod upozorněni.</string>
 </resources>
