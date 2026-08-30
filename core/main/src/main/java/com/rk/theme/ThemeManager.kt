@@ -2,8 +2,6 @@ package com.rk.theme
 
 import android.app.Application
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
@@ -64,8 +62,6 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         allowTrailingComma = true
     }
 
-    private val _loadedThemes = MutableStateFlow<List<ThemeHolder>>(builtInThemes)
-    val loadedThemes: StateFlow<List<ThemeHolder>> = _loadedThemes.asStateFlow()
     private val _loadedThemesState = mutableStateOf<List<ThemeHolder>>(builtInThemes)
     val loadedThemesState: State<List<ThemeHolder>> = _loadedThemesState
     private val _localThemes = MutableStateFlow<Map<String, LocalTheme>>(emptyMap())
@@ -74,7 +70,6 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
     val storeThemes: StateFlow<Map<String, StoreTheme>> = _storeThemes.asStateFlow()
 
     private fun setLoadedThemes(themes: List<ThemeHolder>) {
-        _loadedThemes.value = themes
         _loadedThemesState.value = themes
     }
 
@@ -101,12 +96,12 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         val localTheme = localThemes.value[theme.id] ?: return
         File(localTheme.installPath).deleteRecursively()
 
-        setLoadedThemes(_loadedThemes.value - theme)
+        setLoadedThemes(_loadedThemesState.value - theme)
     }
 
     fun removeLocalTheme(id: String) {
         _localThemes.update { it - id }
-        setLoadedThemes(_loadedThemes.value.filterNot { it.id == id })
+        setLoadedThemes(_loadedThemesState.value.filterNot { it.id == id })
     }
 
     private suspend fun calcSize(dir: File): Long {
@@ -426,100 +421,45 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
     }
 
     fun ThemePaletteNew.build(isDarkTheme: Boolean): ColorScheme {
-        return if (isDarkTheme) {
-            darkColorScheme(
-                primary = baseColors?.primary?.toColor() ?: blueberry.darkScheme.primary,
-                onPrimary = baseColors?.onPrimary?.toColor() ?: blueberry.darkScheme.onPrimary,
-                primaryContainer = baseColors?.primaryContainer?.toColor() ?: blueberry.darkScheme.primaryContainer,
-                onPrimaryContainer =
-                    baseColors?.onPrimaryContainer?.toColor() ?: blueberry.darkScheme.onPrimaryContainer,
-                secondary = baseColors?.secondary?.toColor() ?: blueberry.darkScheme.secondary,
-                onSecondary = baseColors?.onSecondary?.toColor() ?: blueberry.darkScheme.onSecondary,
-                secondaryContainer =
-                    baseColors?.secondaryContainer?.toColor() ?: blueberry.darkScheme.secondaryContainer,
-                onSecondaryContainer =
-                    baseColors?.onSecondaryContainer?.toColor() ?: blueberry.darkScheme.onSecondaryContainer,
-                tertiary = baseColors?.tertiary?.toColor() ?: blueberry.darkScheme.tertiary,
-                onTertiary = baseColors?.onTertiary?.toColor() ?: blueberry.darkScheme.onTertiary,
-                tertiaryContainer = baseColors?.tertiaryContainer?.toColor() ?: blueberry.darkScheme.tertiaryContainer,
-                onTertiaryContainer =
-                    baseColors?.onTertiaryContainer?.toColor() ?: blueberry.darkScheme.onTertiaryContainer,
-                error = baseColors?.error?.toColor() ?: blueberry.darkScheme.error,
-                onError = baseColors?.onError?.toColor() ?: blueberry.darkScheme.onError,
-                errorContainer = baseColors?.errorContainer?.toColor() ?: blueberry.darkScheme.errorContainer,
-                onErrorContainer = baseColors?.onErrorContainer?.toColor() ?: blueberry.darkScheme.onErrorContainer,
-                background = baseColors?.background?.toColor() ?: blueberry.darkScheme.background,
-                onBackground = baseColors?.onBackground?.toColor() ?: blueberry.darkScheme.onBackground,
-                surface = baseColors?.surface?.toColor() ?: blueberry.darkScheme.surface,
-                onSurface = baseColors?.onSurface?.toColor() ?: blueberry.darkScheme.onSurface,
-                surfaceVariant = baseColors?.surfaceVariant?.toColor() ?: blueberry.darkScheme.surfaceVariant,
-                onSurfaceVariant = baseColors?.onSurfaceVariant?.toColor() ?: blueberry.darkScheme.onSurfaceVariant,
-                outline = baseColors?.outline?.toColor() ?: blueberry.darkScheme.outline,
-                outlineVariant = baseColors?.outlineVariant?.toColor() ?: blueberry.darkScheme.outlineVariant,
-                scrim = baseColors?.scrim?.toColor() ?: blueberry.darkScheme.scrim,
-                inverseSurface = baseColors?.inverseSurface?.toColor() ?: blueberry.darkScheme.inverseSurface,
-                inverseOnSurface = baseColors?.inverseOnSurface?.toColor() ?: blueberry.darkScheme.inverseOnSurface,
-                inversePrimary = baseColors?.inversePrimary?.toColor() ?: blueberry.darkScheme.inversePrimary,
-                surfaceTint = baseColors?.surfaceTint?.toColor() ?: blueberry.darkScheme.surfaceTint,
-                surfaceDim = baseColors?.surfaceDim?.toColor() ?: blueberry.darkScheme.surfaceDim,
-                surfaceBright = baseColors?.surfaceBright?.toColor() ?: blueberry.darkScheme.surfaceBright,
-                surfaceContainerLowest =
-                    baseColors?.surfaceContainerLowest?.toColor() ?: blueberry.darkScheme.surfaceContainerLowest,
-                surfaceContainerLow =
-                    baseColors?.surfaceContainerLow?.toColor() ?: blueberry.darkScheme.surfaceContainerLow,
-                surfaceContainer = baseColors?.surfaceContainer?.toColor() ?: blueberry.darkScheme.surfaceContainer,
-                surfaceContainerHigh =
-                    baseColors?.surfaceContainerHigh?.toColor() ?: blueberry.darkScheme.surfaceContainerHigh,
-                surfaceContainerHighest =
-                    baseColors?.surfaceContainerHighest?.toColor() ?: blueberry.darkScheme.surfaceContainerHighest,
-            )
-        } else {
-            lightColorScheme(
-                primary = baseColors?.primary?.toColor() ?: blueberry.lightScheme.primary,
-                onPrimary = baseColors?.onPrimary?.toColor() ?: blueberry.lightScheme.onPrimary,
-                primaryContainer = baseColors?.primaryContainer?.toColor() ?: blueberry.lightScheme.primaryContainer,
-                onPrimaryContainer =
-                    baseColors?.onPrimaryContainer?.toColor() ?: blueberry.lightScheme.onPrimaryContainer,
-                secondary = baseColors?.secondary?.toColor() ?: blueberry.lightScheme.secondary,
-                onSecondary = baseColors?.onSecondary?.toColor() ?: blueberry.lightScheme.onSecondary,
-                secondaryContainer =
-                    baseColors?.secondaryContainer?.toColor() ?: blueberry.lightScheme.secondaryContainer,
-                onSecondaryContainer =
-                    baseColors?.onSecondaryContainer?.toColor() ?: blueberry.lightScheme.onSecondaryContainer,
-                tertiary = baseColors?.tertiary?.toColor() ?: blueberry.lightScheme.tertiary,
-                onTertiary = baseColors?.onTertiary?.toColor() ?: blueberry.lightScheme.onTertiary,
-                tertiaryContainer = baseColors?.tertiaryContainer?.toColor() ?: blueberry.lightScheme.tertiaryContainer,
-                onTertiaryContainer =
-                    baseColors?.onTertiaryContainer?.toColor() ?: blueberry.lightScheme.onTertiaryContainer,
-                error = baseColors?.error?.toColor() ?: blueberry.lightScheme.error,
-                onError = baseColors?.onError?.toColor() ?: blueberry.lightScheme.onError,
-                errorContainer = baseColors?.errorContainer?.toColor() ?: blueberry.lightScheme.errorContainer,
-                onErrorContainer = baseColors?.onErrorContainer?.toColor() ?: blueberry.lightScheme.onErrorContainer,
-                background = baseColors?.background?.toColor() ?: blueberry.lightScheme.background,
-                onBackground = baseColors?.onBackground?.toColor() ?: blueberry.lightScheme.onBackground,
-                surface = baseColors?.surface?.toColor() ?: blueberry.lightScheme.surface,
-                onSurface = baseColors?.onSurface?.toColor() ?: blueberry.lightScheme.onSurface,
-                surfaceVariant = baseColors?.surfaceVariant?.toColor() ?: blueberry.lightScheme.surfaceVariant,
-                onSurfaceVariant = baseColors?.onSurfaceVariant?.toColor() ?: blueberry.lightScheme.onSurfaceVariant,
-                outline = baseColors?.outline?.toColor() ?: blueberry.lightScheme.outline,
-                outlineVariant = baseColors?.outlineVariant?.toColor() ?: blueberry.lightScheme.outlineVariant,
-                scrim = baseColors?.scrim?.toColor() ?: blueberry.lightScheme.scrim,
-                inverseSurface = baseColors?.inverseSurface?.toColor() ?: blueberry.lightScheme.inverseSurface,
-                inverseOnSurface = baseColors?.inverseOnSurface?.toColor() ?: blueberry.lightScheme.inverseOnSurface,
-                inversePrimary = baseColors?.inversePrimary?.toColor() ?: blueberry.lightScheme.inversePrimary,
-                surfaceTint = baseColors?.surfaceTint?.toColor() ?: blueberry.lightScheme.surfaceTint,
-                surfaceDim = baseColors?.surfaceDim?.toColor() ?: blueberry.lightScheme.surfaceDim,
-                surfaceBright = baseColors?.surfaceBright?.toColor() ?: blueberry.lightScheme.surfaceBright,
-                surfaceContainerLowest =
-                    baseColors?.surfaceContainerLowest?.toColor() ?: blueberry.lightScheme.surfaceContainerLowest,
-                surfaceContainerLow =
-                    baseColors?.surfaceContainerLow?.toColor() ?: blueberry.lightScheme.surfaceContainerLow,
-                surfaceContainer = baseColors?.surfaceContainer?.toColor() ?: blueberry.lightScheme.surfaceContainer,
-                surfaceContainerHigh =
-                    baseColors?.surfaceContainerHigh?.toColor() ?: blueberry.lightScheme.surfaceContainerHigh,
-                surfaceContainerHighest =
-                    baseColors?.surfaceContainerHighest?.toColor() ?: blueberry.lightScheme.surfaceContainerHighest,
-            )
-        }
+        val fallback = if (isDarkTheme) blueberry.darkScheme else blueberry.lightScheme
+        val base = baseColors ?: return fallback
+        return fallback.copy(
+            primary = base.primary?.toColor() ?: fallback.primary,
+            onPrimary = base.onPrimary?.toColor() ?: fallback.onPrimary,
+            primaryContainer = base.primaryContainer?.toColor() ?: fallback.primaryContainer,
+            onPrimaryContainer = base.onPrimaryContainer?.toColor() ?: fallback.onPrimaryContainer,
+            secondary = base.secondary?.toColor() ?: fallback.secondary,
+            onSecondary = base.onSecondary?.toColor() ?: fallback.onSecondary,
+            secondaryContainer = base.secondaryContainer?.toColor() ?: fallback.secondaryContainer,
+            onSecondaryContainer = base.onSecondaryContainer?.toColor() ?: fallback.onSecondaryContainer,
+            tertiary = base.tertiary?.toColor() ?: fallback.tertiary,
+            onTertiary = base.onTertiary?.toColor() ?: fallback.onTertiary,
+            tertiaryContainer = base.tertiaryContainer?.toColor() ?: fallback.tertiaryContainer,
+            onTertiaryContainer = base.onTertiaryContainer?.toColor() ?: fallback.onTertiaryContainer,
+            error = base.error?.toColor() ?: fallback.error,
+            onError = base.onError?.toColor() ?: fallback.onError,
+            errorContainer = base.errorContainer?.toColor() ?: fallback.errorContainer,
+            onErrorContainer = base.onErrorContainer?.toColor() ?: fallback.onErrorContainer,
+            background = base.background?.toColor() ?: fallback.background,
+            onBackground = base.onBackground?.toColor() ?: fallback.onBackground,
+            surface = base.surface?.toColor() ?: fallback.surface,
+            onSurface = base.onSurface?.toColor() ?: fallback.onSurface,
+            surfaceVariant = base.surfaceVariant?.toColor() ?: fallback.surfaceVariant,
+            onSurfaceVariant = base.onSurfaceVariant?.toColor() ?: fallback.onSurfaceVariant,
+            outline = base.outline?.toColor() ?: fallback.outline,
+            outlineVariant = base.outlineVariant?.toColor() ?: fallback.outlineVariant,
+            scrim = base.scrim?.toColor() ?: fallback.scrim,
+            inverseSurface = base.inverseSurface?.toColor() ?: fallback.inverseSurface,
+            inverseOnSurface = base.inverseOnSurface?.toColor() ?: fallback.inverseOnSurface,
+            inversePrimary = base.inversePrimary?.toColor() ?: fallback.inversePrimary,
+            surfaceTint = base.surfaceTint?.toColor() ?: fallback.surfaceTint,
+            surfaceDim = base.surfaceDim?.toColor() ?: fallback.surfaceDim,
+            surfaceBright = base.surfaceBright?.toColor() ?: fallback.surfaceBright,
+            surfaceContainerLowest = base.surfaceContainerLowest?.toColor() ?: fallback.surfaceContainerLowest,
+            surfaceContainerLow = base.surfaceContainerLow?.toColor() ?: fallback.surfaceContainerLow,
+            surfaceContainer = base.surfaceContainer?.toColor() ?: fallback.surfaceContainer,
+            surfaceContainerHigh = base.surfaceContainerHigh?.toColor() ?: fallback.surfaceContainerHigh,
+            surfaceContainerHighest = base.surfaceContainerHighest?.toColor() ?: fallback.surfaceContainerHighest,
+        )
     }
 }
