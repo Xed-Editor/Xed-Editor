@@ -119,7 +119,14 @@ fun EditorTab.CodeEditor(
                         editorState.contentLoaded.await()
                         editorState.updateLock.withLock {
                             withContext(Dispatchers.Main) {
-                                setText(editorState.content)
+                                val content = editorState.content
+                                setText(content)
+
+                                // Save newly created Content instance from setText(...)
+                                if (content == null) {
+                                    editorState.content = text
+                                }
+
                                 editorState.contentRendered.complete(Unit)
                             }
                         }
