@@ -797,4 +797,8 @@
     <string name="git_conflict_detection_desc">Show conflict markers and resolve options in the editor</string>
     <string name="credentials_github">To connect to GitHub, you must enter a PAT token, not your GitHub account password.</string>
     <string name="issue_count">%d issues</string>
+    <string name="running">Running…</string>
+    <string name="finished">Finished</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
 </resources>
