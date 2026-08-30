@@ -454,7 +454,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { Settings.smooth_tabs = it },
             )
 
-            EditorSettingsItem(
+            SettingsItem(
                 label = stringResource(id = strings.scoped_tabs),
                 description = stringResource(id = strings.scoped_tabs_desc),
                 default = Settings.scoped_tabs,

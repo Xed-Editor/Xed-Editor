@@ -131,8 +131,10 @@ open class EditorTab(
         autoSaveJob?.cancel()
         scope.cancel()
         editorState.content = null
-        editorState.editor.get()?.setText("")
-        editorState.editor.get()?.release()
+        editorState.editor.get()?.apply {
+            setText("")
+            release()
+        }
         GlobalScope.launch(Dispatchers.IO) { lspConnector?.disconnect() }
     }
 
