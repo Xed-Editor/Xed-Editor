@@ -19,6 +19,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +28,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.rk.activities.main.MainActivity
 import com.rk.components.AddDialogItem
@@ -136,7 +138,8 @@ fun AddProjectSheet(
             val createOptions = remember {
                 AddProjectRegistry.options.filter { it.category == AddProjectCategory.CREATE }
             }
-            val hasTemplates = remember { ProjectTemplateRegistry.categories.value.any { it.templates.isNotEmpty() } }
+            val categories by ProjectTemplateRegistry.categories.collectAsStateWithLifecycle()
+            val hasTemplates = categories.any { it.templates.isNotEmpty() }
 
             if (hasTemplates || createOptions.isNotEmpty()) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

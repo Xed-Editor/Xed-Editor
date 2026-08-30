@@ -60,7 +60,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
     val showDayNightBottomSheet = remember { mutableStateOf(false) }
     val monetState = remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) }
     val amoledState = remember { mutableStateOf(Settings.amoled) }
-    val loadedThemes by themeManager.loadedThemes.collectAsStateWithLifecycle()
+    val loadedThemes = themeManager.loadedThemesState.value
     val localIconPacks by iconPackManager.localIconPacks.collectAsStateWithLifecycle()
 
     PreferenceLayout(label = stringResource(strings.themes)) {
