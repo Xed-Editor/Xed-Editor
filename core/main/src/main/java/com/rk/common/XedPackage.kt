@@ -17,10 +17,6 @@ enum class PackageType {
 class PackageManifest(
     val type: PackageType? = null,
 
-    // Theme-specific
-    val light: JsonObject? = null,
-    val dark: JsonObject? = null,
-
     // Icon pack-specific
     val icons: JsonObject? = null,
 )
@@ -57,10 +53,6 @@ object XedPackage {
         // Legacy formats
         if (manifest.icons != null) {
             return PackageType.ICON_PACK
-        }
-
-        if (manifest.light != null || manifest.dark != null) {
-            return PackageType.THEME
         }
 
         val containsApk = dir.listFiles()?.any { it.extension == "apk" } ?: false
