@@ -179,37 +179,41 @@ fun MainContent(
                                         if (tabIndex == -1) return@TabItem
                                         mainViewModel.tabManager.setCurrentTab(tabIndex)
 
+                                        val visibleTabs = mainViewModel.visibleTabs
                                         val unsavedOtherTabs =
-                                            mainViewModel.tabs.filter { tab ->
+                                            visibleTabs.filter { tab ->
                                                 tab != tabState && (tab as? EditorTab)?.editorState?.isDirty == true
                                             }
                                         if (unsavedOtherTabs.isNotEmpty()) {
                                             dialogRes(
                                                 title = strings.files_unsaved.getString(),
                                                 msg = strings.ask_multiple_unsaved.getString(),
-                                                onOk = { mainViewModel.tabManager.removeOtherTabs() },
+                                                onOk = {
+                                                    mainViewModel.tabManager.removeOtherTabs(tabState, visibleTabs)
+                                                },
                                                 onCancel = {},
                                                 okRes = strings.discard,
                                             )
                                         } else {
-                                            mainViewModel.tabManager.removeOtherTabs()
+                                            mainViewModel.tabManager.removeOtherTabs(tabState, visibleTabs)
                                         }
                                     },
                                     onCloseAll = {
+                                        val visibleTabs = mainViewModel.visibleTabs
                                         val unsavedTabs =
-                                            mainViewModel.tabs.filter { tab ->
+                                            visibleTabs.filter { tab ->
                                                 (tab as? EditorTab)?.editorState?.isDirty == true
                                             }
                                         if (unsavedTabs.isNotEmpty()) {
                                             dialogRes(
                                                 title = strings.files_unsaved.getString(),
                                                 msg = strings.ask_multiple_unsaved.getString(),
-                                                onOk = { mainViewModel.tabManager.removeAllTabs() },
+                                                onOk = { mainViewModel.tabManager.removeAllTabs(visibleTabs) },
                                                 onCancel = {},
                                                 okRes = strings.discard,
                                             )
                                         } else {
-                                            mainViewModel.tabManager.removeAllTabs()
+                                            mainViewModel.tabManager.removeAllTabs(visibleTabs)
                                         }
                                     },
                                 )

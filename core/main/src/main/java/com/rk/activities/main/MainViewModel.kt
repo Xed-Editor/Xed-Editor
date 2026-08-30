@@ -160,7 +160,7 @@ class MainViewModel : ViewModel() {
     private fun setupEventListeners() {
         viewModelScope.launch {
             Events.subscribe<DrawerEvent.TabSelected> { event ->
-                val newRoot = (event.tab as? FileTreeTab)?.root ?: return@subscribe
+                val newRoot = (event.tab as? FileTreeTab)?.root
                 if (currentProjectRoot == newRoot) {
                     return@subscribe
                 }

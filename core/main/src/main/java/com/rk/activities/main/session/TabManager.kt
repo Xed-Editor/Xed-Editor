@@ -140,20 +140,21 @@ class TabManager {
         }
     }
 
-    fun removeOtherTabs() {
-        val tabToKeep = currentTab ?: return
-
-        _tabs.forEach { if (it != tabToKeep) it.onTabRemoved() }
-        _tabs.removeAll { it != tabToKeep }
-        selectionHistory.clear()
-        selectionHistory.add(tabToKeep)
-        currentTabIndex = 0
+    fun removeOtherTabs(tabToKeep: Tab, scope: List<Tab> = _tabs.toList()) {
+        scope
+            .filter { it != tabToKeep }
+            .forEach {
+                it.onTabRemoved()
+                selectionHistory.remove(it)
+                removeTab(it)
+            }
     }
 
-    fun removeAllTabs() {
-        _tabs.forEach { it.onTabRemoved() }
-        _tabs.clear()
-        selectionHistory.clear()
-        currentTabIndex = 0
+    fun removeAllTabs(scope: List<Tab> = _tabs.toList()) {
+        scope.forEach {
+            it.onTabRemoved()
+            selectionHistory.remove(it)
+            removeTab(it)
+        }
     }
 }
