@@ -127,6 +127,23 @@ class DrawerViewModel : ViewModel() {
         viewModelScope.launch { Events.publish(DrawerEvent.TabSelected(currentDrawerTab)) }
     }
 
+    fun moveDrawerTab(from: Int, to: Int) {
+        val tabs = _drawerTabs.value.toMutableList()
+        if (from !in tabs.indices || to !in tabs.indices || from == to) return
+
+        val item = tabs.removeAt(from)
+        tabs.add(to, item)
+        _drawerTabs.value = tabs
+
+        when (val currentIndex = _currentDrawerTabIndex.value) {
+            from -> _currentDrawerTabIndex.value = to
+            in (from + 1)..to -> _currentDrawerTabIndex.value = currentIndex - 1
+            in to..<from -> _currentDrawerTabIndex.value = currentIndex + 1
+        }
+
+        persistAsync()
+    }
+
     fun unselectDrawerTab() {
         _currentDrawerTabIndex.value = -1
         _currentServiceTabIndex.value = -1
