@@ -77,6 +77,8 @@
     <string name="editor">Editor</string>
     <string name="smooth_tabs">Smooth tabs</string>
     <string name="smooth_tab_desc">Smoothly switch between tabs</string>
+    <string name="scoped_tabs">Scoped tabs</string>
+    <string name="scoped_tabs_desc">Show only tabs belonging to the current project</string>
     <string name="word_wrap_desc">Enable word wrap in all editors</string>
     <string name="drawer_lock_desc">Keep drawer locked when opening file</string>
     <string name="cursor_anim">Cursor animation</string>

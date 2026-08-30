@@ -42,6 +42,7 @@ object Settings {
     var pin_line_number by CachedPreference("pin_line_number", false)
     var word_wrap_text by CachedPreference("word_wrap_text", true)
     var word_wrap by CachedPreference("word_wrap", false)
+    var scoped_tabs by CachedPreference("scoped_tabs", true)
     var restore_sessions by CachedPreference("restore_sessions", true)
     var cursor_animation by CachedPreference("cursor_animation", true)
     var show_extra_keys by

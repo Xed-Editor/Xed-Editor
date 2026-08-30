@@ -153,7 +153,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
                                 if (it != null) {
                                     lifecycleScope.launch {
                                         viewModel.editorManager.openFile(
-                                            it,
+                                            fileObject = it,
                                             projectRoot = null,
                                             checkDuplicate = true,
                                             switchToTab = true,
@@ -172,7 +172,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
                             if (it != null) {
                                 lifecycleScope.launch {
                                     viewModel.editorManager.openFile(
-                                        it.toFileObject(expectedIsFile = true),
+                                        fileObject = it.toFileObject(expectedIsFile = true),
                                         checkDuplicate = true,
                                         projectRoot = null,
                                         switchToTab = true,

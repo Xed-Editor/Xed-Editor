@@ -204,7 +204,11 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                             onClick = {
                                 MainActivity.instance?.let {
                                     it.lifecycleScope.launch {
-                                        it.viewModel.editorManager.openFile(FileWrapper(runner.getScript()), null, true)
+                                        it.viewModel.editorManager.openFile(
+                                            fileObject = FileWrapper(runner.getScript()),
+                                            projectRoot = null,
+                                            switchToTab = true,
+                                        )
                                         toast(strings.tab_opened)
                                     }
                                 }

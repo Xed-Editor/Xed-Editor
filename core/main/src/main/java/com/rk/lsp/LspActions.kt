@@ -58,7 +58,14 @@ fun fixHomeLocation(context: Context, uri: String): String {
 }
 
 suspend fun EditorManager.jumpToPosition(file: FileObject, projectRoot: FileObject?, range: Range) {
-    jumpToPosition(file, projectRoot, range.start.line, range.start.character, range.end.line, range.end.character)
+    jumpToPosition(
+        file = file,
+        projectRoot = projectRoot,
+        lineStart = range.start.line,
+        charStart = range.start.character,
+        lineEnd = range.end.line,
+        charEnd = range.end.character,
+    )
 }
 
 fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {

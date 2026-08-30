@@ -13,6 +13,9 @@ import java.util.UUID
 abstract class Tab {
     val id = UUID.randomUUID().toString()
 
+    open var projectRoot: FileObject? = null
+    open var scopeRoot: FileObject? = null
+
     var refreshKey by mutableIntStateOf(0)
     abstract val name: String
     abstract val icon: ImageVector

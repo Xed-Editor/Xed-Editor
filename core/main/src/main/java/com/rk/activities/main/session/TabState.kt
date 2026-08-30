@@ -15,6 +15,7 @@ sealed interface TabState : Serializable {
 data class EditorTabState(
     val fileObject: FileObject?,
     val projectRoot: FileObject?,
+    val scopeRoot: FileObject?,
     val content: String?,
     val isDirty: Boolean = false,
     val isReadOnly: Boolean = false,
@@ -29,6 +30,7 @@ data class EditorTabState(
                 editorManager.createEditorTab(
                     file = fileObject,
                     projectRoot = projectRoot,
+                    scopeRoot = scopeRoot,
                     isReadOnly = isReadOnly,
                     customTitle = customTitle,
                     fallbackExtension = fallbackExtension,
@@ -46,6 +48,14 @@ data class EditorTabState(
 }
 
 
-data class FileTabState(val fileObject: FileObject) : TabState {
-    override suspend fun toTab() = TabRegistry.getTab(fileObject, null, MainActivity.instance!!.viewModel, false, null)
+data class FileTabState(val fileObject: FileObject, val projectRoot: FileObject?, val scopeRoot: FileObject?) : TabState {
+    override suspend fun toTab() =
+        TabRegistry.getTab(
+            file = fileObject,
+            projectRoot = projectRoot,
+            scopeRoot = scopeRoot,
+            viewModel = MainActivity.instance!!.viewModel,
+            readOnly = false,
+            customTitle = null,
+        )
 }

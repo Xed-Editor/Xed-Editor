@@ -118,21 +118,21 @@ fun MainContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().padding(innerPadding)) {
-            if (mainViewModel.tabs.isEmpty()) {
+            if (mainViewModel.visibleTabs.isEmpty()) {
                 WelcomeScreen(drawerViewModel, drawerState, scope)
             } else {
-                val pagerState = rememberPagerState(pageCount = { mainViewModel.tabs.size })
+                val pagerState = rememberPagerState(pageCount = { mainViewModel.visibleTabs.size })
 
-                LaunchedEffect(mainViewModel.currentTabIndex) {
+                LaunchedEffect(mainViewModel.visibleCurrentTabIndex) {
                     if (
-                        mainViewModel.tabs.isNotEmpty() &&
-                            mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
-                            pagerState.currentPage != mainViewModel.currentTabIndex
+                        mainViewModel.visibleTabs.isNotEmpty() &&
+                            mainViewModel.visibleCurrentTabIndex < mainViewModel.visibleTabs.size &&
+                            pagerState.currentPage != mainViewModel.visibleCurrentTabIndex
                     ) {
                         if (Settings.smooth_tabs) {
-                            pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
+                            pagerState.animateScrollToPage(mainViewModel.visibleCurrentTabIndex)
                         } else {
-                            pagerState.scrollToPage(mainViewModel.currentTabIndex)
+                            pagerState.scrollToPage(mainViewModel.visibleCurrentTabIndex)
                         }
                     }
                 }
@@ -142,13 +142,14 @@ fun MainContent(
                 ReorderContainer(state = reorderState) {
                     PrimaryScrollableTabRow(
                         selectedTabIndex =
-                            if (mainViewModel.currentTabIndex < mainViewModel.tabs.size) mainViewModel.currentTabIndex
+                            if (mainViewModel.visibleCurrentTabIndex < mainViewModel.visibleTabs.size)
+                                mainViewModel.visibleCurrentTabIndex
                             else 0,
                         modifier = Modifier.fillMaxWidth(),
                         edgePadding = 0.dp,
                         divider = {},
                     ) {
-                        mainViewModel.tabs.forEachIndexed { index, tabState ->
+                        mainViewModel.visibleTabs.forEachIndexed { index, tabState ->
                             key(tabState.id) {
                                 TabItem(
                                     mainViewModel = mainViewModel,
@@ -173,12 +174,14 @@ fun MainContent(
                                             mainViewModel.tabManager.removeTab(tabIndex)
                                         }
                                     },
-                                    onCloseOthers = { index ->
-                                        mainViewModel.tabManager.setCurrentTab(index)
+                                    onCloseOthers = {
+                                        val tabIndex = mainViewModel.tabs.indexOf(tabState)
+                                        if (tabIndex == -1) return@TabItem
+                                        mainViewModel.tabManager.setCurrentTab(tabIndex)
 
                                         val unsavedOtherTabs =
-                                            mainViewModel.tabs.filterIndexed { tabIndex, tab ->
-                                                tabIndex != index && (tab as? EditorTab)?.editorState?.isDirty == true
+                                            mainViewModel.tabs.filter { tab ->
+                                                tab != tabState && (tab as? EditorTab)?.editorState?.isDirty == true
                                             }
                                         if (unsavedOtherTabs.isNotEmpty()) {
                                             dialogRes(
@@ -220,12 +223,12 @@ fun MainContent(
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize().clipToBounds(),
-                    beyondViewportPageCount = mainViewModel.tabs.size,
+                    beyondViewportPageCount = mainViewModel.visibleTabs.size.coerceAtLeast(1),
                     userScrollEnabled = false,
-                    key = { mainViewModel.tabs.getOrNull(it)?.id ?: "" },
+                    key = { page -> mainViewModel.visibleTabs.getOrNull(page)?.id ?: "" },
                 ) { page ->
-                    if (page < mainViewModel.tabs.size) {
-                        mainViewModel.tabs[page].Content()
+                    if (page < mainViewModel.visibleTabs.size) {
+                        mainViewModel.visibleTabs[page].Content()
                     }
                 }
             }
@@ -243,9 +246,9 @@ private fun TabItem(
     tabState: Tab,
     index: Int,
     showIcon: Boolean,
-    onCloseThis: (Int) -> Unit,
-    onCloseOthers: (Int) -> Unit,
-    onCloseAll: (Int) -> Unit,
+    onCloseThis: () -> Unit,
+    onCloseOthers: () -> Unit,
+    onCloseAll: () -> Unit,
 ) {
     var calculatedTabWidth by
         remember(
@@ -305,9 +308,9 @@ private fun TabItemContent(
     index: Int,
     calculatedTabWidth: Int?,
     tab: Tab,
-    onCloseThis: (Int) -> Unit,
-    onCloseOthers: (Int) -> Unit,
-    onCloseAll: (Int) -> Unit,
+    onCloseThis: () -> Unit,
+    onCloseOthers: () -> Unit,
+    onCloseAll: () -> Unit,
     showIcon: Boolean,
     isDraggableContent: Boolean = false,
 ) {
@@ -319,7 +322,7 @@ private fun TabItemContent(
 
     val drawerViewModel = (context as MainActivity).drawerViewModel
 
-    val isSelected = mainViewModel.currentTabIndex == index
+    val isSelected = mainViewModel.visibleCurrentTabIndex == index
     val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
 
     val tabModifier =
@@ -337,7 +340,10 @@ private fun TabItemContent(
         if (isSelected) {
             showTabMenu = true
         } else {
-            mainViewModel.tabManager.setCurrentTab(index)
+            val globalIndex = mainViewModel.tabs.indexOf(tab)
+            if (globalIndex != -1) {
+                mainViewModel.tabManager.setCurrentTab(globalIndex)
+            }
         }
     }
 
@@ -374,21 +380,21 @@ private fun TabItemContent(
                 text = { Text(stringResource(strings.close_this)) },
                 onClick = {
                     showTabMenu = false
-                    onCloseThis(index)
+                    onCloseThis()
                 },
             )
             XedDropdownMenuItem(
                 text = { Text(stringResource(strings.close_others)) },
                 onClick = {
                     showTabMenu = false
-                    onCloseOthers(index)
+                    onCloseOthers()
                 },
             )
             XedDropdownMenuItem(
                 text = { Text(stringResource(strings.close_all)) },
                 onClick = {
                     showTabMenu = false
-                    onCloseAll(index)
+                    onCloseAll()
                 },
             )
             tab.file?.let {

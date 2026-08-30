@@ -87,7 +87,8 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(DelicateCoroutinesApi::class)
 open class EditorTab(
     override var file: FileObject?,
-    var projectRoot: FileObject?,
+    override var projectRoot: FileObject?,
+    override var scopeRoot: FileObject? = null,
     val viewModel: MainViewModel,
     isReadOnly: Boolean = false,
     private val customTitle: String? = null,
@@ -639,6 +640,7 @@ open class EditorTab(
         return EditorTabState(
             fileObject = file,
             projectRoot = projectRoot,
+            scopeRoot = scopeRoot,
             content =
                 when {
                     file == null -> editor.text.toString()
