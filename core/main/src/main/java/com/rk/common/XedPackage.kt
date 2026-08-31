@@ -35,10 +35,6 @@ object XedPackage {
         val manifestFile = File(dir, "manifest.json")
         val themeFile = File(dir, "theme.json")
 
-        if (themeFile.exists()) {
-            return PackageType.THEME
-        }
-
         if (!manifestFile.exists()) {
             return null
         }
@@ -48,6 +44,10 @@ object XedPackage {
         // New manifest format
         manifest.type?.let {
             return it
+        }
+
+        if (themeFile.exists()) {
+            return PackageType.THEME
         }
 
         // Legacy formats

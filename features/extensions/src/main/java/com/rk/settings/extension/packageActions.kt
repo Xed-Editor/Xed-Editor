@@ -7,10 +7,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.App
 import com.rk.App.Companion.themeManager
 import com.rk.DefaultScope
@@ -33,9 +32,10 @@ import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.model.Package
 import com.rk.file.child
-import com.rk.file.copyToTempDir
 import com.rk.file.themeDir
 import com.rk.file.toFileObject
+import com.rk.filetree.isXedPackage
+import com.rk.filetree.isZip
 import com.rk.icons.pack.UpdatableIconPack
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
@@ -45,9 +45,9 @@ import com.rk.settings.Settings
 import com.rk.theme.UpdatableTheme
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
-import com.rk.utils.logError
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
+import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -550,39 +550,45 @@ fun runPackageUninstallAction(
     scope: CoroutineScope,
     activity: AppCompatActivity?,
 ) {
-    if (pkg.type == PackageType.EXTENSION) {
-        runExtensionUninstallAction(pkg as Extension, updateInstallState, scope, activity)
-    } else if (pkg.type == PackageType.THEME) {
-        dialogRes(
-            activity = activity,
-            title = strings.uninstall_theme_dialog.getString(),
-            msg = strings.uninstall_theme_dialog_desc.getFilledString(pkg.name),
-            okRes = strings.uninstall,
-            onOk = {
-                scope.launch(Dispatchers.IO) {
-                    themeDir().child(pkg.id).deleteRecursively()
-                    withContext(Dispatchers.Main) {
-                        themeManager.removeLocalTheme(pkg.id)
-                        updateInstallState(InstallState.Idle)
+    when (pkg.type) {
+        PackageType.EXTENSION -> {
+            runExtensionUninstallAction(pkg as Extension, updateInstallState, scope, activity)
+        }
+        PackageType.THEME -> {
+            dialogRes(
+                activity = activity,
+                title = strings.uninstall_theme_dialog.getString(),
+                msg = strings.uninstall_theme_dialog_desc.getFilledString(pkg.name),
+                okRes = strings.uninstall,
+                onOk = {
+                    scope.launch(Dispatchers.IO) {
+                        themeDir().child(pkg.id).deleteRecursively()
+                        withContext(Dispatchers.Main) {
+                            themeManager.removeLocalTheme(pkg.id)
+                            updateInstallState(InstallState.Idle)
+                        }
                     }
-                }
-            },
-        )
-    } else if (pkg.type == PackageType.ICON_PACK) {
-        dialogRes(
-            activity = activity,
-            title = strings.uninstall_icon_pack_dialog.getString(),
-            msg = strings.uninstall_icon_pack_dialog_desc.getFilledString(pkg.name),
-            okRes = strings.uninstall,
-            onOk = {
-                scope.launch(Dispatchers.IO) {
-                    App.iconPackManager.uninstallIconPack(pkg.id)
-                    withContext(Dispatchers.Main) {
-                        updateInstallState(InstallState.Idle)
+                },
+                onCancel = {},
+            )
+        }
+        PackageType.ICON_PACK -> {
+            dialogRes(
+                activity = activity,
+                title = strings.uninstall_icon_pack_dialog.getString(),
+                msg = strings.uninstall_icon_pack_dialog_desc.getFilledString(pkg.name),
+                okRes = strings.uninstall,
+                onOk = {
+                    scope.launch(Dispatchers.IO) {
+                        App.iconPackManager.uninstallIconPack(pkg.id)
+                        withContext(Dispatchers.Main) {
+                            updateInstallState(InstallState.Idle)
+                        }
                     }
-                }
-            },
-        )
+                },
+                onCancel = {},
+            )
+        }
     }
 }
 
@@ -630,13 +636,20 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 loading.setMessage(strings.installing.getString())
             }
 
-            if (fileObject.getExtension() == "json") {
-                fileObject.copyToTempDir().also {
-                    themeManager.installTheme(it)
-                    withContext(Dispatchers.Main) {
-                        toast(strings.installed)
-                        loading?.hide()
-                    }
+            if (fileObject.getExtension().lowercase() == "json") {
+                withContext(Dispatchers.Main) {
+                    loading?.hide()
+                    errorDialog(activity, msg = strings.theme_format_error.getString())
+                }
+                return@launch
+            }
+
+            if (
+                !fileObject.isXedPackage() && !fileObject.isZip() && fileObject.getExtension().lowercase() != "iconpack"
+            ) {
+                withContext(Dispatchers.Main) {
+                    loading?.hide()
+                    errorDialog(activity, msg = strings.package_format_error.getString())
                 }
                 return@launch
             }
@@ -757,8 +770,7 @@ fun rememberPackageInstallState(pkg: Package): InstallState {
         PackageType.ICON_PACK -> {
             if (App.iconPackManager.isInstalled(id)) {
                 val pack = App.iconPackManager.getIconPackPackage(id)
-                if (pack is UpdatableIconPack && pack.hasUpdate()) InstallState.Updatable
-                else InstallState.Installed
+                if (pack is UpdatableIconPack && pack.hasUpdate()) InstallState.Updatable else InstallState.Installed
             } else InstallState.Idle
         }
     }
