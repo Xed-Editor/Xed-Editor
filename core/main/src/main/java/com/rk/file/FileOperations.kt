@@ -15,7 +15,15 @@ import org.apache.commons.net.io.Util
 
 object FileOperations {
     var clipboard: List<FileObject> = emptyList()
+        private set
+
     var isCut: Boolean = false
+        private set
+
+    fun clearClipboard() {
+        clipboard = emptyList()
+        isCut = false
+    }
 
     fun copyToClipboard(file: FileObject, isCut: Boolean = false) {
         clipboard = listOf(file)
@@ -23,7 +31,7 @@ object FileOperations {
     }
 
     fun copyToClipboard(files: List<FileObject>, isCut: Boolean = false) {
-        clipboard = files
+        clipboard = files.toList()
         this.isCut = isCut
     }
 

@@ -230,10 +230,10 @@ object PasteAction : FileAction() {
     override val title = strings.paste.getString()
 
     override suspend fun execute(context: FileActionContext) {
-        context.viewModel.viewModelScope.launch {
-            val isCut = FileOperations.isCut
-            val clipboardFiles = FileOperations.clipboard
+        val isCut = FileOperations.isCut
+        val clipboardFiles = FileOperations.clipboard
 
+        context.viewModel.viewModelScope.launch {
             context.viewModel.withFileOperation {
                 for (clipboardFile in clipboardFiles) {
                     FileOperations.pasteFile(
@@ -249,12 +249,16 @@ object PasteAction : FileAction() {
                                     val targetTab =
                                         viewModel.tabs.find { it is EditorTab && it.file == clipboardFile }
                                             as? EditorTab
-                                    targetTab?.file = context.file.getChild(clipboardFile.getName())
+                                    val newFile = context.file.getChild(clipboardFile.getName())
+                                    targetTab?.file = newFile
                                 }
                             }
                             clipboardFile.getParentFile()?.let { context.viewModel.updateCache(it) }
                             context.viewModel.updateCache(context.file)
                             context.viewModel.unmarkNodeAsCut(clipboardFile)
+                            if (isCut) {
+                                FileOperations.clearClipboard()
+                            }
                         }
                 }
             }
