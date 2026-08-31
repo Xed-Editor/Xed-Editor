@@ -631,27 +631,21 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 return@runCatching
             }
 
-            withContext(Dispatchers.Main) {
-                loading = LoadingPopup(activity).show()
-                loading.setMessage(strings.installing.getString())
-            }
-
             if (fileObject.getExtension().lowercase() == "json") {
-                withContext(Dispatchers.Main) {
-                    loading?.hide()
-                    errorDialog(activity, msg = strings.theme_format_error.getString())
-                }
+                errorDialog(activity, msg = strings.theme_format_error.getString())
                 return@launch
             }
 
             if (
                 !fileObject.isXedPackage() && !fileObject.isZip() && fileObject.getExtension().lowercase() != "iconpack"
             ) {
-                withContext(Dispatchers.Main) {
-                    loading?.hide()
-                    errorDialog(activity, msg = strings.package_format_error.getString())
-                }
+                errorDialog(activity, msg = strings.package_format_error.getString())
                 return@launch
+            }
+
+            withContext(Dispatchers.Main) {
+                loading = LoadingPopup(activity).show()
+                loading.setMessage(strings.installing.getString())
             }
 
             val tempDir = File(application!!.cacheDir, "install_temp_${System.currentTimeMillis()}")
@@ -686,7 +680,7 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                     }
                     null -> {
                         withContext(Dispatchers.Main) {
-                            errorDialog(activity, msg = "Unknown package type")
+                            errorDialog(activity, msg = strings.unknown_package.getString())
                         }
                     }
                 }
@@ -694,13 +688,12 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 tempDir.deleteRecursively()
                 withContext(Dispatchers.Main) { loading?.hide() }
             }
-        }
-            .onFailure { error ->
-                withContext(Dispatchers.Main) {
-                    loading?.hide()
-                    errorDialog(activity, error)
-                }
+        }.onFailure { error ->
+            withContext(Dispatchers.Main) {
+                loading?.hide()
+                errorDialog(activity, error)
             }
+        }
     }
 }
 
