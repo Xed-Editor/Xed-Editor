@@ -805,4 +805,5 @@
     <string name="expand">Expand</string>
     <string name="package_format_error">Xed-Editor only supports installing .zip, .iconpack or .xed packages.</string>
     <string name="theme_format_error">Xed-Editor no longer supports installing legacy single-file JSON themes. If this is your theme, please update it according to the current theme template and try again.</string>
+    <string name="unknown_package_format">Could not determine package type.</string>
 </resources>

@@ -49,13 +49,13 @@ import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.logError
 import com.rk.utils.toast
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
-import java.io.File
 
 fun getMissingDependencies(extension: Extension): List<ExtensionId> {
     val missing = linkedSetOf<ExtensionId>()
@@ -632,14 +632,22 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
             }
 
             if (fileObject.getExtension().lowercase() == "json") {
-                errorDialog(activity, msg = strings.theme_format_error.getString())
+                errorDialog(
+                    activity = activity,
+                    title = strings.attention.getString(),
+                    msg = strings.theme_format_error.getString(),
+                )
                 return@launch
             }
 
             if (
                 !fileObject.isXedPackage() && !fileObject.isZip() && fileObject.getExtension().lowercase() != "iconpack"
             ) {
-                errorDialog(activity, msg = strings.package_format_error.getString())
+                errorDialog(
+                    activity = activity,
+                    title = strings.attention.getString(),
+                    msg = strings.package_format_error.getString(),
+                )
                 return@launch
             }
 
@@ -680,7 +688,7 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                     }
                     null -> {
                         withContext(Dispatchers.Main) {
-                            errorDialog(activity, msg = strings.unknown_package.getString())
+                            errorDialog(activity, msg = strings.unknown_package_format.getString())
                         }
                     }
                 }
@@ -688,12 +696,13 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 tempDir.deleteRecursively()
                 withContext(Dispatchers.Main) { loading?.hide() }
             }
-        }.onFailure { error ->
-            withContext(Dispatchers.Main) {
-                loading?.hide()
-                errorDialog(activity, error)
-            }
         }
+            .onFailure { error ->
+                withContext(Dispatchers.Main) {
+                    loading?.hide()
+                    errorDialog(activity, error)
+                }
+            }
     }
 }
 
