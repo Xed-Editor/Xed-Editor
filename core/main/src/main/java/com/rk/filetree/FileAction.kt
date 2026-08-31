@@ -254,12 +254,13 @@ object PasteAction : FileAction() {
                                 }
                             }
                             clipboardFile.getParentFile()?.let { context.viewModel.updateCache(it) }
-                            context.viewModel.updateCache(context.file)
                             context.viewModel.unmarkNodeAsCut(clipboardFile)
-                            if (isCut) {
-                                FileOperations.clearClipboard()
-                            }
                         }
+                }
+
+                context.viewModel.updateCache(context.file)
+                if (isCut) {
+                    FileOperations.clearClipboard()
                 }
             }
         }
