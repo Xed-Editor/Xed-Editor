@@ -13,6 +13,7 @@ import com.google.gson.JsonParser
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
 import com.rk.extension.manager.StoreManager
+import com.rk.extension.model.PackageAuthor
 import com.rk.extension.model.PackageCache
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
@@ -41,6 +42,8 @@ import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.FileInputStream
+import java.io.ObjectInputStream
 import java.util.Properties
 import kotlinx.serialization.json.JsonElement as KJsonElement
 
@@ -51,6 +54,22 @@ data class ThemeEntry(
     val size: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,
+)
+
+@Serializable
+private data class LegacyManifest(
+    val id: String,
+    val name: String,
+    val author: PackageAuthor = PackageAuthor.UNKNOWN,
+    val version: String = "1.0.0",
+    val description: String? = null,
+    val tags: List<String> = emptyList(),
+    val repository: String = "",
+    val license: String? = null,
+    val minAppVersion: Int? = null,
+    val inheritBase: Boolean = true,
+    val light: ThemePaletteNew? = null,
+    val dark: ThemePaletteNew? = null,
 )
 
 class ThemeManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
@@ -278,6 +297,8 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             val themeDir = themeDir()
             if (!themeDir.exists()) return@withContext
 
+            migrateOldThemes(themeDir)
+
             val newLocalThemes = mutableMapOf<String, LocalTheme>()
             val newLoadedThemes = mutableListOf<ThemeHolder>()
             themeDir.listFiles()?.forEach { dir ->
@@ -317,6 +338,97 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                 setLoadedThemes(builtInThemes + newLoadedThemes)
             }
         }
+    }
+
+    @Deprecated("Migration from old theme format for backwards compatibility")
+    private suspend fun migrateOldThemes(themeDir: File) {
+        val listFiles = themeDir.listFiles()
+        var migratedCount = 0
+        listFiles?.forEach { file ->
+            if (file.isFile) {
+                runCatching {
+                    if (migratedCount == 0) {
+                        withContext(Dispatchers.Main) {
+                            toast(strings.migrating_themes.getString())
+                        }
+                    }
+                    ObjectInputStream(FileInputStream(file)).use { input ->
+                        val oldConfig = input.readObject()
+                        if (oldConfig is ThemeConfig) {
+                            installMigratedTheme(
+                                manifest =
+                                    ThemeManifest(
+                                        id = oldConfig.id ?: file.nameWithoutExtension,
+                                        name = oldConfig.name ?: file.nameWithoutExtension,
+                                        minAppVersion = oldConfig.minAppVersion,
+                                        inheritBase = oldConfig.inheritBase ?: true,
+                                    ),
+                                themeFile =
+                                    ThemeFile(
+                                        light = oldConfig.light?.let { ThemePaletteNew.fromLegacyPalette(it) },
+                                        dark = oldConfig.dark?.let { ThemePaletteNew.fromLegacyPalette(it) },
+                                    ),
+                            )
+                            migratedCount++
+                        }
+                        file.delete()
+                    }
+                }
+                    .onFailure {
+                        file.delete()
+                    }
+            } else if (file.isDirectory) {
+                runCatching {
+                    val manifestFile = file.resolve("manifest.json")
+                    val themeFile = file.resolve("theme.json")
+                    if (manifestFile.exists() && !themeFile.exists()) {
+                        val legacy = json.decodeFromString<LegacyManifest>(manifestFile.readText())
+                        if (legacy.light != null || legacy.dark != null) {
+                            val manifest =
+                                ThemeManifest(
+                                    id = legacy.id,
+                                    name = legacy.name,
+                                    author = legacy.author,
+                                    version = legacy.version,
+                                    description = legacy.description,
+                                    tags = legacy.tags,
+                                    repository = legacy.repository,
+                                    license = legacy.license,
+                                    minAppVersion = legacy.minAppVersion,
+                                    inheritBase = legacy.inheritBase,
+                                )
+                            themeFile.writeText(json.encodeToString(ThemeFile(light = legacy.light, dark = legacy.dark)))
+                            manifestFile.writeText(json.encodeToString(manifest))
+                            migratedCount++
+                        }
+                    }
+                }
+            }
+        }
+
+        if (migratedCount > 0) {
+            withContext(Dispatchers.Main) {
+                toast(strings.theme_migrated.getFilledString(migratedCount))
+            }
+        }
+    }
+
+    private suspend fun installMigratedTheme(manifest: ThemeManifest, themeFile: ThemeFile) {
+        val installDir = themeDir().child(manifest.id).also { if (!it.exists()) it.mkdirs() }
+
+        val oldCreatedAt = resolveCache(installDir).createdAt
+        installDir.resolve("manifest.json").writeText(json.encodeToString<ThemeManifest>(manifest))
+        installDir.resolve("theme.json").writeText(json.encodeToString<ThemeFile>(themeFile))
+
+        val size = calcSize(installDir)
+        writeCache(
+            installDir,
+            PackageCache(
+                createdAt = oldCreatedAt ?: System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis(),
+                size = size,
+            ),
+        )
     }
 
     private fun String.toColor(): Color {
