@@ -790,4 +790,6 @@
     <string name="git_conflict_detection">Deteksi konflik</string>
     <string name="git_conflict_detection_desc">Tampilkan penanda konflik dan opsi penyelesaian di editor</string>
     <string name="credentials_github">Untuk terhubung ke GitHub, Anda harus memasukkan token PAT, bukan kata sandi akun GitHub Anda.</string>
+    <string name="theme_format_changed">Format tema telah diubah. Format ini tidak lagi didukung</string>
+    <string name="unknown_package">Tipe paket tidak dikenal</string>
 </resources>
