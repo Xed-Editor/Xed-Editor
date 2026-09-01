@@ -794,4 +794,6 @@
     <string name="git_conflict_detection">Çakışma tespiti</string>
     <string name="git_conflict_detection_desc">Düzenleyicide çakışma işaretleyicilerini göster ve seçenekleri çöz</string>
     <string name="credentials_github">GitHub\'a bağlanmak için GitHub hesap şifrenizi değil, bir PAT token\'ı girmeniz gerekir.</string>
+    <string name="theme_format_changed">Temanın formatı değişti. Bu format artık desteklenmiyor</string>
+    <string name="unknown_package">Bilinmeyen paket türü</string>
 </resources>
