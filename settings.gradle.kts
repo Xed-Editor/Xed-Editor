@@ -33,11 +33,7 @@ include(":features:terminal:proot")
 include(":features:terminal:link2symlink")
 include(":features:terminal:xed-cli")
 
-// The editor engine is the soraX submodule (a mirror of Rosemoe/sora-editor with
-// Xed patches). It is compiled from source as an included build: the soraX:editor
-// (and -lsp / -language-textmate / -oniguruma-native) placeholder coordinates from
-// gradle/libs.versions.toml are substituted with the matching projects, so every
-// build uses the checked-out soraX commit directly. No publishing is needed.
+
 if (!file("soraX/settings.gradle.kts").exists()) {
     throw GradleException(
         """
