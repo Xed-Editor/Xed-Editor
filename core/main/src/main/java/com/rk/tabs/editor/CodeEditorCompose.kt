@@ -30,6 +30,7 @@ import com.rk.editor.Editor
 import com.rk.editor.FormatterSource
 import com.rk.editor.Formatters
 import com.rk.editor.LanguageManager
+import com.rk.editor.TextActionItem
 import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileObject
@@ -61,7 +62,6 @@ import io.github.rosemoe.sora.lang.format.FormatterProvider
 import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
-import io.github.rosemoe.sora.widget.component.TextActionItem
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi

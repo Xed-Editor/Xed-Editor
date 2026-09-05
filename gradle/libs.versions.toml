@@ -1,7 +1,7 @@
 [versions]
 
 # kotlin and agp must be compatible with each other after update
-agp = "9.2.1"
+agp = "9.3.1"
 kotlin = "2.4.10"
 ksp = "2.3.2"
 kotlinReflect = "2.4.10"
@@ -63,6 +63,7 @@ monarchPack = "1.0.2"
 monarchJson = "1.0.2"
 regexOnig = "1.0.3"
 regexRe2j = "1.0.2"
+sorax = "0.24.6"
 gson = "2.13.2"
 semver = "3.1.0"
 leakcanary = "2.14"
@@ -176,6 +177,15 @@ semver = { module = "io.github.z4kn4fein:semver", version.ref = "semver" }
 # Tree-sitter / editor
 tree-sitter = { module = "com.itsaky.androidide.treesitter:android-tree-sitter", version.ref = "tsBinding" }
 tree-sitter-java = { module = "com.itsaky.androidide.treesitter:tree-sitter-java", version.ref = "tsBinding" }
+
+# Sora editor engine - Xed's soraX fork, built from the soraX submodule via
+# includeBuild dependency substitution (see settings.gradle.kts). These are NOT
+# published artifacts; the "soraX:..." coordinates are placeholders that Gradle
+# replaces with the matching project in the soraX build.
+sorax-editor = { module = "soraX:editor", version.ref = "sorax" }
+sorax-editor-lsp = { module = "soraX:editor-lsp", version.ref = "sorax" }
+sorax-language-textmate = { module = "soraX:language-textmate", version.ref = "sorax" }
+sorax-oniguruma-native = { module = "soraX:oniguruma-native", version.ref = "sorax" }
 
 # Compose extras
 compose-dnd = { module = "com.mohamedrejeb.dnd:compose-dnd", version.ref = "composeDnd" }

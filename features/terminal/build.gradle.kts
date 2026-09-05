@@ -35,7 +35,7 @@ dependencies {
     implementation(project(":features:terminal:link2symlink"))
 
     // Editor dependency for ExtraKeys code editor settings
-    implementation(project(":editor"))
+    implementation(libs.sorax.editor)
     
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

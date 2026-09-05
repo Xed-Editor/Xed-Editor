@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.session.EditorManager
+import com.rk.editor.TextActionItem
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.sandboxDir
@@ -24,7 +25,6 @@ import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import io.github.rosemoe.sora.lsp.events.format.rangeFormatting
-import io.github.rosemoe.sora.widget.component.TextActionItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
