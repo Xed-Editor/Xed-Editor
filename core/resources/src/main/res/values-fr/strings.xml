@@ -798,4 +798,6 @@
     <string name="git_conflict_detection_desc">Affiche des marqueurs de conflit et les possibilités de résolution dans l\'éditeur</string>
     <string name="credentials_github">Pour vous connecter à GitHub, vous devez entrer un jeton PAT, et pas votre mot de passe de compte GitHub.</string>
     <string name="git_gutter_indication">Indicateur d\'espacement</string>
+    <string name="theme_format_changed">Le format du thème a changé. Ce format n\'est plus supporté</string>
+    <string name="unknown_package">Type de paquetage inconnu</string>
 </resources>

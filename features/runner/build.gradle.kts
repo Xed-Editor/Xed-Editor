@@ -31,8 +31,8 @@ dependencies {
     implementation(project(":core:resources"))
     
     // Editor dependencies for code runner settings and markdown rendering
-    implementation(project(":editor"))
-    implementation(project(":editor-lsp"))
+    implementation(libs.sorax.editor)
+    implementation(libs.sorax.editor.lsp)
     
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

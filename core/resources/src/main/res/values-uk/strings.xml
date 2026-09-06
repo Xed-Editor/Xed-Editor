@@ -797,4 +797,6 @@
     <string name="git_conflict_detection">Виявлення конфліктів</string>
     <string name="git_conflict_detection_desc">Показувати в редакторі значки конфліктів та шляхи їх вирішення</string>
     <string name="credentials_github">Щоб під\'єднатися до GitHub, ви маєте ввести PAT-токен, а не ваш пароль від GitHub.</string>
+    <string name="theme_format_changed">Формат теми змінився. Цей формат більше не підтримується</string>
+    <string name="unknown_package">Невідомий тип пакета</string>
 </resources>

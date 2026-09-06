@@ -179,14 +179,14 @@ enum class BuiltinFileType(
 ) : FileType {
     // Web languages
     JAVASCRIPT(
-        extensions = listOf("js", "mjs", "cjs", "jscsrc", "jshintrc", "mut"),
+        extensions = listOf("js", "mjs", "cjs", "jscsrc", "jshintrc","javascript"),
         textmateScope = "source.js",
         icon = Icon.ResourceIcon(js),
         title = "JavaScript",
         markdownNames = listOf("javascript"),
     ),
     TYPESCRIPT(
-        extensions = listOf("ts", "mts", "cts"),
+        extensions = listOf("ts", "mts", "cts","typescript"),
         textmateScope = "source.ts",
         icon = Icon.ResourceIcon(ts),
         title = "TypeScript",
