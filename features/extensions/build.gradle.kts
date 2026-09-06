@@ -32,8 +32,8 @@ dependencies {
     implementation(project(":core:resources"))
 
     // Editor modules for Markdown rendering
-    implementation(project(":editor"))
-    implementation(project(":editor-lsp"))
+    implementation(libs.sorax.editor)
+    implementation(libs.sorax.editor.lsp)
 
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -26,7 +26,7 @@ import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
-import io.github.rosemoe.sora.widget.component.TextActionItem
+import io.github.rosemoe.sora.widget.component.EditorTextActionWindow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -72,6 +72,8 @@ class Editor : CodeEditor {
 
     private var defaultColorProvider: DefaultColorProvider? = null
 
+    private var xedTextActionWindow: XedTextActionWindow? = null
+
     init {
         applyFont()
         applySettings()
@@ -83,6 +85,11 @@ class Editor : CodeEditor {
             ColorInlayHintRenderer.DefaultInstance,
         )
         defaultColorProvider = DefaultColorProvider(this)
+
+        XedTextActionWindow(this).also { window ->
+            xedTextActionWindow = window
+            replaceComponent(EditorTextActionWindow::class.java, window)
+        }
     }
 
     fun setThemeColors(
@@ -343,7 +350,7 @@ class Editor : CodeEditor {
      * @param item The text action item instance to register.
      */
     fun registerTextAction(item: TextActionItem) {
-        textActionWindow.registerTextAction(item)
+        xedTextActionWindow?.registerTextAction(item)
     }
 
     /**
@@ -352,7 +359,7 @@ class Editor : CodeEditor {
      * @param item The text action item instance to unregister.
      */
     fun unregisterTextAction(item: TextActionItem) {
-        textActionWindow.unregisterTextAction(item)
+        xedTextActionWindow?.unregisterTextAction(item)
     }
 
     /**

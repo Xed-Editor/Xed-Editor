@@ -306,14 +306,12 @@ class LspConnector(
                             }
                         }
 
-                        override fun onLogMessage(messageParams: MessageParams?) {
-                            if (messageParams == null) return
+                        override fun onLogMessage(messageParams: MessageParams) {
                             logInfo(messageParams.message)
                             instance.addLog(messageParams)
                         }
 
-                        override fun onShowMessage(messageParams: MessageParams?) {
-                            if (messageParams == null) return
+                        override fun onShowMessage(messageParams: MessageParams) {
                             instance.addLog(messageParams)
                             when (messageParams.type) {
                                 MessageType.Error -> errorDialog(msg = messageParams.message)

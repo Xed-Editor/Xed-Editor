@@ -24,9 +24,17 @@ dependencyResolutionManagement {
     }
 }
 
-val soraX = file("soraX")
+include(":app", ":core:main", ":core:components", ":core:resources")
 
-if (!soraX.exists() || soraX.listFiles()?.isEmpty() != false) {
+include(":features:terminal", ":features:extensions", ":features:runner", ":features:git")
+
+include(":baselineprofile", ":benchmark", ":benchmark2")
+include(":features:terminal:proot")
+include(":features:terminal:link2symlink")
+include(":features:terminal:xed-cli")
+
+
+if (!file("soraX/settings.gradle.kts").exists()) {
     throw GradleException(
         """
         The 'soraX' submodule is missing or empty.
@@ -38,21 +46,27 @@ if (!soraX.exists() || soraX.listFiles()?.isEmpty() != false) {
     )
 }
 
-include(":app", ":core:main", ":core:components", ":core:resources")
+// The included soraX build is a standalone Gradle build, so it needs the SDK path in
+// its own local.properties. Mirror the one from this project automatically.
+if (!file("soraX/local.properties").exists()) {
+    val parentProps = file("local.properties")
+    if (parentProps.exists()) {
+        try {
+            parentProps.copyTo(file("soraX/local.properties"))
+        } catch (ignored: Exception) {
+            // fall back to ANDROID_HOME / ANDROID_SDK_ROOT when copying is not possible
+        }
+    }
+}
 
-include(":features:terminal", ":features:extensions", ":features:runner", ":features:git")
-
-include(":editor", ":oniguruma-native", ":editor-lsp", ":language-textmate")
-
-project(":editor").projectDir = file("soraX/editor")
-
-project(":oniguruma-native").projectDir = file("soraX/oniguruma-native")
-
-project(":editor-lsp").projectDir = file("soraX/editor-lsp")
-
-project(":language-textmate").projectDir = file("soraX/language-textmate")
-
-include(":baselineprofile", ":benchmark", ":benchmark2")
-include(":features:terminal:proot")
-include(":features:terminal:link2symlink")
-include(":features:terminal:xed-cli")
+includeBuild("soraX") {
+    dependencySubstitution {
+        // The "soraX:<module>" coordinates are placeholders (see libs.versions.toml).
+        // They are never published or resolved from a repository - every Xed build
+        // compiles these modules directly from the soraX submodule instead.
+        substitute(module("soraX:editor")).using(project(":editor"))
+        substitute(module("soraX:editor-lsp")).using(project(":editor-lsp"))
+        substitute(module("soraX:language-textmate")).using(project(":language-textmate"))
+        substitute(module("soraX:oniguruma-native")).using(project(":oniguruma-native"))
+    }
+}

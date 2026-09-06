@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.session.EditorManager
+import com.rk.editor.TextActionItem
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.sandboxDir
@@ -12,6 +13,7 @@ import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.file.toFileWrapper
 import com.rk.resources.drawables
+import com.rk.resources.getDrawable
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.search.CodeItem
@@ -24,7 +26,6 @@ import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import io.github.rosemoe.sora.lsp.events.format.rangeFormatting
-import io.github.rosemoe.sora.widget.component.TextActionItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -332,8 +333,8 @@ fun createLspTextActions(
 
     val goToDefinition =
         TextActionItem(
-            titleRes = strings.go_to_definition,
-            iconRes = drawables.jump_to_element,
+            title = strings.go_to_definition.getString(context),
+            icon = drawables.jump_to_element.getDrawable(context)!!,
             shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToDefinitionSupported() == true },
         ) { _ ->
             goToDefinition(scope, context, viewModel, editorTab)
@@ -341,8 +342,8 @@ fun createLspTextActions(
 
     val goToReferences =
         TextActionItem(
-            titleRes = strings.go_to_references,
-            iconRes = drawables.manage_search,
+            title = strings.go_to_references.getString(context),
+            icon = drawables.manage_search.getDrawable(context)!!,
             shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToReferencesSupported() == true },
         ) { _ ->
             goToReferences(scope, context, viewModel, editorTab)
@@ -350,8 +351,8 @@ fun createLspTextActions(
 
     val renameSymbol =
         TextActionItem(
-            titleRes = strings.rename_symbol,
-            iconRes = drawables.edit_note,
+            title = strings.rename_symbol.getString(context),
+            icon = drawables.edit_note.getDrawable(context)!!,
             shouldShow = { editor ->
                 !isUrlSelected() && editor.isEditable && editorTab.lspConnector?.isRenameSymbolSupported() == true
             },
