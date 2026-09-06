@@ -702,7 +702,7 @@
     <string name="record_rpc_traffic">記錄 RPC 通訊</string>
     <string name="record_rpc_traffic_desc">記錄語言伺服器的 RPC 通訊以供除錯</string>
     <string name="lsp_log_limit">LSP 日誌上限</string>
-    <string name="lsp_log_limit_desc">達到上限時會自動移除較舊的日誌，以避免過度占用記憶體</string>
+    <string name="log_limit_desc">達到上限時會自動移除較舊的日誌，以避免過度占用記憶體</string>
     <string name="unsupported_architecture">此擴充功能不支援你的裝置架構。</string>
     <string name="view">檢視</string>
     <string name="ext_recommendations_msg">你可能也會對這些推薦的擴充功能感興趣。</string>

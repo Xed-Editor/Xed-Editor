@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import com.rk.DefaultScope
+import com.rk.activities.main.MainActivity
 import com.rk.events.EditorTabEvent
 import com.rk.events.Events
 import com.rk.events.TabEvent
+import com.rk.filetree.FileTreeTab
 import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.launch
@@ -26,6 +28,12 @@ class TabManager {
         get() = _tabs.getOrNull(currentTabIndex)
 
     fun addTab(tab: Tab, switchToTab: Boolean, checkDuplicate: Boolean = true) {
+        if (tab.scopeRoot == null) {
+            val drawerViewModel = MainActivity.instance?.drawerViewModel
+            val currentFileTreeTab = drawerViewModel?.currentDrawerTab as? FileTreeTab
+            tab.scopeRoot = currentFileTreeTab?.root
+        }
+
         val duplicateIndex =
             if (checkDuplicate) {
                 _tabs.indexOfFirst { it == tab }
@@ -132,20 +140,21 @@ class TabManager {
         }
     }
 
-    fun removeOtherTabs() {
-        val tabToKeep = currentTab ?: return
-
-        _tabs.forEach { if (it != tabToKeep) it.onTabRemoved() }
-        _tabs.removeAll { it != tabToKeep }
-        selectionHistory.clear()
-        selectionHistory.add(tabToKeep)
-        currentTabIndex = 0
+    fun removeOtherTabs(tabToKeep: Tab, scope: List<Tab> = _tabs.toList()) {
+        scope
+            .filter { it != tabToKeep }
+            .forEach {
+                it.onTabRemoved()
+                selectionHistory.remove(it)
+                removeTab(it)
+            }
     }
 
-    fun removeAllTabs() {
-        _tabs.forEach { it.onTabRemoved() }
-        _tabs.clear()
-        selectionHistory.clear()
-        currentTabIndex = 0
+    fun removeAllTabs(scope: List<Tab> = _tabs.toList()) {
+        scope.forEach {
+            it.onTabRemoved()
+            selectionHistory.remove(it)
+            removeTab(it)
+        }
     }
 }

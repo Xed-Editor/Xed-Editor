@@ -16,6 +16,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.rk.utils.okHttpClient
+import com.rk.utils.logError
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
@@ -56,7 +57,7 @@ object UpdateChecker {
                     parseJson(jsonResponse)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
             } finally {
                 Settings.last_update_check_timestamp = System.currentTimeMillis()
             }

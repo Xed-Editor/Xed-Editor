@@ -16,6 +16,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.utils.logError
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -249,7 +250,7 @@ class SessionService : Service() {
             val notification = createNotification()
             notificationManager.notify(1, notification)
         }
-            .onFailure { it.printStackTrace() }
+            .onFailure { logError(it) }
     }
 
     private fun getNotificationContentText(wakelock: Boolean): String {

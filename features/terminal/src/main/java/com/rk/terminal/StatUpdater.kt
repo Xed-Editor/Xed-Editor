@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.SystemClock
 import com.rk.file.child
 import com.rk.file.localDir
+import com.rk.utils.logError
 import kotlinx.coroutines.*
 import java.io.File
 import kotlin.random.Random
@@ -179,7 +180,7 @@ object StatUpdater {
                     }
                     vmstatFile.writeText(vmstatBuilder.toString())
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logError(e)
                 }
 
                 delay(1000.milliseconds)
@@ -227,7 +228,7 @@ object StatUpdater {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
         }
 
         // Fallback to /proc/self/stat if full scanning is unavailable
@@ -247,7 +248,7 @@ object StatUpdater {
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
             }
         }
         return Pair(userTicks, systemTicks)

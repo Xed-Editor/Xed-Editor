@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.filetree.getAppropriateName
@@ -43,6 +44,7 @@ import com.rk.resources.strings
 import com.rk.utils.timeAgo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun LspInstanceCard(instance: LspServerInstance, navController: NavHostController) {
@@ -85,12 +87,20 @@ fun LspInstanceCard(instance: LspServerInstance, navController: NavHostControlle
                 style = MaterialTheme.typography.bodyMedium,
                 color = instance.getStatusColor() ?: MaterialTheme.colorScheme.onSurface,
             )
+            val errorCount = instance.errorCount.collectAsStateWithLifecycle().value
+            if (errorCount > 0) {
+                Text(
+                    text = stringResource(strings.issue_count).fillPlaceholders(errorCount),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
 
             var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
             LaunchedEffect(Unit) {
                 while (true) {
-                    delay(1000)
+                    delay(1000.milliseconds)
                     now = System.currentTimeMillis()
                 }
             }
@@ -124,9 +134,9 @@ fun LspInstanceCard(instance: LspServerInstance, navController: NavHostControlle
                 }
 
                 val isRunning =
-                    instance.status.value != LspConnectionStatus.NOT_RUNNING &&
-                        instance.status.value != LspConnectionStatus.CRASHED &&
-                        instance.status.value != LspConnectionStatus.TIMEOUT
+                    instance.status.collectAsStateWithLifecycle().value != LspConnectionStatus.NOT_RUNNING &&
+                        instance.status.collectAsStateWithLifecycle().value != LspConnectionStatus.CRASHED &&
+                        instance.status.collectAsStateWithLifecycle().value != LspConnectionStatus.TIMEOUT
                 if (isRunning) {
                     IconButton(onClick = { scope.launch { instance.restart() } }) {
                         Icon(

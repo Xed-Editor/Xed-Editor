@@ -62,7 +62,7 @@ object ShellBasedRunners {
             if (file.exists()) {
                 val content = file.readText()
                 val type = object : TypeToken<List<ShellBasedRunner>>() {}.type
-                _runners.value = Gson().fromJson<List<ShellBasedRunner>>(content, type)
+                _runners.value = Gson().fromJson(content, type)
             }
         }
     }
@@ -77,7 +77,7 @@ data class ShellBasedRunner(override val label: String, val regex: String) : Fil
     }
 
     override suspend fun run(activity: Activity, fileObject: FileObject) {
-        val script = runnerDir().child("${label}.sh").createFileIfNot()
+        val script = runnerDir().child("$label.sh").createFileIfNot()
         TerminalLauncher.launch(
             activity = activity,
             exe = "/bin/bash",

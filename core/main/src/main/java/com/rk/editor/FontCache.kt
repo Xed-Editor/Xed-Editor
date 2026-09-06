@@ -3,6 +3,7 @@ package com.rk.editor
 import android.content.Context
 import android.graphics.Typeface
 import androidx.compose.ui.text.font.Font
+import com.rk.utils.logError
 import java.io.File
 
 object FontCache {
@@ -12,7 +13,7 @@ object FontCache {
 
     fun loadFont(context: Context, path: String, isAsset: Boolean) {
         if (cachedFonts.containsKey(path)) return
-        doLoadFont(context, path, isAsset).onFailure { it.printStackTrace() }
+        doLoadFont(context, path, isAsset).onFailure { logError(it) }
     }
 
     private fun doLoadFont(context: Context, path: String, isAsset: Boolean) = runCatching {
@@ -41,7 +42,7 @@ object FontCache {
             doLoadFont(context, path, isAsset)
                 .fold(
                     onFailure = {
-                        it.printStackTrace()
+                        logError(it)
                         return null
                     },
                     onSuccess = {

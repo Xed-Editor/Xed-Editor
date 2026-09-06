@@ -144,6 +144,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(Settings.theme_mode)
         super.onCreate(savedInstanceState)
+        instance = this
 
         lifecycleScope.launch(Dispatchers.IO) {
             val db = DocumentStateDatabase.getDatabase(applicationContext)
@@ -151,7 +152,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         enableEdgeToEdge()
-        instance = this
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }

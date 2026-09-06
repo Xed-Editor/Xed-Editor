@@ -697,7 +697,7 @@
     <string name="record_rpc_traffic">Registra traffico RPC</string>
     <string name="record_rpc_traffic_desc">Registra le comunicazioni RPC dei language server per debug</string>
     <string name="lsp_log_limit">Limite registri LSP</string>
-    <string name="lsp_log_limit_desc">I registri meno recenti vengono automaticamente rimossi quando raggiungono il limite per evitare un utilizzo eccessivo della memoria</string>
+    <string name="log_limit_desc">I registri meno recenti vengono automaticamente rimossi quando raggiungono il limite per evitare un utilizzo eccessivo della memoria</string>
     <string name="update_date">Aggiorna data</string>
     <string name="enable_logcat">Abilita logcat</string>
     <string name="enable_logcat_desc">Esegui logcat e stampa i log nella schermata dei log</string>

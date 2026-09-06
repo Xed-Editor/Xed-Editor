@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +28,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.session.DocumentState
@@ -70,6 +70,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.ec4j.core.Cache.Caches
 import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.Resource
@@ -81,11 +82,13 @@ import java.nio.charset.Charset
 import java.nio.file.Paths
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(DelicateCoroutinesApi::class)
 open class EditorTab(
     override var file: FileObject?,
-    var projectRoot: FileObject?,
+    override var projectRoot: FileObject?,
+    override var scopeRoot: FileObject? = null,
     val viewModel: MainViewModel,
     isReadOnly: Boolean = false,
     private val customTitle: String? = null,
@@ -128,8 +131,10 @@ open class EditorTab(
         autoSaveJob?.cancel()
         scope.cancel()
         editorState.content = null
-        editorState.editor.get()?.setText("")
-        editorState.editor.get()?.release()
+        editorState.editor.get()?.apply {
+            setText("")
+            release()
+        }
         GlobalScope.launch(Dispatchers.IO) { lspConnector?.disconnect() }
     }
 
@@ -405,8 +410,10 @@ open class EditorTab(
 
             registerTask(FORMAT_DOCUMENT_TASK_ID)
             editor.formatCodeAsync()
-
-            deferred.await()
+            withTimeoutOrNull(10.seconds) {
+                deferred.await()
+            }
+            unregisterTask(FORMAT_DOCUMENT_TASK_ID)
         }
 
         if (isTemp) {
@@ -635,6 +642,7 @@ open class EditorTab(
         return EditorTabState(
             fileObject = file,
             projectRoot = projectRoot,
+            scopeRoot = scopeRoot,
             content =
                 when {
                     file == null -> editor.text.toString()

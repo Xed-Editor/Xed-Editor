@@ -695,7 +695,7 @@
     <string name="record_rpc_traffic">RPC trafiğini kaydet</string>
     <string name="record_rpc_traffic_desc">Hata ayıklama için dil sunucularının RPC iletişimini günlüğe kaydet</string>
     <string name="lsp_log_limit">LSP log limiti</string>
-    <string name="lsp_log_limit_desc">Sınıra ulaşıldığında, yüksek bellek kullanımını önlemek için eski günlükler otomatik olarak silinir</string>
+    <string name="log_limit_desc">Sınıra ulaşıldığında, yüksek bellek kullanımını önlemek için eski günlükler otomatik olarak silinir</string>
     <string name="update_date">Güncelleme tarihi</string>
     <string name="enable_logcat">Logcat\'i Etkinleştir</string>
     <string name="enable_logcat_desc">Logcat\'i çalıştır ve günlükleri günlükler ekranında yazdır</string>

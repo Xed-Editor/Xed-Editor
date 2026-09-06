@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,7 +34,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,11 +43,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
+import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
+import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.activities.main.MainActivity
 import com.rk.file.toFileObject
 import com.rk.filetree.ProjectCloseConfirmationDialog
@@ -58,6 +61,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.dialogRes
+import com.rk.utils.logError
 import kotlinx.coroutines.launch
 
 private fun validateValue(value: String): String? {
@@ -95,7 +99,7 @@ fun DrawerContent(fullscreen: Boolean) {
                             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                         )
                     }
-                        .onFailure { it.printStackTrace() }
+                        .onFailure { logError(it) }
 
                     scope.launch { viewModel.addFileTreeTab(it.toFileObject(expectedIsFile = false)) }
                 }
@@ -118,64 +122,106 @@ fun DrawerContent(fullscreen: Boolean) {
                     modifier = Modifier.width(61.dp),
                     windowInsets = if (fullscreen) WindowInsets() else NavigationRailDefaults.windowInsets,
                 ) {
-                    Column(modifier = Modifier.fillMaxHeight()) {
-                        LazyColumn(modifier = Modifier.weight(1f, fill = true), state = lazyListState) {
-                            items(items = drawerTabs) { tab ->
-                                if (!tab.isSupported()) return@items
-                                NavigationRailItem(
-                                    selected = currentDrawerTab == tab,
-                                    icon = { XedIcon(tab.getIcon()) },
-                                    onClick = {
-                                        if (currentDrawerTab == tab && currentServiceTab == null) {
-                                            closeProjectDialog = true
-                                        } else {
-                                            viewModel.selectDrawerTab(tab)
-                                        }
-                                    },
-                                    label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                                    colors =
-                                        NavigationRailItemDefaults.colors().let {
-                                            if (currentServiceTab == null) it
-                                            else
-                                                it.copy(
-                                                    selectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    selectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    selectedIndicatorColor =
-                                                        MaterialTheme.colorScheme.surfaceContainerHighest,
-                                                )
-                                        },
-                                    enabled = tab.isEnabled(),
-                                )
-                            }
+                    val reorderState = rememberReorderState<DrawerTab>(dragAfterLongPress = true)
 
-                            item {
-                                NavigationRailItem(
-                                    selected = false,
-                                    icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
-                                    onClick = { showAddDialog = true },
-                                    label = { Text(stringResource(strings.add)) },
+                    val drawerTabRailColors =
+                        NavigationRailItemDefaults.colors().let {
+                            if (currentServiceTab == null) it
+                            else
+                                it.copy(
+                                    selectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    selectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    selectedIndicatorColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                                 )
-                            }
                         }
 
-                        if (showHorizontalDivider) HorizontalDivider()
+                    ReorderContainer(state = reorderState) {
+                        Column(modifier = Modifier.fillMaxHeight()) {
+                            LazyColumn(modifier = Modifier.weight(1f, fill = true), state = lazyListState) {
+                                items(items = drawerTabs, key = { it.hashCode() }) { tab ->
+                                    if (!tab.isSupported()) return@items
 
-                        Column(modifier = Modifier.wrapContentHeight().padding(vertical = 8.dp)) {
-                            serviceTabs.forEach { tab ->
-                                if (!tab.isSupported()) return@forEach
-                                NavigationRailItem(
-                                    selected = currentServiceTab == tab,
-                                    icon = { XedIcon(icon = tab.getIcon()) },
-                                    onClick = {
-                                        if (currentServiceTab == tab) {
-                                            viewModel.unselectServiceTab()
-                                        } else {
-                                            viewModel.selectServiceTab(tab)
-                                        }
-                                    },
-                                    label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                                    enabled = tab.isEnabled(),
-                                )
+                                    ReorderableItem(
+                                        state = reorderState,
+                                        key = tab.hashCode(),
+                                        data = tab,
+                                        onDragEnter = { state ->
+                                            val fromIndex = drawerTabs.indexOf(state.data)
+                                            val toIndex = drawerTabs.indexOf(tab)
+                                            if (fromIndex != -1 && toIndex != -1) {
+                                                viewModel.moveDrawerTab(fromIndex, toIndex)
+                                            }
+                                        },
+                                        draggableContent = {
+                                            NavigationRailItem(
+                                                modifier = Modifier.alpha(0.6f),
+                                                selected = currentDrawerTab == tab,
+                                                icon = { XedIcon(tab.getIcon()) },
+                                                onClick = {
+                                                    if (currentDrawerTab == tab && currentServiceTab == null) {
+                                                        closeProjectDialog = true
+                                                    } else {
+                                                        viewModel.selectDrawerTab(tab)
+                                                    }
+                                                },
+                                                label = {
+                                                    Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                                },
+                                                colors = drawerTabRailColors,
+                                                enabled = tab.isEnabled(),
+                                            )
+                                        },
+                                    ) {
+                                        NavigationRailItem(
+                                            selected = currentDrawerTab == tab,
+                                            icon = { XedIcon(tab.getIcon()) },
+                                            onClick = {
+                                                if (currentDrawerTab == tab && currentServiceTab == null) {
+                                                    closeProjectDialog = true
+                                                } else {
+                                                    viewModel.selectDrawerTab(tab)
+                                                }
+                                            },
+                                            label = {
+                                                Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            },
+                                            colors = drawerTabRailColors,
+                                            enabled = tab.isEnabled(),
+                                        )
+                                    }
+                                }
+
+                                item {
+                                    NavigationRailItem(
+                                        selected = false,
+                                        icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
+                                        onClick = { showAddDialog = true },
+                                        label = { Text(stringResource(strings.add)) },
+                                    )
+                                }
+                            }
+
+                            if (showHorizontalDivider) HorizontalDivider()
+
+                            Column(modifier = Modifier.wrapContentHeight().padding(vertical = 8.dp)) {
+                                serviceTabs.forEach { tab ->
+                                    if (!tab.isSupported()) return@forEach
+                                    NavigationRailItem(
+                                        selected = currentServiceTab == tab,
+                                        icon = { XedIcon(icon = tab.getIcon()) },
+                                        onClick = {
+                                            if (currentServiceTab == tab) {
+                                                viewModel.unselectServiceTab()
+                                            } else {
+                                                viewModel.selectServiceTab(tab)
+                                            }
+                                        },
+                                        label = {
+                                            Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                        },
+                                        enabled = tab.isEnabled(),
+                                    )
+                                }
                             }
                         }
                     }
@@ -198,7 +244,6 @@ fun DrawerContent(fullscreen: Boolean) {
                                         painter = painterResource(drawables.outline_folder),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier.size(36.dp),
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(

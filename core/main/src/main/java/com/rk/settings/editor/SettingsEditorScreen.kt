@@ -454,6 +454,13 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { Settings.smooth_tabs = it },
             )
 
+            SettingsItem(
+                label = stringResource(id = strings.scoped_tabs),
+                description = stringResource(id = strings.scoped_tabs_desc),
+                default = Settings.scoped_tabs,
+                sideEffect = { Settings.scoped_tabs = it },
+            )
+
             EditorSettingsItem(
                 label = stringResource(id = strings.show_tab_icons),
                 description = stringResource(id = strings.show_tab_icons_desc),

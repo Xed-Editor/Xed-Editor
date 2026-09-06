@@ -53,7 +53,7 @@ fun ExtraKeys(editorTab: EditorTab) {
             enabled = command.isEnabled() && command.isSupported(),
             repeatOnHold = command.repeatOnHold,
             onLongClick = { command.onLongClick(ActionContext(MainActivity.instance!!)) },
-            onClick = { command.performCommand(ActionContext(MainActivity.instance!!)) },
+            onClick = { command.perform(ActionContext(MainActivity.instance!!)) },
         )
     }
 

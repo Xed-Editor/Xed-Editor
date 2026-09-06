@@ -15,6 +15,9 @@ import com.rk.DefaultScope
 import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.resources.getString
 import com.rk.utils.application
+import com.rk.utils.logDebug
+import com.rk.utils.logError
+import com.rk.utils.logInfo
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,6 +57,7 @@ class FileManager(private val activity: ComponentActivity) {
     }
 
     fun requestOpenFile(mimeType: String = "*/*", callback: (Uri?) -> Unit) {
+        logDebug("Requesting to open file with mimeType: $mimeType")
         Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = mimeType
@@ -68,19 +72,21 @@ class FileManager(private val activity: ComponentActivity) {
     }
 
     fun requestOpenDirectory(callback: (Uri?) -> Unit) {
+        logDebug("Requesting to open directory")
         launchDirectoryPicker { uri ->
             uri?.let {
                 runCatching {
                     val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     activity.contentResolver.takePersistableUriPermission(it, takeFlags)
                 }
-                    .onFailure { e -> e.printStackTrace() }
+                    .onFailure { e -> logError(e) }
             }
             callback(uri)
         }
     }
 
     fun createNewFile(mimeType: String, title: String, callback: (FileObject?) -> Unit = {}) {
+        logInfo("Creating new file: $title (mimeType: $mimeType)")
         launchActivityForResult(
             Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 type = mimeType
@@ -103,6 +109,7 @@ class FileManager(private val activity: ComponentActivity) {
     var parentFile: FileObject? = null
 
     fun requestAddFile(parent: FileObject, callback: (FileObject?) -> Unit = {}) {
+        logInfo("Requesting to add file to parent: ${parent.getName()}")
         parentFile = parent
         launchActivityForResult(
             Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -137,7 +144,7 @@ class FileManager(private val activity: ComponentActivity) {
                         }
                     } ?: run { withContext(Dispatchers.Main) { callback(null) } }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logError(e)
                     withContext(Dispatchers.Main) { callback(null) }
                 } finally {
                     parentFile = null
@@ -165,7 +172,7 @@ class FileManager(private val activity: ComponentActivity) {
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
                 callback(null)
             }
         }
@@ -190,7 +197,7 @@ class FileManager(private val activity: ComponentActivity) {
                                     } ?: callback(false)
                                 }
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                logError(e)
                                 callback(false)
                             }
                         }
@@ -217,7 +224,7 @@ class FileManager(private val activity: ComponentActivity) {
                             } ?: callback(false)
                         }
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        logError(e)
                         callback(false)
                     }
                 }

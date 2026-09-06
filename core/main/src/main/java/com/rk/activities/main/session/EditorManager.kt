@@ -25,6 +25,7 @@ class EditorManager(private val viewModel: MainViewModel) {
     fun createEditorTab(
         file: FileObject?,
         projectRoot: FileObject? = null,
+        scopeRoot: FileObject? = null, // If null, it will be automatically determined
         isReadOnly: Boolean = false,
         customTitle: String? = null,
         fallbackExtension: String = "txt",
@@ -33,6 +34,7 @@ class EditorManager(private val viewModel: MainViewModel) {
         return EditorTab(
             file = file,
             projectRoot = projectRoot,
+            scopeRoot = scopeRoot,
             viewModel = viewModel,
             isReadOnly = isReadOnly,
             customTitle = customTitle,
@@ -44,6 +46,7 @@ class EditorManager(private val viewModel: MainViewModel) {
     fun addEditorTab(
         file: FileObject?,
         projectRoot: FileObject? = null,
+        scopeRoot: FileObject? = null, // If null, it will be automatically determined
         switchToTab: Boolean = true,
         checkDuplicate: Boolean = true,
         isReadOnly: Boolean = false,
@@ -51,13 +54,15 @@ class EditorManager(private val viewModel: MainViewModel) {
         fallbackExtension: String = "txt",
         initialContent: String? = null,
     ) {
-        val editorTab = createEditorTab(file, projectRoot, isReadOnly, customTitle, fallbackExtension, initialContent)
+        val editorTab =
+            createEditorTab(file, projectRoot, scopeRoot, isReadOnly, customTitle, fallbackExtension, initialContent)
         viewModel.tabManager.addTab(editorTab, switchToTab, checkDuplicate)
     }
 
     suspend fun jumpToPosition(
         file: FileObject,
         projectRoot: FileObject? = null,
+        scopeRoot: FileObject? = null, // If null, it will be automatically determined
         lineStart: Int,
         charStart: Int,
         lineEnd: Int,
@@ -65,7 +70,13 @@ class EditorManager(private val viewModel: MainViewModel) {
         isReadOnly: Boolean = false,
     ) {
         withContext(Dispatchers.Main) {
-            openFile(file, projectRoot = projectRoot, switchToTab = true, isReadOnly = isReadOnly)
+            openFile(
+                file,
+                projectRoot = projectRoot,
+                scopeRoot = scopeRoot,
+                switchToTab = true,
+                isReadOnly = isReadOnly,
+            )
         }
 
         val targetTab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file == file } ?: return
@@ -85,6 +96,7 @@ class EditorManager(private val viewModel: MainViewModel) {
     suspend fun openFile(
         fileObject: FileObject,
         projectRoot: FileObject? = null,
+        scopeRoot: FileObject? = null, // If null, it will be automatically determined
         switchToTab: Boolean = true,
         checkDuplicate: Boolean = true,
         isReadOnly: Boolean = false,
@@ -93,7 +105,7 @@ class EditorManager(private val viewModel: MainViewModel) {
         if (IntentHandleRegistry.handleIntent(fileObject)) return
 
         val function = suspend {
-            val tab = TabRegistry.getTab(fileObject, projectRoot, viewModel, isReadOnly, customTitle)
+            val tab = TabRegistry.getTab(fileObject, projectRoot, scopeRoot, viewModel, isReadOnly, customTitle)
             withContext(Dispatchers.Main) { viewModel.tabManager.addTab(tab, switchToTab, checkDuplicate) }
         }
 

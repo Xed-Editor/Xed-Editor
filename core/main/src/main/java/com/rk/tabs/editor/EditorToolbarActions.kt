@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.DropdownMenu
-import com.rk.components.XedDropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -36,6 +35,7 @@ import com.rk.commands.ActionContext
 import com.rk.commands.KeybindingsManager
 import com.rk.commands.ToggleableCommand
 import com.rk.commands.ToolbarConfiguration
+import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.holdable
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
@@ -84,12 +84,13 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
                 IconButton(
                     onClick = { /* Handled by holdable modifier */ },
                     modifier =
-                        Modifier.size(48.dp).holdable(
-                            enabled = command.isEnabled(),
-                            repeatOnHold = command.repeatOnHold,
-                            onLongClick = { command.onLongClick(ActionContext(activity!!)) },
-                            onClick = { command.performCommand(ActionContext(activity!!)) },
-                        ),
+                        Modifier.size(48.dp)
+                            .holdable(
+                                enabled = command.isEnabled(),
+                                repeatOnHold = command.repeatOnHold,
+                                onLongClick = { command.onLongClick(ActionContext(activity!!)) },
+                                onClick = { command.perform(ActionContext(activity!!)) },
+                            ),
                     enabled = command.isEnabled(),
                     colors =
                         IconButtonDefaults.iconButtonColors().let {
@@ -119,32 +120,32 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
                             val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command)
                             val displayKeyCombination = keyCombination?.getDisplayName()
 
-                             XedDropdownMenuItem(
-                                 enabled = command.isEnabled(),
-                                 text = {
-                                     Text(
-                                         text = command.getLabel(),
-                                         color =
-                                             if (command is ToggleableCommand && command.isOn()) {
-                                                 MaterialTheme.colorScheme.primary
-                                             } else {
-                                                 Color.Unspecified
-                                             },
-                                     )
-                                 },
-                                 onClick = {
-                                     command.performCommand(ActionContext(activity!!))
-                                     expanded = false
-                                 },
-                                 leadingIcon = {
-                                     XedIcon(
-                                         command.getIcon(),
-                                         contentDescription = command.getLabel(),
-                                         tint =
-                                             if (command is ToggleableCommand && command.isOn()) {
-                                                 MaterialTheme.colorScheme.primary
-                                             } else LocalContentColor.current,
-                                     )
+                            XedDropdownMenuItem(
+                                enabled = command.isEnabled(),
+                                text = {
+                                    Text(
+                                        text = command.getLabel(),
+                                        color =
+                                            if (command is ToggleableCommand && command.isOn()) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                Color.Unspecified
+                                            },
+                                    )
+                                },
+                                onClick = {
+                                    command.perform(ActionContext(activity!!))
+                                    expanded = false
+                                },
+                                leadingIcon = {
+                                    XedIcon(
+                                        command.getIcon(),
+                                        contentDescription = command.getLabel(),
+                                        tint =
+                                            if (command is ToggleableCommand && command.isOn()) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else LocalContentColor.current,
+                                    )
                                 },
                                 trailingIcon =
                                     displayKeyCombination?.let {

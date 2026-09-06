@@ -7,10 +7,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.App
 import com.rk.App.Companion.themeManager
 import com.rk.DefaultScope
@@ -33,9 +32,10 @@ import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.model.Package
 import com.rk.file.child
-import com.rk.file.copyToTempDir
 import com.rk.file.themeDir
 import com.rk.file.toFileObject
+import com.rk.filetree.isXedPackage
+import com.rk.filetree.isZip
 import com.rk.icons.pack.UpdatableIconPack
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
@@ -47,14 +47,15 @@ import com.rk.utils.LoadingPopup
 import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
+import com.rk.utils.logError
 import com.rk.utils.toast
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
-import java.io.File
 
 fun getMissingDependencies(extension: Extension): List<ExtensionId> {
     val missing = linkedSetOf<ExtensionId>()
@@ -226,7 +227,7 @@ suspend fun installExtensionSequentially(
                 withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
             errorMsg = e.message ?: strings.unknown_err.getString()
             withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
         } finally {
@@ -345,7 +346,7 @@ fun runExtensionUpdateAction(
                 withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
             errorMsg = e.message ?: strings.unknown_err.getString()
             withContext(Dispatchers.Main) { errorDialog(activity, msg = errorMsg) }
         } finally {
@@ -419,7 +420,7 @@ fun runThemeInstallAction(
                 errorMsg = "Download failed"
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
             errorMsg = e.message ?: strings.unknown_err.getString()
         } finally {
             if (tempFile.exists()) {
@@ -490,7 +491,7 @@ fun runIconPackInstallAction(
                 errorMsg = "Download failed"
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
             errorMsg = e.message ?: strings.unknown_err.getString()
         } finally {
             if (tempFile.exists()) {
@@ -549,39 +550,45 @@ fun runPackageUninstallAction(
     scope: CoroutineScope,
     activity: AppCompatActivity?,
 ) {
-    if (pkg.type == PackageType.EXTENSION) {
-        runExtensionUninstallAction(pkg as Extension, updateInstallState, scope, activity)
-    } else if (pkg.type == PackageType.THEME) {
-        dialogRes(
-            activity = activity,
-            title = strings.uninstall_theme_dialog.getString(),
-            msg = strings.uninstall_theme_dialog_desc.getFilledString(pkg.name),
-            okRes = strings.uninstall,
-            onOk = {
-                scope.launch(Dispatchers.IO) {
-                    themeDir().child(pkg.id).deleteRecursively()
-                    withContext(Dispatchers.Main) {
-                        themeManager.removeLocalTheme(pkg.id)
-                        updateInstallState(InstallState.Idle)
+    when (pkg.type) {
+        PackageType.EXTENSION -> {
+            runExtensionUninstallAction(pkg as Extension, updateInstallState, scope, activity)
+        }
+        PackageType.THEME -> {
+            dialogRes(
+                activity = activity,
+                title = strings.uninstall_theme_dialog.getString(),
+                msg = strings.uninstall_theme_dialog_desc.getFilledString(pkg.name),
+                okRes = strings.uninstall,
+                onOk = {
+                    scope.launch(Dispatchers.IO) {
+                        themeDir().child(pkg.id).deleteRecursively()
+                        withContext(Dispatchers.Main) {
+                            themeManager.removeLocalTheme(pkg.id)
+                            updateInstallState(InstallState.Idle)
+                        }
                     }
-                }
-            },
-        )
-    } else if (pkg.type == PackageType.ICON_PACK) {
-        dialogRes(
-            activity = activity,
-            title = strings.uninstall_icon_pack_dialog.getString(),
-            msg = strings.uninstall_icon_pack_dialog_desc.getFilledString(pkg.name),
-            okRes = strings.uninstall,
-            onOk = {
-                scope.launch(Dispatchers.IO) {
-                    App.iconPackManager.uninstallIconPack(pkg.id)
-                    withContext(Dispatchers.Main) {
-                        updateInstallState(InstallState.Idle)
+                },
+                onCancel = {},
+            )
+        }
+        PackageType.ICON_PACK -> {
+            dialogRes(
+                activity = activity,
+                title = strings.uninstall_icon_pack_dialog.getString(),
+                msg = strings.uninstall_icon_pack_dialog_desc.getFilledString(pkg.name),
+                okRes = strings.uninstall,
+                onOk = {
+                    scope.launch(Dispatchers.IO) {
+                        App.iconPackManager.uninstallIconPack(pkg.id)
+                        withContext(Dispatchers.Main) {
+                            updateInstallState(InstallState.Idle)
+                        }
                     }
-                }
-            },
-        )
+                },
+                onCancel = {},
+            )
+        }
     }
 }
 
@@ -625,17 +632,22 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
             }
 
             if (fileObject.getExtension().lowercase() == "json") {
-                dialogRes(activity = activity, title = strings.attention.getString(application!!), msg = strings.theme_format_changed.getString(
-                    application!!
-                ))
+                errorDialog(
+                    activity = activity,
+                    title = strings.attention.getString(),
+                    msg = strings.theme_format_error.getString(),
+                )
                 return@launch
             }
 
-            //refuse everything else
-            if (fileObject.getExtension().lowercase() != "xed") {
-                dialogRes(activity = activity, title = strings.attention.getString(application!!), msg = strings.unknown_package.getString(
-                    application!!
-                ))
+            if (
+                !fileObject.isXedPackage() && !fileObject.isZip() && fileObject.getExtension().lowercase() != "iconpack"
+            ) {
+                errorDialog(
+                    activity = activity,
+                    title = strings.attention.getString(),
+                    msg = strings.package_format_error.getString(),
+                )
                 return@launch
             }
 
@@ -676,7 +688,7 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                     }
                     null -> {
                         withContext(Dispatchers.Main) {
-                            errorDialog(activity, msg = strings.unknown_package.getString())
+                            errorDialog(activity, msg = strings.unknown_package_format.getString())
                         }
                     }
                 }
@@ -684,12 +696,13 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 tempDir.deleteRecursively()
                 withContext(Dispatchers.Main) { loading?.hide() }
             }
-        }.onFailure { error ->
-            withContext(Dispatchers.Main) {
-                loading?.hide()
-                errorDialog(activity, error)
-            }
         }
+            .onFailure { error ->
+                withContext(Dispatchers.Main) {
+                    loading?.hide()
+                    errorDialog(activity, error)
+                }
+            }
     }
 }
 
@@ -759,8 +772,7 @@ fun rememberPackageInstallState(pkg: Package): InstallState {
         PackageType.ICON_PACK -> {
             if (App.iconPackManager.isInstalled(id)) {
                 val pack = App.iconPackManager.getIconPackPackage(id)
-                if (pack is UpdatableIconPack && pack.hasUpdate()) InstallState.Updatable
-                else InstallState.Installed
+                if (pack is UpdatableIconPack && pack.hasUpdate()) InstallState.Updatable else InstallState.Installed
             } else InstallState.Idle
         }
     }

@@ -22,7 +22,7 @@ object GitInitCommand : GlobalCommand() {
         return currentTab is FileTreeTab
     }
 
-    override fun action(context: ActionContext) {
+    override fun execute(context: ActionContext) {
         val drawerViewModel = commandContext.drawerViewModel
         val currentTab = drawerViewModel.currentDrawerTab as? FileTreeTab ?: return
         val rootPath = currentTab.root.getAbsolutePath()
