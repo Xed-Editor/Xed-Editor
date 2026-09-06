@@ -1,17 +1,17 @@
 package com.rk.editor
 
 import android.graphics.RectF
-import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import io.github.rosemoe.sora.R as SoraR
+import com.rk.utils.logWarn
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorTextActionWindow
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlin.math.min
+import io.github.rosemoe.sora.R as SoraR
 
 /**
  * Replaces the default [EditorTextActionWindow] via [CodeEditor.replaceComponent].
@@ -31,8 +31,7 @@ class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
     private val items by lazy { mutableListOf<Pair<TextActionItem, ImageButton>>() }
 
     private val rootRow: ViewGroup by lazy {
-        val root = getView()
-        val scroll = root.getChildAt(0) as ViewGroup
+        val scroll = view.getChildAt(0) as ViewGroup
         scroll.getChildAt(0) as ViewGroup
     }
 
@@ -46,8 +45,9 @@ class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
         if (items.any { it.first === item }) return
         val editor = getEditor()
         val btn = ImageButton(editor.context).apply {
-            setImageResource(item.iconRes)
-            contentDescription = editor.context.getString(item.titleRes)
+            //setImageResource(item.iconRes)
+            setImageDrawable(item.icon)
+            contentDescription = item.title
             val btnSize = (editor.dpUnit * 45).toInt()
             layoutParams = LinearLayout.LayoutParams(btnSize, btnSize)
             val value = TypedValue()
@@ -57,7 +57,7 @@ class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
                 try {
                     item.onClick(editor)
                 } catch (t: Throwable) {
-                    Log.w(TAG, "Text action failed", t)
+                    logWarn("Text action failed: \n ${t.stackTrace}")
                 }
                 dismiss()
             }
@@ -78,14 +78,13 @@ class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
     override fun applyColorScheme() {
         super.applyColorScheme()
         if (!initialized) return
-        val color = getEditor().colorScheme.getColor(EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR)
+        val color = editor.colorScheme.getColor(EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR)
         for ((_, btn) in items) {
             applyColorFilter(btn, color)
         }
     }
 
     override fun displayWindow() {
-        val editor = getEditor()
         updateDefaultButtonStates()
         updateExtraButtonStates()
 
@@ -124,13 +123,13 @@ class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
     }
 
     private fun computeWidth(): Int {
-        val root = getView()
+        val root = view
         root.measure(
             View.MeasureSpec.makeMeasureSpec(1000000, View.MeasureSpec.AT_MOST),
             View.MeasureSpec.makeMeasureSpec(100000, View.MeasureSpec.AT_MOST),
         )
         val content = root.measuredWidth
-        val maxWidth = (getEditor().width * 0.92f).toInt().coerceAtLeast(1)
+        val maxWidth = (editor.width * 0.92f).toInt().coerceAtLeast(1)
         return min(content, maxWidth)
     }
 
@@ -146,15 +145,11 @@ class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
     }
 
     private fun selectTop(rect: RectF, height: Int): Int {
-        val rowHeight = getEditor().rowHeight
+        val rowHeight = editor.rowHeight
         return if (rect.top - rowHeight * 3 / 2F > height) {
             (rect.top - rowHeight * 3 / 2 - height).toInt()
         } else {
             (rect.bottom + rowHeight / 2).toInt()
         }
-    }
-
-    private companion object {
-        const val TAG = "XedTextActionWindow"
     }
 }

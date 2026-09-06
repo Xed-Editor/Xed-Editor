@@ -41,6 +41,7 @@ import com.rk.lsp.LspRegistry
 import com.rk.lsp.LspServer
 import com.rk.lsp.createLspTextActions
 import com.rk.resources.drawables
+import com.rk.resources.getDrawable
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -153,8 +154,8 @@ fun Editor.registerXedFormatter(editorTab: EditorTab) {
 fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, editorTab: EditorTab) {
     registerTextAction(
         TextActionItem(
-            strings.open,
-            drawables.open_in_new,
+            strings.open.getString(context),
+            drawables.open_in_new.getDrawable(context)!!,
             shouldShow = { isUrlSelected() },
             onClick = {
                 val text = getSelectedText() ?: return@TextActionItem
