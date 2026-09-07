@@ -148,6 +148,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.semver)
     debugImplementation(libs.leakcanary)
+    implementation(libs.junit)
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
