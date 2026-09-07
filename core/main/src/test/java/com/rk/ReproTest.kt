@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class CoroutineReproTest {
 
-    // Update Kotlin version in D:/android/Xed-Editor/soraX/gradle/libs.versions.toml
+    // Update Kotlin version in /soraX/gradle/libs.versions.toml
     // to make the test pass without ClassCastException
     @Test
     fun myRepro() {
