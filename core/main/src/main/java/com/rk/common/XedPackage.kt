@@ -17,6 +17,10 @@ enum class PackageType {
 class PackageManifest(
     val type: PackageType? = null,
 
+    // Theme-specific
+    val light: JsonObject? = null,
+    val dark: JsonObject? = null,
+
     // Icon pack-specific
     val icons: JsonObject? = null,
 )
@@ -33,30 +37,35 @@ object XedPackage {
 
     fun detectPackageType(dir: File): PackageType? {
         val manifestFile = File(dir, "manifest.json")
-
-        if (manifestFile.exists()) {
-            val manifest = json.decodeFromString<PackageManifest>(manifestFile.readText())
-
-            // Explicit type takes precedence over guessing
-            manifest.type?.let {
-                return it
-            }
-
-            // Legacy formats
-            if (manifest.icons != null) {
-                return PackageType.ICON_PACK
-            }
-
-            val containsApk = dir.listFiles()?.any { it.extension == "apk" } ?: false
-            if (containsApk) {
-                return PackageType.EXTENSION
-            }
-        }
-
-        // Legacy theme-only packages ship theme.json without a manifest.json
         val themeFile = File(dir, "theme.json")
+
         if (themeFile.exists()) {
             return PackageType.THEME
+        }
+
+        if (!manifestFile.exists()) {
+            return null
+        }
+
+        val manifest = json.decodeFromString<PackageManifest>(manifestFile.readText())
+
+        // New manifest format
+        manifest.type?.let {
+            return it
+        }
+
+        // Legacy formats
+        if (manifest.icons != null) {
+            return PackageType.ICON_PACK
+        }
+
+        if (manifest.light != null || manifest.dark != null) {
+            return PackageType.THEME
+        }
+
+        val containsApk = dir.listFiles()?.any { it.extension == "apk" } ?: false
+        if (containsApk) {
+            return PackageType.EXTENSION
         }
 
         return null

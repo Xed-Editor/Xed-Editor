@@ -40,7 +40,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.io.File
 
 class ExtensionFeature : Feature {
@@ -102,7 +101,7 @@ class ExtensionFeature : Feature {
             DialogProvider {
                 MainActivity.instance?.let {
                     val viewModel = it.viewModel
-                    val pendingInstall = viewModel.pendingExtensionInstall.collectAsStateWithLifecycle().value ?: return@let
+                    val pendingInstall = viewModel.pendingExtensionInstall ?: return@let
                     XedInstallDialog(
                         pendingInstall.manifest,
                         pendingInstall.icon,
@@ -170,7 +169,7 @@ class ExtensionFeature : Feature {
         routes.add(
             DynamicRoute("${SettingsRoutes.ExtensionSettings.route}/{extensionId}") { _, backStackEntry ->
                 val extensionId = backStackEntry.arguments?.getString("extensionId")
-                val extension = extensionId?.let { extensionManager.installedExtensions.value[it] }
+                val extension = extensionId?.let { extensionManager.installedExtensions[it] }
                 ExtensionSettings(extension)
             }
         )

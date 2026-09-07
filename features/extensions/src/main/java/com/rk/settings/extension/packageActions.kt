@@ -7,8 +7,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.core.app.NotificationCompat
 import com.rk.App
@@ -174,8 +172,8 @@ suspend fun installExtensionSequentially(
         val name = storeExt.name
 
         withContext(Dispatchers.Main) {
-            StoreManager.setActiveInstall(id, InstallState.Installing)
-            StoreManager.setDownloadProgress(id, 0f)
+            StoreManager.activeInstalls[id] = InstallState.Installing
+            StoreManager.downloadProgress[id] = 0f
             showDownloadNotification(context, id, name, 0f)
         }
 
@@ -192,7 +190,7 @@ suspend fun installExtensionSequentially(
                     destFile = tempFile,
                     onProgress = { progress ->
                         DefaultScope.launch(Dispatchers.Main) {
-                            StoreManager.setDownloadProgress(id, progress)
+                            StoreManager.downloadProgress[id] = progress
                         }
                         val now = System.currentTimeMillis()
                         if (now - lastNotificationTime > 300) {
@@ -235,7 +233,8 @@ suspend fun installExtensionSequentially(
             }
 
             withContext(Dispatchers.Main) {
-                StoreManager.clearInstall(id)
+                StoreManager.activeInstalls.remove(id)
+                StoreManager.downloadProgress.remove(id)
 
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
@@ -291,8 +290,8 @@ fun runExtensionUpdateAction(
     val id = store.id
     val name = store.name
 
-    StoreManager.setActiveInstall(id, InstallState.Updating)
-    StoreManager.setDownloadProgress(id, 0f)
+    StoreManager.activeInstalls[id] = InstallState.Updating
+    StoreManager.downloadProgress[id] = 0f
     updateInstallState(InstallState.Updating)
 
     showDownloadNotification(context, id, name, 0f)
@@ -311,7 +310,7 @@ fun runExtensionUpdateAction(
                     destFile = tempFile,
                     onProgress = { progress ->
                         DefaultScope.launch(Dispatchers.Main) {
-                            StoreManager.setDownloadProgress(id, progress)
+                            StoreManager.downloadProgress[id] = progress
                         }
                         val now = System.currentTimeMillis()
                         if (now - lastNotificationTime > 300) {
@@ -354,7 +353,8 @@ fun runExtensionUpdateAction(
             }
 
             withContext(Dispatchers.Main) {
-                StoreManager.clearInstall(id)
+                StoreManager.activeInstalls.remove(id)
+                StoreManager.downloadProgress.remove(id)
 
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
@@ -375,8 +375,8 @@ fun runThemeInstallAction(
     context: Context,
     activity: AppCompatActivity?,
 ) {
-    StoreManager.setActiveInstall(id, InstallState.Installing)
-    StoreManager.setDownloadProgress(id, 0f)
+    StoreManager.activeInstalls[id] = InstallState.Installing
+    StoreManager.downloadProgress[id] = 0f
 
     showDownloadNotification(context, id, name, 0f)
 
@@ -394,7 +394,7 @@ fun runThemeInstallAction(
                     destFile = tempFile,
                     onProgress = { progress ->
                         DefaultScope.launch(Dispatchers.Main) {
-                            StoreManager.setDownloadProgress(id, progress)
+                            StoreManager.downloadProgress[id] = progress
                         }
                         val now = System.currentTimeMillis()
                         if (now - lastNotificationTime > 300) {
@@ -427,7 +427,8 @@ fun runThemeInstallAction(
             }
 
             withContext(Dispatchers.Main) {
-                StoreManager.clearInstall(id)
+                StoreManager.activeInstalls.remove(id)
+                StoreManager.downloadProgress.remove(id)
 
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
@@ -446,8 +447,8 @@ fun runIconPackInstallAction(
     context: Context,
     activity: AppCompatActivity?,
 ) {
-    StoreManager.setActiveInstall(id, InstallState.Installing)
-    StoreManager.setDownloadProgress(id, 0f)
+    StoreManager.activeInstalls[id] = InstallState.Installing
+    StoreManager.downloadProgress[id] = 0f
 
     showDownloadNotification(context, id, name, 0f)
 
@@ -465,7 +466,7 @@ fun runIconPackInstallAction(
                     destFile = tempFile,
                     onProgress = { progress ->
                         DefaultScope.launch(Dispatchers.Main) {
-                            StoreManager.setDownloadProgress(id, progress)
+                            StoreManager.downloadProgress[id] = progress
                         }
                         val now = System.currentTimeMillis()
                         if (now - lastNotificationTime > 300) {
@@ -498,7 +499,8 @@ fun runIconPackInstallAction(
             }
 
             withContext(Dispatchers.Main) {
-                StoreManager.clearInstall(id)
+                StoreManager.activeInstalls.remove(id)
+                StoreManager.downloadProgress.remove(id)
 
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
@@ -561,7 +563,7 @@ fun runPackageUninstallAction(
                 scope.launch(Dispatchers.IO) {
                     themeDir().child(pkg.id).deleteRecursively()
                     withContext(Dispatchers.Main) {
-                        themeManager.removeLocalTheme(pkg.id)
+                        themeManager.localThemes.remove(pkg.id)
                         updateInstallState(InstallState.Idle)
                     }
                 }
@@ -624,24 +626,20 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 return@runCatching
             }
 
-            if (fileObject.getExtension().lowercase() == "json") {
-                dialogRes(activity = activity, title = strings.attention.getString(application!!), msg = strings.theme_format_changed.getString(
-                    application!!
-                ))
-                return@launch
-            }
-
-            //refuse everything else
-            if (fileObject.getExtension().lowercase() != "xed") {
-                dialogRes(activity = activity, title = strings.attention.getString(application!!), msg = strings.unknown_package.getString(
-                    application!!
-                ))
-                return@launch
-            }
-
             withContext(Dispatchers.Main) {
                 loading = LoadingPopup(activity).show()
                 loading.setMessage(strings.installing.getString())
+            }
+
+            if (fileObject.getExtension() == "json") {
+                fileObject.copyToTempDir().also {
+                    themeManager.installTheme(it)
+                    withContext(Dispatchers.Main) {
+                        toast(strings.installed)
+                        loading?.hide()
+                    }
+                }
+                return@launch
             }
 
             val tempDir = File(application!!.cacheDir, "install_temp_${System.currentTimeMillis()}")
@@ -676,7 +674,7 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                     }
                     null -> {
                         withContext(Dispatchers.Main) {
-                            errorDialog(activity, msg = strings.unknown_package.getString())
+                            errorDialog(activity, msg = "Unknown package type")
                         }
                     }
                 }
@@ -684,12 +682,13 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 tempDir.deleteRecursively()
                 withContext(Dispatchers.Main) { loading?.hide() }
             }
-        }.onFailure { error ->
-            withContext(Dispatchers.Main) {
-                loading?.hide()
-                errorDialog(activity, error)
-            }
         }
+            .onFailure { error ->
+                withContext(Dispatchers.Main) {
+                    loading?.hide()
+                    errorDialog(activity, error)
+                }
+            }
     }
 }
 
@@ -739,29 +738,30 @@ fun handleInstallResult(
 @Composable
 fun rememberPackageInstallState(pkg: Package): InstallState {
     val id = pkg.id
-    val activeInstalls by StoreManager.activeInstalls.collectAsStateWithLifecycle()
-    val active = activeInstalls[id]
-    if (active != null) return active
+    return remember(pkg, StoreManager.activeInstalls[id]) {
+        val active = StoreManager.activeInstalls[id]
+        if (active != null) return@remember active
 
-    return when (pkg.type) {
-        PackageType.EXTENSION -> {
-            if (extensionManager.isInstalled(id)) {
-                val ext = extensionManager.getExtension(id)
-                if (ext is UpdatableExtension && ext.hasUpdate()) InstallState.Updatable else InstallState.Installed
-            } else InstallState.Idle
-        }
-        PackageType.THEME -> {
-            if (themeManager.isInstalled(id)) {
-                val theme = themeManager.getTheme(id)
-                if (theme is UpdatableTheme && theme.hasUpdate()) InstallState.Updatable else InstallState.Installed
-            } else InstallState.Idle
-        }
-        PackageType.ICON_PACK -> {
-            if (App.iconPackManager.isInstalled(id)) {
-                val pack = App.iconPackManager.getIconPackPackage(id)
-                if (pack is UpdatableIconPack && pack.hasUpdate()) InstallState.Updatable
-                else InstallState.Installed
-            } else InstallState.Idle
+        when (pkg.type) {
+            PackageType.EXTENSION -> {
+                if (extensionManager.isInstalled(id)) {
+                    val ext = extensionManager.getExtension(id)
+                    if (ext is UpdatableExtension && ext.hasUpdate()) InstallState.Updatable else InstallState.Installed
+                } else InstallState.Idle
+            }
+            PackageType.THEME -> {
+                if (themeManager.isInstalled(id)) {
+                    val theme = themeManager.getTheme(id)
+                    if (theme is UpdatableTheme && theme.hasUpdate()) InstallState.Updatable else InstallState.Installed
+                } else InstallState.Idle
+            }
+            PackageType.ICON_PACK -> {
+                if (App.iconPackManager.isInstalled(id)) {
+                    val pack = App.iconPackManager.getIconPackPackage(id)
+                    if (pack is UpdatableIconPack && pack.hasUpdate()) InstallState.Updatable
+                    else InstallState.Installed
+                } else InstallState.Idle
+            }
         }
     }
 }

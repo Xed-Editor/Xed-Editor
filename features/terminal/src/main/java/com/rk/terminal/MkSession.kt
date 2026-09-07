@@ -2,17 +2,14 @@ package com.rk.terminal
 
 import android.app.Activity
 import android.content.Context
-import com.rk.activities.main.MainActivity
 import com.rk.exec.pendingCommand
-import com.rk.file.FileWrapper
 import com.rk.feature.FeatureRegistry
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.file.localLibDir
-import com.rk.file.sandboxHomeDir
+import com.rk.file.sandboxRootDir
 import com.rk.settings.Settings
-import com.rk.tabs.editor.EditorTab
 import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
@@ -67,8 +64,8 @@ object MkSession {
                 "LOCAL=${localDir(context).absolutePath}",
                 "PRIVATE_DIR=${context.filesDir.parentFile!!.absolutePath}",
                 "LD_LIBRARY_PATH=${localLibDir(context).absolutePath}",
-                "EXT_HOME=${sandboxHomeDir(context)}",
-                "HOME=${if (Settings.sandbox){ "/home"} else{ sandboxHomeDir(context)}}",
+                "EXT_HOME=${sandboxRootDir(context)}",
+                "HOME=${if (Settings.sandbox){ "/root"} else{ sandboxRootDir(context)}}",
                 "PROMPT_DIRTRIM=2",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                 "NATIVE_LIB_DIR=${context.applicationInfo.nativeLibraryDir}",
@@ -156,24 +153,9 @@ suspend fun getPwd(context: Context): String {
         return context.intent.getStringExtra("cwd").toString()
     }
 
-    val currentTab = MainActivity.instance?.viewModel?.tabManager?.currentTab
-    val file = currentTab?.file
-    if (Settings.project_as_pwd && file != null) {
-        if (currentTab is EditorTab && file is FileWrapper) {
-            val parent = file.getParentFile()
-            if (parent != null && parent is FileWrapper) {
-                return if (Settings.sandbox) {
-                    parent.getAbsolutePath().removePrefix(localDir(context).absolutePath)
-                } else {
-                    parent.getAbsolutePath()
-                }
-            }
-        }
-    }
-
     return if (Settings.sandbox) {
-        "/home"
+        "/root"
     } else {
-        sandboxHomeDir(context).absolutePath
+        sandboxRootDir(context).absolutePath
     }
 }

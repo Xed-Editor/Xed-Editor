@@ -30,7 +30,7 @@ dependencies {
     implementation(project(":core:components"))
     implementation(project(":core:resources"))
 
-    implementation(libs.sorax.editor)
+    implementation(project(":editor"))
 
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

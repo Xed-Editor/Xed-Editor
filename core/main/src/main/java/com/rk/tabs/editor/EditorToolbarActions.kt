@@ -62,16 +62,23 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
         // Filter visible actions first
         val visibleActions = allActions.filter { it.isSupported() }
 
+        // The terminal command must always stay in the toolbar (never in the overflow menu)
+        val terminalAction = visibleActions.firstOrNull { it.id == "global.terminal" }
+        val otherActions = visibleActions.filterNot { it.id == "global.terminal" }
+
+        // Reserve one slot for the terminal button
+        val maxOtherVisibleCount = (maxVisibleCount - if (terminalAction != null) 1 else 0).coerceAtLeast(0)
+
         // Calculate actual number of actions to show in toolbar
-        var actualVisibleCount = min(visibleActions.size, maxVisibleCount)
+        var actualOtherVisibleCount = min(otherActions.size, maxOtherVisibleCount)
 
         // Make sure that the dropdown menu never contains only one entry
-        if (visibleActions.size - actualVisibleCount == 1) {
-            actualVisibleCount += 1
+        if (otherActions.size - actualOtherVisibleCount == 1) {
+            actualOtherVisibleCount += 1
         }
 
-        val toolbarActions = visibleActions.take(actualVisibleCount)
-        val dropdownActions = visibleActions.drop(actualVisibleCount)
+        val toolbarActions = otherActions.take(actualOtherVisibleCount) + listOfNotNull(terminalAction)
+        val dropdownActions = otherActions.drop(actualOtherVisibleCount)
 
         Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
             SideEffect {

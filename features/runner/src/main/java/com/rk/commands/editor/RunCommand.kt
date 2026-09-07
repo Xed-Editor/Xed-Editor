@@ -50,8 +50,8 @@ object RunCommand : Command() {
                 }
             },
             onMultipleRunners = {
-                RunnerUI.runnersToShow.value = it
-                RunnerUI.showRunnerDialog.value = true
+                RunnerUI.runnersToShow = it
+                RunnerUI.showRunnerDialog = true
             },
         )
     }

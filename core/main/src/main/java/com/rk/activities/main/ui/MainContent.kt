@@ -23,7 +23,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +52,6 @@ import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.addIf
 import com.rk.drawer.DrawerViewModel
 import com.rk.editor.preloadSelectionColor
-import com.rk.filetree.BaseFileAction
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext
 import com.rk.filetree.FileActionDialogs
@@ -90,20 +88,15 @@ fun MainContent(
 
     FileActionDialogs(drawerViewModel, fileTreeViewModel, scope, context)
 
-    val isDraggingPalette by mainViewModel.isDraggingPalette.collectAsStateWithLifecycle()
-    val showCommandPalette by mainViewModel.showCommandPalette.collectAsStateWithLifecycle()
-    val initialChildCommands by mainViewModel.commandPaletteInitialChildCommands.collectAsStateWithLifecycle()
-    val initialPlaceholder by mainViewModel.commandPaletteInitialPlaceholder.collectAsStateWithLifecycle()
-
-    if (isDraggingPalette || showCommandPalette) {
+    if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
         val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command)
 
         CommandPalette(
-            progress = if (showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
-            commands = CommandProvider.commandList.value,
+            progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
+            commands = CommandProvider.commandList,
             lastUsedCommand = lastUsedCommand,
-            initialChildCommands = initialChildCommands,
-            initialPlaceholder = initialPlaceholder,
+            initialChildCommands = mainViewModel.commandPaletteInitialChildCommands,
+            initialPlaceholder = mainViewModel.commandPaletteInitialPlaceholder,
             onDismissRequest = { scope.launch { mainViewModel.closeCommandPalette() } },
         )
     }
@@ -401,23 +394,7 @@ private fun TabItemContent(
         tab.file?.let {
             DropdownMenu(expanded = showFileActionMenu, onDismissRequest = { showFileActionMenu = false }) {
                 val root = (tab as? EditorTab)?.projectRoot
-                val scope = rememberCoroutineScope()
-                var actions by remember(it) { mutableStateOf<List<BaseFileAction>>(emptyList()) }
-                var enabledActions by remember(it) { mutableStateOf<Set<BaseFileAction>>(emptySet()) }
-
-                LaunchedEffect(it, root) { actions = FileActionProvider.getActions(it, root) }
-                LaunchedEffect(actions, it, root) {
-                    enabledActions =
-                        actions
-                            .filter { action ->
-                                when (action) {
-                                    is FileAction -> action.isEnabled(it, root)
-                                    is MultiFileAction -> action.isEnabled(listOf(it), root)
-                                    else -> true
-                                }
-                            }
-                            .toSet()
-                }
+                val actions = remember(it) { FileActionProvider.getActions(it, root) }
 
                 actions.forEach { action ->
                     when (action) {
@@ -425,11 +402,11 @@ private fun TabItemContent(
                             XedDropdownMenuItem(
                                 text = { Text(action.title) },
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
-                                enabled = action in enabledActions,
+                                enabled = action.isEnabled(it),
                                 onClick = {
                                     val context =
                                         FileActionContext(it, root, fileTreeViewModel, drawerViewModel, context)
-                                    scope.launch { action.execute(context) }
+                                    action.action(context)
                                     showFileActionMenu = false
                                 },
                             )
@@ -439,11 +416,11 @@ private fun TabItemContent(
                             XedDropdownMenuItem(
                                 text = { Text(action.title) },
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
-                                enabled = action in enabledActions,
+                                enabled = action.isEnabled(files),
                                 onClick = {
                                     val context =
                                         MultiFileActionContext(files, root, fileTreeViewModel, drawerViewModel, context)
-                                    scope.launch { action.execute(context) }
+                                    action.action(context)
                                     showFileActionMenu = false
                                 },
                             )

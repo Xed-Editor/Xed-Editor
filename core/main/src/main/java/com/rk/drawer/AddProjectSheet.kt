@@ -19,7 +19,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +27,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.rk.activities.main.MainActivity
 import com.rk.components.AddDialogItem
@@ -42,6 +40,7 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import kotlinx.coroutines.launch
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,7 +88,7 @@ fun AddProjectSheet(
                     ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                         PackageManager.PERMISSION_GRANTED
 
-            val storage = Environment.getExternalStorageDirectory()
+            val storage = File("/sdcard")
             if ((isManager || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead()) {
                 AddDialogItem(
                     icon = Icon.ResourceIcon(drawables.android),
@@ -138,8 +137,7 @@ fun AddProjectSheet(
             val createOptions = remember {
                 AddProjectRegistry.options.filter { it.category == AddProjectCategory.CREATE }
             }
-            val categories by ProjectTemplateRegistry.categories.collectAsStateWithLifecycle()
-            val hasTemplates = categories.any { it.templates.isNotEmpty() }
+            val hasTemplates = remember { ProjectTemplateRegistry.categories.any { it.templates.isNotEmpty() } }
 
             if (hasTemplates || createOptions.isNotEmpty()) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

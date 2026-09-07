@@ -1,5 +1,10 @@
 package com.rk.git
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.DefaultScope
@@ -15,9 +20,6 @@ import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -67,36 +69,20 @@ enum class LineDiffType {
 }
 
 class GitViewModel : ViewModel() {
-    private val _currentRoot = MutableStateFlow<File?>(null)
-    val currentRoot = _currentRoot.asStateFlow()
+    var currentRoot = mutableStateOf<File?>(null)
+    var currentBranch by mutableStateOf("")
+    var changes = mutableStateMapOf<String, List<GitChange>>()
+    var commitMessages = mutableStateMapOf<String, String>()
+    var amends = mutableStateMapOf<String, Boolean>()
+    var commitHistory by mutableStateOf<List<GitCommit>?>(null)
 
-    private val _currentBranch = MutableStateFlow("")
-    val currentBranch = _currentBranch.asStateFlow()
+    var isLoading by mutableStateOf(false)
+    var aheadCount by mutableIntStateOf(0)
+    var behindCount by mutableIntStateOf(0)
 
-    private val _changes = MutableStateFlow<Map<String, List<GitChange>>>(emptyMap())
-    val changes = _changes.asStateFlow()
-
-    private val _commitMessages = MutableStateFlow<Map<String, String>>(emptyMap())
-    val commitMessages = _commitMessages.asStateFlow()
-
-    private val _amends = MutableStateFlow<Map<String, Boolean>>(emptyMap())
-    val amends = _amends.asStateFlow()
-
-    private val _commitHistory = MutableStateFlow<List<GitCommit>?>(null)
-    val commitHistory = _commitHistory.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
-    private val _aheadCount = MutableStateFlow(0)
-    val aheadCount = _aheadCount.asStateFlow()
-
-    private val _behindCount = MutableStateFlow(0)
-    val behindCount = _behindCount.asStateFlow()
-
-    private val _fileLineDiffs = MutableStateFlow<Map<String, Map<Int, LineDiffType>>>(emptyMap())
+    private var _fileLineDiffs = mutableStateMapOf<String, Map<Int, LineDiffType>>()
     val fileLineDiffs: Map<String, Map<Int, LineDiffType>>
-        get() = _fileLineDiffs.value
+        get() = _fileLineDiffs
 
     private val lineDiffJobs = mutableMapOf<String, Job>()
 
@@ -105,15 +91,15 @@ class GitViewModel : ViewModel() {
             disposeRepository()
 
             val newRoot = File(root)
-            _currentRoot.value = newRoot
-            _currentBranch.value = Git.open(newRoot).use { it.currentHead() }
+            currentRoot.value = newRoot
+            currentBranch = Git.open(newRoot).use { it.currentHead() }
             syncChanges(newRoot)
-            _commitHistory.value = null
-            if (!_amends.value.containsKey(root)) {
-                _amends.update { it + (root to false) }
+            commitHistory = null
+            if (!amends.containsKey(root)) {
+                amends[root] = false
             }
-            if (!_commitMessages.value.containsKey(root)) {
-                _commitMessages.update { it + (root to "") }
+            if (!commitMessages.containsKey(root)) {
+                commitMessages[root] = ""
             }
         } catch (e: Exception) {
             toast(e.message)
@@ -121,15 +107,15 @@ class GitViewModel : ViewModel() {
     }
 
     fun disposeRepository() {
-        _currentRoot.value = null
-        _currentBranch.value = ""
-        _changes.value = emptyMap()
-        _commitHistory.value = null
+        currentRoot.value = null
+        currentBranch = ""
+        changes.clear()
+        commitHistory = null
     }
 
     fun getBranchList(): List<String> {
         return try {
-            Git.open(_currentRoot.value).use { git ->
+            Git.open(currentRoot.value).use { git ->
                 val branches = mutableListOf<String>()
                 val refs = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()
                 for (ref in refs) {
@@ -162,41 +148,32 @@ class GitViewModel : ViewModel() {
     }
 
     fun toggleChange(change: GitChange) {
-        _changes.update { map ->
-            val root = _currentRoot.value?.absolutePath ?: return@update map
-            val list = map[root] ?: return@update map
-            map + (root to list.map { if (it.path == change.path) it.copy(isChecked = !it.isChecked) else it })
-        }
+        changes[currentRoot.value!!.absolutePath] =
+            changes[currentRoot.value!!.absolutePath]!!.map {
+                if (it.path == change.path) it.copy(isChecked = !it.isChecked) else it
+            }
     }
 
     fun addChange(change: GitChange) {
-        _changes.update { map ->
-            val root = _currentRoot.value?.absolutePath ?: return@update map
-            val list = map[root] ?: return@update map
-            map + (root to list.map { if (it.path == change.path) it.copy(isChecked = true) else it })
-        }
+        changes[currentRoot.value!!.absolutePath] =
+            changes[currentRoot.value!!.absolutePath]!!.map {
+                if (it.path == change.path) it.copy(isChecked = true) else it
+            }
     }
 
     fun removeChange(change: GitChange) {
-        _changes.update { map ->
-            val root = _currentRoot.value?.absolutePath ?: return@update map
-            val list = map[root] ?: return@update map
-            map + (root to list.map { if (it.path == change.path) it.copy(isChecked = false) else it })
-        }
+        changes[currentRoot.value!!.absolutePath] =
+            changes[currentRoot.value!!.absolutePath]!!.map {
+                if (it.path == change.path) it.copy(isChecked = false) else it
+            }
     }
 
     fun changeCommitMessage(message: String) {
-        _commitMessages.update { map ->
-            val root = _currentRoot.value?.absolutePath ?: return@update map
-            map + (root to message)
-        }
+        commitMessages[currentRoot.value!!.absolutePath] = message
     }
 
     fun toggleAmend(amend: Boolean) {
-        _amends.update { map ->
-            val root = _currentRoot.value?.absolutePath ?: return@update map
-            map + (root to amend)
-        }
+        amends[currentRoot.value!!.absolutePath] = amend
     }
 
     fun getChangeType(path: String): ChangeType? {
@@ -204,13 +181,13 @@ class GitViewModel : ViewModel() {
     }
 
     private fun getChangeForPath(path: String): GitChange? {
-        return _changes.value.values.flatten().find { change ->
+        return changes.values.flatten().find { change ->
             change.absolutePath == path
         }
     }
 
     private fun getChangeAndRootForPath(path: String): Pair<String, GitChange>? {
-        _changes.value.forEach { (gitRoot, changes) ->
+        changes.forEach { (gitRoot, changes) ->
             val change = changes.find { it.absolutePath == path }
             if (change != null) {
                 return gitRoot to change
@@ -275,7 +252,7 @@ class GitViewModel : ViewModel() {
 
     fun initRepository(root: File, onInit: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.init().setDirectory(root).call()
                 toast(strings.git_init_success)
@@ -284,14 +261,14 @@ class GitViewModel : ViewModel() {
             } catch (e: Exception) {
                 toast(strings.git_init_error.getFilledString(e.message ?: strings.unknown_error))
             } finally {
-                withContext(Dispatchers.Main) { _isLoading.value = false }
+                withContext(Dispatchers.Main) { isLoading = false }
             }
         }
     }
 
     fun checkout(branchName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
                     if (branchName.startsWith("$GIT_ORIGIN/")) {
@@ -309,7 +286,7 @@ class GitViewModel : ViewModel() {
                     } else {
                         git.checkout().setName(branchName).call()
                     }
-                    withContext(Dispatchers.Main) { _currentBranch.value = git.repository.branch }
+                    withContext(Dispatchers.Main) { currentBranch = git.repository.branch }
                 }
                 loadHistory()
                 Events.publish(
@@ -322,7 +299,7 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
+                    isLoading = false
                     toast(strings.checkout_complete)
                     syncChanges(currentRoot.value!!)
                 }
@@ -332,7 +309,7 @@ class GitViewModel : ViewModel() {
 
     fun pull(): Job {
         return viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
                     val pullResult =
@@ -363,7 +340,7 @@ class GitViewModel : ViewModel() {
                     GitEvent.PullCompleted(
                         root = FileWrapper(currentRoot.value!!),
                         remote = GIT_ORIGIN,
-                        branch = currentBranch.value,
+                        branch = currentBranch,
                     )
                 )
             } catch (e: TransportException) {
@@ -380,7 +357,7 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
+                    isLoading = false
                     toast(strings.pull_complete)
                 }
             }
@@ -389,7 +366,7 @@ class GitViewModel : ViewModel() {
 
     fun fetch() {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
                     git.fetch()
@@ -413,7 +390,7 @@ class GitViewModel : ViewModel() {
                     GitEvent.FetchCompleted(
                         root = FileWrapper(currentRoot.value!!),
                         remote = GIT_ORIGIN,
-                        branch = currentBranch.value,
+                        branch = currentBranch,
                     )
                 )
             } catch (e: TransportException) {
@@ -430,7 +407,7 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
+                    isLoading = false
                     toast(strings.fetch_complete)
                 }
             }
@@ -452,7 +429,7 @@ class GitViewModel : ViewModel() {
         return viewModelScope.launch(Dispatchers.IO) {
             if (!FeatureRegistry.isEnabled("enable_git")) return@launch
 
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 val newChanges = mutableListOf<GitChange>()
                 Git.open(root).use { git ->
@@ -481,7 +458,7 @@ class GitViewModel : ViewModel() {
                     )
                 }
                 val gitRoot = root.absolutePath
-                val oldChanges = _changes.value[gitRoot]
+                val oldChanges = changes[gitRoot]
                 val mergedChanges =
                     if (oldChanges != null) {
                         val oldMap = oldChanges.associateBy { it.path }
@@ -491,7 +468,7 @@ class GitViewModel : ViewModel() {
                     } else {
                         newChanges
                     }
-                _changes.update { map -> map + (gitRoot to mergedChanges) }
+                changes[gitRoot] = mergedChanges
 
                 updateAheadBehindCounts()
                 viewModelScope.launch {
@@ -500,21 +477,21 @@ class GitViewModel : ViewModel() {
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
-                withContext(Dispatchers.Main) { _isLoading.value = false }
+                withContext(Dispatchers.Main) { isLoading = false }
             }
         }
     }
 
     fun commit(): Job {
         return viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 val currentRoot = currentRoot.value!!
-                val message = _commitMessages.value[currentRoot.absolutePath]
-                val amend = _amends.value[currentRoot.absolutePath] ?: false
+                val message = commitMessages[currentRoot.absolutePath]
+                val amend = amends[currentRoot.absolutePath] ?: false
 
                 Git.open(currentRoot).use { git ->
-                    (_changes.value[currentRoot.absolutePath] ?: emptyList())
+                    changes[currentRoot.absolutePath]!!
                         .filter { it.isChecked }
                         .forEach { change ->
                             when (change.type) {
@@ -552,7 +529,7 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
+                    isLoading = false
                     syncChanges(currentRoot.value!!)
                 }
             }
@@ -561,7 +538,7 @@ class GitViewModel : ViewModel() {
 
     fun push(force: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
                     val pushResults =
@@ -598,7 +575,7 @@ class GitViewModel : ViewModel() {
                     GitEvent.PushCompleted(
                         root = FileWrapper(currentRoot.value!!),
                         remote = GIT_ORIGIN,
-                        branch = currentBranch.value,
+                        branch = currentBranch,
                         force = force,
                     )
                 )
@@ -615,14 +592,14 @@ class GitViewModel : ViewModel() {
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
-                withContext(Dispatchers.Main) { _isLoading.value = false }
+                withContext(Dispatchers.Main) { isLoading = false }
             }
         }
     }
 
     fun discard(change: GitChange) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 val root = currentRoot.value
                 Git.open(root).use { git ->
@@ -645,7 +622,7 @@ class GitViewModel : ViewModel() {
                 toast(strings.discard_failed.getFilledString(e.message ?: ""))
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
+                    isLoading = false
                     syncChanges(currentRoot.value!!)
                 }
             }
@@ -654,7 +631,7 @@ class GitViewModel : ViewModel() {
 
     fun getDiff(change: GitChange, commit: GitCommit? = null, onResult: (String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 val root = currentRoot.value
                 Git.open(root).use { git ->
@@ -683,7 +660,7 @@ class GitViewModel : ViewModel() {
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
-                withContext(Dispatchers.Main) { _isLoading.value = false }
+                withContext(Dispatchers.Main) { isLoading = false }
             }
         }
     }
@@ -732,7 +709,7 @@ class GitViewModel : ViewModel() {
 
     fun getChangesForCommit(commit: GitCommit, onResult: (List<GitChange>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
 
             try {
                 val root = currentRoot.value
@@ -767,14 +744,14 @@ class GitViewModel : ViewModel() {
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
-                withContext(Dispatchers.Main) { _isLoading.value = false }
+                withContext(Dispatchers.Main) { isLoading = false }
             }
         }
     }
 
     fun checkoutNew(branchName: String, branchBase: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
                     if (branchBase.startsWith("$GIT_ORIGIN/")) {
@@ -794,8 +771,8 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
-                    _currentBranch.value = Git.open(currentRoot.value).currentHead()
+                    isLoading = false
+                    currentBranch = Git.open(currentRoot.value).currentHead()
                     syncChanges(currentRoot.value!!)
                 }
             }
@@ -804,7 +781,7 @@ class GitViewModel : ViewModel() {
 
     fun deleteBranch(branchName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
                     git.branchDelete().setBranchNames(branchName).setForce(true).call()
@@ -815,7 +792,7 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
+                    isLoading = false
                     syncChanges(currentRoot.value!!)
                 }
             }
@@ -824,7 +801,7 @@ class GitViewModel : ViewModel() {
 
     fun renameBranch(oldName: String, newName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
                     git.branchRename().setOldName(oldName).setNewName(newName).call()
@@ -835,8 +812,8 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
-                    _currentBranch.value = Git.open(currentRoot.value).currentHead()
+                    isLoading = false
+                    currentBranch = Git.open(currentRoot.value).currentHead()
                     syncChanges(currentRoot.value!!)
                 }
             }
@@ -845,13 +822,13 @@ class GitViewModel : ViewModel() {
 
     fun merge(branchName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
                     val result = git.merge().include(git.repository.resolve(branchName)).call()
                     if (result.mergeStatus.isSuccessful) {
                         toast(strings.merge_complete)
-                        Events.publish(GitEvent.Merged(FileWrapper(currentRoot.value!!), currentBranch.value, branchName))
+                        Events.publish(GitEvent.Merged(FileWrapper(currentRoot.value!!), currentBranch, branchName))
                     } else {
                         toast("Merge failed: ${result.mergeStatus}")
                     }
@@ -861,7 +838,7 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
+                    isLoading = false
                     syncChanges(currentRoot.value!!)
                 }
             }
@@ -870,13 +847,13 @@ class GitViewModel : ViewModel() {
 
     fun rebase(branchName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
                     val result = git.rebase().setUpstream(branchName).call()
                     if (result.status.isSuccessful) {
                         toast(strings.rebase_complete)
-                        Events.publish(GitEvent.Rebased(FileWrapper(currentRoot.value!!), currentBranch.value, branchName))
+                        Events.publish(GitEvent.Rebased(FileWrapper(currentRoot.value!!), currentBranch, branchName))
                     } else {
                         toast("Rebase failed: ${result.status}")
                     }
@@ -886,7 +863,7 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
-                    _isLoading.value = false
+                    isLoading = false
                     syncChanges(currentRoot.value!!)
                 }
             }
@@ -896,10 +873,10 @@ class GitViewModel : ViewModel() {
     fun loadHistory() {
         val root = currentRoot.value ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _isLoading.value = true }
+            withContext(Dispatchers.Main) { isLoading = true }
 
             try {
-                withContext(Dispatchers.Main) { _commitHistory.value = null }
+                withContext(Dispatchers.Main) { commitHistory = null }
 
                 val commits =
                     Git.open(root).use { git ->
@@ -933,12 +910,12 @@ class GitViewModel : ViewModel() {
                         }
                     }
 
-                withContext(Dispatchers.Main) { _commitHistory.value = commits }
+                withContext(Dispatchers.Main) { commitHistory = commits }
             } catch (e: Exception) {
                 toast(e.message)
                 e.printStackTrace()
             } finally {
-                withContext(Dispatchers.Main) { _isLoading.value = false }
+                withContext(Dispatchers.Main) { isLoading = false }
             }
         }
     }
@@ -955,8 +932,8 @@ class GitViewModel : ViewModel() {
 
                     if (localRef == null) {
                         withContext(Dispatchers.Main) {
-                            _aheadCount.value = 0
-                            _behindCount.value = 0
+                            aheadCount = 0
+                            behindCount = 0
                         }
                         return@launch
                     }
@@ -982,8 +959,8 @@ class GitViewModel : ViewModel() {
                             } else 0
 
                         withContext(Dispatchers.Main) {
-                            _aheadCount.value = ahead
-                            _behindCount.value = behind
+                            aheadCount = ahead
+                            behindCount = behind
                         }
                     }
                 }
@@ -1014,7 +991,7 @@ class GitViewModel : ViewModel() {
                     val (gitRoot, change) =
                         getChangeAndRootForPath(absolutePath)
                             ?: run {
-                                withContext(Dispatchers.Main) { _fileLineDiffs.update { it - absolutePath } }
+                                withContext(Dispatchers.Main) { _fileLineDiffs.remove(absolutePath) }
                                 return@launch
                             }
 
@@ -1029,9 +1006,9 @@ class GitViewModel : ViewModel() {
 
                         withContext(Dispatchers.Main) {
                             if (diffs.isEmpty()) {
-                                _fileLineDiffs.update { it - absolutePath }
+                                _fileLineDiffs.remove(absolutePath)
                             } else {
-                                _fileLineDiffs.update { it + (absolutePath to diffs) }
+                                _fileLineDiffs[absolutePath] = diffs
                             }
                         }
                     }

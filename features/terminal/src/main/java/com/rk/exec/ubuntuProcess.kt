@@ -9,6 +9,7 @@ import com.rk.file.localDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
+import com.rk.file.sandboxRootDir
 import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
@@ -48,6 +49,7 @@ fun getDefaultBindings(): List<Binding> {
 
     with(list) {
         bind(sandboxHomeDir().absolutePath, "/home")
+        bind(sandboxRootDir().absolutePath, "/root")
         bind("/sdcard")
         bind("/storage")
         bind("/data")
@@ -128,12 +130,12 @@ suspend fun ubuntuProcess(
             env["DEBUG"] = FeatureRegistry.isEnabled("debug_mode").toString()
             env["LOCAL"] = localDir().absolutePath
             env["PRIVATE_DIR"] = application!!.filesDir.parentFile!!.absolutePath
-            env["EXT_HOME"] = sandboxHomeDir().absolutePath
+            env["EXT_HOME"] = sandboxRootDir().absolutePath
             env["HOME"] =
                 if (Settings.sandbox) {
-                    "/home"
+                    "/root"
                 } else {
-                    sandboxHomeDir().absolutePath
+                    sandboxRootDir().absolutePath
                 }
             env["PROMPT_DIRTRIM"] = "2"
             env["LINKER"] =

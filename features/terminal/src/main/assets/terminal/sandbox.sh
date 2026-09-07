@@ -2,7 +2,7 @@
 force_color_prompt=yes
 
 ARGS="--kill-on-exit"
-ARGS="$ARGS -w /"
+ARGS="$ARGS -w /root"
 
 for system_mnt in /apex /odm /product /system /system_ext /vendor \
  /linkerconfig/ld.config.txt \

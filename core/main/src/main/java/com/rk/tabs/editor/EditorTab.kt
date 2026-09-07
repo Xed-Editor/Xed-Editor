@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -263,13 +262,13 @@ open class EditorTab(
 
     @XedExtensionPoint
     fun showNotice(id: String, notice: @Composable (String) -> Unit) {
-        if (editorState.notices.value.containsKey(id)) return
-        editorState.addNotice(id, notice)
+        if (editorState.notices.contains(id)) return
+        editorState.notices[id] = notice
     }
 
     @XedExtensionPoint
     fun removeNotice(id: String) {
-        editorState.removeNotice(id)
+        editorState.notices.remove(id)
     }
 
     /** Refresh all normal editor settings and EditorConfig settings and apply them to the editor */
@@ -561,7 +560,7 @@ open class EditorTab(
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                     }
 
-                    editorState.notices.collectAsStateWithLifecycle().value.forEach { (id, notice) -> notice(id) }
+                    editorState.notices.forEach { (id, notice) -> notice(id) }
                 }
 
                 val fileExtension = file?.getExtension() ?: fallbackExtension

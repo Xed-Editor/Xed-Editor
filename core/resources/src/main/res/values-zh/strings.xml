@@ -144,8 +144,8 @@
     <string name="downloading">下载中…</string>
     <string name="restore_sessions">恢复会话</string>
     <string name="restore_sessions_desc">恢复之前的标签页</string>
-    <string name="terminal_home">终端主页</string>
-    <string name="terminal_home_desc">终端默认主目录</string>
+    <string name="terminal_home">终端系统目录</string>
+    <string name="terminal_home_desc">终端完整系统目录</string>
     <string name="tab_opened">已打开标签</string>
     <string name="name_empty_err">名称不能为空</string>
     <string name="ext_desc">管理扩展</string>

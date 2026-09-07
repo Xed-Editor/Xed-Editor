@@ -69,7 +69,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.file.FileObject
@@ -80,7 +79,6 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
-import com.rk.utils.errorDialog
 import com.rk.utils.formatFileSize
 import com.rk.utils.logError
 import com.rk.utils.toast
@@ -98,36 +96,30 @@ class ProjectCreatorActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        runCatching {
-            val root =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    intent.getParcelableExtra("root", FileObject::class.java)
-                } else {
-                    intent.getParcelableExtra("root")
-                }
-
-            setContent {
-                XedTheme {
-                    ProjectCreatorContent(root)
-                }
+        val root =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra("root", Uri::class.java)
+            } else {
+                intent.getParcelableExtra("root")
             }
-        }.onFailure {
-            it.printStackTrace()
-            toast(it.message)
-            finish()
-        }
+        val parentFolder = root?.toFileObject(expectedIsFile = false)
 
+        setContent {
+            XedTheme {
+                ProjectCreatorContent(parentFolder)
+            }
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun ProjectCreatorContent(parentFolder: FileObject?) {
 
-        val categories = ProjectTemplateRegistry.categories.collectAsStateWithLifecycle()
+        val categories = ProjectTemplateRegistry.categories
         val categoryPagerState =
             rememberPagerState(
                 initialPage = 0,
-                pageCount = { categories.value.size },
+                pageCount = { categories.size },
             )
 
         var currentPage by remember { mutableStateOf(ProjectCreatorPage.SELECTION) }
@@ -301,7 +293,7 @@ class ProjectCreatorActivity : ComponentActivity() {
                 when (page) {
                     ProjectCreatorPage.SELECTION -> {
                         TemplateSelectionPage(
-                            categories = categories.value,
+                            categories = categories,
                             categoryPagerState = categoryPagerState,
                             onTemplateSelect = { template ->
                                 selectedTemplate = template

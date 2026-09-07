@@ -13,7 +13,7 @@ import android.provider.DocumentsContract
 import android.provider.DocumentsProvider
 import android.util.Log
 import android.webkit.MimeTypeMap
-import com.rk.file.sandboxHomeDir
+import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.R
@@ -26,7 +26,7 @@ import java.util.Locale
 
 class DocumentProvider : DocumentsProvider() {
     override fun queryRoots(projection: Array<String>?): Cursor {
-        val BASE_DIR = sandboxHomeDir(context!!)
+        val BASE_DIR = sandboxDir(context!!)
 
         val result = MatrixCursor(projection ?: DEFAULT_ROOT_PROJECTION)
         val applicationName = strings.app_name.getString()
@@ -153,7 +153,7 @@ class DocumentProvider : DocumentsProvider() {
             // through the whole SD card).
             var isInsideHome: Boolean =
                 try {
-                    file.canonicalPath.startsWith(sandboxHomeDir().canonicalPath)
+                    file.canonicalPath.startsWith(sandboxDir().canonicalPath)
                 } catch (e: IOException) {
                     true
                 }

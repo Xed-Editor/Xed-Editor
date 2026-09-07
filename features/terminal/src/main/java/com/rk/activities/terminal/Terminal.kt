@@ -49,6 +49,7 @@ import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.terminal.NEXT_STAGE
 import com.rk.terminal.ROOTFS_ARM
 import com.rk.terminal.ROOTFS_ARM64
@@ -114,6 +115,7 @@ class Terminal : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         instance = this
+        Settings.last_screen_terminal = true
     }
 
     fun handleIntent(intent: Intent) {

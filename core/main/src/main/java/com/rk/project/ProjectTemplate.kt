@@ -2,13 +2,11 @@ package com.rk.project
 
 import android.app.Activity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.icons.Icon
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 interface ProjectTemplate {
     val id: String
@@ -29,16 +27,18 @@ interface ProjectTemplate {
 }
 
 class ProjectCategory(val id: String, val label: String, val icon: Icon? = null) {
-    val templates = mutableListOf<ProjectTemplate>()
+    val templates = mutableStateListOf<ProjectTemplate>()
 }
 
 object ProjectTemplateRegistry {
-    private val _categories = MutableStateFlow<List<ProjectCategory>>(emptyList())
-    val categories: StateFlow<List<ProjectCategory>> = _categories.asStateFlow()
+    private val _categories = mutableStateListOf<ProjectCategory>()
+    val categories: SnapshotStateList<ProjectCategory> = _categories
 
     @XedExtensionPoint
     fun registerCategory(category: ProjectCategory) {
-        _categories.update { list -> if (list.none { it.id == category.id }) list + category else list }
+        if (_categories.none { it.id == category.id }) {
+            _categories.add(category)
+        }
     }
 
     @XedExtensionPoint
@@ -50,7 +50,7 @@ object ProjectTemplateRegistry {
 
     @XedExtensionPoint
     fun getCategoryForId(id: String): ProjectCategory? {
-        return _categories.value.find { it.id == id }
+        return _categories.find { it.id == id }
     }
 
     @XedExtensionPoint
@@ -65,6 +65,6 @@ object ProjectTemplateRegistry {
 
     @XedExtensionPoint
     fun unregisterCategory(category: ProjectCategory) {
-        _categories.update { it - category }
+        _categories.remove(category)
     }
 }

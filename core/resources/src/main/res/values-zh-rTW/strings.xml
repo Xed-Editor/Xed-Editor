@@ -134,9 +134,9 @@
     <string name="update">更新</string>
     <string name="ignore">忽略</string>
     <string name="restore_sessions">恢復工作階段</string>
-    <string name="terminal_home">終端機主頁</string>
+    <string name="terminal_home">終端系統目錄</string>
     <string name="restore_sessions_desc">恢復先前的分頁</string>
-    <string name="terminal_home_desc">終端機的預設主目錄</string>
+    <string name="terminal_home_desc">終端完整系統目錄</string>
     <string name="sessions">工作階段</string>
     <string name="add_session">新增工作階段</string>
     <string name="ext">擴充功能</string>

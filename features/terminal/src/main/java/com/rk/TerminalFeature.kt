@@ -19,6 +19,7 @@ import com.rk.feature.FeatureRegistry
 import com.rk.feature.FeatureToggle
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
+import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext
@@ -44,6 +45,7 @@ import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.terminal.TerminalCheckScreen
 import com.rk.settings.terminal.TerminalExtraKeys
+import com.rk.terminal.openDirectoryInTerminal
 import com.rk.utils.dialogRes
 import com.rk.utils.toast
 
@@ -91,13 +93,13 @@ class TerminalFeature : Feature {
                                         Settings.has_shown_terminal_dir_warning = true
                                         MainActivity.instance
                                             ?.drawerViewModel
-                                            ?.addFileTreeTab(FileWrapper(sandboxHomeDir()), true)
+                                            ?.addFileTreeTab(FileWrapper(sandboxDir()), true)
                                     },
                                 )
                             } else {
                                 MainActivity.instance
                                     ?.drawerViewModel
-                                    ?.addFileTreeTab(FileWrapper(sandboxHomeDir()), true)
+                                    ?.addFileTreeTab(FileWrapper(sandboxDir()), true)
                             }
                             onDismiss()
                         },
@@ -171,16 +173,14 @@ object TerminalAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.terminal)
     override val title = strings.open_in_terminal.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override fun action(context: FileActionContext) {
         val file = context.file
         val ctx = context.context
 
-        val intent = Intent(ctx, Terminal::class.java)
-        intent.putExtra("cwd", file.getAbsolutePath())
-        ctx.startActivity(intent)
+        openDirectoryInTerminal(ctx, file.getAbsolutePath())
     }
 
-    override suspend fun isSupported(file: FileObject, root: FileObject?): Boolean {
+    override fun isSupported(file: FileObject): Boolean {
         return file is FileWrapper && FeatureRegistry.isEnabled("feature_terminal")
     }
 

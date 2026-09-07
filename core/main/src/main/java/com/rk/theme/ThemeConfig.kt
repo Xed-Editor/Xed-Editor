@@ -147,14 +147,3 @@ data class ThemeConfig(
     val light: ThemePalette?,
     val dark: ThemePalette?,
 ) : java.io.Serializable
-
-/**
- * Content of a theme's `theme.json`. Kept separate from [ThemeManifest] at all
- * times: `manifest.json` carries package metadata only, `theme.json` carries the
- * color palettes only.
- */
-@Serializable
-data class ThemeFile(
-    val light: ThemePaletteNew? = null,
-    val dark: ThemePaletteNew? = null,
-)

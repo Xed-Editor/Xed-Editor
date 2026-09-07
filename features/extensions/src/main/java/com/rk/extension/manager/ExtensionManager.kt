@@ -2,6 +2,7 @@ package com.rk.extension.manager
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.edit
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.DefaultScope
@@ -28,10 +29,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -51,17 +48,14 @@ data class LoadedExtension(val api: ExtensionAPI, val scope: CoroutineScope)
 
 open class ExtensionManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
     private val mutex = Mutex()
-    private val _installedExtensions = MutableStateFlow<Map<ExtensionId, LocalExtension>>(emptyMap())
-    val installedExtensions: StateFlow<Map<ExtensionId, LocalExtension>> = _installedExtensions.asStateFlow()
-    private val _storeExtension = MutableStateFlow<Map<ExtensionId, StoreExtension>>(emptyMap())
-    val storeExtension: StateFlow<Map<ExtensionId, StoreExtension>> = _storeExtension.asStateFlow()
+    val installedExtensions = mutableStateMapOf<ExtensionId, LocalExtension>()
+    val storeExtension = mutableStateMapOf<ExtensionId, StoreExtension>()
     val json = Json {
         ignoreUnknownKeys = true
         allowTrailingComma = true
     }
 
-    private val _loadedExtensions = MutableStateFlow<Map<LocalExtension, LoadedExtension?>>(emptyMap())
-    val loadedExtensions: StateFlow<Map<LocalExtension, LoadedExtension?>> = _loadedExtensions.asStateFlow()
+    val loadedExtensions = mutableStateMapOf<LocalExtension, LoadedExtension?>()
 
     private val disabledPrefs by lazy {
         context.getSharedPreferences("disabled_extensions", Context.MODE_PRIVATE)
@@ -80,11 +74,11 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         }
     }
 
-    fun isInstalled(extensionId: ExtensionId) = installedExtensions.value.containsKey(extensionId)
+    fun isInstalled(extensionId: ExtensionId) = installedExtensions.containsKey(extensionId)
 
     fun getExtension(extensionId: ExtensionId): Extension? {
-        val local = installedExtensions.value[extensionId]
-        val store = storeExtension.value[extensionId]
+        val local = installedExtensions[extensionId]
+        val store = storeExtension[extensionId]
 
         return when {
             local != null && store != null -> UpdatableExtension(local, store)
@@ -95,7 +89,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     fun getSyncedExtensions(): List<Extension> {
-        val allIds = installedExtensions.value.keys + storeExtension.value.keys
+        val allIds = installedExtensions.keys + storeExtension.keys
         return allIds.mapNotNull { id -> getExtension(id) }
     }
 
@@ -105,14 +99,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     fun getStoreExtensions(): List<Extension> {
         return getSyncedExtensions().filter { it is StoreExtension || it is UpdatableExtension }
-    }
-
-    fun clearLoadedExtensions() {
-        _loadedExtensions.value = emptyMap()
-    }
-
-    fun registerLoadedExtension(extension: LocalExtension, loaded: LoadedExtension) {
-        _loadedExtensions.update { it + (extension to loaded) }
     }
 
     private suspend fun calcSize(dir: File): Long {
@@ -149,7 +135,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             writeCache(dir, cache.copy(size = newSize))
 
             withContext(Dispatchers.Main) {
-                installedExtensions.value[extension.id]?.size = newSize
+                installedExtensions[extension.id]?.size = newSize
             }
         }
     }
@@ -189,10 +175,9 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 map
             }
         withContext(Dispatchers.Main) {
-            _installedExtensions.update { current ->
-                val retained = current.filterKeys { it in newExtensions }
-                retained + newExtensions
-            }
+            val toRemove = installedExtensions.keys.filter { it !in newExtensions }
+            toRemove.forEach { installedExtensions.remove(it) }
+            installedExtensions.putAll(newExtensions)
         }
     }
 
@@ -205,10 +190,9 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                     .getOrNull() ?: return@withContext
             val newExtensions = extensions.associate { it.id to StoreExtension(it) }
             withContext(Dispatchers.Main) {
-                _storeExtension.update { current ->
-                    val retained = current.filterKeys { it in newExtensions }
-                    retained + newExtensions
-                }
+                val toRemove = storeExtension.keys.filter { it !in newExtensions }
+                toRemove.forEach { storeExtension.remove(it) }
+                storeExtension.putAll(newExtensions)
             }
         }
 
@@ -298,7 +282,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                     createdAt = newExtensionCache.createdAt,
                     updatedAt = newExtensionCache.updatedAt,
                 )
-            _installedExtensions.update { it + (extensionInfo.id to extension) }
+            installedExtensions[extensionInfo.id] = extension
 
             Events.publish(ExtensionEvent.Installed(extension))
 
@@ -309,10 +293,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         withContext(Dispatchers.IO) {
             try {
                 val extension =
-                    installedExtensions.value[extensionId]
+                    installedExtensions[extensionId]
                         ?: return@withContext Result.failure(Exception("Extension not found"))
 
-                val loadedExtension = loadedExtensions.value[extension]
+                val loadedExtension = loadedExtensions[extension]
                 runCatching {
                     loadedExtension?.api?.onDispose()
                     if (update) {
@@ -322,7 +306,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                     }
                 }
                     .onFailure { errorDialog(title = strings.ext_cleanup_failed.getString(), throwable = it) }
-                loadedExtensions.value[extension]?.scope?.cancel()
+                loadedExtensions[extension]?.scope?.cancel()
 
                 val extensionDir = File(extension.installPath)
                 if (!extensionDir.exists()) {
@@ -330,7 +314,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 }
 
                 extensionDir.deleteRecursively()
-                _installedExtensions.update { it - extensionId }
+                installedExtensions.remove(extensionId)
 
                 DefaultScope.launch { Events.publish(ExtensionEvent.Uninstalled(extension, update)) }
 

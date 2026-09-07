@@ -86,6 +86,7 @@ object Settings {
         }
 
     var expose_home_dir by CachedPreference("expose_home_dir", false)
+    var last_screen_terminal by CachedPreference("last_screen_terminal", false)
 
     private var _verbose_error by CachedPreference("verbose_error", BuildConfig.DEBUG)
     var verbose_error: Boolean
@@ -538,4 +539,4 @@ open class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWrite
 }
 
 private const val DEFAULT_TERMINAL_EXTRA_KEYS =
-    "[\n  [\n    \"ESC\",\n    {\n      \"key\": \"/\",\n      \"popup\": \"\\\\\"\n    },\n    {\n      \"key\": \"-\",\n      \"popup\": \"|\"\n    },\n    \"HOME\",\n    \"UP\",\n    \"END\",\n    \"PGUP\"\n  ],\n  [\n    \"TAB\",\n    \"CTRL\",\n    \"ALT\",\n    \"LEFT\",\n    \"DOWN\",\n    \"RIGHT\",\n    \"PGDN\"\n  ]\n]"
+    "[\n  [\n    \"ESC\",\n    {\n      \"key\": \"/\",\n      \"popup\": \"\\\\\"\n    },\n    \"SHIFT\",\n    \"HOME\",\n    \"UP\",\n    \"END\",\n    \"PGUP\"\n  ],\n  [\n    \"TAB\",\n    \"CTRL\",\n    \"ALT\",\n    \"LEFT\",\n    \"DOWN\",\n    \"RIGHT\",\n    \"PGDN\"\n  ]\n]"

@@ -33,12 +33,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +54,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import kotlinx.coroutines.launch
+import java.io.File
 import kotlin.math.min
 
 enum class SortMode(val stringRes: Int) {
@@ -73,22 +72,6 @@ fun FileTree(
     viewModel: FileTreeViewModel,
     drawerViewModel: DrawerViewModel,
 ) {
-    val sortMode by viewModel.sortMode.collectAsStateWithLifecycle()
-    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
-    val selectedFiles by viewModel.selectedFiles.collectAsStateWithLifecycle()
-    val fileOperationsCount by viewModel.fileOperationsCount.collectAsStateWithLifecycle()
-    val searchVM = searchViewModel.get()
-    val isIndexingMap =
-        if (searchVM != null) {
-            searchVM.isIndexing.collectAsStateWithLifecycle(initialValue = emptyMap()).value
-        } else {
-            emptyMap()
-        }
-    val isIndexingRoot = isIndexingMap[rootNode.file] == true
-    val isAnyFileSelected = selectedFiles[rootNode.file]?.isNotEmpty() == true
-    val selectionCount = selectedFiles[rootNode.file]?.size ?: 0
-    val isFileOperationInProgress = fileOperationsCount > 0
-
     // Auto-expand root node on first composition
     LaunchedEffect(rootNode.file) {
         if (!viewModel.isNodeExpanded(rootNode.file, rootNode.file)) {
@@ -105,20 +88,20 @@ fun FileTree(
         }
     }
 
-    LaunchedEffect(sortMode) { viewModel.refreshEverything() }
+    LaunchedEffect(viewModel.sortMode) { viewModel.refreshEverything() }
 
     Column(modifier = modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (isAnyFileSelected) {
+            if (viewModel.isAnyFileSelected(rootNode.file)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = { viewModel.unselectAllFiles(rootNode.file) }) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(strings.go_prev))
                     }
 
-                    Text(selectionCount.toString())
+                    Text(viewModel.getSelectionCount(rootNode.file).toString())
                 }
             }
 
@@ -127,7 +110,7 @@ fun FileTree(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.weight(1f),
             ) {
-                if (isAnyFileSelected) {
+                if (viewModel.isAnyFileSelected(rootNode.file)) {
                     SelectionActions(viewModel, drawerViewModel, rootNode)
                 } else {
                     FileTreeActions(viewModel, onSearchClick)
@@ -136,7 +119,7 @@ fun FileTree(
         }
 
         Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
-            if (isFileOperationInProgress || isIndexingRoot) {
+            if (viewModel.isFileOperationInProgress() || searchViewModel.get()?.isIndexing(rootNode.file) == true) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxSize())
             } else {
                 HorizontalDivider()
@@ -144,7 +127,7 @@ fun FileTree(
         }
 
         PullToRefreshBox(
-            isRefreshing = isRefreshing,
+            isRefreshing = viewModel.isRefreshing,
             onRefresh = { viewModel.viewModelScope.launch { viewModel.refreshEverything(wasPulled = true) } },
             modifier = Modifier.fillMaxWidth().weight(1f),
         ) {
@@ -173,26 +156,8 @@ fun FileTree(
 @Composable
 private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: DrawerViewModel, rootNode: FileTreeNode) {
     val selectedFiles = viewModel.getSelectedFiles(rootNode.file)
-    val scope = rememberCoroutineScope()
-    var actions by remember(selectedFiles, rootNode.file) { mutableStateOf<List<BaseFileAction>>(emptyList()) }
-    var enabledActions by remember(selectedFiles, rootNode.file) { mutableStateOf<Set<BaseFileAction>>(emptySet()) }
+    val actions = remember(selectedFiles, rootNode.file) { FileActionProvider.getActions(selectedFiles, rootNode.file) }
     var expanded by remember { mutableStateOf(false) }
-
-    LaunchedEffect(selectedFiles, rootNode.file) {
-        actions = FileActionProvider.getActions(selectedFiles, rootNode.file)
-    }
-    LaunchedEffect(actions, selectedFiles, rootNode.file) {
-        enabledActions =
-            actions
-                .filter { action ->
-                    when (action) {
-                        is FileAction -> action.isEnabled(selectedFiles.first(), rootNode.file)
-                        is MultiFileAction -> action.isEnabled(selectedFiles, rootNode.file)
-                        else -> true
-                    }
-                }
-                .toSet()
-    }
 
     val context = LocalContext.current
 
@@ -218,11 +183,11 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                     is FileAction -> {
                         val file = selectedFiles.first() // Is safe because of the check in getActions()
                         IconButton(
-                            enabled = action in enabledActions,
+                            enabled = action.isEnabled(file),
                             onClick = {
                                 val context =
                                     FileActionContext(file, rootNode.file, viewModel, drawerViewModel, context)
-                                scope.launch { action.execute(context) }
+                                action.action(context)
 
                                 viewModel.unselectAllFiles(rootNode.file)
                             },
@@ -232,7 +197,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                     }
                     is MultiFileAction -> {
                         IconButton(
-                            enabled = action in enabledActions,
+                            enabled = action.isEnabled(selectedFiles),
                             onClick = {
                                 val context =
                                     MultiFileActionContext(
@@ -242,7 +207,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                         drawerViewModel,
                                         context,
                                     )
-                                scope.launch { action.execute(context) }
+                                action.action(context)
 
                                 viewModel.unselectAllFiles(rootNode.file)
                             },
@@ -267,7 +232,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                     XedDropdownMenuItem(
                                         text = { Text(action.title) },
                                         leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
-                                        enabled = action in enabledActions,
+                                        enabled = action.isEnabled(file),
                                         onClick = {
                                             val context =
                                                 FileActionContext(
@@ -277,7 +242,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                                     drawerViewModel,
                                                     context,
                                                 )
-                                            scope.launch { action.execute(context) }
+                                            action.action(context)
 
                                             viewModel.unselectAllFiles(rootNode.file)
                                             expanded = false
@@ -288,7 +253,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                     XedDropdownMenuItem(
                                         text = { Text(action.title) },
                                         leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
-                                        enabled = action in enabledActions,
+                                        enabled = action.isEnabled(selectedFiles),
                                         onClick = {
                                             val context =
                                                 MultiFileActionContext(
@@ -298,7 +263,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                                                     drawerViewModel,
                                                     context,
                                                 )
-                                            scope.launch { action.execute(context) }
+                                            action.action(context)
 
                                             viewModel.unselectAllFiles(rootNode.file)
                                             expanded = false
@@ -317,7 +282,6 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
 @Composable
 private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> Unit) {
     var showOptionsMenu by remember { mutableStateOf(false) }
-    val sortMode by viewModel.sortMode.collectAsStateWithLifecycle()
 
     IconButton(onClick = { viewModel.viewModelScope.launch { viewModel.refreshEverything() } }) {
         Icon(Icons.Outlined.Refresh, stringResource(strings.refresh))
@@ -362,15 +326,15 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
             XedDropdownMenuItem(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(selected = sortMode == SortMode.SORT_BY_NAME, onClick = null)
+                        RadioButton(selected = viewModel.sortMode == SortMode.SORT_BY_NAME, onClick = null)
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(strings.sort_by_name))
                         Spacer(Modifier.width(8.dp))
                     }
                 },
                 onClick = {
-                    viewModel.setSortMode(SortMode.SORT_BY_NAME)
-                    Settings.sort_mode = SortMode.SORT_BY_NAME.ordinal
+                    viewModel.sortMode = SortMode.SORT_BY_NAME
+                    Settings.sort_mode = viewModel.sortMode.ordinal
                     showOptionsMenu = false
                 },
             )
@@ -378,15 +342,15 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
             XedDropdownMenuItem(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(selected = sortMode == SortMode.SORT_BY_SIZE, onClick = null)
+                        RadioButton(selected = viewModel.sortMode == SortMode.SORT_BY_SIZE, onClick = null)
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(strings.sort_by_size))
                         Spacer(Modifier.width(8.dp))
                     }
                 },
                 onClick = {
-                    viewModel.setSortMode(SortMode.SORT_BY_SIZE)
-                    Settings.sort_mode = SortMode.SORT_BY_SIZE.ordinal
+                    viewModel.sortMode = SortMode.SORT_BY_SIZE
+                    Settings.sort_mode = viewModel.sortMode.ordinal
                     showOptionsMenu = false
                 },
             )
@@ -394,15 +358,15 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
             XedDropdownMenuItem(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(selected = sortMode == SortMode.SORT_BY_DATE, onClick = null)
+                        RadioButton(selected = viewModel.sortMode == SortMode.SORT_BY_DATE, onClick = null)
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(strings.sort_by_date))
                         Spacer(Modifier.width(8.dp))
                     }
                 },
                 onClick = {
-                    viewModel.setSortMode(SortMode.SORT_BY_DATE)
-                    Settings.sort_mode = SortMode.SORT_BY_DATE.ordinal
+                    viewModel.sortMode = SortMode.SORT_BY_DATE
+                    Settings.sort_mode = viewModel.sortMode.ordinal
                     showOptionsMenu = false
                 },
             )
@@ -411,7 +375,9 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
 }
 
 fun FileObject.getAppropriateName(): String {
-    return if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath) {
+    return if (getAbsolutePath() == File("/sdcard").absolutePath ||
+        getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath
+    ) {
         strings.storage.getString()
     } else {
         getName()

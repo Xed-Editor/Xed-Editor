@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         isPaused = false
         instance = this
+        Settings.last_screen_terminal = false
         lifecycleScope.launch(Dispatchers.IO) {
             handleIntent(intent)
             foregroundListener.values.forEach { it.invoke(true) }
@@ -152,6 +153,18 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         instance = this
+
+        // If the user last left the app from the terminal screen, restore the terminal on next launch
+        if (Settings.last_screen_terminal && Settings.shown_disclaimer) {
+            val action = intent.action
+            if (action == null || action == Intent.ACTION_MAIN) {
+                Settings.last_screen_terminal = false
+                window.decorView.post {
+                    startActivity(Intent().setClassName(this, "com.rk.activities.terminal.Terminal"))
+                }
+            }
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
@@ -178,7 +191,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 composable(MainRoutes.Disclaimer.route) { DisclaimerScreen(navController) { finishAffinity() } }
 
-                MainRouteRegistry.routes.value.forEach { customRoute ->
+                MainRouteRegistry.routes.forEach { customRoute ->
                     composable(customRoute.route, arguments = customRoute.arguments) { backStackEntry ->
                         customRoute.content(navController, backStackEntry)
                     }

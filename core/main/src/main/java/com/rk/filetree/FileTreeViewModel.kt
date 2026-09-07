@@ -1,23 +1,24 @@
 package com.rk.filetree
 
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.ui.searchViewModel
 import com.rk.events.Events
 import com.rk.events.FileTreeEvent
-import com.rk.extension.ActivityProvider
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.file.ZipFileObject
 import com.rk.search.utils.GlobExcluder
 import com.rk.settings.Settings
-import com.rk.utils.LoadingPopup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
@@ -41,173 +42,130 @@ fun FileObject.isXedPackage(): Boolean {
 
 class FileTreeViewModel : ViewModel() {
     // File option dialogs
-    private val _showRenameDialog = MutableStateFlow(false)
-    val showRenameDialog = _showRenameDialog.asStateFlow()
+    var showRenameDialog by mutableStateOf(false)
+        private set
 
-    private val _renameFile = MutableStateFlow<FileObject?>(null)
-    val renameFile = _renameFile.asStateFlow()
+    var renameFile by mutableStateOf<FileObject?>(null)
+        private set
 
-    private val _renameValue = MutableStateFlow("")
-    val renameValue = _renameValue.asStateFlow()
+    var renameValue by mutableStateOf("")
 
-    private val _renameError = MutableStateFlow<String?>(null)
-    val renameError = _renameError.asStateFlow()
+    var renameError by mutableStateOf<String?>(null)
+    var showDeleteConfirmation by mutableStateOf(false)
+        private set
 
-    private val _showDeleteConfirmation = MutableStateFlow(false)
-    val showDeleteConfirmation = _showDeleteConfirmation.asStateFlow()
+    var deleteFiles by mutableStateOf<List<FileObject>?>(null)
+        private set
 
-    private val _deleteFiles = MutableStateFlow<List<FileObject>?>(null)
-    val deleteFiles = _deleteFiles.asStateFlow()
+    var deleteRoot by mutableStateOf<FileObject?>(null)
+        private set
 
-    private val _deleteRoot = MutableStateFlow<FileObject?>(null)
-    val deleteRoot = _deleteRoot.asStateFlow()
+    var showPropertiesDialog by mutableStateOf(false)
+        private set
 
-    private val _showPropertiesDialog = MutableStateFlow(false)
-    val showPropertiesDialog = _showPropertiesDialog.asStateFlow()
+    var propertyFile by mutableStateOf<FileObject?>(null)
+        private set
 
-    private val _propertyFile = MutableStateFlow<FileObject?>(null)
-    val propertyFile = _propertyFile.asStateFlow()
+    var isCreateFile by mutableStateOf(true)
+        private set
 
-    private val _isCreateFile = MutableStateFlow(true)
-    val isCreateFile = _isCreateFile.asStateFlow()
+    var createValue by mutableStateOf("")
+    var createError by mutableStateOf<String?>(null)
+    var showCreateDialog by mutableStateOf(false)
+        private set
 
-    private val _createValue = MutableStateFlow("")
-    val createValue = _createValue.asStateFlow()
+    var createParentFile by mutableStateOf<FileObject?>(null)
+        private set
 
-    private val _createError = MutableStateFlow<String?>(null)
-    val createError = _createError.asStateFlow()
+    var createRoot by mutableStateOf<FileObject?>(null)
+        private set
 
-    private val _showCreateDialog = MutableStateFlow(false)
-    val showCreateDialog = _showCreateDialog.asStateFlow()
+    var showCloseProjectConfirmation by mutableStateOf(false)
+        private set
 
-    private val _createParentFile = MutableStateFlow<FileObject?>(null)
-    val createParentFile = _createParentFile.asStateFlow()
-
-    private val _createRoot = MutableStateFlow<FileObject?>(null)
-    val createRoot = _createRoot.asStateFlow()
-
-    private val _showCloseProjectConfirmation = MutableStateFlow(false)
-    val showCloseProjectConfirmation = _showCloseProjectConfirmation.asStateFlow()
-
-    private val _projectConfirmationRoot = MutableStateFlow<FileObject?>(null)
-    val projectConfirmationRoot = _projectConfirmationRoot.asStateFlow()
-
-    fun setRenameValue(value: String) {
-        _renameValue.value = value
-    }
-
-    fun setRenameError(value: String?) {
-        _renameError.value = value
-    }
-
-    fun setCreateValue(value: String) {
-        _createValue.value = value
-    }
-
-    fun setCreateError(value: String?) {
-        _createError.value = value
-    }
-
-    fun setSortMode(value: SortMode) {
-        _sortMode.value = value
-    }
+    var projectConfirmationRoot by mutableStateOf<FileObject?>(null)
+        private set
 
     fun showRenameDialog(file: FileObject) {
-        _showRenameDialog.value = true
-        _renameValue.value = file.getName()
-        _renameFile.value = file
+        showRenameDialog = true
+        renameValue = file.getName()
+        renameFile = file
     }
 
     fun closeRenameDialog() {
-        _showRenameDialog.value = false
-        _renameValue.value = ""
-        _renameError.value = null
-        _renameFile.value = null
+        showRenameDialog = false
+        renameValue = ""
+        renameError = null
+        renameFile = null
     }
 
     fun showDeleteConfirmation(files: List<FileObject>, root: FileObject?) {
-        _showDeleteConfirmation.value = true
-        _deleteFiles.value = files
-        _deleteRoot.value = root
+        showDeleteConfirmation = true
+        deleteFiles = files
+        deleteRoot = root
     }
 
     fun closeDeleteConfirmation() {
-        _showDeleteConfirmation.value = false
-        _deleteFiles.value = null
-        _deleteRoot.value = null
+        showDeleteConfirmation = false
+        deleteFiles = null
+        deleteRoot = null
     }
 
     fun showPropertiesDialog(file: FileObject) {
-        _showPropertiesDialog.value = true
-        _propertyFile.value = file
+        showPropertiesDialog = true
+        propertyFile = file
     }
 
     fun closePropertiesDialog() {
-        _showPropertiesDialog.value = false
-        _propertyFile.value = null
+        showPropertiesDialog = false
+        propertyFile = null
     }
 
     fun showCreateDialog(isCreateFile: Boolean, parentFile: FileObject, root: FileObject?) {
-        _isCreateFile.value = isCreateFile
-        _showCreateDialog.value = true
-        _createParentFile.value = parentFile
-        _createRoot.value = root
+        this.isCreateFile = isCreateFile
+        showCreateDialog = true
+        createParentFile = parentFile
+        createRoot = root
     }
 
     fun closeCreateDialog() {
-        _showCreateDialog.value = false
-        _createError.value = null
-        _createParentFile.value = null
-        _createRoot.value = null
+        showCreateDialog = false
+        createError = null
+        createParentFile = null
+        createRoot = null
     }
 
     fun showCloseProjectConfirmation(root: FileObject) {
-        _showCloseProjectConfirmation.value = true
-        _projectConfirmationRoot.value = root
+        showCloseProjectConfirmation = true
+        projectConfirmationRoot = root
     }
 
     fun closeCloseProjectConfirmation() {
-        _showCloseProjectConfirmation.value = false
-        _projectConfirmationRoot.value = null
+        showCloseProjectConfirmation = false
+        projectConfirmationRoot = null
     }
 
     // File tree
-    private val _sortMode = MutableStateFlow(SortMode.entries[Settings.sort_mode])
-    val sortMode = _sortMode.asStateFlow()
+    var sortMode by mutableStateOf(SortMode.entries[Settings.sort_mode])
+    var isRefreshing by mutableStateOf(false)
+        private set
 
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing = _isRefreshing.asStateFlow()
+    private val selectedFiles = mutableStateMapOf<FileObject, List<FileObject>>()
+    private val focusedFile = mutableStateMapOf<FileObject, FileObject>()
+    private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
+    private val expandedNodes = mutableStateMapOf<FileObject, Set<FileObject>>()
+    private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
+    private var fileOperationsCount by mutableIntStateOf(0)
 
-    private val _selectedFiles = MutableStateFlow<Map<FileObject, List<FileObject>>>(emptyMap())
-    val selectedFiles = _selectedFiles.asStateFlow()
-
-    private val _focusedFile = MutableStateFlow<Map<FileObject, FileObject>>(emptyMap())
-    val focusedFile = _focusedFile.asStateFlow()
-
-    private val _fileListCache = MutableStateFlow<Map<FileObject, List<FileTreeNode>>>(emptyMap())
-    val fileListCache = _fileListCache.asStateFlow()
-
-    private val _expandedNodes = MutableStateFlow<Map<FileObject, Set<FileObject>>>(emptyMap())
-    val expandedNodes = _expandedNodes.asStateFlow()
-
-    private val _collapsedNameCache = MutableStateFlow<Map<FileObject, String>>(emptyMap())
-    val collapsedNameCache = _collapsedNameCache.asStateFlow()
-
-    private val _fileOperationsCount = MutableStateFlow(0)
-    val fileOperationsCount = _fileOperationsCount.asStateFlow()
-
-    private val excluder: GlobExcluder
-        get() = GlobExcluder(Settings.excluded_files_drawer)
+    private val excluder by derivedStateOf { GlobExcluder(Settings.excluded_files_drawer) }
 
     fun getExpandedNodes(): Map<FileObject, Set<FileObject>> {
         // Convert to java `Set` to make serialization possible
-        return _expandedNodes.value.mapValues { (_, value) -> HashSet(value) }
+        return expandedNodes.mapValues { (_, value) -> HashSet(value) }
     }
 
     fun setExpandedNodes(map: Map<FileObject, Set<FileObject>>) {
-        _expandedNodes.update { current ->
-            map.entries.fold(current) { acc, (key, value) -> acc + (key to (acc[key]?.plus(value) ?: value)) }
-        }
+        map.forEach { (key, value) -> expandedNodes[key] = expandedNodes[key]?.plus(value) ?: value }
     }
 
     fun toggleSelection(projectRoot: FileObject, fileObject: FileObject) {
@@ -222,39 +180,37 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun selectFile(projectRoot: FileObject, fileObject: FileObject) {
-        _selectedFiles.update { map ->
-            map + (projectRoot to ((map[projectRoot] ?: emptyList()) + fileObject))
-        }
+        selectedFiles[projectRoot] = selectedFiles[projectRoot]?.plus(fileObject) ?: listOf(fileObject)
     }
 
     fun unselectFile(projectRoot: FileObject, fileObject: FileObject) {
-        _selectedFiles.update { map ->
-            val newList = (map[projectRoot] ?: emptyList()) - fileObject
-            if (newList.isEmpty()) map - projectRoot else map + (projectRoot to newList)
+        selectedFiles[projectRoot] = selectedFiles[projectRoot]?.minus(fileObject) ?: listOf(fileObject)
+        if (selectedFiles[projectRoot]?.isEmpty() == true) {
+            selectedFiles.remove(projectRoot)
         }
     }
 
     fun unselectAllFiles(projectRoot: FileObject) {
-        _selectedFiles.update { it - projectRoot }
+        selectedFiles.remove(projectRoot)
         viewModelScope.launch {
             Events.publish(FileTreeEvent.SelectionChanged(projectRoot, emptyList()))
         }
     }
 
     fun isFileSelected(projectRoot: FileObject, fileObject: FileObject): Boolean {
-        return _selectedFiles.value[projectRoot]?.contains(fileObject) == true
+        return selectedFiles[projectRoot]?.contains(fileObject) == true
     }
 
     fun isAnyFileSelected(projectRoot: FileObject): Boolean {
-        return _selectedFiles.value[projectRoot]?.isNotEmpty() == true
+        return selectedFiles[projectRoot]?.isNotEmpty() == true
     }
 
     fun getSelectionCount(projectRoot: FileObject): Int {
-        return _selectedFiles.value[projectRoot]?.size ?: 0
+        return selectedFiles[projectRoot]?.size ?: 0
     }
 
     fun getSelectedFiles(projectRoot: FileObject): List<FileObject> {
-        return _selectedFiles.value[projectRoot] ?: emptyList()
+        return selectedFiles[projectRoot] ?: emptyList()
     }
 
     @XedExtensionPoint
@@ -268,53 +224,52 @@ class FileTreeViewModel : ViewModel() {
     }
 
     private fun registerFileOperation() {
-        _fileOperationsCount.update { it + 1 }
+        fileOperationsCount++
     }
 
     private fun unregisterFileOperation() {
-        _fileOperationsCount.update { if (it > 0) it - 1 else it }
+        if (fileOperationsCount > 0) {
+            fileOperationsCount--
+        }
     }
 
     fun isFileOperationInProgress(): Boolean {
-        return _fileOperationsCount.value > 0
+        return fileOperationsCount > 0
     }
 
-    private val _cutNodes = MutableStateFlow<List<FileObject>>(emptyList())
-    val cutNodes = _cutNodes.asStateFlow()
+    private val cutNodes = mutableStateListOf<FileObject>()
 
     // File -> Error severity (see DiagnosticRegion.java)
-    private val _diagnosedNodes = MutableStateFlow<Map<FileObject, Int>>(emptyMap())
-    val diagnosedNodes = _diagnosedNodes.asStateFlow()
+    private val diagnosedNodes = mutableStateMapOf<FileObject, Int>()
 
     // Track loading states to avoid showing spinners incorrectly
-    private val _loadingStates = MutableStateFlow<Map<FileObject, Boolean>>(emptyMap())
-    val loadingStates = _loadingStates.asStateFlow()
+    private val _loadingStates = mutableStateMapOf<FileObject, Boolean>()
 
     fun isNodeExpanded(projectRoot: FileObject, fileObject: FileObject): Boolean =
-        _expandedNodes.value[projectRoot]?.contains(fileObject) ?: false
+        expandedNodes[projectRoot]?.contains(fileObject) ?: false
 
-    fun isNodeLoading(fileObject: FileObject): Boolean = _loadingStates.value[fileObject] == true
+    fun isNodeLoading(fileObject: FileObject): Boolean = _loadingStates[fileObject] == true
 
-    fun isNodeCut(fileObject: FileObject): Boolean = _cutNodes.value.contains(fileObject)
+    fun isNodeCut(fileObject: FileObject): Boolean = cutNodes.contains(fileObject)
 
     fun markNodeAsCut(fileObject: FileObject) {
-        _cutNodes.update { it + fileObject }
+        cutNodes.add(fileObject)
     }
 
     fun unmarkNodeAsCut(fileObject: FileObject) {
-        _cutNodes.update { it - fileObject }
+        cutNodes.remove(fileObject)
     }
 
     fun diagnoseNode(fileObject: FileObject, severity: Int) {
-        _diagnosedNodes.update { it + (fileObject to severity) }
+        diagnosedNodes[fileObject] = severity
     }
 
     fun undiagnoseNode(fileObject: FileObject) {
-        _diagnosedNodes.update { it - fileObject }
+        diagnosedNodes.remove(fileObject)
     }
 
     fun getNodeSeverity(fileObject: FileObject): Int {
-        return _diagnosedNodes.value[fileObject] ?: -1
+        return diagnosedNodes[fileObject] ?: -1
     }
 
     fun toggleNodeExpansion(projectRoot: FileObject, fileObject: FileObject) {
@@ -327,27 +282,25 @@ class FileTreeViewModel : ViewModel() {
     }
 
     private fun collapseFile(projectRoot: FileObject, fileObject: FileObject) {
-        _expandedNodes.update { map ->
-            val newSet = (map[projectRoot] ?: emptySet()) - fileObject
-            if (newSet.isEmpty()) map - projectRoot else map + (projectRoot to newSet)
+        expandedNodes[projectRoot] = expandedNodes[projectRoot]?.minus(fileObject) ?: emptySet()
+        if (expandedNodes[projectRoot]?.isEmpty() == true) {
+            expandedNodes.remove(projectRoot)
         }
         viewModelScope.launch { Events.publish(FileTreeEvent.NodeCollapsed(projectRoot, fileObject)) }
     }
 
     private fun expandFile(projectRoot: FileObject, fileObject: FileObject) {
-        _expandedNodes.update { map ->
-            map + (projectRoot to ((map[projectRoot] ?: emptySet()) + fileObject))
-        }
+        expandedNodes[projectRoot] = expandedNodes[projectRoot]?.plus(fileObject) ?: setOf(fileObject)
 
         // If we're expanding and haven't loaded yet, trigger a load
-        if (!_fileListCache.value.containsKey(fileObject)) {
-            _loadingStates.update { it + (fileObject to true) }
+        if (!fileListCache.containsKey(fileObject)) {
+            _loadingStates[fileObject] = true
         }
         viewModelScope.launch { Events.publish(FileTreeEvent.NodeExpanded(projectRoot, fileObject)) }
     }
 
     fun getCollapsedName(node: FileTreeNode): String {
-        return _collapsedNameCache.value[node.file] ?: node.name
+        return collapsedNameCache[node.file] ?: node.name
     }
 
     suspend fun collapseNode(projectFile: FileObject, node: FileTreeNode): FileTreeNode {
@@ -367,7 +320,7 @@ class FileTreeViewModel : ViewModel() {
             collapsedName += "/${child.name}"
             currentNode = child
         }
-        _collapsedNameCache.update { it + (node.file to collapsedName) }
+        collapsedNameCache[node.file] = collapsedName
         return currentNode
     }
 
@@ -381,21 +334,21 @@ class FileTreeViewModel : ViewModel() {
             Events.publish(FileTreeEvent.TreeSynchronized(parent))
         }
 
-        _collapsedNameCache.update { it - parent }
-        _loadingStates.update { it + (parent to true) } // Mark as loading
+        collapsedNameCache.remove(parent)
+        _loadingStates[parent] = true // Mark as loading
         viewModelScope.launch(Dispatchers.IO) {
             loadAndCacheChildren(parent)
         }
     }
 
-    fun isFileFocused(projectFile: FileObject, fileObject: FileObject) = _focusedFile.value[projectFile] == fileObject
+    fun isFileFocused(projectFile: FileObject, fileObject: FileObject) = focusedFile[projectFile] == fileObject
 
     suspend fun goToFolder(projectFile: FileObject, fileObject: FileObject) {
-        _focusedFile.update { it + (projectFile to fileObject) }
+        focusedFile[projectFile] = fileObject
         viewModelScope.launch {
             Events.publish(FileTreeEvent.Focused(projectFile, fileObject))
             delay(1000.milliseconds)
-            _focusedFile.update { it - projectFile }
+            focusedFile.remove(projectFile)
         }
 
         var currentFile: FileObject? = fileObject
@@ -403,8 +356,8 @@ class FileTreeViewModel : ViewModel() {
             expandFile(projectFile, currentFile)
 
             // If we're expanding and haven't loaded yet, trigger a load
-            if (!_fileListCache.value.containsKey(currentFile)) {
-                _loadingStates.update { it + (currentFile to true) }
+            if (!fileListCache.containsKey(currentFile)) {
+                _loadingStates[currentFile] = true
             }
 
             currentFile = currentFile.getParentFile()
@@ -415,25 +368,25 @@ class FileTreeViewModel : ViewModel() {
 
     suspend fun refreshEverything(wasPulled: Boolean = false) =
         withContext(Dispatchers.IO) {
-            if (wasPulled) _isRefreshing.value = true
-            _fileListCache.value.keys.toList().forEach { updateCache(it) }
-            _isRefreshing.value = false
+            if (wasPulled) isRefreshing = true
+            fileListCache.keys.toList().forEach { updateCache(it) }
+            isRefreshing = false
         }
 
     fun getNodeChildren(node: FileTreeNode): List<FileTreeNode> {
-        return _fileListCache.value[node.file] ?: emptyList()
+        return fileListCache[node.file] ?: emptyList()
     }
 
     fun loadChildrenForNode(node: FileTreeNode) {
         // If already in cache, don't reload
         val file = node.file
-        if (_fileListCache.value.containsKey(file)) {
-            _loadingStates.update { it + (file to false) }
+        if (fileListCache.containsKey(file)) {
+            _loadingStates[file] = false
             return
         }
 
         // Set loading state
-        _loadingStates.update { it + (file to true) }
+        _loadingStates[file] = true
 
         viewModelScope.launch(Dispatchers.IO) {
             loadAndCacheChildren(file)
@@ -443,13 +396,13 @@ class FileTreeViewModel : ViewModel() {
     suspend fun loadChildrenForNodeSynchronous(node: FileTreeNode) {
         // If already in cache, don't reload
         val file = node.file
-        if (_fileListCache.value.containsKey(file)) {
-            _loadingStates.update { it + (file to false) }
+        if (fileListCache.containsKey(file)) {
+            _loadingStates[file] = false
             return
         }
 
         // Set loading state
-        _loadingStates.update { it + (file to true) }
+        _loadingStates[file] = true
 
         loadAndCacheChildren(file)
     }
@@ -462,17 +415,17 @@ class FileTreeViewModel : ViewModel() {
                     val effectiveFile = toZipAwareFile(file)
                     effectiveFile.listFiles()
                 } catch (_: Exception) {
-                    _loadingStates.update { it + (file to false) }
+                    _loadingStates[file] = false
                     return
                 }
 
             // Process files
             val sortedFiles = sortAndFilterFiles(fileList)
 
-            _fileListCache.update { it + (file to sortedFiles) }
+            fileListCache[file] = sortedFiles
             viewModelScope.launch { clearLoadingState(file) }
         } catch (_: Exception) {
-            _loadingStates.update { it + (file to false) }
+            _loadingStates[file] = false
         }
     }
 
@@ -489,12 +442,12 @@ class FileTreeViewModel : ViewModel() {
     private suspend fun clearLoadingState(file: FileObject) {
         // Use delay to avoid flickering
         delay(300.milliseconds)
-        _loadingStates.update { it + (file to false) }
+        _loadingStates[file] = false
     }
 
     private suspend fun calculateFileSizes(fileObjects: List<FileObject>): Map<FileObject, Long> {
         val fileSizes = mutableMapOf<FileObject, Long>()
-        if (sortMode.value != SortMode.SORT_BY_SIZE) return fileSizes
+        if (sortMode != SortMode.SORT_BY_SIZE) return fileSizes
 
         fileObjects.forEach { file ->
             if (!file.isDirectory()) {
@@ -505,7 +458,7 @@ class FileTreeViewModel : ViewModel() {
     }
 
     private suspend fun calculateLastModifiedDates(fileObjects: List<FileObject>): Map<FileObject, Long> {
-        if (sortMode.value != SortMode.SORT_BY_DATE) return emptyMap()
+        if (sortMode != SortMode.SORT_BY_DATE) return emptyMap()
 
         return fileObjects.associateWith { it.lastModified() ?: 0L }
     }
@@ -518,7 +471,7 @@ class FileTreeViewModel : ViewModel() {
             .sortedWith(
                 compareBy<FileObject> { !it.isDirectory() }
                     .thenComparator { f1, f2 ->
-                        when (sortMode.value) {
+                        when (sortMode) {
                             SortMode.SORT_BY_NAME ->
                                 f1.getName().lowercase().compareTo(f2.getName().lowercase()) // A -> Z
                             SortMode.SORT_BY_SIZE ->

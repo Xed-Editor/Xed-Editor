@@ -2,8 +2,10 @@ package com.rk.theme
 
 import android.app.Application
 import androidx.compose.material3.ColorScheme
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.graphics.toColorInt
@@ -13,7 +15,6 @@ import com.google.gson.JsonParser
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
 import com.rk.extension.manager.StoreManager
-import com.rk.extension.model.PackageAuthor
 import com.rk.extension.model.PackageCache
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
@@ -29,10 +30,6 @@ import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -56,22 +53,6 @@ data class ThemeEntry(
     val updatedAt: Long,
 )
 
-@Serializable
-private data class LegacyManifest(
-    val id: String,
-    val name: String,
-    val author: PackageAuthor = PackageAuthor.UNKNOWN,
-    val version: String = "1.0.0",
-    val description: String? = null,
-    val tags: List<String> = emptyList(),
-    val repository: String = "",
-    val license: String? = null,
-    val minAppVersion: Int? = null,
-    val inheritBase: Boolean = true,
-    val light: ThemePaletteNew? = null,
-    val dark: ThemePaletteNew? = null,
-)
-
 class ThemeManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
     private val mutex = Mutex()
     private val json = Json {
@@ -79,22 +60,15 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         allowTrailingComma = true
     }
 
-    private val _loadedThemesState = mutableStateOf<List<ThemeHolder>>(builtInThemes)
-    val loadedThemesState: State<List<ThemeHolder>> = _loadedThemesState
-    private val _localThemes = MutableStateFlow<Map<String, LocalTheme>>(emptyMap())
-    val localThemes: StateFlow<Map<String, LocalTheme>> = _localThemes.asStateFlow()
-    private val _storeThemes = MutableStateFlow<Map<String, StoreTheme>>(emptyMap())
-    val storeThemes: StateFlow<Map<String, StoreTheme>> = _storeThemes.asStateFlow()
+    val loadedThemes = mutableStateListOf<ThemeHolder>().apply { addAll(builtInThemes) }
+    val localThemes = mutableStateMapOf<String, LocalTheme>()
+    val storeThemes = mutableStateMapOf<String, StoreTheme>()
 
-    private fun setLoadedThemes(themes: List<ThemeHolder>) {
-        _loadedThemesState.value = themes
-    }
-
-    fun isInstalled(id: String) = localThemes.value.containsKey(id)
+    fun isInstalled(id: String) = localThemes.containsKey(id)
 
     fun getTheme(id: String): ThemePackage? {
-        val local = localThemes.value[id]
-        val store = storeThemes.value[id]
+        val local = localThemes[id]
+        val store = storeThemes[id]
 
         return when {
             (local != null && store != null) -> UpdatableTheme(local, store)
@@ -105,20 +79,15 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
     }
 
     fun getSyncedThemes(): List<ThemePackage> {
-        val allIds = localThemes.value.keys + storeThemes.value.keys
+        val allIds = localThemes.keys + storeThemes.keys
         return allIds.mapNotNull { getTheme(it) }
     }
 
     fun uninstallTheme(theme: ThemeHolder) {
-        val localTheme = localThemes.value[theme.id] ?: return
+        val localTheme = localThemes[theme.id] ?: return
         File(localTheme.installPath).deleteRecursively()
 
-        setLoadedThemes(_loadedThemesState.value - theme)
-    }
-
-    fun removeLocalTheme(id: String) {
-        _localThemes.update { it - id }
-        setLoadedThemes(_loadedThemesState.value.filterNot { it.id == id })
+        loadedThemes.remove(theme)
     }
 
     private suspend fun calcSize(dir: File): Long {
@@ -155,7 +124,7 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             writeCache(dir, cache.copy(size = newSize))
 
             withContext(Dispatchers.Main) {
-                localThemes.value[pkg.id]?.size = newSize
+                localThemes[pkg.id]?.size = newSize
             }
         }
     }
@@ -166,20 +135,34 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             tempDir.mkdirs()
 
             try {
+                if (file.extension == "json") {
+                    // Legacy single-file JSON
+                    val manifest = validateManifestJson(file.readText())
+                    manifest?.let {
+                        installThemeFromData(it, null)
+                    }
+                    return@withContext
+                }
+
                 XedPackage.extract(file, tempDir)
 
                 val manifestFile = File(tempDir, "manifest.json")
                 val themeFile = File(tempDir, "theme.json")
 
-                if (!manifestFile.exists() || !themeFile.exists()) {
-                    withContext(Dispatchers.Main) { toast("Neither manifest.json nor theme.json found") }
-                    return@withContext
+                val jsonText =
+                    when {
+                        manifestFile.exists() -> manifestFile.readText()
+                        themeFile.exists() -> themeFile.readText()
+                        else -> {
+                            withContext(Dispatchers.Main) { toast("Neither manifest.json nor theme.json found") }
+                            return@withContext
+                        }
+                    }
+
+                jsonText.let {
+                    val manifest = validateManifestJson(it) ?: return@let
+                    installThemeFromData(manifest, tempDir)
                 }
-
-                val manifest = validateManifestJson(manifestFile.readText()) ?: return@withContext
-                validateThemeFile(themeFile.readText()) ?: return@withContext
-
-                installThemeFromData(manifest, tempDir)
             } catch (e: Exception) {
                 errorDialog(e)
             } finally {
@@ -204,21 +187,6 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                     )
                     return null
                 }
-                dialogRes(
-                    SettingsActivity.instance,
-                    strings.theme_install_failed.getString(),
-                    e.localizedMessage ?: strings.unknown_err.getString(),
-                    cancelable = false,
-                )
-                return null
-            }
-    }
-
-    internal fun validateThemeFile(text: String): ThemeFile? {
-        return runCatching {
-            json.decodeFromString<ThemeFile>(text)
-        }
-            .getOrElse { e ->
                 dialogRes(
                     SettingsActivity.instance,
                     strings.theme_install_failed.getString(),
@@ -288,7 +256,8 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             val themesList = runCatching { StoreManager.fetchThemes() }.getOrNull() ?: return@withContext
             val newThemes = themesList.associateBy({ it.id }, { StoreTheme(it) })
             withContext(Dispatchers.Main) {
-                _storeThemes.value = newThemes
+                storeThemes.clear()
+                storeThemes.putAll(newThemes)
             }
         }
 
@@ -307,11 +276,7 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                         val manifestFile = dir.resolve("manifest.json")
                         if (manifestFile.exists()) {
                             val manifest = json.decodeFromString<ThemeManifest>(manifestFile.readText())
-                            val themeFile =
-                                dir.resolve("theme.json").takeIf { it.exists() }?.let {
-                                    json.decodeFromString<ThemeFile>(it.readText())
-                                }
-                            newLoadedThemes.add(manifest.build(themeFile))
+                            newLoadedThemes.add(manifest.build())
 
                             val cache = resolveCache(dir)
                             val size = cache.size ?: calcSize(dir).also { writeCache(dir, cache.copy(size = it)) }
@@ -334,8 +299,12 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                 }
             }
             withContext(Dispatchers.Main) {
-                _localThemes.value = newLocalThemes
-                setLoadedThemes(builtInThemes + newLoadedThemes)
+                localThemes.clear()
+                localThemes.putAll(newLocalThemes)
+
+                loadedThemes.clear()
+                loadedThemes.addAll(builtInThemes)
+                loadedThemes.addAll(newLoadedThemes)
             }
         }
     }
@@ -355,54 +324,25 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                     ObjectInputStream(FileInputStream(file)).use { input ->
                         val oldConfig = input.readObject()
                         if (oldConfig is ThemeConfig) {
-                            installMigratedTheme(
-                                manifest =
-                                    ThemeManifest(
-                                        id = oldConfig.id ?: file.nameWithoutExtension,
-                                        name = oldConfig.name ?: file.nameWithoutExtension,
-                                        minAppVersion = oldConfig.minAppVersion,
-                                        inheritBase = oldConfig.inheritBase ?: true,
-                                    ),
-                                themeFile =
-                                    ThemeFile(
-                                        light = oldConfig.light?.let { ThemePaletteNew.fromLegacyPalette(it) },
-                                        dark = oldConfig.dark?.let { ThemePaletteNew.fromLegacyPalette(it) },
-                                    ),
-                            )
+                            val manifest =
+                                ThemeManifest(
+                                    id = oldConfig.id ?: file.name,
+                                    name = oldConfig.name ?: file.name,
+                                    minAppVersion = oldConfig.minAppVersion,
+                                    inheritBase = oldConfig.inheritBase ?: true,
+                                    light = oldConfig.light?.let { ThemePaletteNew.fromLegacyPalette(it) },
+                                    dark = oldConfig.dark?.let { ThemePaletteNew.fromLegacyPalette(it) },
+                                )
+
+                            finishThemeInstall(manifest, null)
                             migratedCount++
+                            file.delete()
                         }
-                        file.delete()
                     }
                 }
                     .onFailure {
                         file.delete()
                     }
-            } else if (file.isDirectory) {
-                runCatching {
-                    val manifestFile = file.resolve("manifest.json")
-                    val themeFile = file.resolve("theme.json")
-                    if (manifestFile.exists() && !themeFile.exists()) {
-                        val legacy = json.decodeFromString<LegacyManifest>(manifestFile.readText())
-                        if (legacy.light != null || legacy.dark != null) {
-                            val manifest =
-                                ThemeManifest(
-                                    id = legacy.id,
-                                    name = legacy.name,
-                                    author = legacy.author,
-                                    version = legacy.version,
-                                    description = legacy.description,
-                                    tags = legacy.tags,
-                                    repository = legacy.repository,
-                                    license = legacy.license,
-                                    minAppVersion = legacy.minAppVersion,
-                                    inheritBase = legacy.inheritBase,
-                                )
-                            themeFile.writeText(json.encodeToString(ThemeFile(light = legacy.light, dark = legacy.dark)))
-                            manifestFile.writeText(json.encodeToString(manifest))
-                            migratedCount++
-                        }
-                    }
-                }
             }
         }
 
@@ -411,24 +351,6 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                 toast(strings.theme_migrated.getFilledString(migratedCount))
             }
         }
-    }
-
-    private suspend fun installMigratedTheme(manifest: ThemeManifest, themeFile: ThemeFile) {
-        val installDir = themeDir().child(manifest.id).also { if (!it.exists()) it.mkdirs() }
-
-        val oldCreatedAt = resolveCache(installDir).createdAt
-        installDir.resolve("manifest.json").writeText(json.encodeToString<ThemeManifest>(manifest))
-        installDir.resolve("theme.json").writeText(json.encodeToString<ThemeFile>(themeFile))
-
-        val size = calcSize(installDir)
-        writeCache(
-            installDir,
-            PackageCache(
-                createdAt = oldCreatedAt ?: System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis(),
-                size = size,
-            ),
-        )
     }
 
     private fun String.toColor(): Color {
@@ -440,15 +362,12 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         }
     }
 
-    fun ThemeManifest.build(themeFile: ThemeFile?): ThemeHolder {
+    fun ThemeManifest.build(): ThemeHolder {
         fun Map<String, String>.toProperties(): Properties {
             val props = Properties()
             for ((k, v) in this) props[k] = v
             return props
         }
-
-        val light = themeFile?.light
-        val dark = themeFile?.dark
 
         val lightTokenColors = light?.tokenColors.toTokenColorArray()
         val darkTokenColors = dark?.tokenColors.toTokenColorArray()
@@ -493,45 +412,100 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
     }
 
     fun ThemePaletteNew.build(isDarkTheme: Boolean): ColorScheme {
-        val fallback = if (isDarkTheme) blueberry.darkScheme else blueberry.lightScheme
-        val base = baseColors ?: return fallback
-        return fallback.copy(
-            primary = base.primary?.toColor() ?: fallback.primary,
-            onPrimary = base.onPrimary?.toColor() ?: fallback.onPrimary,
-            primaryContainer = base.primaryContainer?.toColor() ?: fallback.primaryContainer,
-            onPrimaryContainer = base.onPrimaryContainer?.toColor() ?: fallback.onPrimaryContainer,
-            secondary = base.secondary?.toColor() ?: fallback.secondary,
-            onSecondary = base.onSecondary?.toColor() ?: fallback.onSecondary,
-            secondaryContainer = base.secondaryContainer?.toColor() ?: fallback.secondaryContainer,
-            onSecondaryContainer = base.onSecondaryContainer?.toColor() ?: fallback.onSecondaryContainer,
-            tertiary = base.tertiary?.toColor() ?: fallback.tertiary,
-            onTertiary = base.onTertiary?.toColor() ?: fallback.onTertiary,
-            tertiaryContainer = base.tertiaryContainer?.toColor() ?: fallback.tertiaryContainer,
-            onTertiaryContainer = base.onTertiaryContainer?.toColor() ?: fallback.onTertiaryContainer,
-            error = base.error?.toColor() ?: fallback.error,
-            onError = base.onError?.toColor() ?: fallback.onError,
-            errorContainer = base.errorContainer?.toColor() ?: fallback.errorContainer,
-            onErrorContainer = base.onErrorContainer?.toColor() ?: fallback.onErrorContainer,
-            background = base.background?.toColor() ?: fallback.background,
-            onBackground = base.onBackground?.toColor() ?: fallback.onBackground,
-            surface = base.surface?.toColor() ?: fallback.surface,
-            onSurface = base.onSurface?.toColor() ?: fallback.onSurface,
-            surfaceVariant = base.surfaceVariant?.toColor() ?: fallback.surfaceVariant,
-            onSurfaceVariant = base.onSurfaceVariant?.toColor() ?: fallback.onSurfaceVariant,
-            outline = base.outline?.toColor() ?: fallback.outline,
-            outlineVariant = base.outlineVariant?.toColor() ?: fallback.outlineVariant,
-            scrim = base.scrim?.toColor() ?: fallback.scrim,
-            inverseSurface = base.inverseSurface?.toColor() ?: fallback.inverseSurface,
-            inverseOnSurface = base.inverseOnSurface?.toColor() ?: fallback.inverseOnSurface,
-            inversePrimary = base.inversePrimary?.toColor() ?: fallback.inversePrimary,
-            surfaceTint = base.surfaceTint?.toColor() ?: fallback.surfaceTint,
-            surfaceDim = base.surfaceDim?.toColor() ?: fallback.surfaceDim,
-            surfaceBright = base.surfaceBright?.toColor() ?: fallback.surfaceBright,
-            surfaceContainerLowest = base.surfaceContainerLowest?.toColor() ?: fallback.surfaceContainerLowest,
-            surfaceContainerLow = base.surfaceContainerLow?.toColor() ?: fallback.surfaceContainerLow,
-            surfaceContainer = base.surfaceContainer?.toColor() ?: fallback.surfaceContainer,
-            surfaceContainerHigh = base.surfaceContainerHigh?.toColor() ?: fallback.surfaceContainerHigh,
-            surfaceContainerHighest = base.surfaceContainerHighest?.toColor() ?: fallback.surfaceContainerHighest,
-        )
+        return if (isDarkTheme) {
+            darkColorScheme(
+                primary = baseColors?.primary?.toColor() ?: blueberry.darkScheme.primary,
+                onPrimary = baseColors?.onPrimary?.toColor() ?: blueberry.darkScheme.onPrimary,
+                primaryContainer = baseColors?.primaryContainer?.toColor() ?: blueberry.darkScheme.primaryContainer,
+                onPrimaryContainer =
+                    baseColors?.onPrimaryContainer?.toColor() ?: blueberry.darkScheme.onPrimaryContainer,
+                secondary = baseColors?.secondary?.toColor() ?: blueberry.darkScheme.secondary,
+                onSecondary = baseColors?.onSecondary?.toColor() ?: blueberry.darkScheme.onSecondary,
+                secondaryContainer =
+                    baseColors?.secondaryContainer?.toColor() ?: blueberry.darkScheme.secondaryContainer,
+                onSecondaryContainer =
+                    baseColors?.onSecondaryContainer?.toColor() ?: blueberry.darkScheme.onSecondaryContainer,
+                tertiary = baseColors?.tertiary?.toColor() ?: blueberry.darkScheme.tertiary,
+                onTertiary = baseColors?.onTertiary?.toColor() ?: blueberry.darkScheme.onTertiary,
+                tertiaryContainer = baseColors?.tertiaryContainer?.toColor() ?: blueberry.darkScheme.tertiaryContainer,
+                onTertiaryContainer =
+                    baseColors?.onTertiaryContainer?.toColor() ?: blueberry.darkScheme.onTertiaryContainer,
+                error = baseColors?.error?.toColor() ?: blueberry.darkScheme.error,
+                onError = baseColors?.onError?.toColor() ?: blueberry.darkScheme.onError,
+                errorContainer = baseColors?.errorContainer?.toColor() ?: blueberry.darkScheme.errorContainer,
+                onErrorContainer = baseColors?.onErrorContainer?.toColor() ?: blueberry.darkScheme.onErrorContainer,
+                background = baseColors?.background?.toColor() ?: blueberry.darkScheme.background,
+                onBackground = baseColors?.onBackground?.toColor() ?: blueberry.darkScheme.onBackground,
+                surface = baseColors?.surface?.toColor() ?: blueberry.darkScheme.surface,
+                onSurface = baseColors?.onSurface?.toColor() ?: blueberry.darkScheme.onSurface,
+                surfaceVariant = baseColors?.surfaceVariant?.toColor() ?: blueberry.darkScheme.surfaceVariant,
+                onSurfaceVariant = baseColors?.onSurfaceVariant?.toColor() ?: blueberry.darkScheme.onSurfaceVariant,
+                outline = baseColors?.outline?.toColor() ?: blueberry.darkScheme.outline,
+                outlineVariant = baseColors?.outlineVariant?.toColor() ?: blueberry.darkScheme.outlineVariant,
+                scrim = baseColors?.scrim?.toColor() ?: blueberry.darkScheme.scrim,
+                inverseSurface = baseColors?.inverseSurface?.toColor() ?: blueberry.darkScheme.inverseSurface,
+                inverseOnSurface = baseColors?.inverseOnSurface?.toColor() ?: blueberry.darkScheme.inverseOnSurface,
+                inversePrimary = baseColors?.inversePrimary?.toColor() ?: blueberry.darkScheme.inversePrimary,
+                surfaceTint = baseColors?.surfaceTint?.toColor() ?: blueberry.darkScheme.surfaceTint,
+                surfaceDim = baseColors?.surfaceDim?.toColor() ?: blueberry.darkScheme.surfaceDim,
+                surfaceBright = baseColors?.surfaceBright?.toColor() ?: blueberry.darkScheme.surfaceBright,
+                surfaceContainerLowest =
+                    baseColors?.surfaceContainerLowest?.toColor() ?: blueberry.darkScheme.surfaceContainerLowest,
+                surfaceContainerLow =
+                    baseColors?.surfaceContainerLow?.toColor() ?: blueberry.darkScheme.surfaceContainerLow,
+                surfaceContainer = baseColors?.surfaceContainer?.toColor() ?: blueberry.darkScheme.surfaceContainer,
+                surfaceContainerHigh =
+                    baseColors?.surfaceContainerHigh?.toColor() ?: blueberry.darkScheme.surfaceContainerHigh,
+                surfaceContainerHighest =
+                    baseColors?.surfaceContainerHighest?.toColor() ?: blueberry.darkScheme.surfaceContainerHighest,
+            )
+        } else {
+            lightColorScheme(
+                primary = baseColors?.primary?.toColor() ?: blueberry.lightScheme.primary,
+                onPrimary = baseColors?.onPrimary?.toColor() ?: blueberry.lightScheme.onPrimary,
+                primaryContainer = baseColors?.primaryContainer?.toColor() ?: blueberry.lightScheme.primaryContainer,
+                onPrimaryContainer =
+                    baseColors?.onPrimaryContainer?.toColor() ?: blueberry.lightScheme.onPrimaryContainer,
+                secondary = baseColors?.secondary?.toColor() ?: blueberry.lightScheme.secondary,
+                onSecondary = baseColors?.onSecondary?.toColor() ?: blueberry.lightScheme.onSecondary,
+                secondaryContainer =
+                    baseColors?.secondaryContainer?.toColor() ?: blueberry.lightScheme.secondaryContainer,
+                onSecondaryContainer =
+                    baseColors?.onSecondaryContainer?.toColor() ?: blueberry.lightScheme.onSecondaryContainer,
+                tertiary = baseColors?.tertiary?.toColor() ?: blueberry.lightScheme.tertiary,
+                onTertiary = baseColors?.onTertiary?.toColor() ?: blueberry.lightScheme.onTertiary,
+                tertiaryContainer = baseColors?.tertiaryContainer?.toColor() ?: blueberry.lightScheme.tertiaryContainer,
+                onTertiaryContainer =
+                    baseColors?.onTertiaryContainer?.toColor() ?: blueberry.lightScheme.onTertiaryContainer,
+                error = baseColors?.error?.toColor() ?: blueberry.lightScheme.error,
+                onError = baseColors?.onError?.toColor() ?: blueberry.lightScheme.onError,
+                errorContainer = baseColors?.errorContainer?.toColor() ?: blueberry.lightScheme.errorContainer,
+                onErrorContainer = baseColors?.onErrorContainer?.toColor() ?: blueberry.lightScheme.onErrorContainer,
+                background = baseColors?.background?.toColor() ?: blueberry.lightScheme.background,
+                onBackground = baseColors?.onBackground?.toColor() ?: blueberry.lightScheme.onBackground,
+                surface = baseColors?.surface?.toColor() ?: blueberry.lightScheme.surface,
+                onSurface = baseColors?.onSurface?.toColor() ?: blueberry.lightScheme.onSurface,
+                surfaceVariant = baseColors?.surfaceVariant?.toColor() ?: blueberry.lightScheme.surfaceVariant,
+                onSurfaceVariant = baseColors?.onSurfaceVariant?.toColor() ?: blueberry.lightScheme.onSurfaceVariant,
+                outline = baseColors?.outline?.toColor() ?: blueberry.lightScheme.outline,
+                outlineVariant = baseColors?.outlineVariant?.toColor() ?: blueberry.lightScheme.outlineVariant,
+                scrim = baseColors?.scrim?.toColor() ?: blueberry.lightScheme.scrim,
+                inverseSurface = baseColors?.inverseSurface?.toColor() ?: blueberry.lightScheme.inverseSurface,
+                inverseOnSurface = baseColors?.inverseOnSurface?.toColor() ?: blueberry.lightScheme.inverseOnSurface,
+                inversePrimary = baseColors?.inversePrimary?.toColor() ?: blueberry.lightScheme.inversePrimary,
+                surfaceTint = baseColors?.surfaceTint?.toColor() ?: blueberry.lightScheme.surfaceTint,
+                surfaceDim = baseColors?.surfaceDim?.toColor() ?: blueberry.lightScheme.surfaceDim,
+                surfaceBright = baseColors?.surfaceBright?.toColor() ?: blueberry.lightScheme.surfaceBright,
+                surfaceContainerLowest =
+                    baseColors?.surfaceContainerLowest?.toColor() ?: blueberry.lightScheme.surfaceContainerLowest,
+                surfaceContainerLow =
+                    baseColors?.surfaceContainerLow?.toColor() ?: blueberry.lightScheme.surfaceContainerLow,
+                surfaceContainer = baseColors?.surfaceContainer?.toColor() ?: blueberry.lightScheme.surfaceContainer,
+                surfaceContainerHigh =
+                    baseColors?.surfaceContainerHigh?.toColor() ?: blueberry.lightScheme.surfaceContainerHigh,
+                surfaceContainerHighest =
+                    baseColors?.surfaceContainerHighest?.toColor() ?: blueberry.lightScheme.surfaceContainerHighest,
+            )
+        }
     }
 }

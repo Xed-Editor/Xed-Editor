@@ -30,7 +30,6 @@ import com.rk.editor.Editor
 import com.rk.editor.FormatterSource
 import com.rk.editor.Formatters
 import com.rk.editor.LanguageManager
-import com.rk.editor.TextActionItem
 import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.feature.FeatureRegistry
 import com.rk.file.FileObject
@@ -41,7 +40,6 @@ import com.rk.lsp.LspRegistry
 import com.rk.lsp.LspServer
 import com.rk.lsp.createLspTextActions
 import com.rk.resources.drawables
-import com.rk.resources.getDrawable
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -63,6 +61,7 @@ import io.github.rosemoe.sora.lang.format.FormatterProvider
 import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
+import io.github.rosemoe.sora.widget.component.TextActionItem
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -154,8 +153,8 @@ fun Editor.registerXedFormatter(editorTab: EditorTab) {
 fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, editorTab: EditorTab) {
     registerTextAction(
         TextActionItem(
-            strings.open.getString(context),
-            drawables.open_in_new.getDrawable(context)!!,
+            strings.open,
+            drawables.open_in_new,
             shouldShow = { isUrlSelected() },
             onClick = {
                 val text = getSelectedText() ?: return@TextActionItem
@@ -411,7 +410,7 @@ private suspend fun FileObject.getExtensionServers(
     scope: CoroutineScope,
 ): List<LspServer> {
     val servers =
-        (LspRegistry.extensionServers.value + LspRegistry.builtInServers.value).filter { server -> server.isSupported(this) }
+        (LspRegistry.extensionServers + LspRegistry.builtInServers).filter { server -> server.isSupported(this) }
     return servers.filterActiveLspServers(activity, scope)
 }
 
@@ -450,5 +449,5 @@ private suspend fun List<LspServer>.filterActiveLspServers(
 }
 
 private fun FileObject.getExternalServers(): List<LspServer> {
-    return LspRegistry.externalServers.value.filter { server -> server.isSupported(this) }
+    return LspRegistry.externalServers.filter { server -> server.isSupported(this) }
 }

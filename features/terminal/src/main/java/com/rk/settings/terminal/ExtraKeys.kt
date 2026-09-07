@@ -49,10 +49,7 @@ const val DEFAULT_TERMINAL_EXTRA_KEYS =
         "\n      \"key\": \"/\"," +
         "\n      \"popup\": \"\\\\\"" +
         "\n    }," +
-        "\n    {" +
-        "\n      \"key\": \"-\"," +
-        "\n      \"popup\": \"|\"" +
-        "\n    }," +
+        "\n    \"SHIFT\"," +
         "\n    \"HOME\"," +
         "\n    \"UP\"," +
         "\n    \"END\"," +

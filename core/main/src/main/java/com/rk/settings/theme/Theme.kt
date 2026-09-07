@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -60,8 +59,6 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
     val showDayNightBottomSheet = remember { mutableStateOf(false) }
     val monetState = remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) }
     val amoledState = remember { mutableStateOf(Settings.amoled) }
-    val loadedThemes = themeManager.loadedThemesState.value
-    val localIconPacks by iconPackManager.localIconPacks.collectAsStateWithLifecycle()
 
     PreferenceLayout(label = stringResource(strings.themes)) {
         PreferenceGroup(heading = stringResource(strings.theme_settings)) {
@@ -98,7 +95,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
         }
 
         PreferenceGroup(heading = stringResource(strings.themes)) {
-            loadedThemes.forEach { theme ->
+            themeManager.loadedThemes.forEach { theme ->
                 SettingsItem(
                     isEnabled = !Settings.monet,
                     label = theme.name,
@@ -188,7 +185,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                 },
             )
 
-            localIconPacks.forEach { (id, iconPack) ->
+            iconPackManager.localIconPacks.forEach { (id, iconPack) ->
                 val iconPackManifest = iconPack.manifest
 
                 SettingsItem(

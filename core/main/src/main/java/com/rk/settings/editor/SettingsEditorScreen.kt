@@ -371,7 +371,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 onItemSelected = { sortMode ->
                     Settings.sort_mode = sortMode.ordinal
                     fileTreeViewModel.get()?.apply {
-                        setSortMode(sortMode)
+                        this.sortMode = sortMode
                         viewModelScope.launch { refreshEverything() }
                     }
                 },

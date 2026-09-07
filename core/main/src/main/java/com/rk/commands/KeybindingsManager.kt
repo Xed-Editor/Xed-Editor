@@ -147,7 +147,7 @@ object KeybindingsManager {
             map[keyCombination] = commandId
         }
 
-        for (command in CommandProvider.commandList.value) {
+        for (command in CommandProvider.commandList) {
             if (command.id in customKeybinds) continue
 
             command.defaultKeybinds?.let {

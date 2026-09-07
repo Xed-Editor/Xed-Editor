@@ -1,31 +1,31 @@
 package com.rk.editor.intelligent
 
+import androidx.compose.runtime.mutableStateListOf
 import com.rk.editor.Editor
 import com.rk.extension.api.XedExtensionPoint
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 object IntelligentFeatureRegistry {
     val builtInFeatures = listOf(AutoCloseTag, BulletContinuation)
 
-    private val _mutableFeatures = MutableStateFlow<List<IntelligentFeature>>(emptyList())
+    private val mutableFeatures = mutableStateListOf<IntelligentFeature>()
     val extensionFeatures: List<IntelligentFeature>
-        get() = _mutableFeatures.value
+        get() = mutableFeatures.toList()
 
     val allFeatures: List<IntelligentFeature>
-        get() = builtInFeatures + _mutableFeatures.value
+        get() = builtInFeatures + mutableFeatures
 
     @XedExtensionPoint
     fun registerFeature(feature: IntelligentFeature) {
-        _mutableFeatures.update { list -> if (list.contains(feature)) list else list + feature }
+        if (!mutableFeatures.contains(feature)) {
+            mutableFeatures.add(feature)
+        }
     }
 
     @XedExtensionPoint
     fun unregisterFeature(feature: IntelligentFeature) {
-        _mutableFeatures.update { it - feature }
+        mutableFeatures.remove(feature)
     }
 }
 

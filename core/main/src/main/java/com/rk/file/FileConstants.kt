@@ -29,9 +29,12 @@ fun localLibDir(context: Context = application!!): File {
 fun sandboxDir(context: Context = application!!): File {
     return localDir(context).child("sandbox").also { it.createDirIfNot() }
 }
-
 fun sandboxHomeDir(context: Context = application!!): File {
     return localDir(context).child("home").createDirIfNot()
+}
+
+fun sandboxRootDir(context: Context = application!!): File {
+    return sandboxDir(context).child("root").also { it.createDirIfNot() }
 }
 
 

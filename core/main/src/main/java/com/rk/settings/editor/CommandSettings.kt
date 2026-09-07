@@ -18,7 +18,7 @@ fun CommandSelectionDialog(
     onDismiss: () -> Unit,
 ) {
     val dialogCommands =
-        CommandProvider.commandList.value.map { command ->
+        CommandProvider.commandList.map { command ->
             val existingCommands = command.childCommands
             val patchedChildCommands =
                 if (existingCommands.isEmpty()) {

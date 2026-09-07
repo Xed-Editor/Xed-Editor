@@ -1,5 +1,10 @@
 package com.rk.drawer
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
@@ -8,45 +13,41 @@ import com.rk.events.Events
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeTab
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DrawerViewModel : ViewModel() {
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
+    var isLoading by mutableStateOf(true)
 
-    private val _drawerTabs = MutableStateFlow<List<DrawerTab>>(emptyList())
-    val drawerTabs = _drawerTabs.asStateFlow()
+    private val _drawerTabs = mutableStateListOf<DrawerTab>()
+    private val _serviceTabs = mutableStateListOf<DrawerTab>()
 
-    private val _serviceTabs = MutableStateFlow<List<DrawerTab>>(emptyList())
-    val serviceTabs = _serviceTabs.asStateFlow()
+    val drawerTabs: List<DrawerTab>
+        get() = _drawerTabs.toList()
 
-    private val _currentDrawerTabIndex = MutableStateFlow(0)
-    val currentDrawerTabIndex = _currentDrawerTabIndex.asStateFlow()
+    val serviceTabs: List<DrawerTab>
+        get() = _serviceTabs.toList()
+
+    var currentDrawerTabIndex by mutableIntStateOf(0)
+        private set
 
     val currentDrawerTab: DrawerTab?
-        get() = _drawerTabs.value.getOrNull(_currentDrawerTabIndex.value)
+        get() = _drawerTabs.getOrNull(currentDrawerTabIndex)
 
-    private val _currentServiceTabIndex = MutableStateFlow(0)
-    val currentServiceTabIndex = _currentServiceTabIndex.asStateFlow()
+    var currentServiceTabIndex by mutableIntStateOf(0)
+        private set
 
     val currentServiceTab: DrawerTab?
-        get() = _serviceTabs.value.getOrNull(_currentServiceTabIndex.value)
-
-    fun setLoading(value: Boolean) {
-        _isLoading.value = value
-    }
+        get() = _serviceTabs.getOrNull(currentServiceTabIndex)
 
     internal fun setupBuiltinServices(owner: ViewModelStoreOwner) {
-        _serviceTabs.value = ServiceTabRegistry.createAll(owner)
-        _currentServiceTabIndex.value = -1
-        viewModelScope.launch { Events.publish(DrawerEvent.ServicesInitialized(_serviceTabs.value)) }
+        _serviceTabs.clear()
+        _serviceTabs.addAll(ServiceTabRegistry.createAll(owner))
+        currentServiceTabIndex = -1
+        viewModelScope.launch { Events.publish(DrawerEvent.ServicesInitialized(serviceTabs)) }
     }
 
     fun addFileTreeTab(fileObject: FileObject, save: Boolean = false) {
-        val existingIndex = _drawerTabs.value.indexOfFirst { it is FileTreeTab && it.root == fileObject }
+        val existingIndex = _drawerTabs.indexOfFirst { it is FileTreeTab && it.root == fileObject }
 
         if (existingIndex != -1) {
             selectDrawerTab(existingIndex)
@@ -60,8 +61,8 @@ class DrawerViewModel : ViewModel() {
     fun addDrawerTab(tab: DrawerTab, save: Boolean = false) {
         tab.onAdded()
 
-        _drawerTabs.update { it + tab }
-        selectDrawerTab(_drawerTabs.value.lastIndex)
+        _drawerTabs.add(tab)
+        selectDrawerTab(_drawerTabs.lastIndex)
 
         viewModelScope.launch { Events.publish(DrawerEvent.TabAdded(tab)) }
 
@@ -69,44 +70,43 @@ class DrawerViewModel : ViewModel() {
     }
 
     fun removeFileTreeTab(fileObject: FileObject, save: Boolean = false) {
-        val index = _drawerTabs.value.indexOfFirst { it is FileTreeTab && it.root == fileObject }
+        val index = _drawerTabs.indexOfFirst { it is FileTreeTab && it.root == fileObject }
         if (index == -1) return
 
         removeDrawerTab(index, save)
     }
 
     fun removeDrawerTab(drawerTab: DrawerTab, save: Boolean = false) {
-        val index = _drawerTabs.value.indexOf(drawerTab)
+        val index = _drawerTabs.indexOf(drawerTab)
         if (index == -1) return
 
         removeDrawerTab(index, save)
     }
 
     fun removeDrawerTab(index: Int, save: Boolean = false) {
-        val tabs = _drawerTabs.value
-        if (index !in tabs.indices) return
+        if (index !in _drawerTabs.indices) return
 
-        val isActive = _currentDrawerTabIndex.value == index
+        val isActive = currentDrawerTabIndex == index
 
-        val tab = tabs[index]
+        val tab = _drawerTabs[index]
         tab.onRemoved()
-        _drawerTabs.update { it.filterIndexed { i, _ -> i != index } }
+        _drawerTabs.removeAt(index)
 
         viewModelScope.launch { Events.publish(DrawerEvent.TabRemoved(tab)) }
 
-        if (_drawerTabs.value.isEmpty()) {
+        if (_drawerTabs.isEmpty()) {
             unselectDrawerTab()
         } else if (isActive) {
             val newIndex =
                 when {
                     index - 1 >= 0 -> index - 1
-                    index <= _drawerTabs.value.lastIndex -> index
-                    else -> _drawerTabs.value.lastIndex
+                    index <= _drawerTabs.lastIndex -> index
+                    else -> _drawerTabs.lastIndex
                 }
             selectDrawerTab(newIndex)
         } else {
-            if (_currentDrawerTabIndex.value > index) {
-                _currentDrawerTabIndex.value -= 1
+            if (currentDrawerTabIndex > index) {
+                currentDrawerTabIndex -= 1
             }
         }
 
@@ -114,47 +114,48 @@ class DrawerViewModel : ViewModel() {
     }
 
     fun selectDrawerTab(drawerTab: DrawerTab) {
-        val index = _drawerTabs.value.indexOf(drawerTab)
+        val index = _drawerTabs.indexOf(drawerTab)
         if (index != -1) selectDrawerTab(index)
     }
 
     fun selectDrawerTab(index: Int) {
-        if (index !in _drawerTabs.value.indices) return
+        if (index !in _drawerTabs.indices) return
 
-        _currentDrawerTabIndex.value = index
-        _currentServiceTabIndex.value = -1
+        currentDrawerTabIndex = index
+        currentServiceTabIndex = -1
 
         viewModelScope.launch { Events.publish(DrawerEvent.TabSelected(currentDrawerTab)) }
     }
 
     fun unselectDrawerTab() {
-        _currentDrawerTabIndex.value = -1
-        _currentServiceTabIndex.value = -1
+        currentDrawerTabIndex = -1
+        currentServiceTabIndex = -1
 
         viewModelScope.launch { Events.publish(DrawerEvent.TabSelected(null)) }
     }
 
     fun selectServiceTab(serviceTab: DrawerTab) {
-        val index = _serviceTabs.value.indexOf(serviceTab)
+        val index = _serviceTabs.indexOf(serviceTab)
         if (index != -1) selectServiceTab(index)
     }
 
     fun selectServiceTab(index: Int) {
-        if (index !in _serviceTabs.value.indices) return
+        if (index !in _serviceTabs.indices) return
 
-        _currentServiceTabIndex.value = index
+        currentServiceTabIndex = index
 
         viewModelScope.launch { Events.publish(DrawerEvent.ServiceTabSelected(currentServiceTab)) }
     }
 
     fun unselectServiceTab() {
-        _currentServiceTabIndex.value = -1
+        currentServiceTabIndex = -1
 
         viewModelScope.launch { Events.publish(DrawerEvent.ServiceTabSelected(null)) }
     }
 
     fun forcePushDrawerTabs(drawerTabs: List<DrawerTab>) {
-        _drawerTabs.value = drawerTabs
+        _drawerTabs.clear()
+        _drawerTabs.addAll(drawerTabs)
     }
 
     private fun persistAsync() {

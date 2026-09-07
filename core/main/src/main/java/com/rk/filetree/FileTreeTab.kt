@@ -25,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,13 +44,15 @@ import com.rk.activities.main.ui.drawerStateRef
 import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.activities.main.ui.searchViewModel
 import com.rk.components.AddDialogItem
-import com.rk.components.GlobalDialogs
+import com.rk.components.codeSearchDialog
+import com.rk.components.fileSearchDialog
 import com.rk.drawer.DrawerTab
 import com.rk.events.Events
 import com.rk.events.FileTreeEvent
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
+import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
 import com.rk.icons.Icon
 import com.rk.resources.drawables
@@ -186,12 +187,9 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                             var totalFiles by remember { mutableStateOf("0") }
                             var databaseSize by remember { mutableStateOf(formatFileSize(0)) }
 
-                            val searchVM = searchViewModel.get()
-                            val isIndexing =
-                                searchVM?.isIndexing
-                                    ?.collectAsStateWithLifecycle(initialValue = emptyMap())
-                                    ?.value
-                                    ?.get(root) == true
+                            val isIndexing by remember {
+                                derivedStateOf { searchViewModel.get()?.isIndexing(root) == true }
+                            }
                             LaunchedEffect(isIndexing) {
                                 if (enableIndexing) {
                                     val stats = searchViewModel.get()?.getStats(context, root)
@@ -233,13 +231,13 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                 AddDialogItem(
                     icon = Icons.Outlined.Search,
                     title = stringResource(strings.search_file_folder),
-                    onClick = { dismissThen { GlobalDialogs.fileSearchDialog.value = true } },
+                    onClick = { dismissThen { fileSearchDialog = true } },
                 )
 
                 AddDialogItem(
                     icon = Icons.Outlined.Search,
                     title = stringResource(strings.search_code),
-                    onClick = { dismissThen { GlobalDialogs.codeSearchDialog.value = true } },
+                    onClick = { dismissThen { codeSearchDialog = true } },
                 )
             }
         }
@@ -251,7 +249,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
     override fun getIcon(): Icon {
         val iconId =
-            if ((root is UriWrapper && root.isTermuxUri()) || (root is FileWrapper && root.file == sandboxHomeDir())) {
+            if ((root is UriWrapper && root.isTermuxUri()) || (root is FileWrapper && root.file == sandboxDir())) {
                 drawables.terminal
             } else {
                 drawables.outline_folder

@@ -148,8 +148,8 @@
     <string name="ignore">Ignore</string>
     <string name="restore_sessions">Restore sessions</string>
     <string name="restore_sessions_desc">Restore previous tabs</string>
-    <string name="terminal_home">Terminal home</string>
-    <string name="terminal_home_desc">Default home directory of terminal</string>
+    <string name="terminal_home">Terminal system directory</string>
+    <string name="terminal_home_desc">Complete system directory of terminal</string>
     <string name="sessions">Sessions</string>
     <string name="add_session">Add session</string>
     <string name="ext">Extensions</string>
@@ -794,6 +794,4 @@
     <string name="git_conflict_detection">Conflict detection</string>
     <string name="git_conflict_detection_desc">Show conflict markers and resolve options in the editor</string>
     <string name="credentials_github">To connect to GitHub, you must enter a PAT token, not your GitHub account password.</string>
-    <string name="theme_format_changed">The format of the theme is changed. this format is no longer supported</string>
-    <string name="unknown_package">Unknown package type</string>
 </resources>

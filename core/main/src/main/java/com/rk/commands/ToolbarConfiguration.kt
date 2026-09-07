@@ -1,18 +1,20 @@
 package com.rk.commands
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.settings.Settings
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 object ToolbarConfiguration {
     const val DEFAULT_EDITOR_TOOLBAR_COMMANDS =
-        "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings"
+        "editor.undo|editor.redo|editor.save|editor.run|editor.editable|editor.search|editor.refresh|global.terminal|global.settings"
 
     val editorCommands: List<Command>
-        get() = Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) }
+        get() =
+            Settings.action_items
+                .split("|")
+                .mapNotNull { CommandProvider.getForId(it) }
+                .filterNot { it.id == "global.new_file" }
 
     @XedExtensionPoint
     fun addEditorToolbarCommand(commandId: String, index: Int? = null) {
@@ -57,38 +59,30 @@ object ToolbarConfiguration {
         removeEditorToolbarCommand(command.id)
     }
 
-    private val _globalCommands =
-        MutableStateFlow<List<Command>>(
-            listOf(
-                CommandProvider.NewFileCommand,
-                CommandProvider.SettingsCommand,
-            )
+    private var _globalCommands: SnapshotStateList<Command> =
+        mutableStateListOf(
+            CommandProvider.SettingsCommand,
         )
 
-    val globalCommands: StateFlow<List<Command>> = _globalCommands.asStateFlow()
+    val globalCommands: List<Command>
+        get() = _globalCommands
 
     @XedExtensionPoint
     fun addGlobalToolbarCommand(command: Command, index: Int? = null) {
-        _globalCommands.update { current ->
-            val existingIndex = current.indexOf(command)
+        val existingIndex = _globalCommands.indexOf(command)
 
-            val list = if (existingIndex != -1) {
-                current.toMutableList().apply {
-                    removeAt(existingIndex)
-                }
-            } else {
-                current.toMutableList()
-            }
-
-            val insertIndex = when {
-                index != null -> index.coerceIn(0, list.size)
-                existingIndex != -1 -> existingIndex.coerceIn(0, list.size)
-                else -> list.size
-            }
-
-            list.add(insertIndex, command)
-            list
+        if (existingIndex != -1) {
+            _globalCommands.removeAt(existingIndex)
         }
+
+        val insertIndex =
+            when {
+                index != null -> index
+                existingIndex != -1 -> existingIndex
+                else -> _globalCommands.size
+            }
+
+        _globalCommands.add(insertIndex.coerceIn(0, _globalCommands.size), command)
     }
 
     @XedExtensionPoint
@@ -99,7 +93,7 @@ object ToolbarConfiguration {
 
     @XedExtensionPoint
     fun removeGlobalToolbarCommand(command: Command) {
-        _globalCommands.update { it - command }
+        _globalCommands.remove(command)
     }
 
     @XedExtensionPoint

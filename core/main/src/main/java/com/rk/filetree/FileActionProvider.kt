@@ -41,9 +41,9 @@ object FileActionProvider {
         _fileActions.remove(action)
     }
 
-    suspend fun getActions(file: FileObject, root: FileObject?) = getActions(listOf(file), root)
+    fun getActions(file: FileObject, root: FileObject?) = getActions(listOf(file), root)
 
-    suspend fun getActions(files: List<FileObject>, root: FileObject?): List<BaseFileAction> {
+    fun getActions(files: List<FileObject>, root: FileObject?): List<BaseFileAction> {
         if (files.isEmpty()) return emptyList()
 
         val suitableActions = mutableListOf<BaseFileAction>()
@@ -52,7 +52,7 @@ object FileActionProvider {
             val isBulkAction = files.size > 1
 
             if (action is MultiFileAction) {
-                val isSupported = action.isSupported(files,root)
+                val isSupported = action.isSupported(files)
                 if (!isSupported) return@forEach
 
                 val hasFolders = files.any { it.isDirectory() }
@@ -70,7 +70,7 @@ object FileActionProvider {
                 val file = files.first()
                 val action = action as FileAction
 
-                val isSupported = action.isSupported(file,root)
+                val isSupported = action.isSupported(file)
                 if (!isSupported) return@forEach
 
                 val isRootAction = file == root && action.type.rootFolder

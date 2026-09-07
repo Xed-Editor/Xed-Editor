@@ -323,26 +323,17 @@ suspend fun FileObject.copyToTempDir() = run {
 }
 
 fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
-    // file:// URIs represent direct filesystem paths (e.g. app-internal storage). They must never be
-    // routed through the SAF-backed UriWrapper, which requires a content:// tree URI and crashes on
-    // file:// URIs (DocumentsContract.getTreeDocumentId throws IllegalArgumentException).
-    if (this.scheme == "file") {
-        return FileWrapper(File(this.path!!))
-    }
-
-    if (this.scheme == "http" || this.scheme == "https"){
+    if (this.toString().startsWith("http")) {
         return NetWrapper(URL(toString()))
     }
 
+    // First, try to resolve to a real File (for direct access when possible)
+    val file = File(this.toPath())
+
     // On Android 11+, force Uri if we lack full storage access (scoped storage rules)
     if (needsUriFallback()) {
-        //but what if it's actually a native file, and we are forcing the uri wrapper on it?
-        //just hope this is correct
         return UriWrapper(this, !expectedIsFile)
     }
-
-    // Try to resolve to a real File (for direct access when possible)
-    val file = File(this.toPath())
 
     // If File access works and matches expectations (file vs. dir), use it
     if (file.exists() && file.canRead() && file.canWrite() && expectedIsFile == file.isFile) {

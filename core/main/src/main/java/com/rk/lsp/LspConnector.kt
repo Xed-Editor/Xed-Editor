@@ -174,9 +174,9 @@ class LspConnector(
                 editorTab.unregisterTask(EditorTab.LSP_CONNECTING_TASK_ID)
 
                 val failedConnections = servers.filter { server ->
-                    server.instances.value.any { instance ->
-                        val isCrashed = instance.status.value == LspConnectionStatus.CRASHED
-                        val isTimeout = instance.status.value == LspConnectionStatus.TIMEOUT
+                    server.instances.any { instance ->
+                        val isCrashed = instance.status == LspConnectionStatus.CRASHED
+                        val isTimeout = instance.status == LspConnectionStatus.TIMEOUT
                         instance.lspProject == project && (isCrashed || isTimeout)
                     }
                 }
@@ -306,12 +306,14 @@ class LspConnector(
                             }
                         }
 
-                        override fun onLogMessage(messageParams: MessageParams) {
+                        override fun onLogMessage(messageParams: MessageParams?) {
+                            if (messageParams == null) return
                             logInfo(messageParams.message)
                             instance.addLog(messageParams)
                         }
 
-                        override fun onShowMessage(messageParams: MessageParams) {
+                        override fun onShowMessage(messageParams: MessageParams?) {
+                            if (messageParams == null) return
                             instance.addLog(messageParams)
                             when (messageParams.type) {
                                 MessageType.Error -> errorDialog(msg = messageParams.message)
@@ -332,10 +334,10 @@ class LspConnector(
                             }
 
                             if (newStatus == ServerStatus.STARTED) {
-                                instance.setStartupTime(System.currentTimeMillis())
+                                instance.startupTime = System.currentTimeMillis()
                             } else if (newStatus is ServerStatus.STOPPED) {
-                                instance.setHasError(false)
-                                instance.setStartupTime(-1)
+                                instance.hasError = false
+                                instance.startupTime = -1
                             }
 
                             val statusMessage =
@@ -356,12 +358,12 @@ class LspConnector(
                                     oldStatus.reason == ShutdownReason.RESTART &&
                                     newStatus is ServerStatus.STARTING
                             ) {
-                                instance.setStatus(LspConnectionStatus.RESTARTING)
+                                instance.status = LspConnectionStatus.RESTARTING
                                 return
                             }
 
-                            val oldConnectionStatus = instance.status.value
-                            instance.setStatus(
+                            val oldConnectionStatus = instance.status
+                            instance.status =
                                 when (newStatus) {
                                     ServerStatus.IDLE -> LspConnectionStatus.NOT_RUNNING
                                     ServerStatus.INITIALIZED -> LspConnectionStatus.RUNNING
@@ -384,10 +386,9 @@ class LspConnector(
                                         }
                                     }
                                 }
-                            )
 
                             DefaultScope.launch {
-                                Events.publish(LSPEvent.StatusChanged(instance, instance.status.value, oldConnectionStatus))
+                                Events.publish(LSPEvent.StatusChanged(instance, instance.status, oldConnectionStatus))
                             }
                         }
                     }

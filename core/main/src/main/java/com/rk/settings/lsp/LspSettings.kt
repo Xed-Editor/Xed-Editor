@@ -28,7 +28,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -84,10 +83,6 @@ fun LspSettings(navController: NavController) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateAsState()
 
-    val builtInServers by LspRegistry.builtInServers.collectAsStateWithLifecycle()
-    val extensionServers by LspRegistry.extensionServers.collectAsStateWithLifecycle()
-    val externalServers by LspRegistry.externalServers.collectAsStateWithLifecycle()
-
     LaunchedEffect(lifecycleState) {
         if (lifecycleState == Lifecycle.State.RESUMED) {
             refreshKey++
@@ -115,7 +110,7 @@ fun LspSettings(navController: NavController) {
     @Composable
     fun ExternalServersSection() {
         PreferenceGroup(heading = stringResource(strings.external)) {
-            externalServers.forEachIndexed { index, server ->
+            LspRegistry.externalServers.forEachIndexed { index, server ->
                 key(server.id) {
                     val icon = server.icon ?: Icon.ResourceIcon(drawables.unknown_document)
                     SettingsItem(
@@ -173,15 +168,17 @@ fun LspSettings(navController: NavController) {
             text = stringResource(strings.info_lsp),
         )
 
+        val builtInServers = LspRegistry.builtInServers
         if (builtInServers.isNotEmpty()) {
             BuiltInServersSection(builtInServers)
         }
 
+        val extensionServers = LspRegistry.extensionServers
         if (extensionServers.isNotEmpty()) {
             ExtensionServersSection(extensionServers)
         }
 
-        if (externalServers.isNotEmpty()) {
+        if (LspRegistry.externalServers.isNotEmpty()) {
             ExternalServersSection()
         }
 
@@ -198,7 +195,7 @@ fun LspSettings(navController: NavController) {
                         LspRegistry.addExternalServer(newServer)
                         scope.launch { newServer.connectAllSuitableEditors() }
                     } else {
-                        val oldServer = externalServers[replaceIndex]
+                        val oldServer = LspRegistry.externalServers[replaceIndex]
                         scope.launch { oldServer.disconnectAllInstances() }
 
                         LspRegistry.replaceExternalServer(replaceIndex, newServer)
@@ -356,7 +353,7 @@ private enum class LspType(val label: String) {
 private fun ExternalLSPDialog(onDismiss: () -> Unit, onConfirm: (LspServer, Int) -> Unit, editingIndex: Int?) {
     var selected by remember { mutableStateOf(LspType.SOCKET) }
 
-    val editingServer = remember(editingIndex) { editingIndex?.let { LspRegistry.externalServers.value[it] } }
+    val editingServer = remember(editingIndex) { editingIndex?.let { LspRegistry.externalServers[it] } }
     val dialogState = remember { ExternalLspDialogState() }
 
     LaunchedEffect(editingServer) {

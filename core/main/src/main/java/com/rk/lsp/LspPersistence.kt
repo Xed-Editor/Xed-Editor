@@ -40,7 +40,7 @@ object LspPersistence {
 
     fun saveServers() {
         val configList =
-            LspRegistry.externalServers.value.mapNotNull { server ->
+            LspRegistry.externalServers.mapNotNull { server ->
                 when (server) {
                     is ExternalSocketServer ->
                         SavedLspConfig(

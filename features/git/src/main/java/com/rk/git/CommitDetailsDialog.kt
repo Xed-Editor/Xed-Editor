@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +52,6 @@ fun CommitDetailsDialog(
 ) {
     val dateFormatter = remember { SimpleDateFormat("EEE MMM dd, yyyy HH:mm", Locale.getDefault()) }
     var changes by remember(commit.hash) { mutableStateOf<List<GitChange>?>(null) }
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     LaunchedEffect(commit.hash) {
         viewModel.getChangesForCommit(commit) { result -> changes = result }
@@ -145,7 +143,7 @@ fun CommitDetailsDialog(
         },
         confirmButton = {
             TextButton(
-                enabled = !isLoading,
+                enabled = !viewModel.isLoading,
                 onClick = {
                     viewModel.checkout(commit.hash)
                     onDismiss()

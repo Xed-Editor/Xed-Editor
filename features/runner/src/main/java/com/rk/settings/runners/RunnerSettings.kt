@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,10 +72,6 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
     val context = LocalContext.current
 
     var regexFieldValue by remember { mutableStateOf(TextFieldValue("", selection = TextRange(runnerName.length))) }
-
-    val builtinRunners by RunnerManager.builtinRunners.collectAsStateWithLifecycle()
-    val extensionRunners by RunnerManager.extensionRunners.collectAsStateWithLifecycle()
-    val shellBasedRunners by ShellBasedRunners.runners.collectAsStateWithLifecycle()
 
     // Validation functions
     fun validateName() {
@@ -143,7 +138,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
         )
 
         PreferenceGroup(heading = stringResource(strings.built_in)) {
-            builtinRunners.forEach { runner ->
+            RunnerManager.builtinRunners.forEach { runner ->
                 SettingsItem(
                     label = runner.label,
                     description = runner.description,
@@ -154,9 +149,9 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
             }
         }
 
-        if (extensionRunners.isNotEmpty()) {
+        if (RunnerManager.extensionRunners.isNotEmpty()) {
             PreferenceGroup(heading = stringResource(strings.ext)) {
-                extensionRunners.forEach { runner ->
+                RunnerManager.extensionRunners.forEach { runner ->
                     SettingsItem(
                         label = runner.label,
                         description = runner.description,
@@ -187,7 +182,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                     startWidget = {},
                 )
             } else {
-                if (shellBasedRunners.isEmpty()) {
+                if (ShellBasedRunners.runners.isEmpty()) {
                     SettingsItem(
                         modifier = Modifier,
                         label = stringResource(strings.no_runners),
@@ -197,7 +192,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                         startWidget = {},
                     )
                 } else {
-                    shellBasedRunners.forEach { runner ->
+                    ShellBasedRunners.runners.forEach { runner ->
                         SettingsItem(
                             modifier = Modifier,
                             label = runner.label,
@@ -346,7 +341,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                         onClick = {
                             // Check for duplicate names only when creating new runner
                             if (isEditingExisting == null) {
-                                if (shellBasedRunners.any { it.label == runnerName }) {
+                                if (ShellBasedRunners.runners.any { it.label == runnerName }) {
                                     nameError = strings.runner_name_exists.getString()
                                     return@TextButton
                                 }

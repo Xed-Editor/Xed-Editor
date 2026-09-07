@@ -53,7 +53,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.rk.App
 import com.rk.App.Companion.iconPackManager
@@ -120,13 +119,6 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
 
     val dialogManager = remember { ExtensionDialogManager() }
 
-    val installedExtensions by extensionManager.installedExtensions.collectAsStateWithLifecycle()
-    val storeExtensions by extensionManager.storeExtension.collectAsStateWithLifecycle()
-    val localThemes by themeManager.localThemes.collectAsStateWithLifecycle()
-    val storeThemes by themeManager.storeThemes.collectAsStateWithLifecycle()
-    val localIconPacks by iconPackManager.localIconPacks.collectAsStateWithLifecycle()
-    val storeIconPacks by iconPackManager.storeIconPacks.collectAsStateWithLifecycle()
-
     var isIndexing by remember { mutableStateOf(false) }
     var isFetching by remember { mutableStateOf(false) }
 
@@ -135,16 +127,16 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
 
         val needsLocal =
             when (selectedCategory) {
-                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.installedExtensions.value.isEmpty()
-                StoreCategory.THEMES -> isForceRefresh || themeManager.localThemes.value.isEmpty()
-                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.localIconPacks.value.isEmpty()
+                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.installedExtensions.isEmpty()
+                StoreCategory.THEMES -> isForceRefresh || themeManager.localThemes.isEmpty()
+                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.localIconPacks.isEmpty()
             }
 
         val needsStore =
             when (selectedCategory) {
-                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.storeExtension.value.isEmpty()
-                StoreCategory.THEMES -> isForceRefresh || themeManager.storeThemes.value.isEmpty()
-                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.storeIconPacks.value.isEmpty()
+                StoreCategory.EXTENSIONS -> isForceRefresh || extensionManager.storeExtension.isEmpty()
+                StoreCategory.THEMES -> isForceRefresh || themeManager.storeThemes.isEmpty()
+                StoreCategory.ICON_PACKS -> isForceRefresh || iconPackManager.storeIconPacks.isEmpty()
             }
 
         if (needsLocal || needsStore) {
@@ -190,7 +182,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
             installAutoDetect(scope, uri, activity)
         }
 
-    val extensions by remember(installedExtensions, storeExtensions) {
+    val extensions by remember {
         derivedStateOf {
             val all = extensionManager.getSyncedExtensions()
             val filtered = applyExtensionsFilter(searchQuery, all, currentFilterOption)
@@ -198,7 +190,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
         }
     }
 
-    val sortedThemes by remember(localThemes, storeThemes) {
+    val sortedThemes by remember {
         derivedStateOf {
             val all = themeManager.getSyncedThemes()
             val filtered = applyGenericFilter(searchQuery, all)
@@ -206,7 +198,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
         }
     }
 
-    val sortedIconPacks by remember(localIconPacks, storeIconPacks) {
+    val sortedIconPacks by remember {
         derivedStateOf {
             val all = iconPackManager.getSyncedIconPacks()
             val filtered = applyGenericFilter(searchQuery, all)

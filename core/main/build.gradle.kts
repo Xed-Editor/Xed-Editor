@@ -157,9 +157,9 @@ dependencies {
     // Modules
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
-    implementation(libs.sorax.editor)
-    implementation(libs.sorax.editor.lsp)
-    implementation(libs.sorax.language.textmate)
+    implementation(project(":editor"))
+    implementation(project(":editor-lsp"))
+    implementation(project(":language-textmate"))
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

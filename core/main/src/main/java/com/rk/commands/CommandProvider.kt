@@ -1,5 +1,6 @@
 package com.rk.commands
 
+import androidx.compose.runtime.mutableStateListOf
 import com.rk.commands.editor.CopyCommand
 import com.rk.commands.editor.CutCommand
 import com.rk.commands.editor.DuplicateLineCommand
@@ -39,14 +40,11 @@ import com.rk.commands.lsp.RenameSymbolCommand
 import com.rk.extension.api.DisposableManager
 import com.rk.extension.api.Disposer
 import com.rk.extension.api.XedExtensionPoint
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 object CommandProvider {
-    private val _commandList = MutableStateFlow<List<Command>>(emptyList())
-    val commandList: StateFlow<List<Command>> = _commandList.asStateFlow()
+    private val _commandList = mutableStateListOf<Command>()
+    val commandList: List<Command>
+        get() = _commandList
 
     lateinit var DocumentationCommand: DocumentationCommand
     lateinit var SettingsCommand: SettingsCommand
@@ -126,26 +124,26 @@ object CommandProvider {
         }
 
     private fun <T : Command> registerBuiltin(command: T, assign: (T) -> Unit) {
-        if (_commandList.value.contains(command)) return
+        if (_commandList.contains(command)) return
         assign(command)
-        _commandList.update { it + command }
+        _commandList.add(command)
         KeybindingsManager.invalidate()
     }
 
     @XedExtensionPoint
     fun registerCommand(command: Command) {
-        val index = _commandList.value.indexOf(command)
+        val index = _commandList.indexOf(command)
         if (index >= 0) {
-            _commandList.update { list -> list.toMutableList().also { it[index] = command } }
+            _commandList[index] = command
         } else {
-            _commandList.update { it + command }
+            _commandList.add(command)
         }
         KeybindingsManager.invalidate()
     }
 
     @XedExtensionPoint
     fun unregisterCommand(command: Command) {
-        _commandList.update { it - command }
+        _commandList.remove(command)
         KeybindingsManager.invalidate()
     }
 
@@ -166,9 +164,9 @@ object CommandProvider {
         dm.unregister(command, disposer)
     }
 
-    fun getForId(id: String): Command? = findRecursive(id, commandList.value)
+    fun getForId(id: String): Command? = findRecursive(id, commandList)
 
-    fun getParentCommand(command: Command): Command? = findParent(command, commandList.value)
+    fun getParentCommand(command: Command): Command? = findParent(command, commandList)
 
     private fun findParent(target: Command, commands: List<Command>): Command? {
         for (parent in commands) {

@@ -99,7 +99,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         }
         composable(SettingsRoutes.Themes.route) { ThemeScreen(navController) }
 
-        SettingsRegistry.routes.value.forEach { customRoute ->
+        SettingsRegistry.routes.forEach { customRoute ->
             composable(customRoute.route, arguments = customRoute.arguments) { backStackEntry ->
                 customRoute.content(navController, backStackEntry)
             }

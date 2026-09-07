@@ -1,14 +1,11 @@
 package com.rk.settings.debugOptions
 
+import androidx.compose.runtime.mutableStateListOf
 import com.rk.DefaultScope
 import com.rk.events.AppEvent
 import com.rk.events.Events
 import com.rk.resources.getString
 import com.rk.resources.strings
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 enum class LogLevel(val label: String, val value: Int) {
@@ -21,8 +18,7 @@ enum class LogLevel(val label: String, val value: Int) {
 data class LogEntry(val level: LogLevel, val message: String, val timestamp: Long = System.currentTimeMillis())
 
 object LogCollector {
-    private val _logs = MutableStateFlow<List<LogEntry>>(emptyList())
-    val logs: StateFlow<List<LogEntry>> = _logs.asStateFlow()
+    val logs = mutableStateListOf<LogEntry>()
 
     fun reportDebug(message: String, extensionId: String? = null) {
         appendEntry(
@@ -71,13 +67,13 @@ object LogCollector {
     }
 
     private fun appendEntry(logEntry: LogEntry, extensionId: String? = null) {
-        _logs.update { it + logEntry }
+        logs.add(logEntry)
         DefaultScope.launch {
             Events.publish(AppEvent.LogEntryWritten(logEntry, extensionId))
         }
     }
 
     fun clearLogs() {
-        _logs.value = emptyList()
+        logs.clear()
     }
 }

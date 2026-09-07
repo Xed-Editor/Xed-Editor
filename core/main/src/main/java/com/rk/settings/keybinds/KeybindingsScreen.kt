@@ -74,7 +74,7 @@ fun KeybindingsScreen() {
     var refreshTrigger by remember { mutableIntStateOf(0) }
     val searchQuery = rememberTextFieldState("")
 
-    val commands = CommandProvider.commandList.value
+    val commands = CommandProvider.commandList
     val filteredCommands =
         if (searchQuery.text.isEmpty()) {
                 commands

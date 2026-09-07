@@ -57,7 +57,6 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -123,17 +122,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranch by remember { mutableStateOf("") }
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
-        val currentRoot by viewModel.currentRoot.collectAsStateWithLifecycle()
-        val changeMap by viewModel.changes.collectAsStateWithLifecycle()
-        val commitMessages by viewModel.commitMessages.collectAsStateWithLifecycle()
-        val amends by viewModel.amends.collectAsStateWithLifecycle()
-        val currentBranch by viewModel.currentBranch.collectAsStateWithLifecycle()
-        val commitHistory by viewModel.commitHistory.collectAsStateWithLifecycle()
-        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-        val aheadCount by viewModel.aheadCount.collectAsStateWithLifecycle()
-        val behindCount by viewModel.behindCount.collectAsStateWithLifecycle()
-
-        val gitChanges = currentRoot?.absolutePath?.let { changeMap[it] } ?: emptyList()
+        val gitChanges = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
         val hasCheckedChanges by remember(gitChanges) { derivedStateOf { gitChanges.count { it.isChecked } > 0 } }
 
         val changes by
@@ -163,8 +152,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var untrackedExpanded by remember { mutableStateOf(true) }
         var conflictsExpanded by remember { mutableStateOf(true) }
 
-        val commitMessage = currentRoot?.absolutePath?.let { commitMessages[it] } ?: ""
-        val amend = currentRoot?.absolutePath?.let { amends[it] } ?: false
+        val commitMessage = viewModel.currentRoot.value?.absolutePath?.let { viewModel.commitMessages[it] } ?: ""
+        val amend = viewModel.currentRoot.value?.absolutePath?.let { viewModel.amends[it] } ?: false
 
         var selectedCommit by remember { mutableStateOf<GitCommit?>(null) }
 
@@ -174,7 +163,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(modifier = Modifier.weight(1f)) {
-                    TextButton(onClick = { showBranchesMenu = true }, enabled = !isLoading) {
+                    TextButton(onClick = { showBranchesMenu = true }, enabled = !viewModel.isLoading) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.wrapContentWidth()) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -183,7 +172,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                 Icon(painterResource(drawables.branch), contentDescription = null)
                                 Spacer(Modifier.size(8.dp))
                                 Text(
-                                    currentBranch,
+                                    viewModel.currentBranch,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     softWrap = false,
@@ -204,7 +193,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                     text = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             RadioButton(
-                                                selected = branch == currentBranch,
+                                                selected = branch == viewModel.currentBranch,
                                                 onClick = null,
                                             )
                                             Spacer(Modifier.width(12.dp))
@@ -281,7 +270,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                         },
                                     )
                                     XedDropdownMenuItem(
-                                        enabled = branch != currentBranch,
+                                        enabled = branch != viewModel.currentBranch,
                                         colors =
                                             MenuDefaults.itemColors()
                                                 .copy(
@@ -345,11 +334,11 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                     }
                                 }
                             },
-                            enabled = !isLoading,
+                            enabled = !viewModel.isLoading,
                         ) {
                             BadgedBox(
                                 badge = {
-                                    if (behindCount > 0) {
+                                    if (viewModel.behindCount > 0) {
                                         Badge(containerColor = MaterialTheme.colorScheme.primary)
                                     }
                                 }
@@ -365,7 +354,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         tooltip = { PlainTooltip { Text(stringResource(strings.fetch)) } },
                         state = rememberTooltipState(),
                     ) {
-                        IconButton(onClick = { viewModel.fetch() }, enabled = !isLoading) {
+                        IconButton(onClick = { viewModel.fetch() }, enabled = !viewModel.isLoading) {
                             Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
                         }
                     }
@@ -376,10 +365,10 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         tooltip = { PlainTooltip { Text(stringResource(strings.push)) } },
                         state = rememberTooltipState(),
                     ) {
-                        IconButton(onClick = { showPushConfirmDialog = true }, enabled = !isLoading) {
+                        IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
                             BadgedBox(
                                 badge = {
-                                    if (aheadCount > 0) {
+                                    if (viewModel.aheadCount > 0) {
                                         Badge(containerColor = MaterialTheme.colorScheme.greenStatus)
                                     }
                                 }
@@ -426,7 +415,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             }
 
             Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
-                if (isLoading) {
+                if (viewModel.isLoading) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxSize())
                 } else {
                     HorizontalDivider()
@@ -468,7 +457,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             .height(40.dp)
                             .toggleable(
                                 value = amend,
-                                enabled = !isLoading,
+                                enabled = !viewModel.isLoading,
                                 onValueChange = { viewModel.toggleAmend(it) },
                                 role = Role.Checkbox,
                                 indication = null,
@@ -479,7 +468,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 ) {
                     Checkbox(
                         checked = amend,
-                        enabled = !isLoading,
+                        enabled = !viewModel.isLoading,
                         interactionSource = interactionSource,
                         onCheckedChange = null,
                     )
@@ -487,7 +476,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     Text(stringResource(strings.amend))
                 }
                 OutlinedTextField(
-                    enabled = !isLoading,
+                    enabled = !viewModel.isLoading,
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     value = commitMessage,
                     onValueChange = { viewModel.changeCommitMessage(it) },
@@ -496,7 +485,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Button(
-                        enabled = !isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
+                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { viewModel.commit() },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
@@ -514,7 +503,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         )
                     }
                     OutlinedButton(
-                        enabled = !isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
+                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             scope.launch {
@@ -539,7 +528,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 }
             } else {
                 GitGraphView(
-                    commits = commitHistory,
+                    commits = viewModel.commitHistory,
                     modifier = Modifier.weight(1f),
                     onCommitClick = { selectedCommit = it },
                 )
@@ -549,7 +538,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         if (showNewBranchDialog) {
             SingleInputDialog(
                 title = stringResource(id = strings.new_branch),
-                inputLabel = stringResource(id = strings.new_branch_label, currentBranch),
+                inputLabel = stringResource(id = strings.new_branch_label, viewModel.currentBranch),
                 inputValue = newBranch,
                 errorMessage = newBranchError,
                 confirmText = stringResource(strings.ok),
@@ -561,7 +550,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             else -> null
                         }
                 },
-                onConfirm = { viewModel.checkoutNew(newBranch, currentBranch) },
+                onConfirm = { viewModel.checkoutNew(newBranch, viewModel.currentBranch) },
                 onFinish = {
                     newBranch = ""
                     newBranchError = null
@@ -630,7 +619,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         }
 
         if (showPushConfirmDialog) {
-            val commitCount = aheadCount
+            val commitCount = viewModel.aheadCount
             AlertDialog(
                 onDismissRequest = {
                     showPushConfirmDialog = false
@@ -644,7 +633,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                 if (commitCount > 0) strings.push_dialog_message_commits
                                 else strings.push_dialog_message_empty,
                                 commitCount,
-                                currentBranch,
+                                viewModel.currentBranch,
                             )
                         )
                         if (commitCount > 0) {
@@ -701,7 +690,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         conflictsExpanded: Boolean,
         onToggleExpansion: () -> Unit,
     ) {
-        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
         if (conflicts.isEmpty()) return
 
         val conflictsSelectionState =
@@ -730,7 +718,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             Spacer(Modifier.width(4.dp))
 
             TriStateCheckbox(
-                enabled = !isLoading,
+                enabled = !viewModel.isLoading,
                 state = conflictsSelectionState,
                 onClick = {
                     if (conflictsSelectionState == ToggleableState.On) {
@@ -761,7 +749,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         changesExpanded: Boolean,
         onToggleExpansion: () -> Unit,
     ) {
-        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
         if (changes.isEmpty()) return
 
         val changesSelectionState =
@@ -790,7 +777,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             Spacer(Modifier.width(4.dp))
 
             TriStateCheckbox(
-                enabled = !isLoading,
+                enabled = !viewModel.isLoading,
                 state = changesSelectionState,
                 onClick = {
                     if (changesSelectionState == ToggleableState.On) {
@@ -821,7 +808,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         untrackedExpanded: Boolean,
         onToggleExpansion: () -> Unit,
     ) {
-        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
         if (untracked.isEmpty()) return
 
         val untrackedSelectionState =
@@ -850,7 +836,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             Spacer(Modifier.width(4.dp))
 
             TriStateCheckbox(
-                enabled = !isLoading,
+                enabled = !viewModel.isLoading,
                 state = untrackedSelectionState,
                 onClick = {
                     if (untrackedSelectionState == ToggleableState.On) {
@@ -879,7 +865,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     private fun ChangesItemList(items: List<GitChange>) {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
-        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
         Column(modifier = Modifier.padding(start = 40.dp)) {
             items.forEach { change ->
@@ -902,7 +887,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     underlineColor = fileTreeViewModel.get()?.let { getUnderlineColor(context, it, file) },
                     checked = change.isChecked,
                     onCheckedChange = { viewModel.toggleChange(change) },
-                    enabled = !isLoading,
+                    enabled = !viewModel.isLoading,
                     onClick = {
                         viewModel.getDiff(change) { diff ->
                             MainActivity.instance

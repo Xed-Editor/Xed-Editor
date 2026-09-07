@@ -95,7 +95,7 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
     }
 
     override fun shouldEnforceCharBasedInput(): Boolean {
-        return true
+        return false
     }
 
     override fun shouldUseCtrlSpaceWorkaround(): Boolean {
@@ -120,10 +120,10 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
             val activity = Terminal.instance ?: return false
             val sessionBinder = activity.sessionBinder?.get() ?: return false
             sessionBinder.terminateSession(sessionBinder.getService().currentSession.value)
-            if (sessionBinder.getService().sessionList.value.isEmpty()) {
+            if (sessionBinder.getService().sessionList.isEmpty()) {
                 activity.finish()
             } else {
-                activity.changeSession(sessionBinder.getService().sessionList.value.first())
+                activity.changeSession(sessionBinder.getService().sessionList.first())
             }
             return true
         }

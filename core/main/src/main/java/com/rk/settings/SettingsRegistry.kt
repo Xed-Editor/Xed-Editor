@@ -1,12 +1,9 @@
 package com.rk.settings
 
+import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.api.DynamicRoute
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.icons.Icon
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 data class SettingsCategory(
     val label: String,
@@ -17,29 +14,31 @@ data class SettingsCategory(
 
 object SettingsRegistry {
 
-    private val _categories = MutableStateFlow<List<SettingsCategory>>(emptyList())
-    val categories: StateFlow<List<SettingsCategory>> = _categories.asStateFlow()
+    private val _categories = mutableStateListOf<SettingsCategory>()
+    val categories: List<SettingsCategory>
+        get() = _categories.toList()
 
-    private val _routes = MutableStateFlow<List<DynamicRoute>>(emptyList())
-    val routes: StateFlow<List<DynamicRoute>> = _routes.asStateFlow()
+    private val _routes = mutableStateListOf<DynamicRoute>()
+    val routes: List<DynamicRoute>
+        get() = _routes.toList()
 
     @XedExtensionPoint
     fun registerCategory(category: SettingsCategory) {
-        _categories.update { it + category }
+        _categories.add(category)
     }
 
     @XedExtensionPoint
     fun unregisterCategory(category: SettingsCategory) {
-        _categories.update { it - category }
+        _categories.remove(category)
     }
 
     @XedExtensionPoint
     fun registerRoute(route: DynamicRoute) {
-        _routes.update { it + route }
+        _routes.add(route)
     }
 
     @XedExtensionPoint
     fun unregisterRoute(route: DynamicRoute) {
-        _routes.update { it - route }
+        _routes.remove(route)
     }
 }
