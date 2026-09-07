@@ -1,3 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="restart_required">ต้องรีสตาร์ทแอป</string>
+    <string name="save">บันทึก</string>
+    <string name="open_directory">เปิดโฟลเดอร์</string>
 </resources>
