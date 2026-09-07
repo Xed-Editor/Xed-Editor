@@ -1,3 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="icon_pack_missing_fields">manifest.json فائل میں گمشدہ یا غیر معتبر خصوصیات موجود نیں:\n%s\n\nبراہ کرم فائل چیک کرو تے دوبارہ کوشش کرو۔</string>
+    <string name="verified">تصدیق شدہ</string>
+    <string name="samsung_proot_warning">تواڈے Samsung ڈیوائس نوں اک معلوم مسئلہ متاثر کردا اے جیہڑا PRoot-مبنی ٹرمینل دی تنصیب نوں ناکام بݨاؤندا اے۔</string>
+    <string name="terminal_degraded_warning">کچھ ڈیوائساں اُتے PRoot ماحول دی خرابی دی وجہ توں پیدا ہوݨ والے معلوم مطابقت دے مسئلے دی وجہ توں ٹرمینل ہُݨ محدود موڈ وچ چل رہیا اے۔ کجھ خصوصیات محدود ہو سکدیاں نیں یا وکھرا رویہ دکھا سکدیاں نیں۔</string>
+    <string name="crashed">کریش ہو گیا</string>
 </resources>

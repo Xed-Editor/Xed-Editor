@@ -1,3 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="icon_pack_missing_fields">The manifest.json file hath missing or unskillful properties:\n%s\n\nBiseche ye the file and fonde eft.</string>
+    <string name="verified">Yprovid</string>
+    <string name="samsung_proot_warning">Þy Samsung deuys is smiten wiþ a knowen defaute þat makeþ þe PRoot-founde termynal installynge to faylen.</string>
+    <string name="terminal_degraded_warning">Þe termynal now renneþ in a laste mode for a knowen compotabilitie defaute caused of a mysfare in þe PRoot enviroun on certeyn deuyses. Som þinges mowe be lymyted or do dyuersly.</string>
+    <string name="crashed">Crashed</string>
 </resources>

@@ -282,4 +282,9 @@
     <string name="regex">Regex</string>
     <string name="whole_word">Ολόκληρη λέξη</string>
     <string name="branch">Κλάδος</string>
+    <string name="icon_pack_missing_fields">Το αρχείο manifest.json έχει ιδιότητες που λείπουν ή είναι μη έγκυρες:\n%s\n\nΕλέγξτε το αρχείο και δοκιμάστε ξανά.</string>
+    <string name="verified">Επαληθεύτηκε</string>
+    <string name="samsung_proot_warning">Η συσκευή Samsung επηρεάζεται από ένα γνωστό ζήτημα που προκαλεί την αποτυχία εγκατάστασης του τερματικού που βασίζεται στο PRoot.</string>
+    <string name="terminal_degraded_warning">Το τερματικό εκτελείται αυτήν τη στιγμή σε περιορισμένη λειτουργία λόγω ενός γνωστού ζητήματος συμβατότητας που προκαλείται από δυσλειτουργία στο περιβάλλον PRoot σε ορισμένες συσκευές. Ορισμένες λειτουργίες ενδέχεται να είναι περιορισμένες ή να συμπεριφέρονται διαφορετικά.</string>
+    <string name="crashed">Κατέρρευσε</string>
 </resources>

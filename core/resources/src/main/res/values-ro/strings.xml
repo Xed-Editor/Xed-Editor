@@ -17,4 +17,9 @@
     <string name="replace">Înlocuiește</string>
     <string name="share">Partajare</string>
     <string name="open_file">Deschide fișier</string>
+    <string name="icon_pack_missing_fields">Fișierul manifest.json are proprietăți lipsă sau nevalide:\n%s\n\nTe rugăm să verifici fișierul și să încerci din nou.</string>
+    <string name="verified">Verificat</string>
+    <string name="samsung_proot_warning">Dispozitivul tău Samsung este afectat de o problemă cunoscută care face ca instalarea terminalului bazat pe PRoot să eșueze.</string>
+    <string name="terminal_degraded_warning">Terminalul rulează în prezent în mod degradat din cauza unei probleme de compatibilitate cunoscute, cauzată de o defecțiune în mediul PRoot pe anumite dispozitive. Unele funcții pot fi limitate sau se pot comporta diferit.</string>
+    <string name="crashed">A eșuat</string>
 </resources>

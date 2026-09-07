@@ -752,4 +752,5 @@
     <string name="icon_pack_not_found_desc">Tato stránka není dostupná. Stát se to může jestli lokální sada ikon byla odinstalována nebo sada ikon v obchodě byla odebrána z registru vlastníkem.</string>
     <string name="theme_not_found_desc">Tato stránka není dostupná. Stát se to může jestli lokální téma bylo odinstalováno nebo téma v obchodě bylo odebráno z registru vlastníkem.</string>
     <string name="theme_migrated">Úspěšně migrovalo %d témat(a)</string>
+    <string name="crashed">Havarovalo</string>
 </resources>

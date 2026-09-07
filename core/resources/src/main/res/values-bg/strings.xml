@@ -444,4 +444,9 @@
     <string name="inlay_hints">Съвети за инкрустация</string>
     <string name="inlay_hints_desc">Показване на вградени подсказки (напр. параметри, типове и цветови прегледи)</string>
     <string name="code_completion">Довършване на код</string>
+    <string name="icon_pack_missing_fields">Файлът manifest.json съдържа липсващи или невалидни свойства:\n%s\n\nМоля, проверете файла и опитайте отново.</string>
+    <string name="verified">Проверено</string>
+    <string name="samsung_proot_warning">Вашето Samsung устройство е засегнато от известен проблем, който причинява неуспех при инсталирането на терминала на базата на PRoot.</string>
+    <string name="terminal_degraded_warning">Терминалът в момента работи в ограничен режим поради известен проблем със съвместимостта, причинен от неизправност в средата на PRoot на определени устройства. Някои функции може да са ограничени или да се държат по различен начин.</string>
+    <string name="crashed">Срив</string>
 </resources>

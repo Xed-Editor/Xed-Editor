@@ -1,5 +1,29 @@
 # 进度日志
 
+## 会话：2026-09-07（为残留 UI 字符串补齐多语言翻译）
+### 阶段 9：为残留 UI 字符串补齐多语言翻译
+- **状态：** complete
+- **开始时间：** 2026-09-07
+- 执行的操作：
+  - 分析 5 个孤儿 key（icon_pack_missing_fields / verified / samsung_proot_warning / terminal_degraded_warning / crashed）：上游功能移除后翻译残留，只存在于部分语言文件，default(EN) 缺失（icon_pack/verified 从未有英文版）
+  - 从 git 历史 d7868cd26~1 恢复 crashed/samsung_proot_warning/terminal_degraded_warning 英文原文；icon_pack/verified 基于各语言反推英文
+  - 检查代码引用：5 个 key 均无 R.string/strings.xxx 引用（仅翻译完整性需求）
+  - 编写 Python 脚本（add_missing_strings.py）向 core/resources 全部 40 个语言文件 + default(EN) 补齐缺失 key，按缺失情况差异化插入（cs/de/fr/ru/tr 只缺 crashed；de 只缺 terminal_degraded；it 缺 2；vi 缺 4；zh-rTW 缺 3）
+  - 空语言文件（enm/nl/peo/pa-rPK）也补齐；peo 无维护者用波斯语文本占位
+  - 结果：37 文件 changed、+159 insertions；XML 全部合法解析；`:app:assembleDebug` BUILD SUCCESSFUL
+- 创建/修改的文件：
+  - core/resources/src/main/res/values/strings.xml（+5 英文）
+  - core/resources/src/main/res/values-{ar,arq,az,bg,bn,bn-rIN,el,enm,fa,fi,fil,hi,hu,iw,ja,kab,ko,ms,nl,ota,pa-rPK,peo,pt,pt-rBR,ro,sv,ta,uk}/strings.xml（+5）
+  - core/resources/src/main/res/values-{cs,de,fr,ru,tr}/strings.xml（+1）
+  - core/resources/src/main/res/values-it/strings.xml（+2）
+  - core/resources/src/main/res/values-vi/strings.xml（+4）
+  - core/resources/src/main/res/values-zh-rTW/strings.xml（+3）
+  - task_plan.md / findings.md（新增阶段 9 记录）
+- 注意：
+  - 本次为翻译完整性补齐；若上游将来重新加入英文 default 需同步
+  - 构建前因旧目录 `E:\Xed-Editor-main` 缓存残留，`assembleDebug` 报 bundleLibRuntimeToDirDebug 路径错误；`gradlew clean` 后恢复
+  - 特殊语言 ota/enm 用近似译文；peo 用波斯语占位（无古波斯语维护者）
+
 ## 会话：2026-09-07（Git 初始化 + 终端 Shift 键 + Release 包）
 ### 阶段 8：打 Release 包
 - **状态：** complete

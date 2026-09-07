@@ -435,4 +435,9 @@
     <string name="supported_extensions">확장 기능: %s</string>
     <string name="features">기능</string>
     <string name="hover_information">호버 정보</string>
+    <string name="icon_pack_missing_fields">manifest.json 파일에 누락되었거나 잘못된 속성이 있습니다:\n%s\n\n파일을 확인한 후 다시 시도하세요.</string>
+    <string name="verified">확인됨</string>
+    <string name="samsung_proot_warning">사용 중인 Samsung 기기가 PRoot 기반 터미널 설치를 실패하게 만드는 알려진 문제의 영향을 받고 있습니다.</string>
+    <string name="terminal_degraded_warning">일부 기기에서 PRoot 환경의 오작동으로 인한 알려진 호환성 문제 때문에 터미널이 현재 축소 모드로 실행 중입니다. 일부 기능이 제한되거나 다르게 동작할 수 있습니다.</string>
+    <string name="crashed">충돌함</string>
 </resources>

@@ -787,4 +787,5 @@
     <string name="git_conflict_detection">Konflikterkennung</string>
     <string name="git_conflict_detection_desc">Konfliktmarkierungen und Auflösungsoptionen im Editor anzeigen</string>
     <string name="credentials_github">Um dich mit GitHub zu verbinden, musst du einen PAT-Token eingeben, nicht das Passwort deines GitHub-Kontos.</string>
+    <string name="terminal_degraded_warning">Das Terminal läuft derzeit im reduzierten Modus, da ein bekanntes Kompatibilitätsproblem vorliegt, das durch eine Fehlfunktion der PRoot-Umgebung auf bestimmten Geräten verursacht wird. Einige Funktionen sind möglicherweise eingeschränkt oder verhalten sich anders.</string>
 </resources>

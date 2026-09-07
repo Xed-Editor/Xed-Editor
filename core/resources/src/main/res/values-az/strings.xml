@@ -33,4 +33,9 @@
     <string name="private_files_desc">Karbon-un Şəxsi Faylları</string>
     <string name="internal_storage">Daxili Yaddaş</string>
     <string name="open_internal_storage">Daxili yaddaşı aç</string>
+    <string name="icon_pack_missing_fields">manifest.json faylında çatışmayan və ya yanlış xüsusiyyətlər var:\n%s\n\nZəhmət olmasa faylı yoxlayın və yenidən cəhd edin.</string>
+    <string name="verified">Təsdiqlənib</string>
+    <string name="samsung_proot_warning">Samsung cihazınız PRoot əsaslı terminal quraşdırmasının uğursuz olmasına səbəb olan məlum problemdən təsirlənir.</string>
+    <string name="terminal_degraded_warning">Terminal hazırda PRoot mühitindəki nasazlıq nəticəsində bəzi cihazlarda yaranan məlum uyğunluq problemi səbəbindən aşağı rejimdə işləyir. Bəzi funksiyalar məhdud ola və ya fərqli davrana bilər.</string>
+    <string name="crashed">Çökdü</string>
 </resources>

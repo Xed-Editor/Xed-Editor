@@ -131,4 +131,9 @@
     <string name="clone_repo_desc">Klona fjärrförråd</string>
     <string name="repo_url">Förrådets URL</string>
     <string name="branch">Gren</string>
+    <string name="icon_pack_missing_fields">Filen manifest.json har saknade eller ogiltiga egenskaper:\n%s\n\nKontrollera filen och försök igen.</string>
+    <string name="verified">Verifierad</string>
+    <string name="samsung_proot_warning">Din Samsung-enhet påverkas av ett känt problem som gör att installationen av den PRoot-baserade terminalen misslyckas.</string>
+    <string name="terminal_degraded_warning">Terminalen körs för närvarande i ett försämrat läge på grund av ett känt kompatibilitetsproblem som orsakas av ett fel i PRoot-miljön på vissa enheter. Vissa funktioner kan vara begränsade eller bete sig annorlunda.</string>
+    <string name="crashed">Kraschade</string>
 </resources>

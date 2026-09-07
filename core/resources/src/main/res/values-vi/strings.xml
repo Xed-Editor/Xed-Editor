@@ -464,4 +464,8 @@
     <string name="command_palette">Bảng lệnh</string>
     <string name="debug_mode_warn">Chế độ gỡ lỗi vô hiệu hóa các hạn chế an toàn, điều này có thể dẫn đến mất dữ liệu hoặc các sự cố khác nếu sử dụng sai cách. Chỉ bật chế độ này nếu bạn biết mình đang làm gì.</string>
     <string name="desktop_mode">Chế độ máy tính để bàn (Thử nghiệm)</string>
+    <string name="icon_pack_missing_fields">Tệp manifest.json có các thuộc tính bị thiếu hoặc không hợp lệ:\n%s\n\nVui lòng kiểm tra tệp và thử lại.</string>
+    <string name="samsung_proot_warning">Thiết bị Samsung của bạn đang gặp một sự cố đã biết khiến việc cài đặt terminal dựa trên PRoot thất bại.</string>
+    <string name="terminal_degraded_warning">Terminal hiện đang chạy ở chế độ suy giảm do một sự cố tương thích đã biết, gây ra bởi trục trặc trong môi trường PRoot trên một số thiết bị. Một số tính năng có thể bị hạn chế hoặc hoạt động khác đi.</string>
+    <string name="crashed">Đã sập</string>
 </resources>

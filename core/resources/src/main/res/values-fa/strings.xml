@@ -110,4 +110,9 @@
     <string name="updating">در حال به‌روزرسانی…</string>
     <string name="loading">در حال بارگذاری…</string>
     <string name="downloading">در حال دانلود…</string>
+    <string name="icon_pack_missing_fields">فایل manifest.json دارای ویژگی‌های ازدست‌رفته یا نامعتبر است:\n%s\n\nلطفاً فایل را بررسی کرده و دوباره تلاش کنید.</string>
+    <string name="verified">تأیید شد</string>
+    <string name="samsung_proot_warning">دستگاه سامسونگ شما تحت تأثیر یک مشکل شناخته‌شده قرار دارد که باعث شکست نصب ترمینال مبتنی بر PRoot می‌شود.</string>
+    <string name="terminal_degraded_warning">ترمینال در حال حاضر به دلیل یک مشکل سازگاری شناخته‌شده ناشی از نقص در محیط PRoot در برخی دستگاه‌ها در حالت کاهش‌یافته در حال اجرا است. برخی از ویژگی‌ها ممکن است محدود باشند یا رفتار متفاوتی داشته باشند.</string>
+    <string name="crashed">از کار افتاد</string>
 </resources>

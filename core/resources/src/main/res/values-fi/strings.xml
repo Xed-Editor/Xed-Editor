@@ -61,4 +61,9 @@
     <string name="branch">Haara</string>
     <string name="show_line_number">Näytä rivinumerot</string>
     <string name="text_size">Tekstin koko</string>
+    <string name="icon_pack_missing_fields">manifest.json-tiedostosta puuttuu ominaisuuksia tai se sisältää virheellisiä ominaisuuksia:\n%s\n\nTarkista tiedosto ja yritä uudelleen.</string>
+    <string name="verified">Vahvistettu</string>
+    <string name="samsung_proot_warning">Samsung-laitteeseesi vaikuttaa tunnettu ongelma, joka aiheuttaa PRoot-pohjaisen terminaalin asennuksen epäonnistumisen.</string>
+    <string name="terminal_degraded_warning">Terminaali toimii tällä hetkellä rajoitetussa tilassa tunnetun yhteensopivuusongelman vuoksi, jonka aiheuttaa PRoot-ympäristön toimintahäiriö tietyillä laitteilla. Jotkin toiminnot voivat olla rajoitettuja tai käyttäytyä eri tavalla.</string>
+    <string name="crashed">Kaatuu</string>
 </resources>

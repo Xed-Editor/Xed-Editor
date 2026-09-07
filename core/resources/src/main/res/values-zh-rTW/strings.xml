@@ -786,4 +786,7 @@
     <string name="git_conflict_detection">衝突偵測</string>
     <string name="git_conflict_detection_desc">在編輯器中顯示衝突標記與解決選項</string>
     <string name="credentials_github">若要連線至 GitHub，你必須輸入 PAT 權杖，而不是 GitHub 帳號密碼。</string>
+    <string name="samsung_proot_warning">您的三星裝置受到一個已知問題的影響，會導致以 PRoot 為基礎的終端機安裝失敗。</string>
+    <string name="terminal_degraded_warning">由於 PRoot 環境在部分裝置上存在已知的相容性問題，終端機目前正以降級模式執行。某些功能可能受到限制或出現不同的行為。</string>
+    <string name="crashed">已當機</string>
 </resources>

@@ -191,4 +191,9 @@
     <string name="no_folder_opened">कोई फ़ोल्डर नहीं खुला</string>
     <string name="cut">कट करें</string>
     <string name="timeout">टाइमआउट के कारण डाउनलोड रद्द हुआ। कृपया सुनिश्चित करें कि आपका इंटरनेट कनेक्शन स्थिर है</string>
+    <string name="icon_pack_missing_fields">manifest.json फ़ाइल में अनुपलब्ध या अमान्य गुण हैं:\n%s\n\nकृपया फ़ाइल की जाँच करें और पुनः प्रयास करें।</string>
+    <string name="verified">सत्यापित</string>
+    <string name="samsung_proot_warning">आपका Samsung डिवाइस एक ज्ञात समस्या से प्रभावित है जो PRoot-आधारित टर्मिनल इंस्टॉलेशन को विफल कर देती है।</string>
+    <string name="terminal_degraded_warning">कुछ डिवाइसों पर PRoot वातावरण में खराबी के कारण उत्पन्न एक ज्ञात संगतता समस्या के कारण टर्मिनल वर्तमान में निम्न (degraded) मोड में चल रहा है। कुछ सुविधाएँ सीमित हो सकती हैं या अलग व्यवहार कर सकती हैं।</string>
+    <string name="crashed">क्रैश हो गया</string>
 </resources>

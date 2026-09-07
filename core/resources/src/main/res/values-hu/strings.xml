@@ -77,4 +77,9 @@
     <string name="app_desc">Alapvető alkalmazásbeállítások</string>
     <string name="editor_desc">Alapvető szerkesztési beállítások</string>
     <string name="terminal_desc">Alapvető terminálbeállítások</string>
+    <string name="icon_pack_missing_fields">A manifest.json fájl hiányzó vagy érvénytelen tulajdonságokat tartalmaz:\n%s\n\nKérjük, ellenőrizze a fájlt, és próbálja újra.</string>
+    <string name="verified">Ellenőrizve</string>
+    <string name="samsung_proot_warning">Samsung készülékét egy ismert probléma érinti, amely miatt a PRoot-alapú terminál telepítése meghiúsul.</string>
+    <string name="terminal_degraded_warning">A terminál jelenleg csökkentett módban fut egy ismert kompatibilitási probléma miatt, amelyet a PRoot környezet hibája okoz bizonyos készülékeken. Egyes funkciók korlátozottak lehetnek, vagy eltérően viselkedhetnek.</string>
+    <string name="crashed">Összeomlott</string>
 </resources>

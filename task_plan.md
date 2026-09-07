@@ -66,6 +66,13 @@
 1. ~~main 模块与 terminal 模块依赖方向（core:main 不能引用 features:terminal）~~ → 已解决：用 `Intent().setClassName` 字符串方式启动，避免编译期依赖
 2. ~~MainActivity.onCreate 自动启动终端与 onResume 清除标记的时序冲突~~ → 已解决：onCreate 中同步判定并消费标记，post 只负责启动
 
+## 阶段 9：为残留 UI 字符串补齐多语言翻译（新增）
+- [x] 定位 5 个只在部分语言存在、default(EN) 缺失的孤儿 key：icon_pack_missing_fields / verified / samsung_proot_warning / terminal_degraded_warning / crashed（上游功能移除后翻译残留）
+- [x] 恢复英文基准原文（crashed/samsung/terminal_degraded 曾存在于上游 default；icon_pack/verified 为重构译文）
+- [x] 用 Python 脚本向 core/resources 全部 40 个语言文件 + default(EN) 补齐缺失 key（共 37 文件、+159 行）
+- [x] XML 全部合法解析；`:app:assembleDebug` BUILD SUCCESSFUL
+- **状态：** complete
+
 ## 已做决策
 | 决策 | 理由 |
 |------|------|

@@ -418,4 +418,9 @@
     <string name="folder_already_exists">\'%s\' என்ற பெயரில் ஒரு கோப்புறை ஏற்கனவே உள்ளது</string>
     <string name="file_creation_failed">கோப்பை உருவாக்க முடியவில்லை</string>
     <string name="folder_creation_failed">கோப்புறையை உருவாக்க முடியவில்லை</string>
+    <string name="icon_pack_missing_fields">manifest.json கோப்பில் விடுபட்ட அல்லது தவறான பண்புகள் உள்ளன:\n%s\n\nகோப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.</string>
+    <string name="verified">சரிபார்க்கப்பட்டது</string>
+    <string name="samsung_proot_warning">PRoot அடிப்படையிலான டெர்மினல் நிறுவல் தோல்வியடையச் செய்யும் அறியப்பட்ட சிக்கலால் உங்கள் Samsung சாதனம் பாதிக்கப்படுகிறது.</string>
+    <string name="terminal_degraded_warning">சில சாதனங்களில் PRoot சூழலில் ஏற்படும் செயலிழப்பால் ஏற்பட்ட அறியப்பட்ட இணக்கச் சிக்கல் காரணமாக டெர்மினல் தற்போது தாழ்ந்த முறையில் இயங்குகிறது. சில அம்சங்கள் வரம்பிடப்படலாம் அல்லது வித்தியாசமாக செயல்படலாம்.</string>
+    <string name="crashed">செயலிழந்தது</string>
 </resources>

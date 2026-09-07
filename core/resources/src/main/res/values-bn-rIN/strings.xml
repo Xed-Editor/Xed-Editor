@@ -113,4 +113,9 @@
     <string name="duplicate_line">ডুপ্লিকেট লাইন</string>
     <string name="change_extra_keys">অতিরিক্ত কী সম্পাদনা করুন</string>
     <string name="change_extra_keys_desc">কীবোর্ডের উপরে দেখানো অতিরিক্ত কীগুলি কাস্টমাইজ করুন</string>
+    <string name="icon_pack_missing_fields">manifest.json ফাইলে অনুপস্থিত বা অবৈধ বৈশিষ্ট্য রয়েছে:\n%s\n\nঅনুগ্রহ করে ফাইলটি পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="verified">যাচাই করা হয়েছে</string>
+    <string name="samsung_proot_warning">আপনার Samsung ডিভাইসটি একটি পরিচিত সমস্যায় আক্রান্ত যা PRoot-ভিত্তিক টার্মিনাল ইনস্টলেশন ব্যর্থ করে দেয়।</string>
+    <string name="terminal_degraded_warning">কিছু ডিভাইসে PRoot পরিবেশের ত্রুটির কারণে সৃষ্ট একটি পরিচিত সামঞ্জস্য সমস্যার কারণে টার্মিনালটি বর্তমানে হ্রাসকৃত মোডে চলছে। কিছু বৈশিষ্ট্য সীমিত হতে পারে বা ভিন্নভাবে আচরণ করতে পারে।</string>
+    <string name="crashed">ক্র্যাশ হয়েছে</string>
 </resources>

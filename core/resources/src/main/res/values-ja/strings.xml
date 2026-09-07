@@ -784,4 +784,9 @@
     <string name="git_conflict_detection">競合の検出</string>
     <string name="git_conflict_detection_desc">エディター内に競合マーカーと解決オプションを表示する</string>
     <string name="credentials_github">GitHub に接続するには、GitHub アカウントのパスワードではなく、PAT トークンを入力する必要があります。</string>
+    <string name="icon_pack_missing_fields">manifest.json ファイルにプロパティが欠落しているか、無効なプロパティが含まれています：\n%s\n\nファイルを確認して、もう一度お試しください。</string>
+    <string name="verified">検証済み</string>
+    <string name="samsung_proot_warning">お使いのSamsungデバイスは、PRootベースのターミナルインストールを失敗させる既知の問題の影響を受けています。</string>
+    <string name="terminal_degraded_warning">一部のデバイスでPRoot環境の不具合によって発生する既知の互換性の問題により、ターミナルは現在縮退モードで動作しています。一部の機能が制限されたり、異なる動作をする場合があります。</string>
+    <string name="crashed">クラッシュしました</string>
 </resources>

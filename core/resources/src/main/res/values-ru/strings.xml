@@ -800,4 +800,5 @@
     <string name="git_conflict_detection">Обнаружение конфликтов</string>
     <string name="git_conflict_detection_desc">Показывать маркеры конфликтов и варианты их разрешения в редакторе</string>
     <string name="credentials_github">Для подключения к GitHub необходимо ввести токен PAT, а не пароль от вашей учётной записи GitHub.</string>
+    <string name="crashed">Сбой</string>
 </resources>

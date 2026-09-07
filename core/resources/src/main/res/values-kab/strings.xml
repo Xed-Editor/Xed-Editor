@@ -55,4 +55,9 @@
     <string name="folder">Akaram</string>
     <string name="open_file">Ldi afaylu</string>
     <string name="fonts">Tisefsa</string>
+    <string name="icon_pack_missing_fields">Afaylu manifest.json yesɛa iɣbula ur nelli ara neɣ ur llin ara d iṣeḥḥiḍen:\n%s\n\nMa ulac aɣilif, senqed afaylu-nni u ɛreḍ tikelt-nniḍen.</string>
+    <string name="verified">Yettwaqbel</string>
+    <string name="samsung_proot_warning">Afaris Samsung-ik yesɛa ugur yettwassnen i d-yessneɣren asbeddi n terminal ileḥḥun ɣef PRoot.</string>
+    <string name="terminal_degraded_warning">Terminal-agi iteddu tura s usileɣ imẓẓiyen acku ugur n temṭafut yettwassnen, i d-iban seg tmeẓẓunt deg wakal n PRoot ɣef kra n ifarisen. Kra n iɣbula zemren ad ilin s lekmal neɣ ad xedmen s waṣlay.</string>
+    <string name="crashed">Yenger</string>
 </resources>

@@ -252,4 +252,9 @@
     <string name="unknown">Desconhecido</string>
     <string name="cant_write">Sem permissão para escrever no arquivo</string>
     <string name="info_lsp">Servidores de linguagem são processos separados que providenciam recursos inteligentes como auto complete, realce de erros e documentação inline.</string>
+    <string name="icon_pack_missing_fields">O ficheiro manifest.json tem propriedades em falta ou inválidas:\n%s\n\nVerifique o ficheiro e tente novamente.</string>
+    <string name="verified">Verificado</string>
+    <string name="samsung_proot_warning">O seu dispositivo Samsung é afetado por um problema conhecido que faz com que a instalação do terminal baseado em PRoot falhe.</string>
+    <string name="terminal_degraded_warning">O terminal está atualmente a funcionar em modo degradado devido a um problema de compatibilidade conhecido, causado por uma avaria no ambiente PRoot em determinados dispositivos. Algumas funcionalidades podem estar limitadas ou comportar-se de forma diferente.</string>
+    <string name="crashed">Falhou</string>
 </resources>

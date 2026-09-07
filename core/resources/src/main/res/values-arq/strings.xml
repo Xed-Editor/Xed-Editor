@@ -11,4 +11,9 @@
     <string name="save_all">حفظ الكل</string>
     <string name="undo">تراجع</string>
     <string name="settings">اعدادات</string>
+    <string name="icon_pack_missing_fields">الملف manifest.json فيه خصائص ناقصة أو غير صالحة:\n%s\n\nتحقق من الملف وحاول مرة أخرى.</string>
+    <string name="verified">تم التحقق</string>
+    <string name="samsung_proot_warning">جهاز Samsung تاعك متأثر بمشكلة معروفة تسبب فشل تثبيت الطرفية المبنية على PRoot.</string>
+    <string name="terminal_degraded_warning">الطرفية حالياً خدامة بوضعية منخفضة بسبب مشكلة توافق معروفة ناتجة عن خلل في بيئة PRoot على بعض الأجهزة. بعض الميزات قد تكون محدودة أو تتصرف بشكل مختلف.</string>
+    <string name="crashed">انهار</string>
 </resources>

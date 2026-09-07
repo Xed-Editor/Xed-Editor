@@ -45,4 +45,9 @@
     <string name="apply">Mag-apply</string>
     <string name="open_in_terminal">Buksan sa Terminal</string>
     <string name="file_open_denied">Ang pagbubukas ng file na ito sa iba pang mga app ay hindi pinahihintulutan</string>
+    <string name="icon_pack_missing_fields">Ang manifest.json file ay may mga nawawala o hindi wastong katangian:\n%s\n\nPakitingnan ang file at subukang muli.</string>
+    <string name="verified">Na-verify</string>
+    <string name="samsung_proot_warning">Ang iyong Samsung device ay apektado ng isang kilalang isyu na nagiging sanhi ng pagkabigo ng pag-install ng terminal na nakabatay sa PRoot.</string>
+    <string name="terminal_degraded_warning">Kasalukuyang tumatakbo ang terminal sa degraded mode dahil sa isang kilalang isyu sa compatibility na dulot ng malfunction sa PRoot environment sa ilang device. Maaaring limitado ang ilang feature o kumilos nang iba.</string>
+    <string name="crashed">Nag-crash</string>
 </resources>

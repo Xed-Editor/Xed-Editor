@@ -1,3 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="icon_pack_missing_fields">Het bestand manifest.json bevat ontbrekende of ongeldige eigenschappen:\n%s\n\nControleer het bestand en probeer het opnieuw.</string>
+    <string name="verified">Geverifieerd</string>
+    <string name="samsung_proot_warning">Uw Samsung-apparaat wordt getroffen door een bekend probleem waardoor de installatie van de op PRoot gebaseerde terminal mislukt.</string>
+    <string name="terminal_degraded_warning">De terminal draait momenteel in een beperkte modus vanwege een bekend compatibiliteitsprobleem dat wordt veroorzaakt door een storing in de PRoot-omgeving op bepaalde apparaten. Sommige functies kunnen beperkt zijn of zich anders gedragen.</string>
+    <string name="crashed">Gecrasht</string>
 </resources>

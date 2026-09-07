@@ -766,4 +766,6 @@
     <string name="git_init_error">Impossibile inizializzare il repository: %s</string>
     <string name="checkout">Checkout</string>
     <string name="merge">Unisci</string>
+    <string name="icon_pack_missing_fields">Il file manifest.json contiene proprietà mancanti o non valide:\n%s\n\nControlla il file e riprova.</string>
+    <string name="crashed">In crash</string>
 </resources>

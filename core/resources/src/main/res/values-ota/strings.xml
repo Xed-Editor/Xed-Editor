@@ -42,4 +42,9 @@
     <string name="undo">گری آل</string>
     <string name="search">آرامە</string>
     <string name="share">پایلاش</string>
+    <string name="icon_pack_missing_fields">manifest.json فایلینده اكسيك یا دا گچرسز اوزللیكلر وار:\n%s\n\nلطفاً فایلی كنترول ایدوب ینیدن دنه‌ییڭ.</string>
+    <string name="verified">تصدیق ایدیلمش</string>
+    <string name="samsung_proot_warning">Samsung جیهازڭیز PRoot أساسلی ترمینال قورولومونون باشاریسیز اولماسنه صبب اولان معلوم بر مشكلدن تأثرلنمشدر.</string>
+    <string name="terminal_degraded_warning">بعضی جیهازلرده PRoot محیطیندeki ایشلهمه بوزوقلغی سببیله معلوم بر اویوم‌لوق مشكلی دن طوغری ترمینال حال‌حاضردا ایندیریلmiş مووددا چالیشمقددیر. بعضی اوزللیكلر محدود اوله بیلر یا دا فرقلی رفتار ایدر.</string>
+    <string name="crashed">چوكدو</string>
 </resources>

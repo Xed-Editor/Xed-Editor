@@ -29,4 +29,9 @@
         <item quantity="other">%d saat lalu</item>
     </plurals>
     <string name="theme_id_missing">Fail JSON tidak memberikan ID tema yang sah. Sila tambah satu dan cuba lagi.</string>
+    <string name="icon_pack_missing_fields">Fail manifest.json mempunyai sifat yang hilang atau tidak sah:\n%s\n\nSila semak fail dan cuba lagi.</string>
+    <string name="verified">Disahkan</string>
+    <string name="samsung_proot_warning">Peranti Samsung anda terjejas oleh isu yang diketahui yang menyebabkan pemasangan terminal berasaskan PRoot gagal.</string>
+    <string name="terminal_degraded_warning">Terminal kini berjalan dalam mod terjejas disebabkan isu keserasian yang diketahui yang berpunca daripada kerosakan dalam persekitaran PRoot pada peranti tertentu. Sesetengah ciri mungkin terhad atau berkelakuan berbeza.</string>
+    <string name="crashed">Ranap</string>
 </resources>

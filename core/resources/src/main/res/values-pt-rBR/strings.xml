@@ -432,4 +432,9 @@
     <string name="hover_information_desc">Exibir documentação ao passar o cursor sobre ela</string>
     <string name="signature_help">Ajuda com assinaturas</string>
     <string name="signature_help_desc">Exibir informações do parâmetro</string>
+    <string name="icon_pack_missing_fields">O arquivo manifest.json tem propriedades ausentes ou inválidas:\n%s\n\nVerifique o arquivo e tente novamente.</string>
+    <string name="verified">Verificado</string>
+    <string name="samsung_proot_warning">Seu dispositivo Samsung é afetado por um problema conhecido que faz com que a instalação do terminal baseado em PRoot falhe.</string>
+    <string name="terminal_degraded_warning">O terminal está atualmente em modo degradado devido a um problema de compatibilidade conhecido, causado por um mau funcionamento no ambiente PRoot em determinados dispositivos. Alguns recursos podem estar limitados ou se comportar de forma diferente.</string>
+    <string name="crashed">Falhou</string>
 </resources>

@@ -794,4 +794,9 @@
     <string name="git_conflict_detection">Conflict detection</string>
     <string name="git_conflict_detection_desc">Show conflict markers and resolve options in the editor</string>
     <string name="credentials_github">To connect to GitHub, you must enter a PAT token, not your GitHub account password.</string>
+    <string name="icon_pack_missing_fields">The manifest.json file has missing or invalid properties:\n%s\n\nPlease check the file and try again.</string>
+    <string name="verified">Verified</string>
+    <string name="samsung_proot_warning">Your Samsung device is affected by a known issue that causes the PRoot-based terminal installation to fail.</string>
+    <string name="terminal_degraded_warning">The terminal is currently running in a degraded mode due to a known compatibility issue caused by a malfunction in the PRoot environment on certain devices. Some features may be limited or behave differently.</string>
+    <string name="crashed">Crashed</string>
 </resources>

@@ -67,6 +67,7 @@
 | `FileObject.getParentFile()` 是 suspend | 对 `FileWrapper` 直接用 `file.file.parentFile`（java.io.File） |
 | 编辑工具在 Kotlin 文件引入多余 `}` | 每次编辑后用 filesystem-read 复核结构，删除多余括号 |
 | core:main 无法引用 Terminal 类 | `Intent().setClassName` 字符串类名启动 |
+| 5 个 UI key 只在部分语言存在、default(EN) 缺失 | 从上游 git 历史恢复英文基准 + Python 脚本批量补齐 40 语言文件（37 文件、+159 行） |
 
 ## 资源
 - 构建：`gradlew.bat :app:assembleDebug`（需 PATH 含 Git usr/bin）

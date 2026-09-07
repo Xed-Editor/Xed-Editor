@@ -191,4 +191,9 @@
     <string name="lang_desc">הגדרות שפה</string>
     <string name="add_theme">הוספת ערכת נושא</string>
     <string name="confirm_exit">האם ברצונך לצאת?</string>
+    <string name="icon_pack_missing_fields">קובץ manifest.json מכיל מאפיינים חסרים או לא תקינים:\n%s\n\nאנא בדוק את הקובץ ונסה שוב.</string>
+    <string name="verified">אומת</string>
+    <string name="samsung_proot_warning">מכשיר ה-Samsung שלך מושפע מבעיה ידועה הגורמת לכישלון בהתקנת הטרמינל המבוסס על PRoot.</string>
+    <string name="terminal_degraded_warning">הטרמינל פועל כעת במצב מופחת עקב בעיית תאימות ידועה הנגרמת מתקלה בסביבת PRoot במכשירים מסוימים. ייתכן שחלק מהתכונות יהיו מוגבלות או יתנהגו אחרת.</string>
+    <string name="crashed">קרס</string>
 </resources>

@@ -797,4 +797,9 @@
     <string name="git_conflict_detection">Виявлення конфліктів</string>
     <string name="git_conflict_detection_desc">Показувати в редакторі значки конфліктів та шляхи їх вирішення</string>
     <string name="credentials_github">Щоб під\'єднатися до GitHub, ви маєте ввести PAT-токен, а не ваш пароль від GitHub.</string>
+    <string name="icon_pack_missing_fields">Файл manifest.json містить відсутні або недійсні властивості:\n%s\n\nПеревірте файл і спробуйте ще раз.</string>
+    <string name="verified">Перевірено</string>
+    <string name="samsung_proot_warning">На ваш пристрій Samsung впливає відома проблема, через яку не вдається встановити термінал на основі PRoot.</string>
+    <string name="terminal_degraded_warning">Термінал зараз працює в обмеженому режимі через відому проблему сумісності, спричинену несправністю середовища PRoot на деяких пристроях. Деякі функції можуть бути обмежені або працювати інакше.</string>
+    <string name="crashed">Збій</string>
 </resources>
