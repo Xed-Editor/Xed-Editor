@@ -68,6 +68,12 @@
 | 编辑工具在 Kotlin 文件引入多余 `}` | 每次编辑后用 filesystem-read 复核结构，删除多余括号 |
 | core:main 无法引用 Terminal 类 | `Intent().setClassName` 字符串类名启动 |
 | 5 个 UI key 只在部分语言存在、default(EN) 缺失 | 从上游 git 历史恢复英文基准 + Python 脚本批量补齐 40 语言文件（37 文件、+159 行） |
+| CI `packageRelease`：SigningConfig release 缺 storePassword | fork 的 KEYSTORE/PROP secrets 为空 → 解码出空 signing.properties；在 build.gradle.kts 的 release signingConfig 中「凭据完整才用正式 keystore，否则回退内置 testkey」，保证构建不失败（reproducible.yml 的 sed 删行逻辑不受影响） |
+
+## GitHub Actions 签名补充
+- GitHub Actions secrets **不随 fork 继承**：`${{ secrets.KEYSTORE }}` 为空 → `echo "" | base64 -d > /tmp/signing.properties` 因 GNU base64 忽略空行而**退出码 0**、生成**空文件** → Properties.load 全空 → storePassword null → 无条件赋值 signingConfig 时 packageRelease 崩溃（报 missing storePassword）
+- 本机 debug 与 release 回退都指向 `app/testkey.keystore`（file(layout.buildDirectory.dir("../testkey.keystore"))）
+- 正式签名需在 fork Settings→Secrets 配置 KEYSTORE/PROP（base64 编码的 keystore 与 signing.properties）
 
 ## 资源
 - 构建：`gradlew.bat :app:assembleDebug`（需 PATH 含 Git usr/bin）

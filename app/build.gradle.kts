@@ -52,6 +52,7 @@ android {
                 }
 
             val propertiesFile = File(propertiesFilePath)
+            var validReleaseSigning = false
             if (propertiesFile.exists()) {
                 val properties = Properties()
                 properties.load(propertiesFile.inputStream())
@@ -65,8 +66,18 @@ android {
                     }
 
                 storePassword = properties["storePassword"] as String?
+                validReleaseSigning =
+                    keyAlias != null && keyPassword != null && storeFile != null && storePassword != null
             } else {
                 println("Signing properties file not found at $propertiesFilePath")
+            }
+
+            if (!validReleaseSigning) {
+                println("WARNING: Release signing credentials unavailable or incomplete; falling back to bundled testkey")
+                storeFile = file(layout.buildDirectory.dir("../testkey.keystore"))
+                storePassword = "testkey"
+                keyAlias = "testkey"
+                keyPassword = "testkey"
             }
         }
         getByName("debug") {

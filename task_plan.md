@@ -4,7 +4,7 @@
 完成终端的 5 项功能修改（默认主目录、打开文件夹方式、输入法状态、SAF 主目录暴露、终端界面恢复），并打包验证 APK。
 
 ## 当前阶段
-阶段 8（打 Release 包）— complete（阶段 6 待确认事项仍挂起）
+所有代码阶段（1–9）完成。2026-09-07 环境迁移：工作目录改为 `E:\clone\Xed-Editor`（fork puyangong/Xed-Editor 的完整克隆），全部改动已在 fork 历史中提交，工作树干净。
 
 ## 各阶段
 
@@ -43,11 +43,12 @@
 - [x] MainActivity.kt onResume 置 false；onCreate 检查标记（且为桌面 MAIN 启动）时自动拉起 Terminal
 - **状态：** complete
 
-### 阶段 6：Git 初始化（用户新增）
-- [x] `git init` 初始化项目根仓库（原无 .git）
-- [ ] 确认 soraX 子模块处理方式（独立仓库，暂保持嵌套）
-- [ ] 确认首次 commit 范围（是否含 build/、.gradle/、task_plan.md 等）
-- **状态：** in_progress
+### 阶段 6：Git 初始化（已被克隆环境取代）
+- [x] 旧工作区 E:\Xed-Editor-main 曾 `git init`（未 commit）
+- [x] 新工作区为 fork 完整克隆：origin=puyangong/Xed-Editor，upstream=Xed-Editor/Xed-Editor，HEAD=d31d880ab「3.3.4-new」
+- [x] 全部改动（sandboxRootDir/last_screen_terminal 等）已在 fork main 历史中提交；本目录工作树干净
+- [x] soraX 已注册为 gitlink 子模块（19acbacd），嵌套仓库独立存在且状态匹配
+- **状态：** complete（待确认项由克隆环境自动解决，不再需要首次 commit）
 
 ### 阶段 7：终端快捷按键栏 - 改为 Shift（用户新增）
 - [x] ExtraKeys.kt `DEFAULT_TERMINAL_EXTRA_KEYS`：`-`（popup `|`）→ `SHIFT`
@@ -95,4 +96,5 @@
 ## 备注
 - 构建命令（Windows 需先加 Git 路径）：`$env:Path = "C:\Program Files\Git\usr\bin;C:\Program Files\Git\bin;" + $env:Path; gradlew.bat :app:assembleDebug`
 - APK 输出：`app/build/outputs/apk/debug/app-debug.apk`
-- 项目根目录不是 Git 仓库（soraX 子模块是独立仓库）
+- 当前环境（2026-09-07 起）：`E:\clone\Xed-Editor`，origin=https://github.com/puyangong/Xed-Editor.git（fork，改动已提交），upstream=https://github.com/Xed-Editor/Xed-Editor.git；soraX 为未 init 的 gitlink 子模块（嵌套 .git 独立存在）
+- 旧工作区 E:\Xed-Editor-main（含未提交 git init）已被取代

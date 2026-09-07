@@ -1,5 +1,33 @@
 # 进度日志
 
+## 会话：2026-09-07（修复 CI Release 签名报错）
+### 阶段：CI `:app:packageRelease` 报 `SigningConfig "release" is missing required property "storePassword"`
+- **状态：** complete
+- 执行的操作：
+  - 根因：fork 上 `KEYSTORE`/`PROP` secrets 为空（secrets 不随 fork 继承）→ `echo "" | base64 -d > /tmp/signing.properties` 解码出**空文件**（GNU base64 忽略空行、退出码 0）→ `signingConfigs.release` 读不到 storePassword → build.gradle.kts 第 88 行无条件 `signingConfig = signingConfigs.getByName("release")` → packageRelease 崩溃
+  - 修复：`app/build.gradle.kts` signingConfigs.release 块改为「凭据完整才用正式 keystore；否则回退内置 testkey.keystore（与 debug 一致）」，保证 release 构建始终产出已签名 APK
+  - 兼容性：reproducible.yml 的 `sed -r '/signingConfigs.getByName/d'` 仍能删掉 buildTypes 里的赋值行（该行未改动），可复现构建仍走无签名
+  - 验证：`:app:assembleRelease` BUILD SUCCESSFUL（4m54s）；apksigner verify V2 通过（CN=Android testkey）
+- 创建/修改的文件：
+  - app/build.gradle.kts（signingConfigs.release 增加 validReleaseSigning 判定 + testkey 回退）
+  - progress.md / findings.md（本次记录）
+- 注意：CI 现会产出 testkey 签名 APK；若要让 APK 用正式签名，需在 fork 仓库 Settings→Secrets 配置 KEYSTORE/PROP（base64）
+
+## 会话：2026-09-07（环境迁移 + 上下文恢复）
+### 阶段：项目加载 / 工作区切换
+- **状态：** complete
+- 执行的操作：
+  - 规划文件恢复：task_plan/findings/progress 均存在（session-catchup.py 不存在于技能目录，跳过，手动读取三文件完成恢复）
+  - 新工作区确认：`E:\clone\Xed-Editor` 是 fork `puyangong/Xed-Editor` 的完整克隆（origin），upstream 为 Xed-Editor/Xed-Editor
+  - Git 状态：分支 main，HEAD=d31d880ab「3.3.4-new」（2026-09-07），工作树干净；历史含 6157389e5「3.3.5」（sandboxRootDir/last_screen_terminal 引入处）
+  - 全部阶段 1–9 改动均已在 fork main 提交并存在于工作树（grep 验证 sandboxRootDir/last_screen_terminal 引用完整）
+  - soraX：index 中注册为 gitlink 160000 19acbacd；嵌套 soraX/.git 独立存在且状态匹配该 commit（未 git submodule init）
+- 创建/修改的文件：
+  - task_plan.md（阶段 6 标记 complete + 备注更新 + 当前阶段更新）
+  - progress.md（本会话条目）
+- 待确认：无（原阶段 6 挂起项已被克隆环境消除）
+- 注意：规划文件中的构建路径/文件路径描述均来自旧工作区 E:\Xed-Editor-main，在新克隆下路径一致（模块结构相同）
+
 ## 会话：2026-09-07（为残留 UI 字符串补齐多语言翻译）
 ### 阶段 9：为残留 UI 字符串补齐多语言翻译
 - **状态：** complete
