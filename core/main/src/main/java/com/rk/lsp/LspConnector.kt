@@ -12,7 +12,9 @@ import com.rk.activities.settings.SettingsRoutes
 import com.rk.editor.Editor
 import com.rk.events.Events
 import com.rk.events.LSPEvent
+import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
+import com.rk.file.FileTypeManager
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
@@ -100,7 +102,8 @@ class LspConnector(
 
             lspEditor =
                 withContext(Dispatchers.Main) {
-                    project.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
+                    project.getOrCreateEditor(fileObject.getAbsolutePath(),
+                        languageId = FileTypeManager.fromFileName(fileObject.getName()).lspLanguageId).apply {
                         this.wrapperLanguage = wrapperLanguage
                         this.editor = codeEditor
                         this.isEnableInlayHint = true

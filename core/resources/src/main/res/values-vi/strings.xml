@@ -464,4 +464,20 @@
     <string name="command_palette">Bảng lệnh</string>
     <string name="debug_mode_warn">Chế độ gỡ lỗi vô hiệu hóa các hạn chế an toàn, điều này có thể dẫn đến mất dữ liệu hoặc các sự cố khác nếu sử dụng sai cách. Chỉ bật chế độ này nếu bạn biết mình đang làm gì.</string>
     <string name="desktop_mode">Chế độ máy tính để bàn (Thử nghiệm)</string>
+    <string name="extension_warning_msg">Tiện ích mở rộng này có thể thực thi mã tuỳ ý và có thể gây hại. Chỉ cài đặt tiện ích mở rộng nếu bạn tin tưởng vào lập trình viên của tiện ích mở rộng và xác nhận mã nguồn của tiện ích mở rộng.</string>
+    <string name="no_themes">Không tìm thấy chủ đề.</string>
+    <string name="no_icon_packs">Không tìm thấy gói biểu tượng.</string>
+    <string name="store_desc">Tải xuống tiện ích mở rộng, gói chủ đề và gói biểu tượng</string>
+    <string name="format_document_lsp">Định dạng tài liệu với LSP</string>
+    <string name="theme_migrated">Chuyển sang chủ đề %d thành công</string>
+    <string name="terminal_risks">Rủi ro với terminal</string>
+    <string name="template_create_success">Đã tạo dự án \'%s\' thành công</string>
+    <string name="supported">Hỗ trợ</string>
+    <string name="status_stopping">Dừng lại…</string>
+    <string name="submodules">Mô-dun phụ</string>
+    <string name="store">Lưu trữ</string>
+    <string name="startup_timeout_desc">Đến lúc đợi server khởi động</string>
+    <string name="template_settings">Cài đặt mẫu</string>
+    <string name="template_min_app_version">Phiên bản ứng dụng nhỏ nhất</string>
+    <string name="terminate_all_sessions">Huỷ bỏ toàn bộ phiên</string>
 </resources>
