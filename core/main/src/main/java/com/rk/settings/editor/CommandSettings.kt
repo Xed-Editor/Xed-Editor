@@ -54,7 +54,7 @@ private fun buildAddActions(
 
             override fun getLabel(): String = strings.add_parent_command.getString()
 
-            override fun action(context: ActionContext) {
+            override fun execute(context: ActionContext) {
                 commandIds.add(command.id)
                 saveOrder(commandIds)
             }

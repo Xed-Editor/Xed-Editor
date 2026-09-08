@@ -14,7 +14,7 @@ suspend fun Process.readStdout(): String =
                 reader.readText()
             }
         } catch (e: IOException) {
-            e.printStackTrace()
+            logError(e)
             if (e.message?.contains("Stream closed") == true) "" else throw e
         }
     }
@@ -27,7 +27,7 @@ suspend fun Process.readStderr(): String =
                 reader.readText()
             }
         } catch (e: IOException) {
-            e.printStackTrace()
+            logError(e)
             if (e.message?.contains("Stream closed") == true) "" else throw e
         }
     }

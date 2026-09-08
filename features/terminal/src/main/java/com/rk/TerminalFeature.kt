@@ -171,7 +171,7 @@ object TerminalAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.terminal)
     override val title = strings.open_in_terminal.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         val file = context.file
         val ctx = context.context
 

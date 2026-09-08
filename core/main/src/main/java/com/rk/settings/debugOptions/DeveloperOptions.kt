@@ -21,6 +21,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.dialogRes
+import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -143,6 +144,26 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 sideEffect = { Settings.record_rpc = it },
             )
 
+            RoundedValueSlider(
+                label = stringResource(strings.lsp_log_limit),
+                description = stringResource(strings.log_limit_desc),
+                min = 1_000,
+                max = 100_000,
+                stepSize = 5_000,
+                default = Settings.lsp_log_limit,
+                onValueChanged = { Settings.lsp_log_limit = it },
+            )
+
+            RoundedValueSlider(
+                label = stringResource(strings.app_log_limit),
+                description = stringResource(strings.log_limit_desc),
+                min = 1_000,
+                max = 100_000,
+                stepSize = 5_000,
+                default = Settings.app_log_limit,
+                onValueChanged = { Settings.app_log_limit = it },
+            )
+
             SettingsItem(
                 label = stringResource(strings.enable_logcat),
                 description = stringResource(strings.enable_logcat_desc),
@@ -156,16 +177,6 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                         LogcatService.stop(application!!)
                     }
                 },
-            )
-
-            RoundedValueSlider(
-                label = stringResource(strings.lsp_log_limit),
-                description = stringResource(strings.lsp_log_limit_desc),
-                min = 1_000,
-                max = 100_000,
-                stepSize = 5_000,
-                default = Settings.lsp_log_limit,
-                onValueChanged = { Settings.lsp_log_limit = it },
             )
 
             SettingsItem(
@@ -199,7 +210,7 @@ fun startThemeFlipperIfNotRunning() {
                         withContext(Dispatchers.Main) { AppCompatDelegate.setDefaultNightMode(mode) }
                     }
                 }
-                    .onFailure { it.printStackTrace() }
+                    .onFailure { logError(it) }
             }
     }
 }

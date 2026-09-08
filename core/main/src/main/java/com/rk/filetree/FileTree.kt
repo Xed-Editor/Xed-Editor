@@ -33,7 +33,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.ui.searchViewModel
@@ -79,11 +79,7 @@ fun FileTree(
     val fileOperationsCount by viewModel.fileOperationsCount.collectAsStateWithLifecycle()
     val searchVM = searchViewModel.get()
     val isIndexingMap =
-        if (searchVM != null) {
-            searchVM.isIndexing.collectAsStateWithLifecycle(initialValue = emptyMap()).value
-        } else {
-            emptyMap()
-        }
+        searchVM?.isIndexing?.collectAsStateWithLifecycle(initialValue = emptyMap())?.value ?: emptyMap()
     val isIndexingRoot = isIndexingMap[rootNode.file] == true
     val isAnyFileSelected = selectedFiles[rootNode.file]?.isNotEmpty() == true
     val selectionCount = selectedFiles[rootNode.file]?.size ?: 0
@@ -128,7 +124,7 @@ fun FileTree(
                 modifier = Modifier.weight(1f),
             ) {
                 if (isAnyFileSelected) {
-                    SelectionActions(viewModel, drawerViewModel, rootNode)
+                    SelectionActions(viewModel, drawerViewModel, rootNode, selectedFiles[rootNode.file] ?: emptyList())
                 } else {
                     FileTreeActions(viewModel, onSearchClick)
                 }
@@ -171,19 +167,21 @@ fun FileTree(
 }
 
 @Composable
-private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: DrawerViewModel, rootNode: FileTreeNode) {
-    val selectedFiles = viewModel.getSelectedFiles(rootNode.file)
+private fun SelectionActions(
+    viewModel: FileTreeViewModel,
+    drawerViewModel: DrawerViewModel,
+    rootNode: FileTreeNode,
+    selectedFiles: List<FileObject>,
+) {
     val scope = rememberCoroutineScope()
-    var actions by remember(selectedFiles, rootNode.file) { mutableStateOf<List<BaseFileAction>>(emptyList()) }
-    var enabledActions by remember(selectedFiles, rootNode.file) { mutableStateOf<Set<BaseFileAction>>(emptySet()) }
+    var actions by remember { mutableStateOf<List<BaseFileAction>>(emptyList()) }
+    var enabledActions by remember { mutableStateOf<Set<BaseFileAction>>(emptySet()) }
     var expanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedFiles, rootNode.file) {
-        actions = FileActionProvider.getActions(selectedFiles, rootNode.file)
-    }
-    LaunchedEffect(actions, selectedFiles, rootNode.file) {
-        enabledActions =
-            actions
+        val newActions = FileActionProvider.getActions(selectedFiles, rootNode.file)
+        val newEnabled =
+            newActions
                 .filter { action ->
                     when (action) {
                         is FileAction -> action.isEnabled(selectedFiles.first(), rootNode.file)
@@ -192,6 +190,9 @@ private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: Draw
                     }
                 }
                 .toSet()
+
+        actions = newActions
+        enabledActions = newEnabled
     }
 
     val context = LocalContext.current

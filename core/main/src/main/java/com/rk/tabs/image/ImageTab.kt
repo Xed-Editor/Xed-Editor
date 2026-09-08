@@ -50,7 +50,11 @@ sealed class ImageState {
     data class Error(val message: String) : ImageState()
 }
 
-class ImageTab(override val file: FileObject) : Tab() {
+class ImageTab(
+    override val file: FileObject,
+    override var projectRoot: FileObject? = null,
+    override var scopeRoot: FileObject? = null,
+) : Tab() {
 
     override var title by mutableStateOf(file.getName())
 
@@ -124,6 +128,6 @@ class ImageTab(override val file: FileObject) : Tab() {
     }
 
     override fun getState(): TabState {
-        return FileTabState(file)
+        return FileTabState(file, projectRoot, scopeRoot)
     }
 }

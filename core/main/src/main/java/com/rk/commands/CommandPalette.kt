@@ -227,7 +227,7 @@ fun CommandItem(
                             onNavigateToChildren(command.getChildSearchPlaceholder(), childCommands)
                         } else {
                             onDismissRequest()
-                            command.action(ActionContext(activity!!))
+                            command.execute(ActionContext(activity!!))
                         }
                     },
                 )

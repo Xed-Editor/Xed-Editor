@@ -7,14 +7,14 @@ install() {
     install_nodejs
   fi
 
-  info "Installing TypeScript language server..."
-  npm install -g --prefix /usr typescript@^6 typescript-language-server
+  info "Installing TypeScript (including language server)..."
+  npm install -g --prefix /usr typescript@latest
   info 'TypeScript language server installed successfully.'
   exit 0
 }
 
 uninstall() {
-  info "Uninstalling TypeScript language server..."
+  info "Uninstalling TypeScript (including language server)..."
   npm uninstall -g --prefix /usr typescript typescript-language-server
   info 'TypeScript language server uninstalled successfully.'
   uninstall_nodejs
@@ -22,8 +22,8 @@ uninstall() {
 }
 
 update() {
-  info "Updating TypeScript language server..."
-  npm install -g --prefix /usr typescript@^6 typescript-language-server
+  info "Updating TypeScript (including language server)..."
+  npm install -g --prefix /usr typescript@latest
   info 'TypeScript language server updated successfully.'
   exit 0
 }

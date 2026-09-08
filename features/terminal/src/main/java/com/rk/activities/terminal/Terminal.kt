@@ -60,6 +60,7 @@ import com.rk.terminal.changeSession
 import com.rk.terminal.getNextStage
 import com.rk.terminal.terminalView
 import com.rk.theme.XedTheme
+import com.rk.utils.logError
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
 import com.rk.utils.toast
@@ -263,7 +264,7 @@ class Terminal : AppCompatActivity() {
                             }
 
                             else -> {
-                                error.printStackTrace()
+                                logError(error)
                                 GlobalScope.launch(Dispatchers.IO) {
                                     if (file?.absolutePath?.contains(localBinDir().absolutePath) == true) {
                                         localBinDir().deleteRecursively()
@@ -286,7 +287,7 @@ class Terminal : AppCompatActivity() {
                 } else if (e is SocketTimeoutException) {
                     errorDialog(strings.timeout)
                 } else {
-                    e.printStackTrace()
+                    logError(e)
                     toast("Setup failed: ${e.message}")
                 }
                 finish()
@@ -377,13 +378,13 @@ class Terminal : AppCompatActivity() {
                     }
                     completedFiles++
 
-                    runCatching { outputFile.setExecutable(true) }.onFailure { it.printStackTrace() }
+                    runCatching { outputFile.setExecutable(true) }.onFailure { logError(it) }
                 }
 
                 val stage = getNextStage(this@Terminal)
                 onComplete(stage)
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
                 withContext(Dispatchers.Main) { onError(e, currentFile) }
                 if (currentFile?.exists() == true) {
                     currentFile.delete()

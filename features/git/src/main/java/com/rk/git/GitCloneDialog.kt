@@ -25,6 +25,7 @@ import com.rk.file.FileObject
 import com.rk.file.toFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.utils.logError
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -118,7 +119,7 @@ fun GitCloneDialog(
                             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                         )
                     }
-                        .onFailure { it.printStackTrace() }
+                        .onFailure { logError(it) }
                     scope.launch {
                         val fileObject =
                             it.toFileObject(expectedIsFile = false)

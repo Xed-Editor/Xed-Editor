@@ -28,7 +28,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -46,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavController
 import com.rk.activities.settings.SettingsRoutes
@@ -271,21 +271,24 @@ fun rememberLspInstallStatus(context: Context, server: LspServer, refreshKey: In
     // Keep the previous status for refresh key changes to avoid flashing
     var previousStatus by remember { mutableStateOf<LspInstallationAction?>(null) }
 
-    return key(refreshKey) {
-        produceState(previousStatus ?: LspInstallationAction.LOADING) {
+    return produceState(
+        initialValue = previousStatus ?: LspInstallationAction.LOADING,
+        keys = arrayOf(server, refreshKey),
+    ) {
+        val newStatus =
             withContext(Dispatchers.IO) {
                 if (server.isInstalled(context)) {
-                    value = LspInstallationAction.UNINSTALL
                     if (server.isUpdatable(context)) {
-                        value = LspInstallationAction.UPDATE
+                        LspInstallationAction.UPDATE
+                    } else {
+                        LspInstallationAction.UNINSTALL
                     }
                 } else {
-                    value = LspInstallationAction.INSTALL
+                    LspInstallationAction.INSTALL
                 }
             }
-
-            previousStatus = value
-        }
+        value = newStatus
+        previousStatus = newStatus
     }
 }
 

@@ -19,6 +19,7 @@ import com.rk.resources.strings
 import com.rk.search.CodeItem
 import com.rk.search.utils.SnippetBuilder
 import com.rk.tabs.editor.EditorTab
+import com.rk.utils.logError
 import com.rk.utils.toast
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.getOption
@@ -58,7 +59,14 @@ fun fixHomeLocation(context: Context, uri: String): String {
 }
 
 suspend fun EditorManager.jumpToPosition(file: FileObject, projectRoot: FileObject?, range: Range) {
-    jumpToPosition(file, projectRoot, range.start.line, range.start.character, range.end.line, range.end.character)
+    jumpToPosition(
+        file = file,
+        projectRoot = projectRoot,
+        lineStart = range.start.line,
+        charStart = range.start.character,
+        lineEnd = range.end.line,
+        charEnd = range.end.character,
+    )
 }
 
 fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
@@ -66,9 +74,8 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
         runCatching {
             val baseLspConnector = editorTab.lspConnector!!
             val editorState = editorTab.editorState
-            val editor = editorState.editor.get()!!
 
-            val eitherDefinitions = baseLspConnector.requestDefinition(editor)
+            val eitherDefinitions = baseLspConnector.requestDefinition()
             val definitions = if (eitherDefinitions.isLeft) eitherDefinitions.left else eitherDefinitions.right
 
             if (definitions.isEmpty()) {
@@ -129,7 +136,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
             editorState.showFindingsDialog = true
         }
             .onFailure {
-                it.printStackTrace()
+                logError(it)
                 toast(strings.find_definitions_error)
             }
     }
@@ -140,9 +147,8 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
         runCatching {
             val baseLspConnector = editorTab.lspConnector!!
             val editorState = editorTab.editorState
-            val editor = editorState.editor.get()!!
 
-            val references = baseLspConnector.requestReferences(editor)
+            val references = baseLspConnector.requestReferences()
 
             if (references.isEmpty()) {
                 toast(strings.no_references_found)
@@ -192,7 +198,7 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
             editorState.showFindingsDialog = true
         }
             .onFailure {
-                it.printStackTrace()
+                logError(it)
                 toast(strings.find_references_error)
             }
     }
@@ -209,7 +215,7 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
             val editor = editorState.editor.get()!!
 
             if (baseLspConnector.isPrepareRenameSymbolSupported()) {
-                val prepareRename = baseLspConnector.requestPrepareRenameSymbol(editor)
+                val prepareRename = baseLspConnector.requestPrepareRename()
 
                 if (prepareRename == null) {
                     toast(strings.cannot_rename_symbol)
@@ -240,7 +246,8 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
             editorState.renameConfirm = { newName ->
                 scope.launch(Dispatchers.Default) {
                     runCatching {
-                        val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
+                        val editor = editorState.editor.get()!!
+                        val workspaceEdit = baseLspConnector.requestRename(newName)
 
                         // TODO: Handle documentChanges too
                         val changes = workspaceEdit.changes
@@ -259,14 +266,14 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                         }
                     }
                         .onFailure {
-                            it.printStackTrace()
+                            logError(it)
                             toast(strings.rename_symbol_error)
                         }
                 }
             }
         }
             .onFailure {
-                it.printStackTrace()
+                logError(it)
                 toast(strings.rename_symbol_error)
             }
     }
@@ -293,7 +300,7 @@ suspend fun formatDocumentSuspend(editorTab: EditorTab) {
         eventManager.emitAsync(EventType.fullFormatting, editor.text)
     }
         .onFailure {
-            it.printStackTrace()
+            logError(it)
             toast(strings.format_document_error)
         }
 }
@@ -314,7 +321,7 @@ fun formatDocumentRange(scope: CoroutineScope, editorTab: EditorTab) {
             }
         }
             .onFailure {
-                it.printStackTrace()
+                logError(it)
                 toast(strings.format_selection_error)
             }
     }

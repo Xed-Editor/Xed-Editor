@@ -52,7 +52,7 @@ object FileActionProvider {
             val isBulkAction = files.size > 1
 
             if (action is MultiFileAction) {
-                val isSupported = action.isSupported(files,root)
+                val isSupported = action.isSupported(files, root)
                 if (!isSupported) return@forEach
 
                 val hasFolders = files.any { it.isDirectory() }
@@ -70,7 +70,7 @@ object FileActionProvider {
                 val file = files.first()
                 val action = action as FileAction
 
-                val isSupported = action.isSupported(file,root)
+                val isSupported = action.isSupported(file, root)
                 if (!isSupported) return@forEach
 
                 val isRootAction = file == root && action.type.rootFolder

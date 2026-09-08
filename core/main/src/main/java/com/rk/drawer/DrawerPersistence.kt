@@ -6,6 +6,7 @@ import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.resources.strings
 import com.rk.utils.application
+import com.rk.utils.logError
 import com.rk.utils.readObject
 import com.rk.utils.toast
 import com.rk.utils.writeObject
@@ -70,7 +71,7 @@ object DrawerPersistence {
                 }
             }
                 .onFailure {
-                    it.printStackTrace()
+                    logError(it)
                     toast(strings.project_restore_failed)
                 }
         }

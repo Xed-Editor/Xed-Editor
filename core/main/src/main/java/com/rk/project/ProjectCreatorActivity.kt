@@ -112,7 +112,7 @@ class ProjectCreatorActivity : ComponentActivity() {
                 }
             }
         }.onFailure {
-            it.printStackTrace()
+            logError(it)
             toast(it.message)
             finish()
         }

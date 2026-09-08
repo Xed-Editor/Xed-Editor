@@ -9,7 +9,7 @@ import com.rk.tabs.image.ImageTab
 
 @XedExtensionPoint
 fun interface TabFactory {
-    fun createTab(file: FileObject, projectRoot: FileObject?, viewModel: MainViewModel): Tab
+    fun createTab(file: FileObject, projectRoot: FileObject?, scopeRoot: FileObject?, viewModel: MainViewModel): Tab
 }
 
 object TabRegistry {
@@ -28,6 +28,7 @@ object TabRegistry {
     fun getTab(
         file: FileObject,
         projectRoot: FileObject?,
+        scopeRoot: FileObject?,
         viewModel: MainViewModel,
         readOnly: Boolean,
         customTitle: String?,
@@ -36,12 +37,19 @@ object TabRegistry {
         val type = FileTypeManager.fromExtension(ext)
 
         if (registeredTabs.containsKey(ext)) {
-            return registeredTabs[ext]!!.createTab(file, projectRoot, viewModel)
+            return registeredTabs[ext]!!.createTab(file, projectRoot, scopeRoot, viewModel)
         }
 
         return when (type) {
-            BuiltinFileType.IMAGE -> ImageTab(file)
-            else -> viewModel.editorManager.createEditorTab(file, projectRoot, readOnly, customTitle)
+            BuiltinFileType.IMAGE -> ImageTab(file, projectRoot, scopeRoot)
+            else ->
+                viewModel.editorManager.createEditorTab(
+                    file = file,
+                    projectRoot = projectRoot,
+                    scopeRoot = scopeRoot,
+                    isReadOnly = readOnly,
+                    customTitle = customTitle,
+                )
         }
     }
 }

@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.utils.logError
 import com.rk.utils.toast
 import java.io.File
 import java.util.zip.ZipFile
@@ -122,7 +123,7 @@ suspend fun openWith(context: Context, file: FileObject) {
             Toast.makeText(context, strings.cant_handle.getString(), Toast.LENGTH_SHORT).show()
         }
     } catch (e: Exception) {
-        e.printStackTrace()
+        logError(e)
         toast(strings.file_open_denied.getString())
     }
 }

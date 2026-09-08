@@ -18,7 +18,7 @@ class SaveAllCommand : GlobalCommand() {
 
     override fun getLabel(): String = strings.save_all.getString()
 
-    override fun action(context: ActionContext) {
+    override fun execute(context: ActionContext) {
         commandContext.mainViewModel.editorTabs.forEach {
             DefaultScope.launch(Dispatchers.IO) { it.save() }
         }

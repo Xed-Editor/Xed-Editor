@@ -36,6 +36,7 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
+import com.rk.utils.logError
 import com.rk.utils.application
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
@@ -184,7 +185,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                                 }
                                 toast(strings.export_successful)
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                logError(e)
                                 toast(strings.export_failed)
                             }
                         }
@@ -230,7 +231,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
 
                                 toast(strings.import_successful)
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                logError(e)
                                 toast(strings.import_failed)
                             }
                         }

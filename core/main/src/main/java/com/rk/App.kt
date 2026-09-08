@@ -28,8 +28,11 @@ import com.rk.settings.editor.DEFAULT_APP_FONT_PATH
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.theme.ThemeManager
+import com.rk.utils.ActivityLifecycleLogger
 import com.rk.utils.application
 import com.rk.utils.getTempDir
+import com.rk.utils.logError
+import com.rk.utils.logInfo
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -75,6 +78,9 @@ open class App : Application() {
         super.onCreate()
         application = this
         Res.application = this
+
+        logInfo("App.onCreate")
+        registerActivityLifecycleCallbacks(ActivityLifecycleLogger)
 
         LspPersistence.restoreServers()
 
@@ -157,7 +163,7 @@ open class App : Application() {
                         penaltyLog()
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             penaltyListener(Executors.newSingleThreadExecutor()) { violation ->
-                                violation.printStackTrace()
+                                logError(violation)
                                 violation.cause?.let { throw it }
                             }
                         }

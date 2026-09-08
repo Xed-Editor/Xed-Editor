@@ -16,7 +16,7 @@ object NewProjectAction : FileAction() {
     override val icon = Icon.ResourceIcon(drawables.folder_managed)
     override val title = strings.new_project.getString()
 
-    override suspend fun action(context: FileActionContext) {
+    override suspend fun execute(context: FileActionContext) {
         DefaultScope.launch {
             val intent =
                 Intent(context.context, ProjectCreatorActivity::class.java).apply {

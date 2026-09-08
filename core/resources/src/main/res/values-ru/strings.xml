@@ -711,7 +711,7 @@
     <string name="record_rpc_traffic">Записывать RPC-трафик</string>
     <string name="record_rpc_traffic_desc">Записывать RPC-коммуникацию языковых серверов для отладки</string>
     <string name="lsp_log_limit">Лимит журнала LSP</string>
-    <string name="lsp_log_limit_desc">Старые журналы автоматически удаляются при достижении лимита, чтобы избежать высокого потребления памяти</string>
+    <string name="log_limit_desc">Старые журналы автоматически удаляются при достижении лимита, чтобы избежать высокого потребления памяти</string>
     <string name="unsupported_architecture">Это расширение несовместимо с архитектурой вашего устройства.</string>
     <string name="view">Просмотр</string>
     <string name="ext_recommendations_msg">Вас также могут заинтересовать эти рекомендуемые расширения.</string>

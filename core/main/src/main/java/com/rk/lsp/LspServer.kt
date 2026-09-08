@@ -4,9 +4,9 @@ import android.app.Activity
 import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.DefaultScope
 import com.rk.TerminalLauncher
 import com.rk.activities.main.MainActivity
@@ -145,10 +145,9 @@ abstract class LspServer {
 @Composable
 fun LspServer.getDominantStatusColor(): Color? {
     val instances by this.instances.collectAsStateWithLifecycle()
-    val hasAnyError = instances.any { it.hasError.value }
-    if (hasAnyError) return MaterialTheme.colorScheme.error
+    val dominantStatus =
+        instances.maxByOrNull { it.status.value.ordinal }?.status?.value ?: LspConnectionStatus.NOT_RUNNING
 
-    val dominantStatus = instances.maxByOrNull { it.status.value.ordinal }?.status?.value ?: LspConnectionStatus.NOT_RUNNING
     return when (dominantStatus) {
         LspConnectionStatus.CRASHED,
         LspConnectionStatus.TIMEOUT -> MaterialTheme.colorScheme.error

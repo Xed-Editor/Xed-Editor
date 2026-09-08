@@ -11,6 +11,9 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.utils.logDebug
+import com.rk.utils.logError
+import com.rk.utils.logInfo
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -101,6 +104,7 @@ class GitViewModel : ViewModel() {
     private val lineDiffJobs = mutableMapOf<String, Job>()
 
     fun loadRepository(root: String) {
+        logInfo("Loading repository at root: $root")
         try {
             disposeRepository()
 
@@ -226,6 +230,7 @@ class GitViewModel : ViewModel() {
         progressCoordinator: ProgressCoordinator,
         onComplete: (Boolean) -> Unit,
     ) {
+        logInfo("Cloning repository: $repoURL (branch: $repoBranch) to $targetDir")
         viewModelScope.launch {
             var done = false
             withContext(Dispatchers.IO) {
@@ -506,6 +511,7 @@ class GitViewModel : ViewModel() {
     }
 
     fun commit(): Job {
+        logInfo("Committing changes in repository: ${currentRoot.value}")
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { _isLoading.value = true }
             try {
@@ -936,7 +942,7 @@ class GitViewModel : ViewModel() {
                 withContext(Dispatchers.Main) { _commitHistory.value = commits }
             } catch (e: Exception) {
                 toast(e.message)
-                e.printStackTrace()
+                logError(e)
             } finally {
                 withContext(Dispatchers.Main) { _isLoading.value = false }
             }
@@ -989,7 +995,7 @@ class GitViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 toast(e.message)
-                e.printStackTrace()
+                logError(e)
             }
         }
     }
@@ -1036,7 +1042,7 @@ class GitViewModel : ViewModel() {
                         }
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logError(e)
                 } finally {
                     lineDiffJobs.remove(absolutePath)
                 }

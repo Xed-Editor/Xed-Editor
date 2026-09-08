@@ -8,6 +8,7 @@ import com.rk.search.CodeItem
 import com.rk.settings.Settings
 import com.rk.utils.hasBinaryChars
 import com.rk.utils.isBinaryExtension
+import com.rk.utils.logError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,7 +46,7 @@ object SearchUtils {
                         hasBinaryChars(sample)
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logError(e)
                     true
                 }
             }

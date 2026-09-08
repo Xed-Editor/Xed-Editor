@@ -3,19 +3,19 @@ package com.rk.settings.debugOptions
 import com.rk.DefaultScope
 import com.rk.events.AppEvent
 import com.rk.events.Events
-import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class LogLevel(val label: String, val value: Int) {
-    ERROR(strings.error.getString(), 1),
-    WARN(strings.warning.getString(), 2),
-    INFO(strings.info.getString(), 3),
-    DEBUG(strings.debug.getString(), 5),
+enum class LogLevel(val labelRes: Int, val value: Int) {
+    ERROR(strings.error, 1),
+    WARN(strings.warning, 2),
+    INFO(strings.info, 3),
+    DEBUG(strings.debug, 5),
 }
 
 data class LogEntry(val level: LogLevel, val message: String, val timestamp: Long = System.currentTimeMillis())
@@ -71,7 +71,7 @@ object LogCollector {
     }
 
     private fun appendEntry(logEntry: LogEntry, extensionId: String? = null) {
-        _logs.update { it + logEntry }
+        _logs.update { (it + logEntry).takeLast(Settings.app_log_limit) }
         DefaultScope.launch {
             Events.publish(AppEvent.LogEntryWritten(logEntry, extensionId))
         }

@@ -685,7 +685,7 @@
     <string name="download_count">Počet stažení</string>
     <string name="record_rpc_traffic">Zaznamenávat provoz RPC</string>
     <string name="record_rpc_traffic_desc">Ukládat RPC komunikaci jazykových serverů pro ladění</string>
-    <string name="lsp_log_limit_desc">Starší protokoly jsou automaticky odstraněny když je limit překročen pro zamezení vysoké využití paměti</string>
+    <string name="log_limit_desc">Starší protokoly jsou automaticky odstraněny když je limit překročen pro zamezení vysoké využití paměti</string>
     <string name="lsp_log_limit">Omezit LSP protokoly</string>
     <string name="publish_date">Datum zveřejnění</string>
     <string name="update_date">Datum aktualizace</string>

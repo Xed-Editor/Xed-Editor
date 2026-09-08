@@ -8,6 +8,7 @@ import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.activities.terminal.Terminal
 import com.rk.settings.Settings
 import com.rk.settings.terminal.TerminalCursorStyle
+import com.rk.utils.logError
 import com.rk.terminal.virtualkeys.SpecialButton
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -73,11 +74,11 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
 
     override fun logStackTraceWithMessage(tag: String?, message: String?, e: Exception?) {
         Log.e(tag.toString(), message.toString())
-        e?.printStackTrace()
+        e?.let { logError(it) }
     }
 
     override fun logStackTrace(tag: String?, e: Exception?) {
-        e?.printStackTrace()
+        e?.let { logError(it) }
     }
 
     override fun onScale(scale: Float): Float {

@@ -23,7 +23,9 @@ import com.rk.file.FileWrapper
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.errorDialog
+import com.rk.utils.logDebug
 import com.rk.utils.logError
+import com.rk.utils.logInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -155,6 +157,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     suspend fun indexLocalExtensions() = mutex.withLock {
+        logInfo("Indexing local extensions...")
         val newExtensions =
             withContext(Dispatchers.IO) {
                 val map = mutableMapOf<ExtensionId, LocalExtension>()
@@ -235,6 +238,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     suspend fun installExtensionFromZip(xedFile: File): InstallResult =
         withContext(Dispatchers.IO) {
+            logInfo("Installing extension from zip: ${xedFile.name}")
             // Extract to temp dir first
             val tempDir = File(context.cacheDir, "ext_temp_${System.currentTimeMillis()}")
             tempDir.mkdirs()
@@ -243,7 +247,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 XedPackage.extract(xedFile, tempDir)
                 installExtensionFromDir(tempDir)
             } catch (e: Exception) {
-                e.printStackTrace()
+                logError(e)
                 errorDialog(e)
                 InstallResult.ValidationFailed(e)
             } finally {
@@ -307,6 +311,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     suspend fun uninstallExtension(extensionId: ExtensionId, update: Boolean = false) =
         withContext(Dispatchers.IO) {
+            logInfo("Uninstalling extension: $extensionId (update=$update)")
             try {
                 val extension =
                     installedExtensions.value[extensionId]

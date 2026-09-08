@@ -173,7 +173,7 @@ object KeybindingsManager {
         // handleEditorEvent will handle editor events
         if (command is EditorCommand) return false
 
-        command.performCommand(ActionContext(mainActivity))
+        command.perform(ActionContext(mainActivity))
         return true
     }
 
@@ -188,7 +188,7 @@ object KeybindingsManager {
         // handleGlobalEvent will handle editor events
         if (command !is EditorCommand) return false
 
-        command.performCommand(ActionContext(mainActivity))
+        command.perform(ActionContext(mainActivity))
         return true
     }
 }

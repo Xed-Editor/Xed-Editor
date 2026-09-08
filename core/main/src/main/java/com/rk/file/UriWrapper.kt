@@ -5,6 +5,7 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.rk.utils.application
+import com.rk.utils.logError
 import com.rk.utils.errorDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -172,7 +173,7 @@ class UriWrapper : FileObject {
                 return@withContext file.renameTo(string)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logError(e)
             false
         }
     }

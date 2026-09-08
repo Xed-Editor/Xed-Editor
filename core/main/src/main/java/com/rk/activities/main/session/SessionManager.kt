@@ -4,6 +4,7 @@ import com.rk.file.child
 import com.rk.resources.strings
 import com.rk.tabs.base.Tab
 import com.rk.utils.application
+import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -48,7 +49,7 @@ object SessionManager {
                 }
             }
         }
-            .onFailure { it.printStackTrace() }
+            .onFailure { logError(it) }
     }
 
     suspend fun saveSession(tabs: List<Tab>, currentTabIndex: Int) =
@@ -61,7 +62,7 @@ object SessionManager {
                     ObjectOutputStream(FileOutputStream(tabCacheFile)).use { oos -> oos.writeObject(sessionState) }
                 }
                     .onFailure {
-                        it.printStackTrace()
+                        logError(it)
                         toast(strings.save_tabs_error)
                     }
             }

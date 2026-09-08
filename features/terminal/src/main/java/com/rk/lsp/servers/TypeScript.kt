@@ -13,7 +13,7 @@ import com.rk.lsp.ScriptedLspServer
 object TypeScript : ScriptedLspServer() {
     override val id: String = "typescript"
     override val languageName: String = "TypeScript"
-    override val serverName = "typescript-language-server"
+    override val serverName = "tsc"
     override val supportedExtensions =
         BuiltinFileType.JAVASCRIPT.extensions +
             BuiltinFileType.TYPESCRIPT.extensions +
@@ -33,10 +33,10 @@ object TypeScript : ScriptedLspServer() {
     }
 
     override suspend fun hasUpdate(context: Context): Boolean {
-        return NpmUtils.hasUpdate(serverName)
+        return NpmUtils.hasUpdate("typescript")
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/$serverName", "--stdio"))
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/$serverName", "--lsp", "--stdio"))
     }
 }

@@ -22,6 +22,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
@@ -40,6 +42,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
 import com.caverock.androidsvg.SVG
+import com.rk.DefaultScope
+import com.rk.activities.main.ui.snackbarHostStateRef
 import com.rk.extension.ActivityProvider
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileDecorationRegistry
@@ -69,6 +73,43 @@ import kotlin.math.roundToInt
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
     GlobalScope.launch(Dispatchers.Main) { runnable.run() }
+}
+
+fun interface SnackbarController {
+    fun dismiss()
+}
+
+fun showSnackbar(
+    message: String,
+    actionLabel: String? = null,
+    withDismissAction: Boolean = false,
+    duration: SnackbarDuration = if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Indefinite,
+    onAction: () -> Unit = {},
+    onDismiss: () -> Unit = {},
+): SnackbarController? {
+    val snackbarHost = snackbarHostStateRef.get()
+
+    if (snackbarHost == null) {
+        toast(message)
+        return null
+    }
+
+    val job =
+        DefaultScope.launch(Dispatchers.Main) {
+            val result =
+                snackbarHost.showSnackbar(
+                    message = message,
+                    actionLabel = actionLabel,
+                    withDismissAction = withDismissAction,
+                    duration = duration,
+                )
+            when (result) {
+                SnackbarResult.Dismissed -> onDismiss()
+                SnackbarResult.ActionPerformed -> onAction()
+            }
+        }
+
+    return { job.cancel() }
 }
 
 inline fun toast(@StringRes resId: Int) {

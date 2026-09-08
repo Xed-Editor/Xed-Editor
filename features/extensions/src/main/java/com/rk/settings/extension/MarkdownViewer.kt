@@ -27,6 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.rk.components.StateScreen
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.utils.logError
 import com.rk.utils.okHttpClient
 import io.github.rosemoe.sora.lsp.editor.text.SimpleMarkdownRenderer
 import kotlinx.coroutines.Dispatchers
@@ -173,7 +174,7 @@ private suspend fun loadMarkdown(
             MarkdownStatus.Success(spanned)
         }
             .getOrElse {
-                it.printStackTrace()
+                logError(it)
                 MarkdownStatus.Error.Network
             }
     }

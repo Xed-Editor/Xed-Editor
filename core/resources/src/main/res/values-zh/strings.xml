@@ -692,7 +692,7 @@
     <string name="record_rpc_traffic">记录 RPC 流量</string>
     <string name="record_rpc_traffic_desc">将语言服务器的通信流量写入日志以便调试</string>
     <string name="lsp_log_limit">LSP 日志存储上限</string>
-    <string name="lsp_log_limit_desc">为避免高内存占用，旧日志将在超限时被自动删除</string>
+    <string name="log_limit_desc">为避免高内存占用，旧日志将在超限时被自动删除</string>
     <string name="update_date">更新日期</string>
     <string name="enable_logcat">启用 Logcat</string>
     <string name="enable_logcat_desc">运行 Logcat 并输出日志到画面上</string>

@@ -28,7 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavHostController
 import com.rk.activities.settings.SettingsRoutes
@@ -231,12 +232,17 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
         }
 
         val status by rememberLspInstallStatus(context, server, refreshKey)
+        val hasRunningInstances by remember {
+            derivedStateOf {
+                instances.any { it.status.value == LspConnectionStatus.RUNNING }
+            }
+        }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp),
         ) {
-            val hasRunningInstances = instances.map { it.status.value }.contains(LspConnectionStatus.RUNNING)
             RestartAllButton(hasRunningInstances)
 
             when (status) {
@@ -253,11 +259,10 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
         PreferenceGroupHeading(heading = stringResource(strings.instances))
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            val visibleInstances =
-                instances.filter {
-                    it.status.value != LspConnectionStatus.NOT_RUNNING ||
-                        DefinitionPrevention.isServerPrevented(it.lspProject, it.server)
-                }
+            val visibleInstances = instances.filter {
+                it.status.value != LspConnectionStatus.NOT_RUNNING ||
+                    DefinitionPrevention.isServerPrevented(it.lspProject, it.server)
+            }
             if (visibleInstances.isNotEmpty()) {
                 visibleInstances.forEach { instance -> LspInstanceCard(instance, navController) }
             } else {

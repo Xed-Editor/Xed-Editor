@@ -78,7 +78,7 @@ abstract class Command {
 
     abstract fun getIcon(): Icon
 
-    abstract fun action(context: ActionContext)
+    abstract fun execute(context: ActionContext)
 
     open fun isEnabled(): Boolean = true
 
@@ -98,11 +98,11 @@ abstract class Command {
     open fun onLongClick(context: ActionContext): Boolean = false
 
     /** Executes this command's action, or opens a submenu if [childCommands] are present. */
-    fun performCommand(context: ActionContext) {
+    fun perform(context: ActionContext) {
         if (childCommands.isNotEmpty()) {
             commandContext.mainViewModel.showCommandPaletteWithChildren(getChildSearchPlaceholder(), childCommands)
         } else {
-            action(context)
+            execute(context)
         }
     }
 
@@ -110,7 +110,7 @@ abstract class Command {
         id: String = this.id,
         prefix: String? = this.prefix,
         label: () -> String = { this.getLabel() },
-        action: (ActionContext) -> Unit = { ctx -> this.action(ctx) },
+        action: (ActionContext) -> Unit = { ctx -> this.execute(ctx) },
         isEnabled: () -> Boolean = { this.isEnabled() },
         isSupported: () -> Boolean = { this.isSupported() },
         icon: () -> Icon = { this.getIcon() },
@@ -129,7 +129,7 @@ abstract class Command {
 
             override fun getLabel(): String = label()
 
-            override fun action(context: ActionContext) = action(context)
+            override fun execute(context: ActionContext) = action(context)
 
             override fun isEnabled(): Boolean = isEnabled()
 
@@ -171,7 +171,7 @@ interface ToggleableCommand {
 abstract class GlobalCommand : Command()
 
 abstract class EditorCommand : Command() {
-    final override fun action(context: ActionContext) {
+    final override fun execute(context: ActionContext) {
         val currentTab = commandContext.mainViewModel.currentTab
         val editor = (currentTab as? EditorTab)?.editorState?.editor?.get() ?: return
         action(EditorActionContext(context.currentActivity, currentTab, editor))

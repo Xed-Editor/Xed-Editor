@@ -22,7 +22,6 @@ import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import com.rk.components.XedDropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -45,12 +44,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.rk.components.StyledTextField
+import com.rk.components.XedDropdownMenuItem
 import com.rk.resources.strings
 import com.rk.tabs.editor.CodeEditorState
 import com.rk.utils.logError
 import com.rk.utils.toast
 import io.github.rosemoe.sora.event.PublishSearchResultEvent
 import io.github.rosemoe.sora.event.SelectionChangeEvent
+import io.github.rosemoe.sora.util.regex.RegexBackrefGrammar
 import io.github.rosemoe.sora.widget.EditorSearcher
 import java.util.regex.PatternSyntaxException
 
@@ -318,8 +319,8 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                             enabled = isSearchingInternal,
                             onClick = {
                                 runCatching {
-                                        editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword.text)
-                                    }
+                                    editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword.text)
+                                }
                                     .onFailure {
                                         logError(it)
                                         toast(strings.unknown_err)
@@ -364,16 +365,12 @@ private fun getSearchOptions(
     searchRegex: Boolean,
     searchWholeWord: Boolean,
 ): EditorSearcher.SearchOptions {
-    val caseInsensitive = ignoreCase
-    var type = EditorSearcher.SearchOptions.TYPE_NORMAL
+    val type =
+        when {
+            searchRegex -> EditorSearcher.SearchOptions.TYPE_REGULAR_EXPRESSION
+            searchWholeWord -> EditorSearcher.SearchOptions.TYPE_WHOLE_WORD
+            else -> EditorSearcher.SearchOptions.TYPE_NORMAL
+        }
 
-    if (searchRegex) {
-        type = EditorSearcher.SearchOptions.TYPE_REGULAR_EXPRESSION
-    }
-
-    if (searchWholeWord) {
-        type = EditorSearcher.SearchOptions.TYPE_WHOLE_WORD
-    }
-
-    return EditorSearcher.SearchOptions(type, caseInsensitive)
+    return EditorSearcher.SearchOptions(type, ignoreCase, RegexBackrefGrammar.DEFAULT)
 }

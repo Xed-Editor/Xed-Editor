@@ -12,6 +12,7 @@ import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
+import com.rk.utils.logError
 import com.rk.utils.getTempDir
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -202,7 +203,7 @@ suspend fun Process.readStdout(): String =
                 reader.readText()
             }
         } catch (e: IOException) {
-            e.printStackTrace()
+            logError(e)
             if (e.message?.contains("Stream closed") == true) "" else throw e
         }
     }
@@ -215,7 +216,7 @@ suspend fun Process.readStderr(): String =
                 reader.readText()
             }
         } catch (e: IOException) {
-            e.printStackTrace()
+            logError(e)
             if (e.message?.contains("Stream closed") == true) "" else throw e
         }
     }

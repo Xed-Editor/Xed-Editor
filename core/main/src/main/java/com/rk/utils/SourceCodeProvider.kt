@@ -12,7 +12,7 @@ enum class SourceCodeProvider(val drawableRes: Int, val viewStringRes: Int) {
 
     companion object {
         fun fromUrl(url: String): SourceCodeProvider {
-            val hostName = URL(url).host
+            val hostName = runCatching { URL(url).host }.getOrNull()
             return when (hostName) {
                 "github.com" -> GitHub
                 "gitlab.com" -> GitLab

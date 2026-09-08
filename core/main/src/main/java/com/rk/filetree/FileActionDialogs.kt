@@ -8,9 +8,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.filterWithFiles
 import com.rk.activities.main.ui.drawerStateRef
@@ -121,7 +121,7 @@ fun FileActionDialogs(
                                     val parentFile = file.getParentFile()
                                     if (parentFile != null) {
                                         viewModel.updateCache(file.getParentFile()!!)
-                                    }else{
+                                    } else {
                                         viewModel.updateCache(file)
                                     }
                                 }
@@ -130,7 +130,7 @@ fun FileActionDialogs(
                                     val parentFile = file.getParentFile()
                                     if (parentFile != null) {
                                         viewModel.updateCache(file.getParentFile()!!)
-                                    }else{
+                                    } else {
                                         viewModel.updateCache(file)
                                     }
 
@@ -164,11 +164,9 @@ fun FileActionDialogs(
         val file = createParentFile ?: return
         val root = createRoot
         SingleInputDialog(
-            title =
-                if (isCreateFile) stringResource(strings.new_file) else stringResource(strings.new_folder),
+            title = if (isCreateFile) stringResource(strings.new_file) else stringResource(strings.new_folder),
             inputLabel =
-                if (isCreateFile) stringResource(id = strings.file_name)
-                else stringResource(id = strings.folder_name),
+                if (isCreateFile) stringResource(id = strings.file_name) else stringResource(id = strings.folder_name),
             inputValue = createValue,
             errorMessage = createError,
             confirmEnabled = createValue.isNotBlank(),
@@ -217,9 +215,7 @@ fun FileActionDialogs(
                                 drawerStateRef.get()?.close()
                             }
                         } else {
-                            val msg =
-                                if (isCreateFile) strings.file_already_exists
-                                else strings.folder_already_exists
+                            val msg = if (isCreateFile) strings.file_already_exists else strings.folder_already_exists
                             toast(msg.getFilledString(createValue))
                         }
 

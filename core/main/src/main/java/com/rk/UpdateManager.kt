@@ -18,6 +18,9 @@ import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 
 object UpdateManager {
     private fun deleteCommonFiles() =
@@ -222,6 +225,33 @@ object UpdateManager {
                     runCatching {
                         KeybindingsManager.migrate()
                         KeybindingsManager.loadKeybindings()
+                    }
+                }
+
+                // See https://github.com/Xed-Editor/Xed-Editor/issues/1607
+                if (lastVersionCode <= 104) {
+                    runCatching {
+                        val file = localDir().child("runners.json")
+
+                        if (file.exists()) {
+                            val text = file.readText()
+                            val json: List<JsonObject> = Json.decodeFromString(text)
+
+                            val updatedJson = json.map { obj ->
+                                if ("name" in obj) {
+                                    buildJsonObject {
+                                        obj.forEach { (key, value) ->
+                                            put(key, value)
+                                        }
+                                        put("label", obj["name"]!!)
+                                    }
+                                } else {
+                                    obj
+                                }
+                            }
+
+                            file.writeText(Json.encodeToString(updatedJson))
+                        }
                     }
                 }
 

@@ -695,7 +695,7 @@
     <string name="record_rpc_traffic">RPC-Datenverkehr aufzeichnen</string>
     <string name="record_rpc_traffic_desc">RPC-Kommunikation von Sprachservern zu Debugging-Zwecken protokollieren</string>
     <string name="lsp_log_limit">LSP-Protokoll-Limit</string>
-    <string name="lsp_log_limit_desc">Ältere Logs werden automatisch entfernt, sobald das Limit erreicht ist, um einen hohen Speicherverbrauch zu vermeiden</string>
+    <string name="log_limit_desc">Ältere Logs werden automatisch entfernt, sobald das Limit erreicht ist, um einen hohen Speicherverbrauch zu vermeiden</string>
     <string name="enable_logcat">Logcat aktivieren</string>
     <string name="enable_logcat_desc">Logcat ausführen und die Logs im Log-Bildschirm ausgeben</string>
     <string name="logcat_running">Logcat läuft</string>
