@@ -179,7 +179,7 @@
     <string name="temp_file">Тимчасовий файл</string>
     <string name="lang">Мова</string>
     <string name="lang_desc">Мовні налаштування</string>
-    <string name="runner_regex">Regex-шаблон (наприклад, .*py$)</string>
+    <string name="runner_regex">Regex-шаблон (наприклад, .*\\.py)</string>
     <string name="invalid_runner_name">Дозволені лише літери, цифри, підкреслення та дефіси</string>
     <string name="invalid_regex">Неправильний шаблон регулярного виразу</string>
     <string name="redo">Повторити</string>
@@ -367,7 +367,7 @@
     <string name="enable_sticky_scroll">Увімкнути липке прокручування</string>
     <string name="enable_sticky_scroll_desc">Показувати заголовок поточного блоку коду під час прокручування</string>
     <string name="enable_quick_deletion_desc">Автоматично видаляти цілий рядок, якщо він порожній</string>
-    <string name="delete_failed">Не вдалося видалити файл</string>
+    <string name="delete_failed">Не вдалося видалити файли</string>
     <string name="enable_quick_deletion">Увімкнути швидке видалення рядка</string>
     <string name="auto_closing_bracket">Автозакриття дужок</string>
     <string name="auto_closing_bracket_desc">Автоматично вставляти закривальну дужку</string>
@@ -799,4 +799,16 @@
     <string name="credentials_github">Щоб під\'єднатися до GitHub, ви маєте ввести PAT-токен, а не ваш пароль від GitHub.</string>
     <string name="theme_format_changed">Формат теми змінився. Цей формат більше не підтримується</string>
     <string name="unknown_package">Невідомий тип пакета</string>
+    <string name="scoped_tabs">Контекстні вкладки</string>
+    <string name="scoped_tabs_desc">Показувати тільки вкладки, що належать поточному проєкту</string>
+    <string name="delete_incomplete">Деякі файли не вдалося видалити</string>
+    <string name="app_log_limit">Ліміт журналів застосунка</string>
+    <string name="issue_count">%d проблем</string>
+    <string name="running">Запущено…</string>
+    <string name="finished">Закінчено</string>
+    <string name="collapse">Згорнути</string>
+    <string name="expand">Розгорнути</string>
+    <string name="package_format_error">Xed-Editor підтримує встановлення лише .zip, .iconpack або .xed пакетів.</string>
+    <string name="theme_format_error">Xed-Editor більше не підтримує встановлення застарілих однофайлових JSON-тем. Якщо це ваша тема, будь ласка, оновіть її згідно з поточним шаблоном тем і спробуйте знову.</string>
+    <string name="unknown_package_format">Не вдалося визначити тип пакета.</string>
 </resources>
