@@ -18,8 +18,9 @@ import com.rk.resources.drawables
  * @property name The short identifier name of the file type.
  * @property title A human-readable title for the file type.
  * @property markdownNames A list of language identifiers used in Markdown code blocks.
+ * @property lspLanguageId The language identifier sent to the language server in the `didOpen` notification
+ *   (e.g., "typescriptreact"). Null if the file type does not support LSP.
  */
-
 interface FileType {
     val extensions: List<String>
     val names: List<String>?
@@ -33,6 +34,7 @@ interface FileType {
     val name: String
 
     val title: String
+
     /**
      * Language identifiers used in Markdown code blocks. Should only include additional names that are not included in
      * the extensions list.
@@ -54,5 +56,10 @@ interface FileType {
         return iconPackFile?.let { Icon.SvgIcon(it) } ?: icon ?: Icon.ResourceIcon(drawables.file)
     }
 
-    val lspLanguageId:String?
+    /**
+     * The LSP language identifier for this file type. Defaults to null so that custom/third-party implementations of
+     * [FileType] do not have to provide it.
+     */
+    val lspLanguageId: String?
+        get() = null
 }
