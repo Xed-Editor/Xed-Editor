@@ -792,4 +792,16 @@
     <string name="credentials_github">Untuk terhubung ke GitHub, Anda harus memasukkan token PAT, bukan kata sandi akun GitHub Anda.</string>
     <string name="theme_format_changed">Format tema telah diubah. Format ini tidak lagi didukung</string>
     <string name="unknown_package">Tipe paket tidak dikenal</string>
+    <string name="scoped_tabs">Tab lingkup</string>
+    <string name="scoped_tabs_desc">Tampilkan hanya tab yang termasuk dalam proyek saat ini</string>
+    <string name="delete_incomplete">Beberapa file tidak dapat dihapus</string>
+    <string name="app_log_limit">Batas log aplikasi</string>
+    <string name="issue_count">%d masalah</string>
+    <string name="running">Menjalankan…</string>
+    <string name="finished">Selesai</string>
+    <string name="collapse">Perkecil</string>
+    <string name="expand">Perluas</string>
+    <string name="package_format_error">Xed-Editor hanya mendukung penginstalan paket berformat .zip, .iconpack, atau .xed.</string>
+    <string name="theme_format_error">Xed-Editor tidak lagi mendukung penginstalan tema JSON satu file lama. Jika tema Anda termasuk dalam kategori ini, silakan perbarui tema tersebut sesuai dengan template tema terkini, lalu coba lagi.</string>
+    <string name="unknown_package_format">Tidak dapat menentukan tipe paket.</string>
 </resources>
