@@ -787,4 +787,6 @@
     <string name="git_conflict_detection">Konflikterkennung</string>
     <string name="git_conflict_detection_desc">Konfliktmarkierungen und Auflösungsoptionen im Editor anzeigen</string>
     <string name="credentials_github">Um dich mit GitHub zu verbinden, musst du einen PAT-Token eingeben, nicht das Passwort deines GitHub-Kontos.</string>
+    <string name="collapse">Einklappen</string>
+    <string name="expand">Ausklappen</string>
 </resources>
