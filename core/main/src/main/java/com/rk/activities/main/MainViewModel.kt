@@ -12,9 +12,9 @@ import com.rk.activities.main.session.EditorManager
 import com.rk.activities.main.session.SessionManager
 import com.rk.activities.main.session.TabManager
 import com.rk.commands.Command
+import com.rk.common.PackageManifest
 import com.rk.events.DrawerEvent
 import com.rk.events.Events
-import com.rk.extension.model.ExtensionManifest
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeTab
 import com.rk.settings.Settings
@@ -45,8 +45,8 @@ fun List<EditorTab>.filterWithFiles(predicate: (EditorTab, FileObject) -> Boolea
         .map { it.key }
 }
 
-data class PendingExtensionInstall(
-    val manifest: ExtensionManifest,
+data class PendingPackageInstall(
+    val manifest: PackageManifest,
     val packageFile: File,
     val icon: File,
 )
@@ -101,9 +101,9 @@ class MainViewModel : ViewModel() {
     private val _commandPaletteInitialPlaceholder = MutableStateFlow<String?>(null)
     val commandPaletteInitialPlaceholder = _commandPaletteInitialPlaceholder.asStateFlow()
 
-    private val _pendingExtensionInstall = MutableStateFlow<PendingExtensionInstall?>(null)
+    private val _pendingPackageInstall = MutableStateFlow<PendingPackageInstall?>(null)
 
-    val pendingExtensionInstall: StateFlow<PendingExtensionInstall?> = _pendingExtensionInstall
+    val pendingPackageInstall: StateFlow<PendingPackageInstall?> = _pendingPackageInstall
 
     fun setShowTopBar(value: Boolean) {
         _showTopBar.value = value
@@ -113,15 +113,15 @@ class MainViewModel : ViewModel() {
         _isDraggingPalette.value = value
     }
 
-    fun openExtensionIntentDialog(manifest: ExtensionManifest, file: File, icon: File) {
-        _pendingExtensionInstall.value = PendingExtensionInstall(manifest, file, icon)
+    fun openPackageInstallDialog(manifest: PackageManifest, file: File, icon: File) {
+        _pendingPackageInstall.value = PendingPackageInstall(manifest, file, icon)
     }
 
-    fun closeExtensionIntentDialog() {
-        val pendingInstall = _pendingExtensionInstall.value
+    fun closePackageInstallDialog() {
+        val pendingInstall = _pendingPackageInstall.value
 
         viewModelScope.launch(Dispatchers.Main) {
-            _pendingExtensionInstall.value = null
+            _pendingPackageInstall.value = null
 
             withContext(Dispatchers.IO) {
                 pendingInstall?.icon?.delete()

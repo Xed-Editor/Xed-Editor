@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.App
+import com.rk.App.Companion.iconPackManager
 import com.rk.App.Companion.themeManager
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
@@ -435,11 +436,7 @@ fun runThemeInstallAction(
 
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
-
-                    val oldTheme = currentTheme.value
-                    Settings.theme = id
-                    refreshEditors()
-                    DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(currentTheme.value, oldTheme)) }
+                    applyThemeAfterInstall(id)
                 } else {
                     showDownloadNotification(context, id, name, 0f, isFinished = true, errorMessage = errorMsg)
                     errorDialog(activity, msg = errorMsg ?: strings.unknown_err.getString())
@@ -447,6 +444,13 @@ fun runThemeInstallAction(
             }
         }
     }
+}
+
+fun applyThemeAfterInstall(id: String) {
+    val oldTheme = currentTheme.value
+    Settings.theme = id
+    refreshEditors()
+    DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(currentTheme.value, oldTheme)) }
 }
 
 fun runIconPackInstallAction(
@@ -487,7 +491,7 @@ fun runIconPackInstallAction(
             if (downloadSuccess) {
                 showDownloadNotification(context, id, name, 1f)
                 runCatching {
-                    App.iconPackManager.installIconPack(tempFile)
+                    iconPackManager.installIconPack(tempFile)
                 }
                     .onSuccess {
                         success = true
@@ -511,20 +515,23 @@ fun runIconPackInstallAction(
 
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
-
-                    val oldIconPack = currentIconPack.value
-                    val newIconPack = App.iconPackManager.localIconPacks.value[id]
-                    currentIconPack.value = newIconPack
-                    Settings.icon_pack = id
-                    DefaultScope.launch {
-                        Events.publish(AppEvent.IconPackChanged(newIconPack, oldIconPack))
-                    }
+                    applyIconPackAfterInstall(id)
                 } else {
                     showDownloadNotification(context, id, name, 0f, isFinished = true, errorMessage = errorMsg)
                     errorDialog(activity, msg = errorMsg ?: strings.unknown_err.getString())
                 }
             }
         }
+    }
+}
+
+fun applyIconPackAfterInstall(id: String) {
+    val oldIconPack = currentIconPack.value
+    val newIconPack = iconPackManager.localIconPacks.value[id]
+    currentIconPack.value = newIconPack
+    Settings.icon_pack = id
+    DefaultScope.launch {
+        Events.publish(AppEvent.IconPackChanged(newIconPack, oldIconPack))
     }
 }
 
@@ -694,7 +701,7 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                         withContext(Dispatchers.Main) { toast(strings.installed) }
                     }
                     PackageType.ICON_PACK -> {
-                        App.iconPackManager.installIconPack(localFile)
+                        iconPackManager.installIconPack(localFile)
                         withContext(Dispatchers.Main) { toast(strings.installed) }
                     }
                     null -> {

@@ -1,5 +1,6 @@
 package com.rk.common
 
+import com.rk.extension.model.PackageAuthor
 import com.rk.file.unzipTo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,7 +15,12 @@ enum class PackageType(val value: String) {
 }
 
 @Serializable
-class PackageManifest(
+data class PackageManifest(
+    val id: String = "",
+    val name: String = "",
+    val version: String = "1.0.0",
+    val author: PackageAuthor = PackageAuthor.UNKNOWN,
+    val description: String? = null,
     val type: PackageType? = null,
 
     // Icon pack-specific
@@ -29,6 +35,20 @@ object XedPackage {
 
     fun extract(zipFile: File, destDir: File) {
         zipFile.unzipTo(destDir)
+    }
+
+    fun loadManifest(dir: File): PackageManifest? {
+        val manifestFile = File(dir, "manifest.json")
+        val type = detectPackageType(dir) ?: return null
+
+        if (manifestFile.exists()) {
+            return runCatching {
+                json.decodeFromString<PackageManifest>(manifestFile.readText()).copy(type = type)
+            }
+                .getOrNull()
+        }
+
+        return null
     }
 
     fun detectPackageType(dir: File): PackageType? {
