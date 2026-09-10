@@ -3,7 +3,6 @@ package com.rk.extension.model
 import com.rk.common.PackageType
 import io.github.z4kn4fein.semver.toVersionOrNull
 import kotlinx.serialization.Serializable
-import java.util.Date
 
 @Serializable
 data class PackageCache(
@@ -12,7 +11,20 @@ data class PackageCache(
     val size: Long? = null,
 )
 
-data class Review(val rating: Int, val text: String, val author: String, val date: Date, val authorResponse: String?)
+@Serializable data class ReviewStats(val average: Float? = null, val count: Int = 0)
+
+@Serializable data class ReviewsResponse(val reviews: List<Review>, val stats: ReviewStats)
+
+@Serializable
+data class Review(
+    val id: Int,
+    val score: Int,
+    val content: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val userName: String,
+    val userImage: String,
+)
 
 interface Package {
     val id: String

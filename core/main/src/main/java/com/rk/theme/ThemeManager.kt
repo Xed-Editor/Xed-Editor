@@ -10,11 +10,15 @@ import androidx.core.graphics.toColorInt
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
+import com.rk.events.AppEvent
+import com.rk.events.Events
 import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.PackageAuthor
 import com.rk.extension.model.PackageCache
+import com.rk.extension.model.ReviewStats
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
 import com.rk.file.child
@@ -22,6 +26,8 @@ import com.rk.file.themeDir
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
+import com.rk.settings.editor.refreshEditors
 import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
@@ -54,6 +60,7 @@ data class ThemeEntry(
     val size: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,
+    val rating: ReviewStats,
 )
 
 @Serializable
@@ -79,7 +86,7 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         allowTrailingComma = true
     }
 
-    private val _loadedThemesState = mutableStateOf<List<ThemeHolder>>(builtInThemes)
+    private val _loadedThemesState = mutableStateOf(builtInThemes)
     val loadedThemesState: State<List<ThemeHolder>> = _loadedThemesState
     private val _localThemes = MutableStateFlow<Map<String, LocalTheme>>(emptyMap())
     val localThemes: StateFlow<Map<String, LocalTheme>> = _localThemes.asStateFlow()
@@ -109,14 +116,22 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
         return allIds.mapNotNull { getTheme(it) }
     }
 
-    fun uninstallTheme(theme: ThemeHolder) {
-        val localTheme = localThemes.value[theme.id] ?: return
-        File(localTheme.installPath).deleteRecursively()
-
-        setLoadedThemes(_loadedThemesState.value - theme)
+    suspend fun uninstallTheme(id: String) {
+        withContext(Dispatchers.IO) {
+            themeDir().child(id).deleteRecursively()
+            withContext(Dispatchers.Main) {
+                removeLocalTheme(id)
+            }
+        }
     }
 
     fun removeLocalTheme(id: String) {
+        if (Settings.theme == id) {
+            val oldTheme = currentTheme.value
+            Settings.theme = blueberry.id
+            refreshEditors()
+            DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(currentTheme.value, oldTheme)) }
+        }
         _localThemes.update { it - id }
         setLoadedThemes(_loadedThemesState.value.filterNot { it.id == id })
     }
@@ -308,9 +323,11 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                         if (manifestFile.exists()) {
                             val manifest = json.decodeFromString<ThemeManifest>(manifestFile.readText())
                             val themeFile =
-                                dir.resolve("theme.json").takeIf { it.exists() }?.let {
-                                    json.decodeFromString<ThemeFile>(it.readText())
-                                }
+                                dir.resolve("theme.json")
+                                    .takeIf { it.exists() }
+                                    ?.let {
+                                        json.decodeFromString<ThemeFile>(it.readText())
+                                    }
                             newLoadedThemes.add(manifest.build(themeFile))
 
                             val cache = resolveCache(dir)
@@ -397,7 +414,9 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
                                     minAppVersion = legacy.minAppVersion,
                                     inheritBase = legacy.inheritBase,
                                 )
-                            themeFile.writeText(json.encodeToString(ThemeFile(light = legacy.light, dark = legacy.dark)))
+                            themeFile.writeText(
+                                json.encodeToString(ThemeFile(light = legacy.light, dark = legacy.dark))
+                            )
                             manifestFile.writeText(json.encodeToString(manifest))
                             migratedCount++
                         }

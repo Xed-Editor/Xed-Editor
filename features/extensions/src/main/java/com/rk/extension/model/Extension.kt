@@ -77,7 +77,7 @@ data class StoreExtension(private val entry: ExtensionEntry) : Extension {
         get() = entry.downloads
 
     override val rating
-        get() = null
+        get() = entry.rating.average
 
     override val size
         get() = entry.size ?: entry.download.size

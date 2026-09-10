@@ -7,10 +7,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import java.io.File
 
-enum class PackageType {
-    @SerialName("extension") EXTENSION,
-    @SerialName("theme") THEME,
-    @SerialName("icon_pack") ICON_PACK,
+enum class PackageType(val value: String) {
+    @SerialName("extension") EXTENSION("extension"),
+    @SerialName("theme") THEME("theme"),
+    @SerialName("icon_pack") ICON_PACK("iconpack"),
 }
 
 @Serializable

@@ -7,11 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
@@ -19,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.rk.App.Companion.iconPackManager
 import com.rk.App.Companion.themeManager
@@ -43,15 +40,11 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.events.AppEvent
 import com.rk.events.Events
-import com.rk.file.child
-import com.rk.file.themeDir
 import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
-import com.rk.theme.blueberry
-import com.rk.theme.builtInThemes
 import com.rk.theme.currentTheme
 import kotlinx.coroutines.launch
 
@@ -118,30 +111,6 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                         Settings.theme = theme.id
                         refreshEditors()
                         DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(theme, oldTheme)) }
-                    },
-                    endWidget = {
-                        if (!builtInThemes.contains(theme)) {
-                            IconButton(
-                                onClick = {
-                                    if (currentTheme.value.id == theme.id) {
-                                        val oldTheme = currentTheme.value
-                                        Settings.theme = blueberry.id
-                                        refreshEditors()
-                                        DefaultScope.launch {
-                                            Events.publish(AppEvent.ThemeChanged(blueberry, oldTheme))
-                                        }
-                                    }
-
-                                    themeDir().child(theme.id).deleteRecursively()
-                                    themeManager.uninstallTheme(theme)
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription = stringResource(strings.delete),
-                                )
-                            }
-                        }
                     },
                 )
             }
@@ -210,28 +179,6 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
 
                         DefaultScope.launch {
                             Events.publish(AppEvent.IconPackChanged(iconPack, oldIconPack))
-                        }
-                    },
-                    endWidget = {
-                        IconButton(
-                            onClick = {
-                                if (currentIconPack.value?.manifest?.id == id) {
-                                    val oldIconPack = currentIconPack.value
-                                    currentIconPack.value = null
-                                    Settings.icon_pack = ""
-
-                                    DefaultScope.launch {
-                                        Events.publish(AppEvent.IconPackChanged(null, oldIconPack))
-                                    }
-                                }
-
-                                iconPackManager.uninstallIconPack(id)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = stringResource(strings.delete),
-                            )
                         }
                     },
                 )
