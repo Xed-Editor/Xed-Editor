@@ -16,6 +16,8 @@ import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.PackageType
 import com.rk.common.XedPackage
+import com.rk.events.AppEvent
+import com.rk.events.Events
 import com.rk.extension.EXTENSION_API_BASE
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionError
@@ -31,31 +33,32 @@ import com.rk.extension.loader.loadAfterInstall
 import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.model.Package
-import com.rk.file.child
-import com.rk.file.themeDir
 import com.rk.file.toFileObject
 import com.rk.filetree.isXedPackage
 import com.rk.filetree.isZip
 import com.rk.icons.pack.UpdatableIconPack
+import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.editor.refreshEditors
 import com.rk.theme.UpdatableTheme
+import com.rk.theme.currentTheme
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.logError
 import com.rk.utils.toast
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
+import java.io.File
 
 fun getMissingDependencies(extension: Extension): List<ExtensionId> {
     val missing = linkedSetOf<ExtensionId>()
@@ -432,6 +435,11 @@ fun runThemeInstallAction(
 
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
+
+                    val oldTheme = currentTheme.value
+                    Settings.theme = id
+                    refreshEditors()
+                    DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(currentTheme.value, oldTheme)) }
                 } else {
                     showDownloadNotification(context, id, name, 0f, isFinished = true, errorMessage = errorMsg)
                     errorDialog(activity, msg = errorMsg ?: strings.unknown_err.getString())
@@ -503,6 +511,14 @@ fun runIconPackInstallAction(
 
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
+
+                    val oldIconPack = currentIconPack.value
+                    val newIconPack = App.iconPackManager.localIconPacks.value[id]
+                    currentIconPack.value = newIconPack
+                    Settings.icon_pack = id
+                    DefaultScope.launch {
+                        Events.publish(AppEvent.IconPackChanged(newIconPack, oldIconPack))
+                    }
                 } else {
                     showDownloadNotification(context, id, name, 0f, isFinished = true, errorMessage = errorMsg)
                     errorDialog(activity, msg = errorMsg ?: strings.unknown_err.getString())
@@ -561,12 +577,9 @@ fun runPackageUninstallAction(
                 msg = strings.uninstall_theme_dialog_desc.getFilledString(pkg.name),
                 okRes = strings.uninstall,
                 onOk = {
-                    scope.launch(Dispatchers.IO) {
-                        themeDir().child(pkg.id).deleteRecursively()
-                        withContext(Dispatchers.Main) {
-                            themeManager.removeLocalTheme(pkg.id)
-                            updateInstallState(InstallState.Idle)
-                        }
+                    scope.launch(Dispatchers.Main) {
+                        themeManager.uninstallTheme(pkg.id)
+                        updateInstallState(InstallState.Idle)
                     }
                 },
                 onCancel = {},
@@ -579,11 +592,9 @@ fun runPackageUninstallAction(
                 msg = strings.uninstall_icon_pack_dialog_desc.getFilledString(pkg.name),
                 okRes = strings.uninstall,
                 onOk = {
-                    scope.launch(Dispatchers.IO) {
+                    scope.launch(Dispatchers.Main) {
                         App.iconPackManager.uninstallIconPack(pkg.id)
-                        withContext(Dispatchers.Main) {
-                            updateInstallState(InstallState.Idle)
-                        }
+                        updateInstallState(InstallState.Idle)
                     }
                 },
                 onCancel = {},

@@ -68,7 +68,7 @@ data class StoreTheme(val entry: ThemeEntry) : ThemePackage {
         get() = null
 
     override val rating: Float?
-        get() = null
+        get() = entry.rating.average
 
     override val size: Long?
         get() = entry.size

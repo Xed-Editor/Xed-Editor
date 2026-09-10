@@ -6,6 +6,7 @@ import com.rk.extension.ICONPACKS_API_BASE
 import com.rk.extension.InstallState
 import com.rk.extension.THEMES_API_BASE
 import com.rk.extension.model.ExtensionManifest
+import com.rk.extension.model.ReviewStats
 import com.rk.icons.pack.IconPackEntry
 import com.rk.theme.ThemeEntry
 import com.rk.utils.logError
@@ -33,6 +34,7 @@ data class ExtensionEntry(
     val size: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,
+    val rating: ReviewStats,
 )
 
 @Serializable

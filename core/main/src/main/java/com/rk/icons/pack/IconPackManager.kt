@@ -6,8 +6,11 @@ import androidx.core.content.pm.PackageInfoCompat
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
+import com.rk.events.AppEvent
+import com.rk.events.Events
 import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.PackageCache
+import com.rk.extension.model.ReviewStats
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
 import com.rk.file.child
@@ -43,6 +46,7 @@ data class IconPackEntry(
     val size: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,
+    val rating: ReviewStats,
 )
 
 val currentIconPack = mutableStateOf<LocalIconPack?>(null)
@@ -218,9 +222,21 @@ class IconPackManager(private val context: Application) : CoroutineScope by Coro
         return iconPackManifest
     }
 
-    fun uninstallIconPack(iconPackId: String) {
+    suspend fun uninstallIconPack(iconPackId: String) {
         val iconPack = localIconPacks.value[iconPackId] ?: return
-        File(iconPack.installPath).deleteRecursively()
+        if (currentIconPack.value == iconPack) {
+            withContext(Dispatchers.Main) {
+                currentIconPack.value = null
+                Settings.icon_pack = ""
+
+                DefaultScope.launch {
+                    Events.publish(AppEvent.IconPackChanged(null, iconPack))
+                }
+            }
+        }
+        withContext(Dispatchers.IO) {
+            File(iconPack.installPath).deleteRecursively()
+        }
         _localIconPacks.update { it - iconPackId }
     }
 

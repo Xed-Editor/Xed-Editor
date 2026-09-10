@@ -72,7 +72,7 @@ data class StoreIconPack(val entry: IconPackEntry) : IconPackPackage {
         get() = null
 
     override val rating: Float?
-        get() = null
+        get() = entry.rating.average
 
     override val size: Long?
         get() = entry.size
