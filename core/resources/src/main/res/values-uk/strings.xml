@@ -811,4 +811,5 @@
     <string name="package_format_error">Xed-Editor підтримує встановлення лише .zip, .iconpack або .xed пакетів.</string>
     <string name="theme_format_error">Xed-Editor більше не підтримує встановлення застарілих однофайлових JSON-тем. Якщо це ваша тема, будь ласка, оновіть її згідно з поточним шаблоном тем і спробуйте знову.</string>
     <string name="unknown_package_format">Не вдалося визначити тип пакета.</string>
+    <string name="no_reviews">Немає відгуків</string>
 </resources>
