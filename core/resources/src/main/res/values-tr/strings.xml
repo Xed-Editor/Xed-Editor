@@ -808,4 +808,5 @@
     <string name="package_format_error">Xed-Editor sadece .zip, .iconpack veya .xed paketlerinin yüklenmesini destekler.</string>
     <string name="theme_format_error">Xed-Editor artık eski tek dosyalı JSON temalarının yüklenmesini desteklemiyor. Eğer bu sizin temanızsa, lütfen mevcut tema şablonuna göre güncelleyin ve tekrar deneyin.</string>
     <string name="unknown_package_format">Paket türü belirlenemedi.</string>
+    <string name="no_reviews">Henüz yorum yok</string>
 </resources>
