@@ -79,7 +79,7 @@ class DefaultColorProvider(private val editor: Editor) : InlayHintProvider {
             val container = InlayHintsContainer()
 
             for (i in 0 until text.lineCount) {
-                val lineText = text.getLineString(i)
+                val lineText = runCatching { text.getLineString(i) }.getOrNull() ?: break
                 val matcher = colorPattern.matcher(lineText)
                 while (matcher.find()) {
                     val colorStr = matcher.group()

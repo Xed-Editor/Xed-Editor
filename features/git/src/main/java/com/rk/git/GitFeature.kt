@@ -417,7 +417,7 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
             var currentConflictMiddle = -1
 
             for (i in 0 until text.lineCount) {
-                val line = text.getLineString(i)
+                val line = runCatching { text.getLineString(i) }.getOrNull() ?: break
                 if (line.startsWith(CONFLICT_START_MARKER)) {
                     currentConflictStart = i
                 } else if (line.startsWith(CONFLICT_SEPARATOR) && currentConflictStart != -1) {
