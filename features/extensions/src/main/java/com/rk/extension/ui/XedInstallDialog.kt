@@ -24,21 +24,29 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.rk.App.Companion.iconPackManager
+import com.rk.App.Companion.themeManager
+import com.rk.common.PackageManifest
+import com.rk.common.PackageType
 import com.rk.extension.InstallResult
 import com.rk.extension.extensionManager
 import com.rk.extension.loader.loadAfterInstall
-import com.rk.extension.model.ExtensionManifest
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.extension.ExtensionAuthorIcon
+import com.rk.settings.extension.applyIconPackAfterInstall
+import com.rk.settings.extension.applyThemeAfterInstall
 import com.rk.settings.extension.handleInstallResult
+import com.rk.utils.errorDialog
+import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
 @Composable
-fun XedInstallDialog(manifest: ExtensionManifest, icon: File, packageFile: File, onDismiss: () -> Unit) {
+fun XedInstallDialog(manifest: PackageManifest, icon: File, packageFile: File, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
@@ -99,15 +107,44 @@ fun XedInstallDialog(manifest: ExtensionManifest, icon: File, packageFile: File,
             TextButton(
                 onClick = {
                     scope.launch(Dispatchers.IO) {
-                        val result = extensionManager.installExtensionFromZip(packageFile)
+                        when (manifest.type) {
+                            PackageType.EXTENSION -> {
+                                val result = extensionManager.installExtensionFromZip(packageFile)
 
-                        withContext(Dispatchers.Main) {
-                            handleInstallResult(result, activity)
-                            onDismiss()
-                        }
+                                withContext(Dispatchers.Main) {
+                                    handleInstallResult(result, activity)
+                                    onDismiss()
+                                }
 
-                        if (result is InstallResult.Success) {
-                            result.extension.loadAfterInstall(result, activity)
+                                if (result is InstallResult.Success) {
+                                    result.extension.loadAfterInstall(result, activity)
+                                }
+                            }
+
+                            PackageType.THEME -> {
+                                themeManager.installTheme(packageFile)
+                                applyThemeAfterInstall(manifest.id)
+                                withContext(Dispatchers.Main) {
+                                    toast(strings.installed)
+                                    onDismiss()
+                                }
+                            }
+
+                            PackageType.ICON_PACK -> {
+                                iconPackManager.installIconPack(packageFile)
+                                applyIconPackAfterInstall(manifest.id)
+                                withContext(Dispatchers.Main) {
+                                    toast(strings.installed)
+                                    onDismiss()
+                                }
+                            }
+
+                            null -> {
+                                withContext(Dispatchers.Main) {
+                                    errorDialog(activity, msg = strings.unknown_package_format.getString())
+                                    onDismiss()
+                                }
+                            }
                         }
                     }
                 }

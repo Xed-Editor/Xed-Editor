@@ -23,17 +23,16 @@ import com.rk.file.FileWrapper
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.errorDialog
-import com.rk.utils.logDebug
 import com.rk.utils.logError
 import com.rk.utils.logInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -57,7 +56,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     val installedExtensions: StateFlow<Map<ExtensionId, LocalExtension>> = _installedExtensions.asStateFlow()
     private val _storeExtension = MutableStateFlow<Map<ExtensionId, StoreExtension>>(emptyMap())
     val storeExtension: StateFlow<Map<ExtensionId, StoreExtension>> = _storeExtension.asStateFlow()
-    val json = Json {
+    private val json = Json {
         ignoreUnknownKeys = true
         allowTrailingComma = true
     }

@@ -1,6 +1,7 @@
 package com.rk
 
 import android.app.Application
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.rk.App.Companion.iconPackManager
@@ -34,13 +35,11 @@ import com.rk.settings.SettingsRegistry
 import com.rk.settings.extension.ExtensionSettings
 import com.rk.settings.extension.PackageDetail
 import com.rk.settings.extension.StoreScreen
-import com.rk.utils.errorDialog
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.io.File
 
 class ExtensionFeature : Feature {
@@ -73,23 +72,16 @@ class ExtensionFeature : Feature {
                     tempDir.mkdirs()
                     try {
                         XedPackage.extract(tempFile, tempDir)
-                        extensionManager
-                            .validateExtensionDir(tempDir)
-                            .onSuccess { manifest ->
-                                val packageIcon = tempDir.resolve("icon.png")
-                                val iconFile = FileWrapper(packageIcon).copyToTempDir()
 
-                                withContext(Dispatchers.Main) {
-                                    MainActivity.instance
-                                        ?.viewModel
-                                        ?.openExtensionIntentDialog(manifest, tempFile, iconFile)
-                                }
+                        val manifest = XedPackage.loadManifest(tempDir)
+                        if (manifest != null) {
+                            val packageIcon = tempDir.resolve("icon.png")
+                            val iconFile = FileWrapper(packageIcon).copyToTempDir()
+
+                            withContext(Dispatchers.Main) {
+                                MainActivity.instance?.viewModel?.openPackageInstallDialog(manifest, tempFile, iconFile)
                             }
-                            .onFailure {
-                                withContext(Dispatchers.Main) {
-                                    errorDialog(throwable = it)
-                                }
-                            }
+                        }
                     } finally {
                         tempDir.deleteRecursively()
                     }
@@ -102,12 +94,13 @@ class ExtensionFeature : Feature {
             DialogProvider {
                 MainActivity.instance?.let {
                     val viewModel = it.viewModel
-                    val pendingInstall = viewModel.pendingExtensionInstall.collectAsStateWithLifecycle().value ?: return@let
+                    val pendingInstall =
+                        viewModel.pendingPackageInstall.collectAsStateWithLifecycle().value ?: return@let
                     XedInstallDialog(
                         pendingInstall.manifest,
                         pendingInstall.icon,
                         pendingInstall.packageFile,
-                        viewModel::closeExtensionIntentDialog,
+                        viewModel::closePackageInstallDialog,
                     )
                 }
             }
@@ -139,20 +132,14 @@ class ExtensionFeature : Feature {
                 "${SettingsRoutes.Extensions.route}?query={query}&category={category}",
                 arguments =
                     listOf(
-                        navArgument(
-                            "query",
-                            builder = {
-                                nullable = true
-                                type = NavType.StringType
-                            },
-                        ),
-                        navArgument(
-                            "category",
-                            builder = {
-                                nullable = true
-                                type = NavType.StringType
-                            },
-                        ),
+                        navArgument("query") {
+                            nullable = true
+                            type = NavType.StringType
+                        },
+                        navArgument("category") {
+                            nullable = true
+                            type = NavType.StringType
+                        },
                     ),
             ) { navController, backStackEntry ->
                 val query = backStackEntry.arguments?.getString("query")
