@@ -13,7 +13,7 @@ class FormatDocumentCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.format_document.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         context.editorTab.registerTask(EditorTab.FORMAT_DOCUMENT_TASK_ID)
         context.editor.formatCodeAsync()
     }

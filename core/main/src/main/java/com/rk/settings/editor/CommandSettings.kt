@@ -30,7 +30,7 @@ fun CommandSelectionDialog(
             val hasChildCommands = patchedChildCommands.isNotEmpty()
             command.copy(
                 childCommands = patchedChildCommands,
-                action = {
+                execute = {
                     commandIds.add(command.id)
                     saveOrder(commandIds)
                 },
@@ -69,7 +69,7 @@ private fun buildAddActions(
     addAll(
         existingCommands.map { command ->
             command.copy(
-                action = {
+                execute = {
                     commandIds.add(command.id)
                     saveOrder(commandIds)
                 },

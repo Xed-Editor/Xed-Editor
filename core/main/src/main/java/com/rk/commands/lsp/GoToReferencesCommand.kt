@@ -15,7 +15,7 @@ class GoToReferencesCommand : LspCommand() {
 
     override fun getLabel(): String = strings.go_to_references.getString()
 
-    override fun action(context: LspActionContext) {
+    override fun execute(context: LspActionContext) {
         goToReferences(
             scope = DefaultScope,
             context = context.currentActivity,

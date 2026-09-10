@@ -15,7 +15,7 @@ class GoToDefinitionCommand : LspCommand() {
 
     override fun getLabel(): String = strings.go_to_definition.getString()
 
-    override fun action(context: LspActionContext) {
+    override fun execute(context: LspActionContext) {
         goToDefinition(
             scope = DefaultScope,
             context = context.currentActivity,

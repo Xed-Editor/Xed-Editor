@@ -110,7 +110,7 @@ abstract class Command {
         id: String = this.id,
         prefix: String? = this.prefix,
         label: () -> String = { this.getLabel() },
-        action: (ActionContext) -> Unit = { ctx -> this.execute(ctx) },
+        execute: (ActionContext) -> Unit = { ctx -> this.execute(ctx) },
         isEnabled: () -> Boolean = { this.isEnabled() },
         isSupported: () -> Boolean = { this.isSupported() },
         icon: () -> Icon = { this.getIcon() },
@@ -129,7 +129,7 @@ abstract class Command {
 
             override fun getLabel(): String = label()
 
-            override fun execute(context: ActionContext) = action(context)
+            override fun execute(context: ActionContext) = execute(context)
 
             override fun isEnabled(): Boolean = isEnabled()
 
@@ -174,10 +174,10 @@ abstract class EditorCommand : Command() {
     final override fun execute(context: ActionContext) {
         val currentTab = commandContext.mainViewModel.currentTab
         val editor = (currentTab as? EditorTab)?.editorState?.editor?.get() ?: return
-        action(EditorActionContext(context.currentActivity, currentTab, editor))
+        execute(EditorActionContext(context.currentActivity, currentTab, editor))
     }
 
-    abstract fun action(context: EditorActionContext)
+    abstract fun execute(context: EditorActionContext)
 
     final override fun onLongClick(context: ActionContext): Boolean {
         val currentTab = commandContext.mainViewModel.currentTab
@@ -205,14 +205,14 @@ abstract class EditorCommand : Command() {
 }
 
 abstract class EditorFileCommand : EditorCommand() {
-    final override fun action(context: EditorActionContext) {
+    final override fun execute(context: EditorActionContext) {
         val currentTab = context.editorTab
         val editor = context.editor
         val file = currentTab.file ?: return
-        action(EditorFileActionContext(context.currentActivity, currentTab, editor, file))
+        execute(EditorFileActionContext(context.currentActivity, currentTab, editor, file))
     }
 
-    abstract fun action(context: EditorFileActionContext)
+    abstract fun execute(context: EditorFileActionContext)
 
     final override fun onLongClick(context: EditorActionContext): Boolean {
         val currentTab = context.editorTab
@@ -241,14 +241,14 @@ abstract class EditorFileCommand : EditorCommand() {
 }
 
 abstract class LspCommand : EditorCommand() {
-    final override fun action(context: EditorActionContext) {
+    final override fun execute(context: EditorActionContext) {
         val currentTab = context.editorTab
         val editor = context.editor
         val baseLspConnector = currentTab.lspConnector ?: return
-        action(LspActionContext(context.currentActivity, currentTab, editor, baseLspConnector))
+        execute(LspActionContext(context.currentActivity, currentTab, editor, baseLspConnector))
     }
 
-    abstract fun action(context: LspActionContext)
+    abstract fun execute(context: LspActionContext)
 
     final override fun onLongClick(context: EditorActionContext): Boolean {
         val currentTab = context.editorTab

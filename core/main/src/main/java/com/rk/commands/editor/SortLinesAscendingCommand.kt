@@ -13,7 +13,7 @@ class SortLinesAscendingCommand : EditorCommand() {
 
     override fun getLabel() = strings.sort_lines_ascending.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         val editor = context.editor
 
         val cursor = editor.cursor

@@ -15,7 +15,7 @@ class CutCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.cut.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         context.editor.cutText()
     }
 

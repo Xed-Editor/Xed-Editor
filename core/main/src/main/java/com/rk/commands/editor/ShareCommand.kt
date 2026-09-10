@@ -19,7 +19,7 @@ class ShareCommand : EditorFileCommand() {
 
     override fun getLabel(): String = strings.share.getString()
 
-    override fun action(context: EditorFileActionContext) {
+    override fun execute(context: EditorFileActionContext) {
         val activity = context.currentActivity
         val file = context.file
 

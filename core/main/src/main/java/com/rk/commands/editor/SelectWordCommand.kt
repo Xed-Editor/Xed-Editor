@@ -14,7 +14,7 @@ class SelectWordCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.select_word.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         context.editor.selectCurrentWord()
     }
 

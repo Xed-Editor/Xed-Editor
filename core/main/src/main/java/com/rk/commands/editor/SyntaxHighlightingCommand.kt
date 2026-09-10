@@ -14,7 +14,7 @@ class SyntaxHighlightingCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.highlighting.getString()
 
-    override fun action(context: EditorActionContext) {}
+    override fun execute(context: EditorActionContext) {}
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.edit_note)
 
@@ -27,7 +27,7 @@ class SyntaxHighlightingCommand : EditorCommand() {
 
                     override fun getLabel(): String = fileType.title
 
-                    override fun action(context: EditorActionContext) {
+                    override fun execute(context: EditorActionContext) {
                         context.editorTab.editorState.textmateScope = fileType.textmateScope!!
                     }
 

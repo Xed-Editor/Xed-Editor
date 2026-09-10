@@ -15,7 +15,7 @@ class DuplicateLineCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.duplicate_line.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         context.editor.duplicateLine()
     }
 

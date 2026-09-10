@@ -15,7 +15,7 @@ class RenameSymbolCommand : LspCommand() {
 
     override fun getLabel(): String = strings.rename_symbol.getString()
 
-    override fun action(context: LspActionContext) {
+    override fun execute(context: LspActionContext) {
         renameSymbol(DefaultScope, context.editorTab)
     }
 
