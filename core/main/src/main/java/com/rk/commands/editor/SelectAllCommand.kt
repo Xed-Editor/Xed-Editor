@@ -14,7 +14,7 @@ class SelectAllCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.select_all.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         context.editor.selectAll()
     }
 

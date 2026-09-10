@@ -15,7 +15,7 @@ class SaveAsCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.save_as.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         context.editorTab.saveAs()
     }
 

@@ -14,7 +14,7 @@ class CopyCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.copy.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         context.editor.copyText()
     }
 

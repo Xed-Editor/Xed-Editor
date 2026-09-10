@@ -17,7 +17,7 @@ class UndoCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.undo.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         val editor = context.editor
         if (editor.canUndo()) editor.undo()
         context.editorTab.editorState.updateUndoRedo()

@@ -23,7 +23,7 @@ class ToggleReadOnlyCommand : EditorCommand() {
         }
     }
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         val editorState = context.editorTab.editorState
         context.editorTab.removeNotice("binary_file")
         editorState.editable = !editorState.editable

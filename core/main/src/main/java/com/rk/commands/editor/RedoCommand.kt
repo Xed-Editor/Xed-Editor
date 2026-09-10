@@ -17,7 +17,7 @@ class RedoCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.redo.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         val editor = context.editor
         if (editor.canRedo()) editor.redo()
         context.editorTab.editorState.updateUndoRedo()

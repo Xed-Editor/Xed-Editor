@@ -14,7 +14,7 @@ class JumpToLineCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.jump_to_line.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         context.editorTab.editorState.apply {
             showJumpToLineDialog = true
             val line = context.editor.cursor.leftLine + 1

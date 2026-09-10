@@ -15,7 +15,7 @@ class FormatSelectionCommand : LspCommand() {
 
     override fun getLabel(): String = strings.format_selection.getString()
 
-    override fun action(context: LspActionContext) {
+    override fun execute(context: LspActionContext) {
         formatDocumentRange(DefaultScope, context.editorTab)
     }
 

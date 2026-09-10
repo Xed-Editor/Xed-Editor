@@ -15,7 +15,7 @@ class PasteCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.paste.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         context.editor.pasteText()
     }
 

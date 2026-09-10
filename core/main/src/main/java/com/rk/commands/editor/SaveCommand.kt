@@ -19,7 +19,7 @@ class SaveCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.save.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         DefaultScope.launch(Dispatchers.IO) { context.editorTab.save() }
     }
 

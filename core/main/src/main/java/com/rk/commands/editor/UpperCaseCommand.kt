@@ -13,7 +13,7 @@ class UpperCaseCommand : EditorCommand() {
 
     override fun getLabel(): String = strings.transform_uppercase.getString()
 
-    override fun action(context: EditorActionContext) {
+    override fun execute(context: EditorActionContext) {
         val editor = context.editor
         if (editor.isTextSelected) {
             val selectionStart = editor.cursorRange.startIndex
