@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.github.chrisbanes.photoview.PhotoView
 import com.rk.activities.main.session.FileTabState
 import com.rk.activities.main.session.TabState
@@ -64,16 +66,26 @@ class ImageTab(
     override val name: String
         get() = "Image viewer"
 
+    var reloadKey by mutableIntStateOf(0)
+
     @Composable
     override fun Content() {
         var state by remember { mutableStateOf<ImageState>(ImageState.Loading) }
         val context = LocalContext.current
 
-        LaunchedEffect(file) {
+        LaunchedEffect(file, reloadKey) {
             state =
                 try {
                     val requestManager = Glide.with(context)
-                    val drawable = withContext(Dispatchers.IO) { requestManager.load(file.toUri()).submit().get() }
+                    val drawable =
+                        withContext(Dispatchers.IO) {
+                            requestManager
+                                .load(file.toUri())
+                                .skipMemoryCache(true)
+                                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                .submit()
+                                .get()
+                        }
                     ImageState.Success(drawable)
                 } catch (_: Exception) {
                     ImageState.Error(strings.resource_loading_error.getString())
@@ -90,7 +102,9 @@ class ImageTab(
                             factory = { context ->
                                 PhotoView(context).apply { scaleType = ImageView.ScaleType.FIT_CENTER }
                             },
-                            update = { view -> Glide.with(view).load(targetState.drawable).into(view) },
+                            update = { view ->
+                                view.setImageDrawable(targetState.drawable)
+                            },
                         )
                     }
                 }
@@ -129,5 +143,19 @@ class ImageTab(
 
     override fun getState(): TabState {
         return FileTabState(file, projectRoot, scopeRoot)
+    }
+
+    override fun onDuplicate(tab: Tab) {
+        reloadKey++
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return file == (other as ImageTab).file
+    }
+
+    override fun hashCode(): Int {
+        return file.hashCode()
     }
 }
