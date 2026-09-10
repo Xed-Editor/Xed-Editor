@@ -71,18 +71,7 @@ fun FormatterSettings(navController: NavController, modifier: Modifier = Modifie
     val lazyListState = rememberLazyListState()
 
     val formatterIds = remember {
-        mutableStateListOf(
-            *Settings.formatters
-                .split("|")
-                .toSet()
-                .let { formatters ->
-                    formatters + Formatters.providers.map { it.id }
-                }
-                .let { formatters ->
-                    formatters + Formatters.LSP_FORMATTER_ID
-                }
-                .toTypedArray()
-        )
+        mutableStateListOf(*Formatters.getFormatterConfiguration().toTypedArray())
     }
     val formatterSources by remember {
         derivedStateOf {

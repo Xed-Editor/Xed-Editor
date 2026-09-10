@@ -222,6 +222,10 @@ object Settings {
             "action_items",
             ToolbarConfiguration.DEFAULT_EDITOR_TOOLBAR_COMMANDS,
         )
+
+    var command_palette_open_count by CachedPreference("command_palette_open_count", 0)
+    var command_palette_swipe_used by CachedPreference("command_palette_swipe_used", false)
+    var command_palette_note_dismissed by CachedPreference("command_palette_note_dismissed", false)
 }
 
 object Preference {

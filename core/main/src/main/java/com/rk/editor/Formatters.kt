@@ -45,6 +45,17 @@ object Formatters {
     val providers: List<FormatterProvider>
         get() = _providers.toList()
 
+    fun getFormatterConfiguration() =
+        Settings.formatters
+            .split("|")
+            .toSet()
+            .let { formatters ->
+                formatters + providers.map { it.id }
+            }
+            .let { formatters ->
+                formatters + LSP_FORMATTER_ID
+            }
+
     @XedExtensionPoint
     fun registerFormatter(provider: FormatterProvider) {
         if (!_providers.contains(provider)) {
@@ -84,7 +95,7 @@ object Formatters {
     }
 
     fun getPreferredSourceForFile(fileExtension: String): FormatterSource? {
-        val formatterIds = Settings.formatters.split("|").toTypedArray()
+        val formatterIds = getFormatterConfiguration()
         val formatters = formatterIds.mapNotNull { id -> getSourceForId(id) }
 
         for (formatterType in formatters) {
@@ -104,7 +115,7 @@ object Formatters {
     }
 
     fun getPreferredSourceForNonLspFile(fileExtension: String): FormatterSource.EXTENSION? {
-        val formatterIds = Settings.formatters.split("|").toTypedArray()
+        val formatterIds = getFormatterConfiguration()
         val formatters = formatterIds.mapNotNull { id -> getSourceForId(id) }
 
         for (formatterType in formatters) {
