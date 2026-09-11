@@ -12,7 +12,6 @@ import com.rk.activities.settings.SettingsRoutes
 import com.rk.editor.Editor
 import com.rk.events.Events
 import com.rk.events.LSPEvent
-import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
 import com.rk.resources.getString
@@ -88,6 +87,8 @@ class LspConnector(
 
             val project = projectCache.computeIfAbsent(projectPath) { LspProject(projectPath) }
 
+            val fileType = FileTypeManager.fromFileName(fileObject.getName())
+
             servers.forEach { server ->
                 val isForceStopped = DefinitionPrevention.isServerPrevented(project, server)
                 if (!isForceStopped && project.getServerDefinition(fileExt, server.serverName) == null) {
@@ -102,8 +103,7 @@ class LspConnector(
 
             lspEditor =
                 withContext(Dispatchers.Main) {
-                    project.getOrCreateEditor(fileObject.getAbsolutePath(),
-                        languageId = FileTypeManager.fromFileName(fileObject.getName()).lspLanguageId).apply {
+                    project.getOrCreateEditor(fileObject.getAbsolutePath(), fileType.lspLanguageId).apply {
                         this.wrapperLanguage = wrapperLanguage
                         this.editor = codeEditor
                         this.isEnableInlayHint = true
