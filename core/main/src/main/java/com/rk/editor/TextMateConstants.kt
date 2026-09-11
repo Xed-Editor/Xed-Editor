@@ -1,8 +1,8 @@
 package com.rk.editor
 
 import android.content.Context
+import com.rk.App.Companion.themeManager
 import com.rk.settings.Settings
-import com.rk.theme.currentTheme
 import com.rk.utils.isDarkTheme
 
 const val TEXTMATE_PREFIX = "textmate/"
@@ -21,13 +21,13 @@ fun getCacheKey(context: Context): String {
         append('_')
         append(Settings.theme)
         append('_')
-        append(currentTheme.value.darkEditorColors.hashCode())
+        append(themeManager.currentTheme.darkEditorColors.hashCode())
         append('_')
-        append(currentTheme.value.lightEditorColors.hashCode())
+        append(themeManager.currentTheme.lightEditorColors.hashCode())
         append('_')
-        append(currentTheme.value.darkTokenColors.hashCode())
+        append(themeManager.currentTheme.darkTokenColors.hashCode())
         append('_')
-        append(currentTheme.value.lightTokenColors.hashCode())
+        append(themeManager.currentTheme.lightTokenColors.hashCode())
         append('_')
         append(Settings.amoled)
         append('_')

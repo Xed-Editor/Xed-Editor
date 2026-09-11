@@ -6,8 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
+import com.rk.App.Companion.themeManager
 import com.rk.settings.Settings
-import com.rk.theme.currentTheme
 import com.rk.utils.isDarkTheme
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
@@ -106,7 +106,7 @@ object ThemeManager {
                 val jsonElement = JsonParser.parseReader(reader)
                 val jsonObject = jsonElement.asJsonObject
 
-                val selectedTheme = currentTheme.value
+                val selectedTheme = themeManager.currentTheme
                 val tokenArray =
                     when {
                         darkTheme -> selectedTheme.darkTokenColors

@@ -46,7 +46,6 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
 import com.rk.theme.UpdatableTheme
-import com.rk.theme.currentTheme
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
 import com.rk.utils.dialogRes
@@ -447,10 +446,10 @@ fun runThemeInstallAction(
 }
 
 fun applyThemeAfterInstall(id: String) {
-    val oldTheme = currentTheme.value
+    val oldTheme = themeManager.currentTheme
     Settings.theme = id
     refreshEditors()
-    DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(currentTheme.value, oldTheme)) }
+    DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(themeManager.currentTheme, oldTheme)) }
 }
 
 fun runIconPackInstallAction(

@@ -62,7 +62,7 @@ open class App : Application() {
         val themeManager: ThemeManager
             get() {
                 if (_themeManager == null) {
-                    _themeManager = ThemeManager(application!!)
+                    _themeManager = ThemeManager()
                 }
 
                 return _themeManager!!

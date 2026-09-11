@@ -11,7 +11,6 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -21,10 +20,6 @@ import com.rk.App.Companion.themeManager
 import com.rk.settings.Settings
 import com.rk.settings.editor.rememberAppTypography
 import com.rk.utils.isDarkTheme
-
-val currentTheme = derivedStateOf {
-    themeManager.loadedThemesState.value.find { it.id == Settings.theme } ?: blueberry
-}
 
 val LocalThemeHolder = staticCompositionLocalOf<ThemeHolder> { error("No ThemeHolder state provided") }
 
@@ -54,7 +49,7 @@ fun XedTheme(
 
             baseColorScheme
         } else {
-            themeHolder = currentTheme.value
+            themeHolder = themeManager.currentTheme
 
             if (darkTheme) {
                 if (highContrastDarkTheme) {

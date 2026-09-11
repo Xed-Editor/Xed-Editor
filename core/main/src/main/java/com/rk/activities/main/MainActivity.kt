@@ -17,6 +17,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rk.App.Companion.themeManager
 import com.rk.activities.main.navigation.MainRouteRegistry
 import com.rk.activities.main.navigation.MainRoutes
 import com.rk.activities.main.session.DocumentStateDatabase
@@ -142,7 +143,7 @@ class MainActivity : AppCompatActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        AppCompatDelegate.setDefaultNightMode(Settings.theme_mode)
+        AppCompatDelegate.setDefaultNightMode(themeManager.calculateEffectiveNightMode())
         super.onCreate(savedInstanceState)
         instance = this
 
