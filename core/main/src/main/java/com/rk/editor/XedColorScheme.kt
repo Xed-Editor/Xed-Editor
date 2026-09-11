@@ -1,7 +1,7 @@
 package com.rk.editor
 
 import android.graphics.Color
-import com.rk.theme.currentTheme
+import com.rk.App.Companion.themeManager
 import com.rk.utils.withAlpha
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
@@ -128,9 +128,9 @@ class XedColorScheme(
 
             val editorColors =
                 if (isDarkMode) {
-                    currentTheme.value.darkEditorColors
+                    themeManager.currentTheme.darkEditorColors
                 } else {
-                    currentTheme.value.lightEditorColors
+                    themeManager.currentTheme.lightEditorColors
                 }
 
             if (editorColors.isNotEmpty()) {

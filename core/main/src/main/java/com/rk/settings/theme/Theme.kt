@@ -45,7 +45,7 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
-import com.rk.theme.currentTheme
+import com.rk.theme.supportsDynamicTheming
 import kotlinx.coroutines.launch
 
 @Composable
@@ -85,6 +85,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                 state = monetState,
                 sideEffect = {
                     Settings.monet = it
+                    themeManager.ensureThemeMode()
                     refreshEditors()
                 },
             )
@@ -102,13 +103,14 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                         RadioButton(
                             modifier = Modifier.padding(start = 16.dp),
                             enabled = !Settings.monet,
-                            selected = currentTheme.value.id == theme.id,
+                            selected = themeManager.currentTheme.id == theme.id,
                             onClick = null,
                         )
                     },
                     sideEffect = {
-                        val oldTheme = currentTheme.value
+                        val oldTheme = themeManager.currentTheme
                         Settings.theme = theme.id
+                        themeManager.ensureThemeMode(theme)
                         refreshEditors()
                         DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(theme, oldTheme)) }
                     },
@@ -228,6 +230,10 @@ fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context) {
             context.getString(strings.auto_mode),
         )
 
+    val theme = themeManager.currentTheme
+    val isLightSupported = theme.isLightSupported
+    val isDarkSupported = theme.isDarkSupported
+
     if (showBottomSheet.value) {
         ModalBottomSheet(onDismissRequest = { showBottomSheet.value = false }, sheetState = bottomSheetState) {
             BottomSheetContent(
@@ -247,19 +253,30 @@ fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context) {
             ) {
                 LazyColumn {
                     itemsIndexed(modes) { index, mode ->
+                        val isEnabled =
+                            when {
+                                Settings.monet && supportsDynamicTheming() -> true
+                                mode == AppCompatDelegate.MODE_NIGHT_NO -> isLightSupported
+                                mode == AppCompatDelegate.MODE_NIGHT_YES -> isDarkSupported
+                                else -> true
+                            }
+
                         PreferenceTemplate(
                             title = { Text(text = modeLabels[index]) },
                             modifier =
-                                Modifier.clickable {
+                                Modifier.clickable(enabled = isEnabled) {
                                     selectedMode = mode
                                     Settings.theme_mode = selectedMode
-                                    AppCompatDelegate.setDefaultNightMode(selectedMode)
+                                    themeManager.ensureThemeMode(theme)
                                     coroutineScope.launch {
                                         bottomSheetState.hide()
                                         showBottomSheet.value = false
                                     }
                                 },
-                            startWidget = { RadioButton(selected = selectedMode == mode, onClick = null) },
+                            enabled = isEnabled,
+                            startWidget = {
+                                RadioButton(selected = selectedMode == mode, onClick = null, enabled = isEnabled)
+                            },
                         )
                     }
                 }

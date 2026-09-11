@@ -1,8 +1,10 @@
 package com.rk.theme
 
-import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.pm.PackageInfoCompat
@@ -79,7 +81,7 @@ private data class LegacyManifest(
     val dark: ThemePaletteNew? = null,
 )
 
-class ThemeManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
+class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
     private val mutex = Mutex()
     private val json = Json {
         ignoreUnknownKeys = true
@@ -93,8 +95,32 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
     private val _storeThemes = MutableStateFlow<Map<String, StoreTheme>>(emptyMap())
     val storeThemes: StateFlow<Map<String, StoreTheme>> = _storeThemes.asStateFlow()
 
+    val currentTheme by derivedStateOf {
+        loadedThemesState.value.find { it.id == Settings.theme } ?: blueberry
+    }
+
     private fun setLoadedThemes(themes: List<ThemeHolder>) {
         _loadedThemesState.value = themes
+        ensureThemeMode()
+    }
+
+    fun calculateEffectiveNightMode(theme: ThemeHolder = currentTheme): Int {
+        if (Settings.monet && supportsDynamicTheming()) return Settings.theme_mode
+
+        return when {
+            !theme.isLightSupported -> AppCompatDelegate.MODE_NIGHT_YES
+            !theme.isDarkSupported -> AppCompatDelegate.MODE_NIGHT_NO
+            else -> Settings.theme_mode
+        }
+    }
+
+    fun ensureThemeMode(theme: ThemeHolder = currentTheme) {
+        val targetMode = calculateEffectiveNightMode(theme)
+        launch(Dispatchers.Main.immediate) {
+            if (AppCompatDelegate.getDefaultNightMode() != targetMode) {
+                AppCompatDelegate.setDefaultNightMode(targetMode)
+            }
+        }
     }
 
     fun isInstalled(id: String) = localThemes.value.containsKey(id)
@@ -127,10 +153,10 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
 
     fun removeLocalTheme(id: String) {
         if (Settings.theme == id) {
-            val oldTheme = currentTheme.value
+            val oldTheme = currentTheme
             Settings.theme = blueberry.id
             refreshEditors()
-            DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(currentTheme.value, oldTheme)) }
+            DefaultScope.launch { Events.publish(AppEvent.ThemeChanged(currentTheme, oldTheme)) }
         }
         _localThemes.update { it - id }
         setLoadedThemes(_loadedThemesState.value.filterNot { it.id == id })
@@ -484,6 +510,8 @@ class ThemeManager(private val context: Application) : CoroutineScope by Corouti
             darkEditorColors = mapEditorColorScheme(dark?.editorColors),
             lightTokenColors = lightTokenColors,
             darkTokenColors = darkTokenColors,
+            isLightSupported = light != null,
+            isDarkSupported = dark != null,
         )
     }
 

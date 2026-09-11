@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -40,8 +39,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.blankj.utilcode.util.ThreadUtils
 import com.caverock.androidsvg.SVG
+import com.rk.App.Companion.themeManager
 import com.rk.DefaultScope
 import com.rk.activities.main.ui.snackbarHostStateRef
 import com.rk.extension.ActivityProvider
@@ -53,8 +54,6 @@ import com.rk.resources.getQuantityString
 import com.rk.resources.getString
 import com.rk.resources.plurals
 import com.rk.resources.strings
-import com.rk.settings.Settings
-import com.rk.theme.currentTheme
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -148,7 +147,7 @@ fun toast(message: String?) {
 
 /** Returns true if the currently selected user theme is dark. If it's set to system, the system theme is used. */
 fun isDarkTheme(ctx: Context): Boolean {
-    return when (Settings.theme_mode) {
+    return when (themeManager.calculateEffectiveNightMode()) {
         AppCompatDelegate.MODE_NIGHT_YES -> true
         AppCompatDelegate.MODE_NIGHT_NO -> false
         else -> isSystemInDarkTheme(ctx)
@@ -320,9 +319,9 @@ fun getUnderlineColor(context: Context, fileTreeViewModel: FileTreeViewModel, fi
     val diagnosticSeverity = file?.let { diagnosedNodes[it] } ?: -1
     val editorColors =
         if (isDarkTheme(context)) {
-            currentTheme.value.darkEditorColors
+            themeManager.currentTheme.darkEditorColors
         } else {
-            currentTheme.value.lightEditorColors
+            themeManager.currentTheme.lightEditorColors
         }
     val underlineColor =
         when (diagnosticSeverity) {

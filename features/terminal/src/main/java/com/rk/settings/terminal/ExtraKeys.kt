@@ -36,7 +36,7 @@ import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorNotice
 import com.rk.theme.GitColorScheme
 import com.rk.utils.isSystemInDarkTheme
-import com.rk.utils.openUrl
+import com.rk.utils.openDocs
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -114,8 +114,7 @@ fun TerminalExtraKeys() {
                 actionButton = {
                     IconButton(
                         onClick = {
-                            val url = "https://wiki.termux.com/wiki/Touch_Keyboard#Extra_Keys_Row"
-                            context.openUrl(url)
+                            context.openDocs("terminal/#virtual-keys-extra-keys")
                         }
                     ) {
                         Icon(
