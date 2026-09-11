@@ -180,7 +180,7 @@
     <string name="no_runners">Скриптов нет</string>
     <string name="new_runner">Новый скрипт</string>
     <string name="runner_name">Имя скрипта</string>
-    <string name="runner_regex">Шаблон регулярки</string>
+    <string name="runner_regex">Паттерн Regex</string>
     <string name="runner_name_exists">Имя скрипта уже существует</string>
     <string name="edit_runner">Редактировать скрипт</string>
     <string name="info_runners">Небольшие bash-скрипты для запуска файла/проекта. Создайте скрипт и нажмите на него, чтобы открыть в редакторе.</string>
@@ -304,7 +304,7 @@
     <string name="built_in">Встроенный</string>
     <string name="invalid_intent">Получено неверное намерение:\n%s</string>
     <string name="select_language">Выбрать язык</string>
-    <string name="delete_failed">Невозможно удалить файл</string>
+    <string name="delete_failed">Невозможно удалить файлы</string>
     <string name="invalid_address">Неверный адрес</string>
     <string name="select_all">Выбрать всё</string>
     <string name="select_word">Выбрать слово</string>
@@ -800,4 +800,18 @@
     <string name="git_conflict_detection">Обнаружение конфликтов</string>
     <string name="git_conflict_detection_desc">Показывать маркеры конфликтов и варианты их разрешения в редакторе</string>
     <string name="credentials_github">Для подключения к GitHub необходимо ввести токен PAT, а не пароль от вашей учётной записи GitHub.</string>
+    <string name="scoped_tabs_desc">Показывать вкладки только текущего проекта</string>
+    <string name="delete_incomplete">Некоторые файлы не могут быть удалены</string>
+    <string name="app_log_limit">Лимит логов приложения</string>
+    <string name="issue_count">%d проблемы</string>
+    <string name="running">Запуск…</string>
+    <string name="finished">Завершенный</string>
+    <string name="collapse">Проблема</string>
+    <string name="expand">Расширить</string>
+    <string name="package_format_error">Xed-Editor поддерживает установку только пакетов .zip, .iconpack или .xed</string>
+    <string name="theme_format_error">Сейчас Xed-Editor не поддерживает установку устаревших одиночных JSON тем. Если это ваша тема, пожалуйства, обновите ее до последнего теймплейта и попробуйте снова.</string>
+    <string name="unknown_package_format">Не удалось определить тип пакета.</string>
+    <string name="no_reviews">Нет отзывов</string>
+    <string name="command_palette_swipe_hint">Совет: Можно открыть палитру свайпнув тулбар вниз.</string>
+    <string name="scoped_tabs">Ограниченный таб</string>
 </resources>
