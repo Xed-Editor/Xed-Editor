@@ -812,4 +812,5 @@
     <string name="theme_format_error">Xed-Editor більше не підтримує встановлення застарілих однофайлових JSON-тем. Якщо це ваша тема, будь ласка, оновіть її згідно з поточним шаблоном тем і спробуйте знову.</string>
     <string name="unknown_package_format">Не вдалося визначити тип пакета.</string>
     <string name="no_reviews">Немає відгуків</string>
+    <string name="command_palette_swipe_hint">Підказка: Ви також можете відкрити панель команд, провівши від панелі інструментів вниз!</string>
 </resources>
