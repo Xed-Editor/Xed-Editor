@@ -131,6 +131,9 @@ class MainViewModel : ViewModel() {
     }
 
     fun showCommandPalette() {
+        if (Settings.command_palette_open_count < 3) {
+            Settings.command_palette_open_count++
+        }
         _showCommandPalette.value = true
         _commandPaletteInitialChildCommands.value = null
         _commandPaletteInitialPlaceholder.value = null

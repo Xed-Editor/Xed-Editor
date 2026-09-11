@@ -168,6 +168,9 @@ fun MainActivity.MainContentHost(
                             },
                             onDragEnd = {
                                 val shouldOpen = accumulator >= softThreshold
+                                if (shouldOpen) {
+                                    Settings.command_palette_swipe_used = true
+                                }
                                 scope.launch {
                                     viewModel.setDraggingPalette(shouldOpen)
                                     viewModel.draggingPaletteProgress.animateTo(

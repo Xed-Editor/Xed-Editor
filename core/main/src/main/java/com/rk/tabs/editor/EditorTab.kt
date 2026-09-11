@@ -404,7 +404,7 @@ open class EditorTab(
     suspend fun save() = saveMutex.withLock {
         if (isReadOnly) return@withLock
         val editor = editorState.editor.get()
-        if (Settings.format_on_save && editor != null && !editor.isFormatting) {
+        if (Settings.format_on_save && editor != null && !editor.isFormatting && editor.hasFormatter()) {
             val deferred = CompletableDeferred<Boolean>()
             editorState.formatDeferred = deferred
 

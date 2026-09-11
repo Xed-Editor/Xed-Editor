@@ -20,6 +20,7 @@ import com.rk.theme.GitColorScheme
 import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.graphics.inlayHint.ColorInlayHintRenderer
 import io.github.rosemoe.sora.graphics.inlayHint.TextInlayHintRenderer
+import io.github.rosemoe.sora.lang.EmptyLanguage
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.editor.LspLanguage
 import io.github.rosemoe.sora.text.CharPosition
@@ -408,5 +409,10 @@ class Editor : CodeEditor {
     fun isUrlSelected(): Boolean {
         val text = getSelectedText() ?: return false
         return urlRegex.matches(text)
+    }
+
+    fun hasFormatter(): Boolean {
+        val formatter = formatterProvider?.getFormatter(this) ?: editorLanguage.getFormatter()
+        return formatter != EmptyLanguage.EmptyFormatter.INSTANCE
     }
 }
