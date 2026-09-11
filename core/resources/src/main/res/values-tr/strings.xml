@@ -809,4 +809,5 @@
     <string name="theme_format_error">Xed-Editor artık eski tek dosyalı JSON temalarının yüklenmesini desteklemiyor. Eğer bu sizin temanızsa, lütfen mevcut tema şablonuna göre güncelleyin ve tekrar deneyin.</string>
     <string name="unknown_package_format">Paket türü belirlenemedi.</string>
     <string name="no_reviews">Henüz yorum yok</string>
+    <string name="command_palette_swipe_hint">İpucu: Komut paletini araç çubuğundan aşağı kaydırarak da açabilirsiniz!</string>
 </resources>
