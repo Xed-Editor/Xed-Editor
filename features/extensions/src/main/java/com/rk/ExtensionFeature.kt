@@ -35,12 +35,12 @@ import com.rk.settings.SettingsRegistry
 import com.rk.settings.extension.ExtensionSettings
 import com.rk.settings.extension.PackageDetail
 import com.rk.settings.extension.StoreScreen
+import java.io.File
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 class ExtensionFeature : Feature {
     override val toggle =
@@ -76,7 +76,7 @@ class ExtensionFeature : Feature {
                         val manifest = XedPackage.loadManifest(tempDir)
                         if (manifest != null) {
                             val packageIcon = tempDir.resolve("icon.png")
-                            val iconFile = FileWrapper(packageIcon).copyToTempDir()
+                            val iconFile = FileWrapper(packageIcon).takeIf { it.exists() }?.copyToTempDir()
 
                             withContext(Dispatchers.Main) {
                                 MainActivity.instance?.viewModel?.openPackageInstallDialog(manifest, tempFile, iconFile)

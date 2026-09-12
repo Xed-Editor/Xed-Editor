@@ -46,7 +46,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 @Composable
-fun XedInstallDialog(manifest: PackageManifest, icon: File, packageFile: File, onDismiss: () -> Unit) {
+fun XedInstallDialog(manifest: PackageManifest, icon: File?, packageFile: File, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
