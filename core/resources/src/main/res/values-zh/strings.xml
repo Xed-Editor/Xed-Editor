@@ -791,4 +791,18 @@
     <string name="git_conflict_detection_desc">在编辑器中显示冲突标记和解决冲突的选项</string>
     <string name="git_gutter_indication">变更标识</string>
     <string name="git_gutter_indication_desc">对发生增删改的行显示变更标识</string>
+    <string name="scoped_tabs_desc">只显示属于当前项目的标签页</string>
+    <string name="delete_incomplete">部分文件无法被删除</string>
+    <string name="app_log_limit">限制应用日志量</string>
+    <string name="issue_count">%d 个问题</string>
+    <string name="running">正在运行……</string>
+    <string name="finished">已完成</string>
+    <string name="collapse">折叠</string>
+    <string name="expand">展开</string>
+    <string name="package_format_error">Xed-Editor 只支持安装 .zip、.iconpack 和 .xed 包。</string>
+    <string name="theme_format_error">Xed-Editor 不再支持安装过时的单文件 JSON 主题。如果你是此主题的所有者，请根据当前主题模版更新主题并重试。</string>
+    <string name="unknown_package_format">无法识别包类型。</string>
+    <string name="no_reviews">无评价</string>
+    <string name="command_palette_swipe_hint">提示：从工具栏向下拉动，也能打开命令面板！</string>
+    <string name="scoped_tabs">项目标签页</string>
 </resources>
