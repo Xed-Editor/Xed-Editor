@@ -48,7 +48,7 @@ fun List<EditorTab>.filterWithFiles(predicate: (EditorTab, FileObject) -> Boolea
 data class PendingPackageInstall(
     val manifest: PackageManifest,
     val packageFile: File,
-    val icon: File,
+    val icon: File?,
 )
 
 class MainViewModel : ViewModel() {
@@ -113,7 +113,7 @@ class MainViewModel : ViewModel() {
         _isDraggingPalette.value = value
     }
 
-    fun openPackageInstallDialog(manifest: PackageManifest, file: File, icon: File) {
+    fun openPackageInstallDialog(manifest: PackageManifest, file: File, icon: File?) {
         _pendingPackageInstall.value = PendingPackageInstall(manifest, file, icon)
     }
 
