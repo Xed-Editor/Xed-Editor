@@ -171,7 +171,7 @@
     <string name="new_runner">Nový spouštěč</string>
     <string name="runner_name">Jméno spouštěče</string>
     <string name="runner_regex">Vzor regexu (např. .*\\.py)</string>
-    <string name="invalid_runner_name">Jsou povoleny jenom písměna, číslice, podtržítka a pomlčky</string>
+    <string name="invalid_runner_name">Jsou povoleny pouze písmena, číslice, podtržítka a pomlčky</string>
     <string name="invalid_regex">Neplatný vzor regexu</string>
     <string name="runner_name_exists">Jméno spouštěče bylo už použito</string>
     <string name="edit_runner">Upravit spouštěč</string>
@@ -490,7 +490,7 @@
     <string name="resource_loading_error">Selhalo načtení prostředku</string>
     <string name="compact_folders">Sbalit složky</string>
     <string name="compact_folders_drawer">Sbalit složky ve postranním panelu</string>
-    <string name="compact_folders_drawer_desc">Sbalit složky s jenom jedním potomkem do jedné šložky v postranním panelu</string>
+    <string name="compact_folders_drawer_desc">Sbalit složky s pouze jedním potomkem do jedné složky v postranním panelu</string>
     <string name="indexing">Indexování…</string>
     <string name="file_name_opened">%s (Otevřeno)</string>
     <string name="index_project">Indexovat projekt</string>
@@ -542,8 +542,8 @@
     <string name="ask_multiple_unsaved">Opravdu chcete všechny neuložené soubory zahodit?</string>
     <string name="fullscreen">Celá obrazovka</string>
     <string name="fullscreen_desc">Spustit aplikaci v režimu celé obrazovky</string>
-    <string name="smart_toolbar">Chytrý postranní panel</string>
-    <string name="smart_toolbar_desc">Skrýt postranní panel při upravování pro uvolnění místa na obrazovce</string>
+    <string name="smart_toolbar">Chytrá nástrojová lišta</string>
+    <string name="smart_toolbar_desc">Skrýt nástrojovou lištu při upravování pro uvolnění místa na obrazovce</string>
     <string name="ask_lsp_update">Chtěli byste aktualizovat \'%s\' jazykový server?</string>
     <string name="file_actions">Akce souboru</string>
     <string name="show_minimap">Zobrazit minimapu</string>
@@ -730,7 +730,7 @@
     <string name="discard_changes">Zahodit změny</string>
     <string name="discard_changes_msg">Opravdu chcete zahodit vaše lokální změny pro \'%s\' Tato akce nemůže být vrácena zpět.</string>
     <string name="discard_failed">Zahození selhalo: %s</string>
-    <string name="incompatible_icon_pack_warning">Tato sada ikon není kompatibilní s vaší aktuální verzí Xed-Editoru. Chcete i tak pokračovat?</string>
+    <string name="incompatible_icon_pack_warning">Tato sada ikon není kompatibilní s vaší verzí Xed-Editoru. Chcete i tak pokračovat?</string>
     <string name="comment">Komentář</string>
     <string name="compression_method">Metoda komprese</string>
     <string name="compression_ratio">Poměr komprese</string>
@@ -793,4 +793,17 @@
     <string name="data_loss_risk_content">Tato aplikace je poskytována s vědomím, že ke ztrátě dat může dojít v důsledku nepředvídatelných okolností, včetně, ale nikoli výhradně: nestability softwaru, selhání systému, neočekávaného ukončení nebo problémů s hardwarem úložiště. Uživatelé jsou výhradně zodpovědní za udržování nezávislých, pravidelných záloh všech důležitých dat.</string>
     <string name="no_warranty_content">Tento software je distribuován pod licencí GNU General Public License v3.0 a je poskytován TAK, JAK JE, BEZ JAKÉKOLI ZÁRUKY, ať už výslovné nebo implicitní, včetně, ale nikoli výhradně, záruk prodejnosti, vhodnosti pro konkrétní účel a neporušení práv.</string>
     <string name="not_liable_content">Vývojáři ani držitelé autorských práv nenesou v žádném případě odpovědnost za jakékoli nároky, škody nebo ztráty vzniklé v důsledku používání tohoto softwaru. To zahrnuje mimo jiné: ztrátu dat, poruchy systému, ztrátu příjmů nebo jakékoli náhodné či následné škody, a to i v případě, že byli na možnost takových škod upozorněni.</string>
+    <string name="unknown_package_format">Nešlo zjistit typ balíku.</string>
+    <string name="package_format_error">Xed-Editor pouze podporuje instalovat .zip, .iconpack nebo .xed balíky.</string>
+    <string name="theme_format_error">Xed-Editor už nepodporuje instalací jedno-souborových témat v JSONu. Jestli je to vaše téma, prosím ho aktualizujte podle aktuální šablony pro témata a zkuste to znovu.</string>
+    <string name="no_reviews">Žádné recenze</string>
+    <string name="command_palette_swipe_hint">Rada: Můžete také otevřít paletu příkazů pomocí posunutím prstem dolů ze nástrojové lišty!</string>
+    <string name="scoped_tabs">Karty ohledně projektu</string>
+    <string name="scoped_tabs_desc">Zobrazit pouze karty souvisejícím s aktuálním projektem</string>
+    <string name="delete_incomplete">Některé soubory nešly odstranit</string>
+    <string name="issue_count">%d problémy/ů</string>
+    <string name="running">Běží…</string>
+    <string name="finished">Dokončen</string>
+    <string name="collapse">Sbalit</string>
+    <string name="expand">Rozbalit</string>
 </resources>
