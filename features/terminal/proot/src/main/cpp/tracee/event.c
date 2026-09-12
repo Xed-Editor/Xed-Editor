@@ -536,9 +536,11 @@ int handle_tracee_event(Tracee *tracee, int tracee_status)
 					 * and seccomp policy raises SIGSYS on -1 syscall,
 					 * set tracee flag to ignore next SIGSYS.  */
 					if (was_sysenter) {
-						tracee->skip_next_seccomp_signal = (
-								seccomp_after_ptrace_enter &&
-								get_sysnum(tracee, CURRENT) == PR_void);
+						tracee->skip_next_seccomp_signal =
+								(get_sysnum(tracee, CURRENT) == PR_void);
+					}
+					else {
+						tracee->skip_next_seccomp_signal = false;
 					}
 
 					/* Redeliver signal suppressed during
@@ -696,7 +698,7 @@ int handle_tracee_event(Tracee *tracee, int tracee_status)
 					translate_syscall(tracee);
 				}
 
-				if (tracee->skip_next_seccomp_signal || (seccomp_after_ptrace_enter && siginfo.si_syscall == SYSCALL_AVOIDER)) {
+				if (tracee->skip_next_seccomp_signal || siginfo.si_syscall == (int) SYSCALL_AVOIDER) {
 					VERBOSE(tracee, 4, "suppressed SIGSYS after void syscall");
 					tracee->skip_next_seccomp_signal = false;
 					signal = 0;
