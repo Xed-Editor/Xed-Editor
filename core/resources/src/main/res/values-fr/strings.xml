@@ -800,4 +800,10 @@
     <string name="git_gutter_indication">Indicateur d\'espacement</string>
     <string name="theme_format_changed">Le format du thème a changé. Ce format n\'est plus supporté</string>
     <string name="unknown_package">Type de paquetage inconnu</string>
+    <string name="scoped_tabs_desc">Affiche uniquement les onglets appartenant au projet actuel</string>
+    <string name="delete_incomplete">Certains fichiers n\'ont pas pu être supprimés</string>
+    <string name="issue_count">%d problèmes</string>
+    <string name="running">En cours…</string>
+    <string name="finished">Terminé</string>
+    <string name="unknown_package_format">Le type de paquetage n\'a pas pu être déterminé.</string>
 </resources>
