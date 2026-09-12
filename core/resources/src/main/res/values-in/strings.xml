@@ -804,4 +804,6 @@
     <string name="package_format_error">Xed-Editor hanya mendukung penginstalan paket berformat .zip, .iconpack, atau .xed.</string>
     <string name="theme_format_error">Xed-Editor tidak lagi mendukung penginstalan tema JSON satu file lama. Jika tema Anda termasuk dalam kategori ini, silakan perbarui tema tersebut sesuai dengan template tema terkini, lalu coba lagi.</string>
     <string name="unknown_package_format">Tidak dapat menentukan tipe paket.</string>
+    <string name="no_reviews">Belum ada ulasan</string>
+    <string name="command_palette_swipe_hint">Tips: Anda juga bisa membuka palet perintah dengan menggeser ke bawah dari bilah alat!</string>
 </resources>
