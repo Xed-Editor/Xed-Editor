@@ -92,8 +92,7 @@ class LspConnector(
             servers.forEach { server ->
                 val isForceStopped = DefinitionPrevention.isServerPrevented(project, server)
                 if (!isForceStopped && project.getServerDefinition(fileExt, server.serverName) == null) {
-                    val serverDef =
-                        server.createServerDefinition(this@withContext, fileExt, fileType.lspLanguageId, project)
+                    val serverDef = server.createServerDefinition(this@withContext, fileExt, project)
                     try {
                         project.addServerDefinition(serverDef)
                     } catch (e: Exception) {
@@ -162,7 +161,6 @@ class LspConnector(
     private fun LspServer.createServerDefinition(
         scope: CoroutineScope,
         fileExt: String,
-        languageId: String? = null,
         lspProject: LspProject,
     ): CustomLanguageServerDefinition {
 
@@ -176,11 +174,11 @@ class LspConnector(
 
         return object :
             CustomLanguageServerDefinition(
-                ext = languageId ?: fileExt,
+                ext = fileExt,
                 serverConnectProvider =
                     ServerConnectProvider { getConnectionConfig().providerFactory().create(instance) },
                 name = serverName,
-                extensionsOverride = languageId?.let { listOf(it) } ?: supportedExtensions,
+                extensionsOverride = supportedExtensions,
                 expectedCapabilitiesOverride = expectedCapabilities,
             ) {
 
