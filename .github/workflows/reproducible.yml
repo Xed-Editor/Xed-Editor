@@ -40,12 +40,17 @@ jobs:
             git checkout "$CLEAN_REF"
           fi
 
-      - name: Detect NDK Version
+      - name: Detect NDK Versions
         run: |
-          # Dynamically extract NDK version from build files
-          NDK_VERSION=$(grep -rnw . -e "ndkVersion" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "29.0.13846066")
-          echo "Detected NDK version: $NDK_VERSION"
-          echo "NDK_VERSION=$NDK_VERSION" >> $GITHUB_ENV
+          # Dynamically extract every distinct NDK version referenced by the build files
+          NDK_VERSIONS=$(grep -rhoE 'ndkVersion[[:space:]]*=[[:space:]]*"[0-9.]+"' \
+            --include='*.gradle' --include='*.gradle.kts' . \
+            | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -u | tr '\n' ' ')
+          if [ -z "$NDK_VERSIONS" ]; then
+            NDK_VERSIONS="29.0.14206865"
+          fi
+          echo "Detected NDK versions: $NDK_VERSIONS"
+          echo "NDK_VERSIONS=$NDK_VERSIONS" >> $GITHUB_ENV
 
 
 
@@ -72,11 +77,14 @@ jobs:
           # Accept licenses using the new sdkmanager
           yes | /usr/local/lib/android/sdk/cmdline-tools/20.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk --licenses
           
-          # Install the exact cmake and dynamically detected ndk version
-          echo "Installing NDK version: $NDK_VERSION"
+          # Install the exact cmake and every detected ndk version
+          echo "Installing NDK versions: $NDK_VERSIONS"
+          PKGS=("cmake;4.1.2")
+          for v in $NDK_VERSIONS; do
+            PKGS+=("ndk;$v")
+          done
           /usr/local/lib/android/sdk/cmdline-tools/20.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk \
-            "cmake;4.1.2" \
-            "ndk;$NDK_VERSION"
+            "${PKGS[@]}"
 
 
 
@@ -197,10 +205,6 @@ jobs:
           sed -ri '/foojay-resolver-convention/d' settings.gradle.kts || true
           sed -r '/signingConfigs.getByName/d' -i app/build.gradle.kts || true
           
-          # Configure exact NDK location dynamically
-          export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/$NDK_VERSION
-          echo "ndk.dir=${ANDROID_NDK}" >> local.properties
-          
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
             ./gradlew assembleRelease --no-daemon
             find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
@@ -270,10 +274,6 @@ jobs:
         run: |
           echo "No reference APK provided. Checking local build determinism by building a second time..."
           ./gradlew clean
-          
-          # Configure exact NDK location dynamically
-          export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/$NDK_VERSION
-          echo "ndk.dir=${ANDROID_NDK}" >> local.properties
           
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
             ./gradlew assembleRelease --no-daemon
