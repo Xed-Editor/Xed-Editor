@@ -179,7 +179,7 @@
     <string name="disable_virtual_kbd_desc">Virtuelle Tastatur deaktivieren, wenn eine Hardware-Tastatur verfügbar ist</string>
     <string name="toggle_word_wrap">Zeilenumbruch umschalten</string>
     <string name="warning_private_dir">Der Inhalt dieses Verzeichnisses wird gelöscht, wenn du die Daten löscht oder Xed-Editor deinstallierst</string>
-    <string name="runner_regex">Regex-Ausdruck</string>
+    <string name="runner_regex">Regulärer Ausdruck (z.B. .*\\.py)</string>
     <string name="invalid_runner_name">Nur Buchstaben, Zahlen, Unterstriche und Bindestriche erlaubt</string>
     <string name="invalid_regex">Ungültiger Regex-Ausdruck</string>
     <string name="timeout">Download wegen Zeitüberschreitung abgebrochen. Bitte stelle sicher, dass deine Internetverbindung stabil ist</string>
@@ -324,7 +324,7 @@
     <string name="theme_flipper_desc">Den Thema-Modus ständig alle 7s ändern</string>
     <string name="invalid_intent">Ungültiger Intent empfangen:\n%s</string>
     <string name="select_language">Sprache auswählen</string>
-    <string name="delete_failed">Datei konnte nicht gelöscht werden</string>
+    <string name="delete_failed">Dateien konnten nicht gelöscht werden</string>
     <string name="add_parent_command">Übergeordneten Befehl hinzufügen</string>
     <string name="change_extra_symbols">Zusätzliche Symbole bearbeiten</string>
     <string name="change_extra_symbols_desc">Zeichen im Zusatztastenfeld anpassen</string>
@@ -789,4 +789,14 @@
     <string name="credentials_github">Um dich mit GitHub zu verbinden, musst du einen PAT-Token eingeben, nicht das Passwort deines GitHub-Kontos.</string>
     <string name="collapse">Einklappen</string>
     <string name="expand">Ausklappen</string>
+    <string name="scoped_tabs_desc">Nur Tabs aus dem aktuellen Projekt anzeigen</string>
+    <string name="delete_incomplete">Einige Dateien konnten nicht gelöscht werden</string>
+    <string name="git_init_error">Repository konnte nicht initialisiert werden: %s</string>
+    <string name="checkout">Checkout</string>
+    <string name="merge">Merge</string>
+    <string name="rebase">Rebase</string>
+    <string name="running">Läuft…</string>
+    <string name="finished">Beendet</string>
+    <string name="package_format_error">Xed-Editor unterstützt nur .zip, .iconpack oder .xed Pakete zur Installation.</string>
+    <string name="unknown_package_format">Pakettyp wurde nicht erkannt.</string>
 </resources>
