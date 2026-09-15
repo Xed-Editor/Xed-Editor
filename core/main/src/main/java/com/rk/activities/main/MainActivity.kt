@@ -42,6 +42,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.support.handleSupport
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
+import com.rk.utils.LoadingPopup
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -125,6 +126,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun completeSignIn(uri: Uri) {
+        val loadingPopup = LoadingPopup(this)
+        loadingPopup.setMessage(strings.connecting.getString(this))
+        loadingPopup.show()
         AccountManager.completeSignIn(uri)
             .onSuccess { user ->
                 toast(
@@ -139,7 +143,8 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
             }
-            .onFailure { toast(it.message ?: strings.account_sign_in_failed.getString()) }
+            .onFailure { errorDialog(it) }
+        loadingPopup.hide()
     }
 
     suspend fun handleIntent(intent: Intent) {
