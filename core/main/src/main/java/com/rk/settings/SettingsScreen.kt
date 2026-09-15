@@ -7,10 +7,12 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -40,6 +42,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.account.ProfileIcon
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -57,7 +60,9 @@ private fun Categories(navController: NavController) {
             account?.user?.let { user ->
                 user.name?.takeIf { it.isNotBlank() } ?: user.email.ifBlank { null }
             } ?: stringResource(strings.account_desc),
-        iconResource = drawables.person,
+        startWidget = {
+            ProfileIcon(user = account?.user, avatarSize = 24.dp)
+        },
         onNavigate = { navController.navigate(SettingsRoutes.Account.route) },
     )
 
@@ -89,7 +94,7 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.Keybindings.route) },
     )
 
-    SettingsRegistry.categories.value.forEach { category ->
+    SettingsRegistry.categories.collectAsState().value.forEach { category ->
         PreferenceCategory(
             label = category.label,
             description = category.description,

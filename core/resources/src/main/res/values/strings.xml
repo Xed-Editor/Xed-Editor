@@ -810,7 +810,7 @@
     <string name="command_palette_swipe_hint">Tip: You can also open the command palette by swiping down from the toolbar!</string>
     <string name="retry">Retry</string>
 
-    <string name="account_desc">Sign in with xed-editor.app to publish packages and manage your reviews</string>
+    <string name="account_desc">Sign in with xed-editor.app</string>
     <string name="account_sign_in_title">Sign in to Xed-Editor</string>
     <string name="account_sign_in_desc">Use your xed-editor.app account to publish extensions, themes and icon packs, and to manage your reviews across devices.</string>
     <string name="account_sign_in_button">Sign in with xed-editor.app</string>
