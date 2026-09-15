@@ -755,4 +755,8 @@
     <string name="git_conflict_detection">Wykrywaj konflikty</string>
     <string name="git_gutter_indication_desc">Pokaż znaczniki zmiany linijek dla dodanych, edytowanych oraz usuniętych linijek</string>
     <string name="git_gutter_indication">Wskazuj zmiany</string>
+    <string name="show_color_previews">Podgląd kolorów</string>
+    <string name="show_color_previews_desc">Pokaż podgląd kolorów w edytorze gdy serwer językowy nie jest połączony</string>
+    <string name="browse_icon_packs">Przeglądaj paczki ikon</string>
+    <string name="browse_themes">Przeglądaj motywy</string>
 </resources>
