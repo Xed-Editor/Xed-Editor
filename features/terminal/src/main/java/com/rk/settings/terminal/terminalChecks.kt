@@ -44,10 +44,10 @@ inline fun terminalChecks(): SnapshotStateList<Check> {
                     var exitCode = 999
 
                     try {
-                        printLog("Creating a temporary sandbox environment...")
+                        printLog("Testing PRoot executable...")
 
                         val process =
-                            ProcessBuilder(libproot.absolutePath, "-0", "-r", "/", "true")
+                            ProcessBuilder(libproot.absolutePath, "--version")
                                 .apply {
                                     environment()["PROOT_TMP_DIR"] = getTempDir().absolutePath
                                     environment()["PROOT_LOADER"] = prootloader.absolutePath
