@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.rk.account.AccountManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -47,6 +50,17 @@ fun SettingsScreen(navController: NavController) {
 
 @Composable
 private fun Categories(navController: NavController) {
+    val account by AccountManager.session.collectAsState()
+    PreferenceCategory(
+        label = stringResource(strings.account),
+        description =
+            account?.user?.let { user ->
+                user.name?.takeIf { it.isNotBlank() } ?: user.email.ifBlank { null }
+            } ?: stringResource(strings.account_desc),
+        iconResource = drawables.person,
+        onNavigate = { navController.navigate(SettingsRoutes.Account.route) },
+    )
+
     PreferenceCategory(
         label = stringResource(id = strings.app),
         description = stringResource(id = strings.app_desc),
