@@ -16,6 +16,7 @@ import com.rk.editor.CodeHighlighter
 import com.rk.editor.FontCache
 import com.rk.editor.KeywordManager
 import com.rk.editor.LanguageManager
+import com.rk.extension.api.RestrictedAPI
 import com.rk.icons.pack.IconPackManager
 import com.rk.lsp.FileIconProvider
 import com.rk.lsp.LspPersistence

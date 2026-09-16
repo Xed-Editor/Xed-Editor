@@ -2,6 +2,8 @@ package com.rk.feature
 
 import android.app.Activity
 import android.app.Application
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.rk.icons.Icon
@@ -51,6 +53,13 @@ object FeatureRegistry {
     val toggles: StateFlow<List<FeatureToggle>> = _toggles.asStateFlow()
 
     init {
+        registerToggle(FeatureToggle(
+            name = "Account",
+            key = "account",
+            //disabled by default for now
+            default = BuildConfig.DEBUG,
+            icon = Icon.VectorIcon(Icons.Outlined.Person)
+        ))
         registerToggle(
             FeatureToggle(
                 name = strings.debug_options.getString(),

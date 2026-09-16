@@ -53,18 +53,21 @@ fun SettingsScreen(navController: NavController) {
 
 @Composable
 private fun Categories(navController: NavController) {
-    val account by AccountManager.session.collectAsState()
-    PreferenceCategory(
-        label = stringResource(strings.account),
-        description =
-            account?.user?.let { user ->
-                user.name?.takeIf { it.isNotBlank() } ?: user.email.ifBlank { null }
-            } ?: stringResource(strings.account_desc),
-        startWidget = {
-            ProfileIcon(user = account?.user, avatarSize = 24.dp)
-        },
-        onNavigate = { navController.navigate(SettingsRoutes.Account.route) },
-    )
+    if (FeatureRegistry.isEnabled("account")){
+        val account by AccountManager.session.collectAsState()
+        PreferenceCategory(
+            label = stringResource(strings.account),
+            description =
+                account?.user?.let { user ->
+                    user.name?.takeIf { it.isNotBlank() } ?: user.email.ifBlank { null }
+                } ?: stringResource(strings.account_desc),
+            startWidget = {
+                ProfileIcon(user = account?.user, avatarSize = 24.dp)
+            },
+            onNavigate = { navController.navigate(SettingsRoutes.Account.route) },
+        )
+    }
+
 
     PreferenceCategory(
         label = stringResource(id = strings.app),

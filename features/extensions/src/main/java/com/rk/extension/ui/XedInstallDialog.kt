@@ -1,6 +1,7 @@
 package com.rk.extension.ui
 
 import androidx.activity.compose.LocalActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +14,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,15 +36,19 @@ import com.rk.common.PackageType
 import com.rk.extension.InstallResult
 import com.rk.extension.extensionManager
 import com.rk.extension.loader.loadAfterInstall
+import com.rk.extension.scanner.Finding
+import com.rk.extension.scanner.ScanApproval
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.extension.ExtensionAuthorIcon
+import com.rk.settings.extension.InstallLoadingPopup
 import com.rk.settings.extension.applyIconPackAfterInstall
 import com.rk.settings.extension.applyThemeAfterInstall
 import com.rk.settings.extension.handleInstallResult
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,6 +59,37 @@ fun XedInstallDialog(manifest: PackageManifest, icon: File?, packageFile: File, 
     val context = LocalContext.current
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
+
+    var pendingFindings by remember { mutableStateOf<List<Finding>?>(null) }
+    var scanDecision by remember { mutableStateOf<CompletableDeferred<Boolean>?>(null) }
+    val loading = remember { InstallLoadingPopup(activity as? AppCompatActivity) }
+
+    val scanApproval: ScanApproval =
+        loading.around { _, findings ->
+            val decision = CompletableDeferred<Boolean>()
+            withContext(Dispatchers.Main) {
+                scanDecision = decision
+                pendingFindings = findings
+            }
+            decision.await()
+        }
+
+    val findings = pendingFindings
+    if (findings != null) {
+        ExtensionScanReportDialog(
+            extensionName = manifest.name,
+            findings = findings,
+            onInstall = {
+                pendingFindings = null
+                scanDecision?.complete(true)
+            },
+            onCancel = {
+                pendingFindings = null
+                scanDecision?.complete(false)
+            },
+        )
+        return
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -107,44 +147,50 @@ fun XedInstallDialog(manifest: PackageManifest, icon: File?, packageFile: File, 
             TextButton(
                 onClick = {
                     scope.launch(Dispatchers.IO) {
-                        when (manifest.type) {
-                            PackageType.EXTENSION -> {
-                                val result = extensionManager.installExtensionFromZip(packageFile)
+                        try {
+                            loading.show()
+                            when (manifest.type) {
+                                PackageType.EXTENSION -> {
+                                    val result = extensionManager.installExtensionFromZip(packageFile, scanApproval)
+                                    loading.hide()
 
-                                withContext(Dispatchers.Main) {
-                                    handleInstallResult(result, activity)
-                                    onDismiss()
+                                    withContext(Dispatchers.Main) {
+                                        handleInstallResult(result, activity)
+                                        onDismiss()
+                                    }
+
+                                    if (result is InstallResult.Success) {
+                                        result.extension.loadAfterInstall(result, activity)
+                                    }
                                 }
 
-                                if (result is InstallResult.Success) {
-                                    result.extension.loadAfterInstall(result, activity)
+                                PackageType.THEME -> {
+                                    themeManager.installTheme(packageFile)
+                                    applyThemeAfterInstall(manifest.id)
+                                    withContext(Dispatchers.Main) {
+                                        toast(strings.installed)
+                                        onDismiss()
+                                    }
+                                }
+
+                                PackageType.ICON_PACK -> {
+                                    iconPackManager.installIconPack(packageFile)
+                                    applyIconPackAfterInstall(manifest.id)
+                                    withContext(Dispatchers.Main) {
+                                        toast(strings.installed)
+                                        onDismiss()
+                                    }
+                                }
+
+                                null -> {
+                                    withContext(Dispatchers.Main) {
+                                        errorDialog(activity, msg = strings.unknown_package_format.getString())
+                                        onDismiss()
+                                    }
                                 }
                             }
-
-                            PackageType.THEME -> {
-                                themeManager.installTheme(packageFile)
-                                applyThemeAfterInstall(manifest.id)
-                                withContext(Dispatchers.Main) {
-                                    toast(strings.installed)
-                                    onDismiss()
-                                }
-                            }
-
-                            PackageType.ICON_PACK -> {
-                                iconPackManager.installIconPack(packageFile)
-                                applyIconPackAfterInstall(manifest.id)
-                                withContext(Dispatchers.Main) {
-                                    toast(strings.installed)
-                                    onDismiss()
-                                }
-                            }
-
-                            null -> {
-                                withContext(Dispatchers.Main) {
-                                    errorDialog(activity, msg = strings.unknown_package_format.getString())
-                                    onDismiss()
-                                }
-                            }
+                        } finally {
+                            loading.hide()
                         }
                     }
                 }

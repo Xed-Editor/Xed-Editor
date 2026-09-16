@@ -15,9 +15,12 @@ import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.StoreExtension
 import com.rk.extension.UpdatableExtension
+import com.rk.extension.findExtensionApk
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.model.ExtensionManifest
 import com.rk.extension.model.PackageCache
+import com.rk.extension.scanner.ExtensionScanner
+import com.rk.extension.scanner.ScanApproval
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
 import com.rk.resources.getString
@@ -79,6 +82,11 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 Events.publish(ExtensionEvent.Crashed(extension))
             }
         }
+    }
+
+    internal fun forgetExtension(extensionId: ExtensionId) {
+        _installedExtensions.update { it - extensionId }
+        disabledPrefs.edit { remove(extensionId) }
     }
 
     fun isInstalled(extensionId: ExtensionId) = installedExtensions.value.containsKey(extensionId)
@@ -235,7 +243,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         return Result.success(extensionManifest)
     }
 
-    suspend fun installExtensionFromZip(xedFile: File): InstallResult =
+    suspend fun installExtensionFromZip(
+        xedFile: File,
+        onScanFindings: ScanApproval? = null,
+    ): InstallResult =
         withContext(Dispatchers.IO) {
             logInfo("Installing extension from zip: ${xedFile.name}")
             // Extract to temp dir first
@@ -244,7 +255,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             try {
                 XedPackage.extract(xedFile, tempDir)
-                installExtensionFromDir(tempDir)
+                installExtensionFromDir(tempDir, onScanFindings)
             } catch (e: Exception) {
                 logError(e)
                 errorDialog(e)
@@ -254,7 +265,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             }
         }
 
-    suspend fun installExtensionFromDir(dir: File): InstallResult =
+    suspend fun installExtensionFromDir(
+        dir: File,
+        onScanFindings: ScanApproval? = null,
+    ): InstallResult =
         withContext(Dispatchers.IO) {
             val validation = validateExtensionDir(dir)
             if (validation.isFailure) {
@@ -262,6 +276,24 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             }
 
             val extensionInfo = validation.getOrThrow()
+
+            val findings =
+                runCatching {
+                    dir.findExtensionApk()?.let { ExtensionScanner().scan(it, extensionInfo.name) } ?: emptyList()
+                }
+                    .getOrDefault(emptyList())
+
+            // Let the user review the report first (when a UI is attached), then enforce blocking findings regardless
+            // of the decision so a restricted extension can never be installed.
+            if (findings.isNotEmpty() && onScanFindings != null && !onScanFindings(extensionInfo.name, findings)) {
+                return@withContext InstallResult.Cancelled
+            }
+
+            if (findings.any { it.isBlocking }) {
+                logError("Extension '${extensionInfo.name}' uses restricted APIs and was not installed")
+                return@withContext InstallResult.ScanRejected(findings)
+            }
+
             val targetDir = context.extensionDir.resolve(extensionInfo.id)
 
             var performedUpdate = false

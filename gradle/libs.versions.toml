@@ -33,6 +33,7 @@ coil = "2.7.0"
 ktfmt = "0.25.0"
 jgit = "6.2.0.202206071550-r"
 
+smaliDexlib2 = "3.0.10"
 tsBinding = "4.3.2"
 lsp4j = "1.0.0"
 uiautomator = "2.3.0"
@@ -147,6 +148,7 @@ androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "junit
 androidx-test-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
+smali-dexlib2 = { module = "com.android.tools.smali:smali-dexlib2", version.ref = "smaliDexlib2" }
 tests-robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 tests-google-truth = { module = "com.google.truth:truth", version.ref = "truth" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
