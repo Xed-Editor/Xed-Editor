@@ -70,3 +70,4 @@ includeBuild("soraX") {
         substitute(module("soraX:oniguruma-native")).using(project(":oniguruma-native"))
     }
 }
+include(":features:ai")

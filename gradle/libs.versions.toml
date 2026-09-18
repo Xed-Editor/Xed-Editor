@@ -2,6 +2,7 @@
 
 # kotlin and agp must be compatible with each other after update
 agp = "9.3.1"
+koogAgents = "1.2.0"
 kotlin = "2.4.20"
 ksp = "2.3.2"
 kotlinReflect = "2.4.20"
@@ -15,6 +16,8 @@ coreVersion = "0.3.0"
 desugar_jdk_libs = "2.1.5"
 documentfile = "1.1.0"
 glide = "5.0.5"
+ktorClientOkhttp = "3.6.0"
+ktorServerNetty = "3.6.0"
 material = "1.13.0"
 constraintlayout = "2.2.1"
 materialIconsCore = "1.7.8"
@@ -91,6 +94,7 @@ androidx-annotation = { module = "androidx.annotation:annotation", version.ref =
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
 androidx-collection = { module = "androidx.collection:collection", version.ref = "collection" }
+androidx-compose-animation = { module = "androidx.compose.animation:animation" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
@@ -122,6 +126,9 @@ androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 
 # Networking / IO
+koog-agents = { module = "ai.koog:koog-agents", version.ref = "koogAgents" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClientOkhttp" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktorServerNetty" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 nanohttpd = { module = "org.nanohttpd:nanohttpd", version.ref = "nanohttpd" }

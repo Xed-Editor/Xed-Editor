@@ -161,6 +161,10 @@ dependencies {
     implementation(libs.sorax.editor)
     implementation(libs.sorax.editor.lsp)
     implementation(libs.sorax.language.textmate)
+
+    //api is used so ai feature can access ktor
+    //api(libs.ktor.server.netty)
+    //api(libs.ktor.client.okhttp)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {
