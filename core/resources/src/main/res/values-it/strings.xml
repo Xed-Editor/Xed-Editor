@@ -178,7 +178,7 @@
     <string name="no_runners">Nessun esecutore</string>
     <string name="new_runner">Nuovo esecutore</string>
     <string name="runner_name">Nome esecutore</string>
-    <string name="runner_regex">Modello regex (es. .*py$)</string>
+    <string name="runner_regex">Modello regex (es. .*\\.py)</string>
     <string name="invalid_runner_name">Consentiti solo lettere, numeri, underscore e trattini</string>
     <string name="invalid_regex">Modello regex non valido</string>
     <string name="runner_name_exists">Il nome dell\'esecutore esiste già</string>
@@ -310,7 +310,7 @@
     <string name="recently_used">(Usata di recente)</string>
     <string name="command_palette">Palette dei comandi</string>
     <string name="rename_failed">Impossibile rinominare il file</string>
-    <string name="delete_failed">Impossibile eliminare il file</string>
+    <string name="delete_failed">Impossibile eliminare i file</string>
     <string name="paste_failed">Impossibile incollare il file</string>
     <string name="debug_mode_warn">La modalità debug disabilita le restrizioni di sicurezza, il che potrebbe causare perdita di dati o altri problemi se usata in modo improprio. Attivala solo se sai cosa stai facendo.</string>
     <string name="external_lsp">LSP esterno</string>
@@ -796,4 +796,18 @@
     <string name="git_conflict_detection">Identificazione conflitto</string>
     <string name="git_conflict_detection_desc">Mostra i marcatori di conflitto e le opzioni di risoluzione nell\'editor</string>
     <string name="credentials_github">Per connettersi a GitHub inserisci un token PAT, non la password dell\'account GitHub.</string>
+    <string name="scoped_tabs">Schede con ambito</string>
+    <string name="scoped_tabs_desc">Mostra solo le schede appartenenti al progetto attuale</string>
+    <string name="delete_incomplete">Impossibile eliminare alcuni file</string>
+    <string name="app_log_limit">Limite log dell\'app</string>
+    <string name="issue_count">%d problemi</string>
+    <string name="running">In esecuzione…</string>
+    <string name="finished">Completato</string>
+    <string name="collapse">Comprimi</string>
+    <string name="expand">Espandi</string>
+    <string name="package_format_error">Xed-Editor supporta solo l\'installazione di .zip, .iconpack o pacchetti .xed.</string>
+    <string name="theme_format_error">Xed-Editor non supporta più l\'installazione dei vecchi temi JSON a file singolo. Se questo è il tuo tema, aggiornalo secondo il modello di tema attuale e riprova.</string>
+    <string name="unknown_package_format">Impossibile determinare il tipo di pacchetto.</string>
+    <string name="no_reviews">Nessuna recensione</string>
+    <string name="command_palette_swipe_hint">Consiglio: Puoi anche aprire la palette dei comandi scorrendo verso il basso dalla barra superiore!</string>
 </resources>
