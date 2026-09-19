@@ -2,6 +2,8 @@ package com.rk.ai.chat
 
 import ai.koog.prompt.message.Message
 import ai.koog.prompt.message.MessagePart
+import com.rk.ai.model.AiToolCall
+import com.rk.ai.model.AiTurn
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

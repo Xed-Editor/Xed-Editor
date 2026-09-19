@@ -21,6 +21,7 @@ ktorServerNetty = "3.6.0"
 material = "1.13.0"
 constraintlayout = "2.2.1"
 materialIconsCore = "1.7.8"
+markdownRenderer = "0.45.0"
 nanohttpd = "2.3.1"
 navigation = "2.9.6"
 coreKtx = "1.17.0"
@@ -31,7 +32,10 @@ composeRuntime = "1.10.0"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycle = "2.10.0"
-composeBom = "2025.11.01"
+# Must stay >= 2025.12.00 (Compose 1.10.0): multiplatform-markdown-renderer 0.45.0 is compiled against
+# ComposeUiNode.Companion.applyOnDeactivatedNodeAssertion(), added in Compose 1.10.0. On Compose 1.9.x
+# that call fails at runtime with NoSuchMethodError.
+composeBom = "2025.12.00"
 coil = "2.7.0"
 ktfmt = "0.25.0"
 jgit = "6.2.0.202206071550-r"
@@ -197,6 +201,14 @@ sorax-oniguruma-native = { module = "soraX:oniguruma-native", version.ref = "sor
 # Compose extras
 compose-dnd = { module = "com.mohamedrejeb.dnd:compose-dnd", version.ref = "composeDnd" }
 material-motion-compose = { module = "io.github.fornewid:material-motion-compose-core", version.ref = "motionCompose" }
+
+# Markdown rendering (Compose Multiplatform library consumed through its Android variants).
+# The plain coordinates below are resolved to their "-android" AAR artifacts via Gradle metadata,
+# so no Kotlin Multiplatform plugin is required in this Android-only project.
+markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer", version.ref = "markdownRenderer" }
+markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdownRenderer" }
+markdown-renderer-code = { module = "com.mikepenz:multiplatform-markdown-renderer-code", version.ref = "markdownRenderer" }
+markdown-renderer-coil2 = { module = "com.mikepenz:multiplatform-markdown-renderer-coil2", version.ref = "markdownRenderer" }
 
 # Regex / Monarch
 monarch-code = { module = "io.github.dingyi222666.monarch:monarch", version.ref = "monarch" }

@@ -18,8 +18,9 @@ internal object FileOpsTools {
                 listOf(
                     AiToolParameter("path", "Directory path relative to the workspace root.", ToolParameterType.String)
                 ),
+            presenter = AiToolPresenter { args -> ToolCallView("Create directory", args.displayArg("path"), emptyList()) },
         ) { args ->
-            val path = args.requireString("path")
+            val path = args.requireArg("path")
             val dir = AiWorkspace.createDirectory(path)
             "Directory ready: ${AiWorkspace.relativize(dir)}/"
         }
@@ -36,9 +37,11 @@ internal object FileOpsTools {
                     AiToolParameter("from", "Source path relative to the workspace root.", ToolParameterType.String),
                     AiToolParameter("to", "Destination path relative to the workspace root.", ToolParameterType.String),
                 ),
+            // The two paths are the whole call, so they belong in the header rather than the body.
+            presenter = AiToolPresenter { args -> ToolCallView("Copy", args.pairOfPaths(), emptyList()) },
         ) { args ->
-            val from = args.requireString("from")
-            val to = args.requireString("to")
+            val from = args.requireArg("from")
+            val to = args.requireArg("to")
             val source = AiWorkspace.resolve(from)
             val target = createDestination(to, isDirectory = source.isDirectory())
             copyRecursively(source, target)
@@ -57,9 +60,10 @@ internal object FileOpsTools {
                     AiToolParameter("from", "Source path relative to the workspace root.", ToolParameterType.String),
                     AiToolParameter("to", "Destination path relative to the workspace root.", ToolParameterType.String),
                 ),
+            presenter = AiToolPresenter { args -> ToolCallView("Move", args.pairOfPaths(), emptyList()) },
         ) { args ->
-            val from = args.requireString("from")
-            val to = args.requireString("to")
+            val from = args.requireArg("from")
+            val to = args.requireArg("to")
             val source = AiWorkspace.resolve(from)
             val target = createDestination(to, isDirectory = source.isDirectory())
 
@@ -77,8 +81,9 @@ internal object FileOpsTools {
                 listOf(
                     AiToolParameter("path", "Path relative to the workspace root.", ToolParameterType.String)
                 ),
+            presenter = AiToolPresenter { args -> ToolCallView("Delete", args.displayArg("path"), emptyList()) },
         ) { args ->
-            val path = args.requireString("path")
+            val path = args.requireArg("path")
             val target = AiWorkspace.resolve(path)
             require(target.getAbsolutePath() != AiWorkspace.root().getAbsolutePath()) {
                 "Refusing to delete the workspace root"
@@ -110,10 +115,21 @@ internal object FileOpsTools {
                         required = false,
                     ),
                 ),
+            presenter =
+                AiToolPresenter { args ->
+                    ToolCallView(
+                        "Find files",
+                        args.displayArg("pattern"),
+                        listOfNotNull(
+                            toolField("In", args.displayArg("path")),
+                            toolField("Max results", args.displayArg("max_results")),
+                        ),
+                    )
+                },
         ) { args ->
-            val pattern = args.requireString("pattern")
-            val base = AiWorkspace.resolve(args.string("path") ?: ".")
-            val limit = (args.int("max_results") ?: 200).coerceIn(1, MAX_FIND_RESULTS)
+            val pattern = args.requireArg("pattern")
+            val base = AiWorkspace.resolve(args.arg("path") ?: ".")
+            val limit = (args.argInt("max_results") ?: 200).coerceIn(1, MAX_FIND_RESULTS)
             val regex = globToRegex(if (pattern.contains('/')) pattern else "**/$pattern")
 
             val matches = mutableListOf<String>()

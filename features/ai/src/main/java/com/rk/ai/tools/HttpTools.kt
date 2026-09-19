@@ -33,9 +33,18 @@ internal object HttpTools {
                     headersParameter(),
                     timeoutParameter(),
                 ),
-        ) { args ->
-            call(args, method = "GET", allowBody = false)
-        }
+            presenter =
+                AiToolPresenter { args ->
+                    ToolCallView(
+                        "HTTP GET",
+                        args.displayArg("url"),
+                        listOfNotNull(
+                            toolDetail("Headers", args.displayArg("headers")),
+                            toolField("Timeout", args.displayArg("timeout_seconds")?.plus("s")),
+                        ),
+                    )
+                },
+        ) { args -> call(args, method = "GET", allowBody = false) }
 
     private fun request(): AiTool =
         AiTool(
@@ -68,8 +77,21 @@ internal object HttpTools {
                     headersParameter(),
                     timeoutParameter(),
                 ),
+            presenter =
+                AiToolPresenter { args ->
+                    ToolCallView(
+                        "HTTP " + (args.displayArg("method")?.uppercase() ?: "request"),
+                        args.displayArg("url"),
+                        listOfNotNull(
+                            toolField("Content-Type", args.displayArg("content_type")),
+                            toolDetail("Headers", args.displayArg("headers")),
+                            toolDetail("Body", args.displayArg("body")),
+                            toolField("Timeout", args.displayArg("timeout_seconds")?.plus("s")),
+                        ),
+                    )
+                },
         ) { args ->
-            val method = args.requireString("method").trim().uppercase()
+            val method = args.requireArg("method").trim().uppercase()
             require(method in MUTATING_METHODS) {
                 "Unsupported method '$method'; use http_get for reads."
             }
@@ -77,16 +99,16 @@ internal object HttpTools {
         }
 
     private fun call(args: JsonObject, method: String, allowBody: Boolean): String {
-        val rawUrl = args.requireString("url").trim()
+        val rawUrl = args.requireArg("url").trim()
         val url = rawUrl.toHttpUrlOrNull() ?: throw IllegalArgumentException("Not a valid URL: $rawUrl")
-        val timeoutSeconds = (args.int("timeout_seconds") ?: 30).coerceIn(1, 300).toLong()
+        val timeoutSeconds = (args.argInt("timeout_seconds") ?: 30).coerceIn(1, 300).toLong()
 
         val request =
             Request.Builder().url(url).apply {
                 headers(args).forEach { (name, value) -> addHeader(name, value) }
                 if (allowBody) {
-                    val mediaType = (args.string("content_type") ?: "application/json").toMediaTypeOrNull()
-                    method(method, (args.string("body") ?: "").toRequestBody(mediaType))
+                    val mediaType = (args.arg("content_type") ?: "application/json").toMediaTypeOrNull()
+                    method(method, (args.arg("body") ?: "").toRequestBody(mediaType))
                 } else {
                     method(method, null)
                 }
@@ -96,9 +118,8 @@ internal object HttpTools {
         val client = okHttpClient.newBuilder().callTimeout(timeoutSeconds, TimeUnit.SECONDS).build()
 
         val startedAt = System.currentTimeMillis()
-        client.newCall(request).execute().use { response ->
-            return format(response, System.currentTimeMillis() - startedAt)
-        }
+        val response = client.newCall(request).execute()
+        return response.use { format(it, System.currentTimeMillis() - startedAt) }
     }
 
     private fun format(response: Response, elapsedMillis: Long): String {

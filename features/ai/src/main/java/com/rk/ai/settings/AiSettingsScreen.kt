@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -24,42 +24,65 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.rk.activities.main.MainActivity
-import com.rk.ai.tab.AiTab
+import com.rk.ai.api.AiExtensions
+import com.rk.ai.provider.AiModel
+import com.rk.ai.provider.AiModelCatalog
+import com.rk.ai.provider.AiProvider
+import com.rk.ai.provider.AiProviderRuntime
+import com.rk.ai.tools.AiTool
 import com.rk.components.SettingsItem
 import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.resources.getString
-import com.rk.resources.strings
-import com.rk.settings.editor.FontRegistry
-import java.io.File
 
+/**
+ * The AI settings page.
+ *
+ * The provider, model and tool lists are read from the extension registries, so anything an extension
+ * registers shows up here without a UI change.
+ */
 @Composable
-fun AiSettingsScreen(modifier: Modifier = Modifier) {
+fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {}) {
     var editing by remember { mutableStateOf<EditTarget?>(null) }
+    var pickingModel by remember { mutableStateOf(false) }
+
+    val providers by AiExtensions.providers.collectAsState()
+    val tools by AiExtensions.tools.collectAsState()
+    val provider = providers.firstOrNull { it.id == AiSettings.providerId } ?: providers.firstOrNull()
+    val models = provider?.let { AiModelCatalog.modelsFor(it.id) }.orEmpty()
 
     PreferenceLayout(label = "AI", modifier = modifier) {
+        PreferenceGroup(
+            heading = "Provider",
+            description =
+                "Where requests are sent. Extensions can add providers; picking one restores its " +
+                    "default endpoint and first model.",
+        ) {
+            providers.forEach { candidate ->
+                ChoiceRow(
+                    title = candidate.displayName,
+                    description = candidate.defaultBaseUrl,
+                    selected = candidate.id == provider?.id,
+                    onSelect = { selectProvider(candidate) },
+                )
+            }
+        }
+
         PreferenceGroup(heading = "Connection") {
             SettingsItem(
                 label = "API key",
-                description =
-                    if (AiSettings.apiKey.isBlank()) {
-                        "Not set"
-                    } else {
-                        maskKey(AiSettings.apiKey)
-                    },
+                description = if (AiSettings.apiKey.isBlank()) "Not set" else maskKey(AiSettings.apiKey),
                 showSwitch = false,
                 endWidget = { NavigateChevron() },
                 sideEffect = { editing = EditTarget.ApiKey },
@@ -78,7 +101,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier) {
                 description = AiSettings.modelId,
                 showSwitch = false,
                 endWidget = { NavigateChevron() },
-                sideEffect = { editing = EditTarget.Model },
+                sideEffect = { pickingModel = true },
             )
         }
 
@@ -97,30 +120,45 @@ fun AiSettingsScreen(modifier: Modifier = Modifier) {
         }
 
         PreferenceGroup(
+            heading = "Memory",
+            description =
+                "Notes the assistant carries between chats. They are added to the system prompt of " +
+                    "every run.",
+        ) {
+            val count = AiMemory.entries.size
+            SettingsItem(
+                label = "Long-term memory",
+                description =
+                    when (count) {
+                        0 -> "Nothing remembered yet"
+                        1 -> "1 saved note"
+                        else -> "$count saved notes"
+                    },
+                showSwitch = false,
+                endWidget = { NavigateChevron() },
+                sideEffect = { onOpenMemory() },
+            )
+        }
+
+        PreferenceGroup(
             heading = "Tool permissions",
             description = "Controls when the agent must ask before running a tool.",
         ) {
             PermissionMode.entries.forEach { mode ->
-
-                val interactionSource = remember { MutableInteractionSource() }
-                PreferenceTemplate(
-                    modifier =
-                        modifier.clickable(indication = ripple(), interactionSource = interactionSource) {
-                            AiSettings.permissionMode = mode.name
-                        },
-                    contentModifier = Modifier.fillMaxHeight(),
-                    title = { Text(fontWeight = FontWeight.Bold, text = mode.title()) },
-                    description = { Text(text = mode.description()) },
-                    enabled = true,
-                    applyPaddings = true,
-                    startWidget = {
-                        RadioButton(selected = AiSettings.currentPermissionMode() == mode, onClick = {
-                            AiSettings.permissionMode = mode.name
-                        })
-                    },
+                ChoiceRow(
+                    title = mode.title(),
+                    description = mode.description(),
+                    selected = AiSettings.currentPermissionMode() == mode,
+                    onSelect = { AiSettings.permissionMode = mode.name },
                 )
-
             }
+        }
+
+        PreferenceGroup(
+            heading = "Tools (${tools.size})",
+            description = "Every tool the model can call, including the ones extensions registered.",
+        ) {
+            tools.forEach { tool -> ToolRow(tool) }
         }
     }
 
@@ -138,20 +176,10 @@ fun AiSettingsScreen(modifier: Modifier = Modifier) {
         EditTarget.BaseUrl ->
             EditTextDialog(
                 title = "Base URL",
-                description = "OpenAI-compatible endpoint, e.g. https://api.deepseek.com",
+                description = "Endpoint root for ${provider?.displayName ?: "the active provider"}.",
                 initial = AiSettings.baseUrl,
                 onDismiss = { editing = null },
                 onSave = { AiSettings.baseUrl = it },
-            )
-
-        EditTarget.Model ->
-            EditTextDialog(
-                title = "Model",
-                description =
-                    "Model id sent to the API. Recommended: deepseek-chat (tools) or deepseek-reasoner.",
-                initial = AiSettings.modelId,
-                onDismiss = { editing = null },
-                onSave = { AiSettings.modelId = it },
             )
 
         EditTarget.SystemPrompt ->
@@ -165,6 +193,103 @@ fun AiSettingsScreen(modifier: Modifier = Modifier) {
             )
 
         null -> Unit
+    }
+
+    if (pickingModel) {
+        ModelPickerDialog(
+            models = models,
+            current = AiSettings.modelId,
+            onDismiss = { pickingModel = false },
+            onPick = { modelId ->
+                AiSettings.modelId = modelId
+                pickingModel = false
+            },
+        )
+    }
+}
+
+/** Applies a provider preset: endpoint, first model and a rebuilt executor. */
+private fun selectProvider(provider: AiProvider) {
+    AiSettings.providerId = provider.id
+    AiSettings.baseUrl = provider.defaultBaseUrl
+    AiModelCatalog.defaultFor(provider)?.let { AiSettings.modelId = it.id }
+    AiProviderRuntime.invalidate()
+}
+
+@Composable
+private fun ChoiceRow(title: String, description: String, selected: Boolean, onSelect: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    PreferenceTemplate(
+        modifier = Modifier.clickable(indication = ripple(), interactionSource = interactionSource) { onSelect() },
+        contentModifier = Modifier.fillMaxHeight(),
+        title = { Text(fontWeight = FontWeight.Bold, text = title) },
+        description = { Text(text = description) },
+        enabled = true,
+        applyPaddings = true,
+        startWidget = { RadioButton(selected = selected, onClick = onSelect) },
+    )
+}
+
+@Composable
+private fun ToolRow(tool: AiTool) {
+    SettingsItem(
+        label = tool.name,
+        description = "${tool.kind} · ${if (tool.isDestructive) "asks first" else "runs freely"}",
+        singleLineDescription = true,
+        showSwitch = false,
+        isEnabled = false,
+    )
+}
+
+@Composable
+private fun ModelPickerDialog(
+    models: List<AiModel>,
+    current: String,
+    onDismiss: () -> Unit,
+    onPick: (String) -> Unit,
+) {
+    var custom by remember { mutableStateOf("") }
+
+    XedDialog(onDismissRequest = onDismiss) {
+        Column(Modifier.fillMaxWidth().padding(20.dp).verticalScroll(rememberScrollState())) {
+            Text(text = "Model", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = "Models registered for this provider. Type an id below to use one that is not listed.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Spacer(Modifier.height(12.dp))
+            models.forEach { model ->
+                SettingsItem(
+                    label = model.displayName,
+                    description = model.id,
+                    singleLineDescription = true,
+                    showSwitch = false,
+                    startWidget = {
+                        RadioButton(selected = model.id == current, onClick = { onPick(model.id) })
+                    },
+                    sideEffect = { onPick(model.id) },
+                )
+            }
+
+            Spacer(Modifier.height(12.dp))
+            OutlinedTextField(
+                value = custom,
+                onValueChange = { custom = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                label = { Text("Custom model id") },
+            )
+
+            Spacer(Modifier.height(18.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onDismiss) { Text("Cancel") }
+                Spacer(Modifier.width(8.dp))
+                Button(onClick = { onPick(custom.trim()) }, enabled = custom.isNotBlank()) { Text("Use") }
+            }
+        }
     }
 }
 
@@ -239,7 +364,6 @@ private fun EditTextDialog(
 private enum class EditTarget {
     ApiKey,
     BaseUrl,
-    Model,
     SystemPrompt,
 }
 

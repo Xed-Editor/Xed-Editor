@@ -11,15 +11,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.rk.theme.gitAdded
 
 @Composable
 fun AiDiffView(diff: String, modifier: Modifier = Modifier) {
     val lines = diff.lines()
     val shown = lines.take(MAX_DIFF_LINES)
-    val addedColor = Color(0xFF4CAF50)
+    val addedColor = MaterialTheme.colorScheme.gitAdded
     val removedColor = MaterialTheme.colorScheme.error
     val headerColor = MaterialTheme.colorScheme.onSurfaceVariant
     val contextColor = MaterialTheme.colorScheme.onSurface

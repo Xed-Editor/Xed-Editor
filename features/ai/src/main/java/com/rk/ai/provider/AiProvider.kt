@@ -1,66 +1,53 @@
 package com.rk.ai.provider
 
-import ai.koog.http.client.ktor.KtorKoogHttpClient
-import ai.koog.prompt.executor.clients.openai.OpenAIClientSettings
-import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
-import ai.koog.prompt.executor.llms.MultiLLMPromptExecutor
 import ai.koog.prompt.executor.model.PromptExecutor
-import ai.koog.prompt.llm.LLMCapability
 import ai.koog.prompt.llm.LLMProvider
-import ai.koog.prompt.llm.LLModel
-import android.util.Log
-import com.rk.ai.settings.AiSettings
 
-object AiProvider {
-    private var cachedKey: String? = null
-    private var cachedExecutor: PromptExecutor? = null
+/**
+ * Everything needed to talk to one backend.
+ *
+ * @param apiKey the credential, or blank when the endpoint needs none.
+ * @param baseUrl the endpoint root, already defaulted when the user left it empty.
+ * @param chatCompletionsPath the path appended to [baseUrl] for chat completions.
+ */
+data class AiProviderConfig(
+    val apiKey: String,
+    val baseUrl: String,
+    val chatCompletionsPath: String,
+)
 
-    fun model(): LLModel =
-        LLModel(
-            provider = LLMProvider.OpenAI,
-            id = AiSettings.modelId,
-            capabilities =
-                listOf(
-                    LLMCapability.Temperature,
-                    LLMCapability.Tools,
-                    LLMCapability.ToolChoice,
-                    LLMCapability.Completion,
-                    LLMCapability.OpenAIEndpoint.Completions,
-                ),
-        )
+/**
+ * A backend that can serve chat models.
+ *
+ * Implement this and register it with [AiProviderRegistry] to add a provider: the settings screen,
+ * the model picker and the agent runtime all pick it up automatically. Providers usually also
+ * declare their [models]; extra models can be added independently with [AiModelRegistry].
+ */
+interface AiProvider {
+    /** Stable identifier persisted in settings; never change it once released. */
+    val id: String
 
-    @Synchronized
-    fun executor(): PromptExecutor {
-        val key = "${AiSettings.apiKey}|${AiSettings.baseUrl}|${AiSettings.chatCompletionsPath}"
-        cachedExecutor?.let { existing ->
-            if (cachedKey == key) return existing
-        }
+    /** Human-readable name for the settings UI. */
+    val displayName: String
 
-        runCatching { cachedExecutor?.close() }
+    /** Used when the configured base URL is blank. */
+    val defaultBaseUrl: String
 
-        Log.i(
-            TAG,
-            "Building Koog executor: baseUrl=${AiSettings.baseUrl} " +
-                "path=${AiSettings.chatCompletionsPath} model=${AiSettings.modelId}",
-        )
+    /** Default chat-completions path for this provider. */
+    val defaultChatCompletionsPath: String
 
-        val executor =
-            MultiLLMPromptExecutor(
-                OpenAILLMClient(
-                    apiKey = AiSettings.apiKey,
-                    settings =
-                        OpenAIClientSettings(
-                            baseUrl = AiSettings.baseUrl,
-                            chatCompletionsPath = AiSettings.chatCompletionsPath,
-                        ),
-                    httpClientFactory = KtorKoogHttpClient.Factory(),
-                )
-            )
+    /** The koog provider that routes requests to this backend. */
+    val llmProvider: LLMProvider
 
-        cachedKey = key
-        cachedExecutor = executor
-        return executor
-    }
+    /** Models shipped with the provider. */
+    val models: List<AiModel>
+
+    /** Builds the executor for a run. Called (and cached) by [AiProviderRuntime]. */
+    fun createExecutor(config: AiProviderConfig): PromptExecutor
+
+    /** Resolves the chat-completions path for [baseUrl]; defaults to [defaultChatCompletionsPath]. */
+    fun resolveChatCompletionsPath(baseUrl: String): String = defaultChatCompletionsPath
+
+    /** True when [baseUrl] clearly belongs to this provider, used to migrate older settings. */
+    fun matchesBaseUrl(baseUrl: String): Boolean = false
 }
-
-private const val TAG = "XedAI"

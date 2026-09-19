@@ -1,14 +1,9 @@
 package com.rk.settings.extension
 
-import android.graphics.Typeface
-import android.text.Spanned
-import android.text.method.LinkMovementMethod
-import android.widget.TextView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -20,16 +15,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.viewinterop.AndroidView
 import com.rk.components.StateScreen
+import com.rk.markdown.MarkdownText
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.utils.logError
 import com.rk.utils.okHttpClient
-import io.github.rosemoe.sora.lsp.editor.text.SimpleMarkdownRenderer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.CacheControl
@@ -48,19 +41,18 @@ sealed interface MarkdownStatus {
         object Empty : Error(strings.empty_err, drawables.file)
     }
 
-    data class Success(val spanned: Spanned) : MarkdownStatus
+    data class Success(val markdown: String) : MarkdownStatus
 }
 
 @Composable
 fun MarkdownViewer(url: String?, refreshKey: Int, onLoaded: () -> Unit, modifier: Modifier = Modifier) {
     var state by remember(url) { mutableStateOf<MarkdownStatus>(MarkdownStatus.Loading) }
-    val primaryColor = MaterialTheme.colorScheme.primary
     val client = remember { okHttpClient }
 
     LaunchedEffect(url, refreshKey) {
         state = MarkdownStatus.Loading
         val forceRefresh = refreshKey > 0
-        state = loadMarkdown(url, primaryColor.toArgb(), client, forceRefresh)
+        state = loadMarkdown(url, client, forceRefresh)
         onLoaded()
     }
     AnimatedContent(targetState = state, modifier = modifier.fillMaxWidth()) { state ->
@@ -85,50 +77,14 @@ fun MarkdownViewer(url: String?, refreshKey: Int, onLoaded: () -> Unit, modifier
             }
 
             is MarkdownStatus.Success -> {
-                val selectionColors = LocalTextSelectionColors.current
-                val selectionBackground = selectionColors.backgroundColor
-                AndroidView(
-                    factory = { ctx -> TextView(ctx) },
-                    update = {
-                        it.text = state.spanned
-                        it.setTextIsSelectable(true)
-                        it.movementMethod = LinkMovementMethod.getInstance()
-                        it.highlightColor = selectionBackground.toArgb()
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                MarkdownText(content = state.markdown, modifier = Modifier.fillMaxWidth())
             }
         }
     }
 }
 
-private val protectedCodeRegex = Regex("(?s)(```.*?```|~~~.*?~~~|`[^`]*`|<code>.*?</code>)")
-private val unsupportedHtmlRegex =
-    Regex("(?is)<(?!/?(?:br|h[1-6]|blockquote|strong|em|code|pre|li|a|ul|ol|p)\\b)[^>]*>")
-
-internal fun removeUnsupportedHtmlTags(markdown: String): String {
-    val result = StringBuilder()
-    var lastIndex = 0
-
-    protectedCodeRegex.findAll(markdown).forEach { match ->
-        val before = markdown.substring(lastIndex, match.range.first)
-        result.append(before.replace(unsupportedHtmlRegex, ""))
-
-        result.append(match.value)
-
-        lastIndex = match.range.last + 1
-    }
-
-    if (lastIndex < markdown.length) {
-        result.append(markdown.substring(lastIndex).replace(unsupportedHtmlRegex, ""))
-    }
-
-    return result.toString()
-}
-
 private suspend fun loadMarkdown(
     url: String?,
-    primaryColor: Int,
     client: OkHttpClient,
     forceRefresh: Boolean = false,
 ): MarkdownStatus {
@@ -162,16 +118,7 @@ private suspend fun loadMarkdown(
                     file.readText()
                 }
 
-            val spanned =
-                SimpleMarkdownRenderer.renderAsync(
-                    removeUnsupportedHtmlTags(markdown),
-                    boldColor = primaryColor,
-                    inlineCodeColor = primaryColor,
-                    codeTypeface = Typeface.MONOSPACE,
-                    linkColor = primaryColor,
-                )
-
-            MarkdownStatus.Success(spanned)
+            MarkdownStatus.Success(markdown)
         }
             .getOrElse {
                 logError(it)

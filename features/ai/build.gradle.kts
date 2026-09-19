@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ktfmt)
 }
 
 android {
@@ -48,8 +49,6 @@ dependencies {
 
     implementation(project(":features:terminal"))
 
-    implementation(libs.sorax.editor.lsp)
-
     implementation(libs.kotlinx.coroutines)
 
     implementation(libs.okhttp)
@@ -57,8 +56,4 @@ dependencies {
     implementation(libs.koog.agents)
 
     implementation("ai.koog:http-client-ktor:1.2.0")
-
-    implementation("io.modelcontextprotocol:kotlin-sdk:0.15.0")
-
-    implementation("io.modelcontextprotocol:kotlin-sdk-testing:0.15.0")
 }

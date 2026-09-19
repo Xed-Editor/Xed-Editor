@@ -2,8 +2,19 @@ package com.rk.ai.settings
 
 import com.rk.settings.CachedPreference
 
+/**
+ * The persisted AI configuration.
+ *
+ * Kept deliberately free of provider knowledge: [com.rk.ai.provider.AiProviderRuntime] turns these
+ * values into a provider, a model and an executor, so adding a provider never touches this file.
+ */
 object AiSettings {
+    /** Provider used until the user picks another one; matches the DeepSeek built-in. */
+    const val DEFAULT_PROVIDER_ID = "deepseek"
+
     var apiKey by CachedPreference("ai_api_key", "")
+
+    var providerId by CachedPreference("ai_provider_id", DEFAULT_PROVIDER_ID)
 
     var baseUrl by CachedPreference("ai_base_url", "https://api.deepseek.com")
 
@@ -12,14 +23,6 @@ object AiSettings {
     var systemPrompt by CachedPreference("ai_system_prompt", DEFAULT_SYSTEM_PROMPT)
 
     var permissionMode by CachedPreference("ai_permission_mode", PermissionMode.ASK.name)
-
-    val chatCompletionsPath: String
-        get() =
-            if (baseUrl.contains("deepseek", ignoreCase = true)) {
-                "chat/completions"
-            } else {
-                "v1/chat/completions"
-            }
 
     val hasApiKey: Boolean
         get() = apiKey.isNotBlank()
