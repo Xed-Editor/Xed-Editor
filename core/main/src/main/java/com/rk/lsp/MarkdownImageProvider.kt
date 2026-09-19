@@ -34,12 +34,31 @@ class MarkdownImageProvider : SimpleMarkdownRenderer.ImageProvider {
      * @param src Source string (e.g., data URI, file path, URL)
      * @return A [Drawable] if successful, or null if the image cannot be loaded.
      */
-    override fun load(src: String): Drawable? {
+    override fun load(src: String): Drawable? = MarkdownDataUriDecoder.decodeDataUri(src)?.let { BitmapDrawable(it) }
+}
+
+/**
+ * Decodes an inline `data:` URI into a [Bitmap].
+ *
+ * This is shared by the sora-editor markdown renderer (used for LSP hover/signature documentation, which
+ * expects a [Drawable]) and by the Compose markdown renderer used in the AI chat (which expects a Compose
+ * `Painter`).
+ *
+ * Supports base64 encoded payloads:
+ * - **SVG images:** parsed using AndroidSVG, scaled so the result stays within a visible size range.
+ * - **Raster images:** decoded via `BitmapFactory`, downscaled to fit within a maximum width.
+ */
+object MarkdownDataUriDecoder {
+    private const val MIN_DIMENSION = 175f
+    private const val MAX_DIMENSION = 800f
+    private const val MAX_RASTER_WIDTH = 800
+
+    /** @return the decoded bitmap, or `null` when [src] is not a supported `data:` URI. */
+    fun decodeDataUri(src: String): Bitmap? {
         if (!src.startsWith("data:")) return null
 
         val mime = src.substringAfter("data:").substringBefore(";")
         val payload = src.substringAfter("base64,", "")
-
         if (payload.isEmpty()) return null
 
         val imageByteArray =
@@ -50,32 +69,30 @@ class MarkdownImageProvider : SimpleMarkdownRenderer.ImageProvider {
             }
 
         return when (mime) {
-            "image/svg+xml" -> loadSvg(imageByteArray)
-            else -> loadRaster(imageByteArray)
+            "image/svg+xml" -> decodeSvg(imageByteArray)
+            else -> decodeRaster(imageByteArray)
         }
     }
 
-    private fun loadSvg(imageByteArray: ByteArray): Drawable? {
-        val svgText = String(imageByteArray)
+    private fun decodeSvg(imageByteArray: ByteArray): Bitmap? {
         val svg =
             try {
-                SVG.getFromString(svgText)
+                SVG.getFromString(String(imageByteArray))
             } catch (_: Exception) {
                 return null
             }
 
         val originalWidth = svg.documentWidth
         val originalHeight = svg.documentHeight
+        if (originalWidth <= 0f || originalHeight <= 0f) return null
 
-        val clampedWidth = originalWidth.coerceIn(175f, 800f)
-        val clampedHeight = originalHeight.coerceIn(175f, 800f)
+        val clampedWidth = originalWidth.coerceIn(MIN_DIMENSION, MAX_DIMENSION)
+        val clampedHeight = originalHeight.coerceIn(MIN_DIMENSION, MAX_DIMENSION)
 
-        val scaleX = clampedWidth / originalWidth
-        val scaleY = clampedHeight / originalHeight
-        val scale = minOf(scaleX, scaleY)
+        val scale = minOf(clampedWidth / originalWidth, clampedHeight / originalHeight)
 
-        val scaledWidth = (originalWidth * scale).toInt()
-        val scaledHeight = (originalHeight * scale).toInt()
+        val scaledWidth = (originalWidth * scale).toInt().coerceAtLeast(1)
+        val scaledHeight = (originalHeight * scale).toInt().coerceAtLeast(1)
 
         val bitmap = createBitmap(scaledWidth, scaledHeight)
         val canvas = Canvas(bitmap)
@@ -83,13 +100,12 @@ class MarkdownImageProvider : SimpleMarkdownRenderer.ImageProvider {
         canvas.scale(scale, scale)
         svg.renderToCanvas(canvas)
 
-        return BitmapDrawable(bitmap)
+        return bitmap
     }
 
-    private fun loadRaster(imageByteArray: ByteArray): Drawable? {
+    private fun decodeRaster(imageByteArray: ByteArray): Bitmap? {
         val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size) ?: return null
-        val scaledBitmap = scaleIfNeeded(bitmap, 800)
-        return BitmapDrawable(scaledBitmap)
+        return scaleIfNeeded(bitmap, MAX_RASTER_WIDTH)
     }
 
     /**
@@ -101,7 +117,7 @@ class MarkdownImageProvider : SimpleMarkdownRenderer.ImageProvider {
         if (currentWidth <= maxWidth) return bmp
         val ratio = maxWidth.toFloat() / currentWidth.toFloat()
 
-        val newHeight = (bmp.height * ratio).toInt()
+        val newHeight = (bmp.height * ratio).toInt().coerceAtLeast(1)
         return bmp.scale(maxWidth, newHeight)
     }
 }
