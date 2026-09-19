@@ -158,6 +158,12 @@
     <string name="ext_desc">Manage extensions</string>
     <string name="store_desc">Download extensions, themes, and icon packs</string>
     <string name="extension_warning_msg">Extensions can execute arbitrary code and potentially be malicious. Only install extensions if you trust the developer of the extension and has verified the source code of the extension.</string>
+    <string name="security_scan">Security scan</string>
+    <string name="security_scan_desc">%1$s was scanned before installation. Review the findings below.</string>
+    <string name="security_scan_clean">No issues were found.</string>
+    <string name="security_scan_restricted">Restricted API usage</string>
+    <string name="security_scan_suspicious">Suspicious behaviour</string>
+    <string name="security_scan_blocked">This extension uses restricted APIs and cannot be installed.</string>
     <string name="tab_opened">Tab opened</string>
     <string name="name_empty_err">Name cannot be empty</string>
     <string name="value_empty_err">Value cannot be empty</string>
@@ -456,7 +462,7 @@
     <string name="extra_key_bg_desc">Show background for extra keys</string>
     <string name="actions">Actions</string>
     <string name="enjoying_xed">Enjoying Xed-Editor?</string>
-    <string name="support_message">You\'ve saved %s files and run code %s times with Xed. \n\nXed is an open-source, privacy-focused app built with the help of contributors from the community. If Xed has made your coding easier, would you consider supporting its development?\n\nYour support helps me:\n• Build features faster\n• Keep Xed ad-free forever\n• Respond to bugs quickly</string>
+    <string name="support_message">You\'ve saved %s files and run code %s times with Xed. \n\nXed is an open-source, privacy-focused app built with the help of contributors from the community. If Xed has made your coding easier, would you consider supporting its development?\n\nYour support helps us:\n• Build features faster\n• Keep Xed ad-free forever\n• Respond to bugs quickly</string>
     <string name="yes_support">Yes, I\'ll support! ❤️</string>
     <string name="not_for_me">No thanks</string>
     <string name="sponsor_desc">Become a sponsor and help shape the future of this project</string>
@@ -808,4 +814,31 @@
     <string name="unknown_package_format">Could not determine package type.</string>
     <string name="no_reviews">No reviews</string>
     <string name="command_palette_swipe_hint">Tip: You can also open the command palette by swiping down from the toolbar!</string>
+    <string name="retry">Retry</string>
+
+    <string name="account_desc">Sign in with xed-editor.app</string>
+    <string name="account_sign_in_title">Sign in to Xed-Editor</string>
+    <string name="account_sign_in_desc">Use your xed-editor.app account to publish extensions, themes and icon packs, and to manage your reviews across devices.</string>
+    <string name="account_sign_in_button">Sign in with xed-editor.app</string>
+    <string name="account_sign_in_hint">Sign-in opens in your browser. You will be returned to the app automatically.</string>
+    <string name="account_waiting_browser">Waiting for the browser…</string>
+    <string name="account_waiting_browser_desc">Finish signing in on the page that just opened, then come back to the app.</string>
+    <string name="account_sign_in_failed">Sign-in failed</string>
+    <string name="account_browser_error">Could not open a browser</string>
+    <string name="account_signed_in_as">Signed in as %s</string>
+    <string name="account_details">Account details</string>
+    <string name="account_id">Account ID</string>
+    <string name="account_session_id">Session ID</string>
+    <string name="account_signed_in_since">Signed in since</string>
+    <string name="account_email_verified">Verified</string>
+    <string name="account_email_unverified">Not verified</string>
+    <string name="account_administrator">Administrator</string>
+    <string name="account_manage">Manage account</string>
+    <string name="account_manage_desc">Open your xed-editor.app dashboard in the browser</string>
+    <string name="account_no_email">No email on file</string>
+    <string name="account_sign_out">Sign out</string>
+    <string name="account_sign_out_confirm_title">Sign out of Xed-Editor?</string>
+    <string name="account_sign_out_confirm_message">This device will be signed out of your xed-editor.app account. You can sign back in at any time.</string>
+    <string name="account_sign_out_success">Signed out</string>
+    <string name="connecting">Connecting…</string>
 </resources>

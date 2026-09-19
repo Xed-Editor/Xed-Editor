@@ -11,6 +11,7 @@ import com.rk.lsp.LspRegistry
 import com.rk.settings.SettingsRegistry
 import com.rk.settings.SettingsScreen
 import com.rk.settings.about.AboutScreen
+import com.rk.settings.account.AccountScreen
 import com.rk.settings.app.SettingsAppScreen
 import com.rk.settings.debugOptions.AppLogs
 import com.rk.settings.debugOptions.DeveloperOptions
@@ -43,6 +44,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         popExitTransition = { NavigationAnimationTransitions.popExitTransition },
     ) {
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
+        composable(SettingsRoutes.Account.route) { AccountScreen() }
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity, navController) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
         composable(SettingsRoutes.Keybindings.route) { KeybindingsScreen() }

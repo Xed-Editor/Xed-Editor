@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
     implementation(libs.gson)
+    implementation(libs.smali.dexlib2)
 
     // Image loading
     implementation(libs.coil.compose)

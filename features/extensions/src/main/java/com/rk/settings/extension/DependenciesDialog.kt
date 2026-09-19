@@ -32,6 +32,7 @@ import coil.request.ImageRequest
 import com.rk.extension.Extension
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.extensionManager
+import com.rk.extension.scanner.ScanApproval
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import kotlinx.coroutines.CoroutineScope
@@ -92,6 +93,7 @@ fun DependenciesDialog(
     scope: CoroutineScope,
     activity: AppCompatActivity?,
     onDismiss: () -> Unit,
+    onScanFindings: ScanApproval? = null,
     onCompletion: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -128,7 +130,7 @@ fun DependenciesDialog(
                 onClick = {
                     scope.launch {
                         isInstalling = true
-                        val success = batchInstallExtensions(extensionIds, context, activity)
+                        val success = batchInstallExtensions(extensionIds, context, activity, onScanFindings)
                         isInstalling = false
                         if (success) {
                             onCompletion()

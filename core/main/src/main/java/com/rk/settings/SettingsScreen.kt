@@ -7,10 +7,12 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -19,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.rk.account.AccountManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -37,6 +42,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.account.ProfileIcon
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -47,6 +53,22 @@ fun SettingsScreen(navController: NavController) {
 
 @Composable
 private fun Categories(navController: NavController) {
+    if (FeatureRegistry.isEnabled("account")){
+        val account by AccountManager.session.collectAsState()
+        PreferenceCategory(
+            label = stringResource(strings.account),
+            description =
+                account?.user?.let { user ->
+                    user.name?.takeIf { it.isNotBlank() } ?: user.email.ifBlank { null }
+                } ?: stringResource(strings.account_desc),
+            startWidget = {
+                ProfileIcon(user = account?.user, avatarSize = 24.dp)
+            },
+            onNavigate = { navController.navigate(SettingsRoutes.Account.route) },
+        )
+    }
+
+
     PreferenceCategory(
         label = stringResource(id = strings.app),
         description = stringResource(id = strings.app_desc),
@@ -75,7 +97,7 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.Keybindings.route) },
     )
 
-    SettingsRegistry.categories.value.forEach { category ->
+    SettingsRegistry.categories.collectAsState().value.forEach { category ->
         PreferenceCategory(
             label = category.label,
             description = category.description,
