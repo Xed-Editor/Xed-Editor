@@ -7,10 +7,12 @@ import com.rk.ai.provider.AiModelRegistry
 import com.rk.ai.provider.AiProvider
 import com.rk.ai.provider.AiProviderConfig
 import com.rk.ai.provider.AiProviderRegistry
+import com.rk.ai.provider.AiProviderRuntime
 import com.rk.ai.provider.OpenAiCompatibleProvider
 import com.rk.ai.tools.AiTool
 import com.rk.ai.tools.AiToolRegistry
 import com.rk.extension.api.XedExtensionPoint
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 /** The single entry point extensions use to extend Xed AI. */
@@ -35,6 +37,43 @@ object AiExtensions {
 
     val models: StateFlow<List<AiModel>>
         get() = AiModelRegistry.models
+
+    /** True when [ask] and [chat] can run: a provider is active and, when required, has an API key. */
+    val isReady: Boolean
+        get() = AiProviderRuntime.hasApiKey()
+
+    /** The provider configured in AI settings. */
+    val activeProvider: AiProvider
+        get() = AiProviderRuntime.activeProvider()
+
+    /** The model [ask] and [chat] use when no `modelId` override is passed. */
+    val activeModelId: String
+        get() = AiProviderRuntime.model().id
+
+    /**
+     * Sends [prompt] to the active model and returns the reply text.
+     *
+     * @param systemPrompt optional instruction prepended to the conversation.
+     * @param modelId model to use instead of the one selected in AI settings.
+     * @throws IllegalStateException when [isReady] is false.
+     */
+    @XedExtensionPoint
+    suspend fun ask(prompt: String, systemPrompt: String? = null, modelId: String? = null): String =
+        AiLlm.complete(prompt, systemPrompt, modelId)
+
+    /** Like [ask], but emits the reply text as it streams in. */
+    @XedExtensionPoint
+    fun askStream(prompt: String, systemPrompt: String? = null, modelId: String? = null): Flow<String> =
+        AiLlm.completeStream(prompt, systemPrompt, modelId)
+
+    /** Sends a full [messages] conversation and returns the reply text. */
+    @XedExtensionPoint
+    suspend fun chat(messages: List<AiMessage>, modelId: String? = null): String = AiLlm.chat(messages, modelId)
+
+    /** Like [chat], but emits the reply text as it streams in. */
+    @XedExtensionPoint
+    fun chatStream(messages: List<AiMessage>, modelId: String? = null): Flow<String> =
+        AiLlm.chatStream(messages, modelId)
 
     /** Adds (or replaces) a tool the model can call. */
     @XedExtensionPoint fun registerTool(tool: AiTool) = AiToolRegistry.registerTool(tool)

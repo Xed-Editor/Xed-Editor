@@ -65,10 +65,7 @@ object BuiltinProviders {
         )
 }
 
-/**
- * A provider that speaks the OpenAI chat-completions protocol. Pass [executorFactory] to keep the
- * protocol but change the client, or implement [AiProvider] directly for a different protocol.
- */
+/** Speaks the OpenAI chat-completions protocol; pass [executorFactory] to swap the client. */
 open class OpenAiCompatibleProvider(
     override val id: String,
     override val displayName: String,

@@ -21,31 +21,32 @@ object AiProviderRuntime {
         return !provider.requiresApiKey || AiSettings.apiKey(provider.id).isNotBlank()
     }
 
-    fun model(): LLModel {
+    /** The configured model, or [modelId] when one is given. */
+    fun model(modelId: String? = null): LLModel {
         val provider = activeProvider()
-        val configured = configuredModelId(provider)
+        val configured = resolveModelId(provider, modelId)
         val descriptor =
             AiModelCatalog.find(provider.id, configured) ?: AiModel(id = configured, providerId = provider.id)
         return descriptor.toLLModel(provider.llmProvider)
     }
 
     @Synchronized
-    fun executor(): PromptExecutor {
+    fun executor(modelId: String? = null): PromptExecutor {
         val provider = activeProvider()
         val baseUrl = provider.baseUrl
         val path = provider.requestPath
         val apiKey = AiSettings.apiKey(provider.id)
-        val modelId = configuredModelId(provider)
-        val key = "${provider.id}|$apiKey|$baseUrl|$path|$modelId"
+        val resolved = resolveModelId(provider, modelId)
+        val key = "${provider.id}|$apiKey|$baseUrl|$path|$resolved"
 
         cachedExecutor?.let { existing ->
             if (cachedKey == key) return existing
         }
 
         runCatching { cachedExecutor?.close() }
-        Log.i(TAG, "Building executor: provider=${provider.id} baseUrl=$baseUrl path=$path model=$modelId")
+        Log.i(TAG, "Building executor: provider=${provider.id} baseUrl=$baseUrl path=$path model=$resolved")
 
-        val executor = provider.createExecutor(AiProviderConfig(apiKey, baseUrl, path, modelId))
+        val executor = provider.createExecutor(AiProviderConfig(apiKey, baseUrl, path, resolved))
         cachedKey = key
         cachedExecutor = executor
         return executor
@@ -58,8 +59,9 @@ object AiProviderRuntime {
         cachedKey = null
     }
 
-    private fun configuredModelId(provider: AiProvider): String =
-        AiSettings.modelId.ifBlank { AiModelCatalog.defaultFor(provider)?.id.orEmpty() }
+    private fun resolveModelId(provider: AiProvider, requested: String?): String =
+        requested?.takeIf { it.isNotBlank() }
+            ?: AiSettings.modelId.ifBlank { AiModelCatalog.defaultFor(provider)?.id.orEmpty() }
 }
 
 private const val TAG = "XedAI"

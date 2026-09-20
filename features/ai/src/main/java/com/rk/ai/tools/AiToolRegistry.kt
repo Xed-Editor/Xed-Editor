@@ -31,7 +31,6 @@ object AiToolRegistry {
         }
     }
 
-    /** Registers several tools at once. */
     @XedExtensionPoint
     fun registerTools(vararg tools: AiTool) = tools.forEach(::registerTool)
 
@@ -46,7 +45,7 @@ object AiToolRegistry {
         synchronized(lock) { removeOrRestoreLocked(name, expected = null) }
     }
 
-    /** Installs the built-in tools exactly once, lazily if needed. */
+    /** Installs the built-in tools once, on first use. */
     internal fun installBuiltins() {
         val toInstall =
             synchronized(lock) {

@@ -36,10 +36,7 @@ class AnthropicProvider(
         )
     }
 
-    /**
-     * The client resolves a model through [AnthropicClientSettings.modelVersionsMap]; a model this app
-     * does not ship has to be added, matching the plain [LLModel] the runtime builds for it.
-     */
+    /** The client resolves a model through [AnthropicClientSettings.modelVersionsMap]. */
     private fun customModelVersion(modelId: String): Map<LLModel, String> =
         mapOf(
             LLModel(provider = LLMProvider.Anthropic, id = modelId, capabilities = AiModel.DEFAULT_CAPABILITIES) to

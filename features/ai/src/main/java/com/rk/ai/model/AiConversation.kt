@@ -20,10 +20,7 @@ enum class ToolCallStatus {
     Failed,
     Denied,
 
-    /**
-     * The process went away while this call was still in flight, so nothing will ever settle it.
-     * Restoring a session rewrites the in-progress statuses to this one.
-     */
+    /** The process went away with this call in flight; restoring a session rewrites it to this. */
     Interrupted,
 }
 

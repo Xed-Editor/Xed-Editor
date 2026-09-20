@@ -10,10 +10,7 @@ import com.rk.ai.model.TodoStatus
 import com.rk.ai.settings.AiMemory
 import kotlinx.coroutines.CancellationException
 
-/**
- * Builds the system prompt: base prompt plus memory, goal and task list. The scratch pad is
- * deliberately excluded and read back on demand.
- */
+/** Base prompt plus memory, goal and task list; the scratch pad is read back on demand instead. */
 internal fun buildSystemPrompt(base: String, goal: String?, todos: List<AiTodo>): String =
     buildString {
         append(base)
@@ -50,10 +47,7 @@ internal fun AiTurn.Assistant.toResponseParts(): List<MessagePart.ResponsePart> 
     }
 }
 
-/**
- * Closes out the tool calls from [fromIndex] onwards when one of them aborted the run: the assistant
- * turn is already in the history and the API requires a tool result for every `tool_call_id` in it.
- */
+/** Answers the tool calls from [fromIndex] on, which the API requires once the assistant turn exists. */
 internal fun answerRemainingToolCalls(
     history: MutableList<AiTurn>,
     calls: List<AiToolCall>,

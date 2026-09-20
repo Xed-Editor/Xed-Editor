@@ -51,7 +51,7 @@ class AiChatController {
 
     val messages = mutableStateListOf<AiChatMessage>()
 
-    /** Bumped by [markChanged]; keeps [cachedPayload] valid until the persisted state changes. */
+    /** Bumped by [markChanged]; invalidates [cachedPayload]. */
     private var revision = 0L
     private var cachedRevision = -1L
     private var cachedPayload: ByteArray? = null
@@ -596,7 +596,6 @@ class AiChatController {
             val index = messages.indexOfFirst { it.id == id }
             if (index >= 0) {
                 messages[index] = transform(messages[index])
-                // Every transcript edit reaches the persisted state through here.
                 markChanged()
             }
         }

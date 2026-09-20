@@ -14,10 +14,7 @@ data class AiChatSnapshot(
     val nextId: Long = 0L,
     val showReasoning: Boolean = false,
 ) {
-    /**
-     * The snapshot as it should be restored, with in-flight work settled: a run never survives the
-     * process, so any status still promising progress becomes [ToolCallStatus.Interrupted].
-     */
+    /** The snapshot with in-flight work settled: a run never survives the process. */
     fun settled(): AiChatSnapshot = copy(messages = messages.map { it.settled() })
 }
 

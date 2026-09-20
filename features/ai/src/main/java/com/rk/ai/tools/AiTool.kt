@@ -19,9 +19,8 @@ enum class AiToolKind {
 }
 
 /**
- * A single capability offered to the model. Exactly one of [execute] and [handler] must be set:
- * [execute] runs on [kotlinx.coroutines.Dispatchers.IO], [handler] on the agent's own dispatcher so it
- * can touch UI state.
+ * A capability offered to the model. Exactly one of [execute] (IO dispatcher) and [handler] (agent
+ * dispatcher, may touch UI state) must be set.
  *
  * @param targetPath the argument naming the file the call touches, the key for "always allow this file".
  */

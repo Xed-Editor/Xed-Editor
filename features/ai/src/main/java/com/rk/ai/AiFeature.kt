@@ -33,9 +33,7 @@ class AiFeature : Feature {
     private val aiChatCommand = OpenAiChatCommand()
 
     override fun init(application: Application) {
-        // Idempotent: extensions may already have registered their own tools before this runs.
         AiExtensions.installBuiltins()
-        // Needed to restore AI chat tabs from a saved session.
         AiTab.register()
         registerSettings()
         registerCommands()

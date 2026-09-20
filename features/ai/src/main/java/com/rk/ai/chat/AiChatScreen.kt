@@ -780,7 +780,6 @@ private fun GoalBanner(goal: String, onClear: () -> Unit) {
     }
 }
 
-/** The model's question with its options and a free-text reply. */
 @Composable
 private fun QuestionCard(question: PendingQuestion, onAnswer: (String) -> Unit) {
     var custom by remember { mutableStateOf("") }
@@ -1043,7 +1042,6 @@ private fun PermissionMode.label(): String =
 
 private data class Suggestion(val title: String, val subtitle: String, val prompt: String)
 
-/** How long the copy button shows its tick. */
 private const val COPIED_FEEDBACK_MILLIS = 1_500L
 
 private val SUGGESTIONS =

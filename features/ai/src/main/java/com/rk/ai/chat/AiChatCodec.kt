@@ -9,40 +9,30 @@ import com.rk.ai.model.TodoStatus
 import com.rk.ai.model.ToolCallStatus
 
 /**
- * The wire format behind [AiChatSnapshot.encode].
- *
- * Layout - varints are unsigned LEB128, text is UTF-8, integers are big-endian:
+ * Wire format behind [AiChatSnapshot.encode]. Varints are unsigned LEB128, text is UTF-8 and
+ * integers are big-endian:
  * ```
- * version   : uint8   (written by the envelope, not this object - see AiChatPayload)
- * magic     : int32  ('XEDA')
+ * version   : uint8   (written by AiChatPayload)
+ * magic     : int32   ('XEDA')
  * messages  : varint count, then per message:
- *               id            varint
- *               role          uint8   (1 user, 2 assistant, 3 tool)
- *               text          string
- *               reasoning     string
- *               streaming     uint8   (0 or 1)
- *               error         string? (uint8 presence, then string)
- *               toolName      string?
- *               toolArgs      string?
- *               toolStatus    uint8   (0 none, else 1..7)
- *               diff          string?
- *               children      varint count, then messages
+ *               id varint, role uint8 (1 user, 2 assistant, 3 tool), text string,
+ *               reasoning string, streaming uint8, error string?, toolName string?,
+ *               toolArgs string?, toolStatus uint8 (0 none, else 1..7), diff string?,
+ *               children varint count, then messages
  * history   : varint count, then per turn:
- *               tag           uint8   (1 user, 2 assistant, 3 tool output)
- *               user:         text
- *               assistant:    text, varint count of calls { id, name, args }
- *               tool output:  id, name, output, error uint8
+ *               tag uint8 (1 user, 2 assistant, 3 tool output)
+ *               user: text
+ *               assistant: text, varint count of calls { id, name, args }
+ *               tool output: id, name, output, error uint8
  * goal      : string?
  * draft     : string
  * todos     : varint count, then per todo { content string, status uint8 }
  * nextId    : varint
- * reasoning : uint8   (0 or 1, whether the model's reasoning is folded out)
+ * reasoning : uint8   (0 or 1)
  * string    : varint byte length, then UTF-8 bytes
  * ```
- *
- * Enum members are written as explicit codes, not declaration order, so reordering an enum cannot
- * silently reinterpret an old payload. The reader ignores trailing bytes so a later version can
- * append fields without breaking this one.
+ * Enums use explicit codes so reordering cannot reinterpret an old payload, and the reader ignores
+ * trailing bytes so later versions can append fields.
  */
 internal object AiChatCodec {
     private const val MAGIC = 0x58454441 // "XEDA"
@@ -201,7 +191,7 @@ internal object AiChatCodec {
         }
     }
 
-    /** One pass over the sizes avoids repeated buffer growth; chars are scaled to their UTF-8 bytes. */
+    /** One pass over the sizes avoids repeated buffer growth; UTF-8 is at most three bytes per char. */
     private fun AiChatSnapshot.estimatedSize(): Int {
         var size = 96 + draft.length + (goal?.length ?: 0)
         messages.forEach { size += it.estimatedSize() }
@@ -286,8 +276,6 @@ internal object AiChatCodec {
 
     private const val ESTIMATED_MESSAGE_OVERHEAD = 28
     private const val ESTIMATED_TURN_OVERHEAD = 12
-
-    /** Slack for the size estimate: UTF-8 is at most three bytes per UTF-16 char. */
     private const val BYTE_PER_CHAR = 3
 }
 
@@ -367,7 +355,6 @@ private class ChatWriter(initialCapacity: Int) {
     }
 
     private companion object {
-        /** Caps a corrupt size estimate, which must not become a huge allocation. */
         const val MAX_INITIAL_CAPACITY = 1 shl 24
     }
 }
@@ -444,8 +431,8 @@ private class ChatReader(private val payload: ByteArray) {
 fun decodeChatSnapshot(payload: ByteArray?): AiChatSnapshot? = AiChatPayload.decode(payload)
 
 /**
- * The version byte around one encoded chat: a format this build cannot read forward is dropped
- * instead of failing the whole session restore.
+ * The version byte around one encoded chat: a format this build cannot read is dropped instead of
+ * failing the whole session restore.
  */
 internal object AiChatPayload {
     private const val PAYLOAD_VERSION = 1
