@@ -1,27 +1,24 @@
 package com.rk.drawer
 
-import androidx.lifecycle.ViewModelStoreOwner
 import com.rk.icons.Icon
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 object ServiceTabRegistry {
 
-    private val providers = mutableListOf<ServiceTabProvider>()
+    private val _tabs = MutableStateFlow<List<DrawerTab>>(emptyList())
+    val tabs = _tabs.asStateFlow()
 
-    fun register(provider: ServiceTabProvider) {
-        providers += provider
+    fun register(tab: DrawerTab) {
+        _tabs.update { it + tab }
+        tab.onAdded()
     }
 
-    fun unregister(provider: ServiceTabProvider) {
-        providers -= provider
+    fun unregister(tab: DrawerTab) {
+        _tabs.update { it - tab }
+        tab.onRemoved()
     }
-
-    internal fun createAll(owner: ViewModelStoreOwner): List<DrawerTab> {
-        return providers.map { it.create(owner) }
-    }
-}
-
-fun interface ServiceTabProvider {
-    fun create(owner: ViewModelStoreOwner): DrawerTab
 }
 
 enum class AddProjectCategory {
@@ -40,16 +37,14 @@ data class AddProjectOption(
 
 object AddProjectRegistry {
 
-    private val _options = mutableListOf<AddProjectOption>()
-
-    val options
-        get() = _options.toList()
+    private val _options = MutableStateFlow<List<AddProjectOption>>(emptyList())
+    val options = _options.asStateFlow()
 
     fun register(option: AddProjectOption) {
-        _options += option
+        _options.update { it + option }
     }
 
     fun unregister(option: AddProjectOption) {
-        _options -= option
+        _options.update { it - option }
     }
 }

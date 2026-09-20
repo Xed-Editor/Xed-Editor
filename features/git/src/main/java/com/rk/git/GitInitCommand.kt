@@ -27,7 +27,7 @@ object GitInitCommand : GlobalCommand() {
         val currentTab = drawerViewModel.currentDrawerTab as? FileTreeTab ?: return
         val rootPath = currentTab.root.getAbsolutePath()
 
-        val gitViewModel = gitViewModel.get()
+        val gitViewModel = gitViewModel
         gitViewModel?.initRepository(File(rootPath)) {
             gitViewModel.loadRepository(rootPath)
         }

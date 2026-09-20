@@ -33,9 +33,6 @@ sealed interface DrawerEvent : Event {
     /** Event triggered when the active drawer tab changes. */
     data class TabSelected(val tab: DrawerTab?) : DrawerEvent
 
-    /** Event triggered when the registered service tabs have been initialized. */
-    data class ServicesInitialized(val tabs: List<DrawerTab>) : DrawerEvent
-
     /** Event triggered when the active service tab changes. */
     data class ServiceTabSelected(val tab: DrawerTab?) : DrawerEvent
 }

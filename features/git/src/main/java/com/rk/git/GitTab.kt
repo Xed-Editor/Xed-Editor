@@ -57,7 +57,6 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -76,6 +75,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.filesByTab
 import com.rk.activities.main.ui.drawerStateRef
@@ -85,6 +85,7 @@ import com.rk.components.XedDropdownMenuItem
 import com.rk.components.getDrawerWidth
 import com.rk.drawer.DrawerTab
 import com.rk.feature.FeatureRegistry
+import com.rk.feature.FeatureViewModel
 import com.rk.file.toFileWrapper
 import com.rk.filetree.FileTreeTab
 import com.rk.icons.Icon
@@ -97,10 +98,12 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 
-class GitTab(val viewModel: GitViewModel) : DrawerTab() {
+class GitTab : DrawerTab() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content(modifier: Modifier) {
+        val viewModel = FeatureViewModel.get<GitViewModel>() ?: return
+
         var showBranchesMenu by remember { mutableStateOf(false) }
         var showNewBranchDialog by remember { mutableStateOf(false) }
 
@@ -440,9 +443,21 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         state = rememberLazyListState(),
                         contentPadding = PaddingValues(top = 8.dp),
                     ) {
-                        item { ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded } }
-                        item { ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded } }
-                        item { UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded } }
+                        item {
+                            ConflictsList(viewModel, conflicts, conflictsExpanded) {
+                                conflictsExpanded = !conflictsExpanded
+                            }
+                        }
+                        item {
+                            ChangesList(viewModel, changes, changesExpanded) {
+                                changesExpanded = !changesExpanded
+                            }
+                        }
+                        item {
+                            UntrackedList(viewModel, untracked, untrackedExpanded) {
+                                untrackedExpanded = !untrackedExpanded
+                            }
+                        }
                     }
                 } else {
                     Column(
@@ -697,6 +712,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
     @Composable
     private fun ColumnScope.ConflictsList(
+        viewModel: GitViewModel,
         conflicts: List<GitChange>,
         conflictsExpanded: Boolean,
         onToggleExpansion: () -> Unit,
@@ -751,12 +767,13 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             )
         }
 
-        AnimatedVisibility(visible = conflictsExpanded) { ChangesItemList(conflicts) }
+        AnimatedVisibility(visible = conflictsExpanded) { ChangesItemList(viewModel, conflicts) }
         Spacer(modifier = Modifier.height(8.dp))
     }
 
     @Composable
     private fun ColumnScope.ChangesList(
+        viewModel: GitViewModel,
         changes: List<GitChange>,
         changesExpanded: Boolean,
         onToggleExpansion: () -> Unit,
@@ -811,12 +828,13 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             )
         }
 
-        AnimatedVisibility(visible = changesExpanded) { ChangesItemList(changes) }
+        AnimatedVisibility(visible = changesExpanded) { ChangesItemList(viewModel, changes) }
         Spacer(modifier = Modifier.height(8.dp))
     }
 
     @Composable
     private fun ColumnScope.UntrackedList(
+        viewModel: GitViewModel,
         untracked: List<GitChange>,
         untrackedExpanded: Boolean,
         onToggleExpansion: () -> Unit,
@@ -871,12 +889,12 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             )
         }
 
-        AnimatedVisibility(visible = untrackedExpanded) { ChangesItemList(untracked) }
+        AnimatedVisibility(visible = untrackedExpanded) { ChangesItemList(viewModel, untracked) }
         Spacer(modifier = Modifier.height(8.dp))
     }
 
     @Composable
-    private fun ChangesItemList(items: List<GitChange>) {
+    private fun ChangesItemList(viewModel: GitViewModel, items: List<GitChange>) {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
         val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()

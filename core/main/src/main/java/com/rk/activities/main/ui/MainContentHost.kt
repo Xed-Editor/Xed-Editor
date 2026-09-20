@@ -196,7 +196,6 @@ fun MainActivity.MainContentHost(
             val sheetContent: @Composable ColumnScope.() -> Unit = {
                 LaunchedEffect(Unit) {
                     drawerViewModel.setLoading(true)
-                    drawerViewModel.setupBuiltinServices(this@MainContentHost)
                     DrawerPersistence.restoreState(drawerViewModel)
                     drawerViewModel.setLoading(false)
                 }

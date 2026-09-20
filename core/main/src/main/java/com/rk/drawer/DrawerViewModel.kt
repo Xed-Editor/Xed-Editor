@@ -1,7 +1,6 @@
 package com.rk.drawer
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.rk.events.DrawerEvent
 import com.rk.events.Events
@@ -20,8 +19,8 @@ class DrawerViewModel : ViewModel() {
     private val _drawerTabs = MutableStateFlow<List<DrawerTab>>(emptyList())
     val drawerTabs = _drawerTabs.asStateFlow()
 
-    private val _serviceTabs = MutableStateFlow<List<DrawerTab>>(emptyList())
-    val serviceTabs = _serviceTabs.asStateFlow()
+    private val _serviceTabs = ServiceTabRegistry.tabs
+    val serviceTabs = _serviceTabs
 
     private val _currentDrawerTabIndex = MutableStateFlow(0)
     val currentDrawerTabIndex = _currentDrawerTabIndex.asStateFlow()
@@ -37,12 +36,6 @@ class DrawerViewModel : ViewModel() {
 
     fun setLoading(value: Boolean) {
         _isLoading.value = value
-    }
-
-    internal fun setupBuiltinServices(owner: ViewModelStoreOwner) {
-        _serviceTabs.value = ServiceTabRegistry.createAll(owner)
-        _currentServiceTabIndex.value = -1
-        viewModelScope.launch { Events.publish(DrawerEvent.ServicesInitialized(_serviceTabs.value)) }
     }
 
     fun addFileTreeTab(fileObject: FileObject, save: Boolean = false) {
