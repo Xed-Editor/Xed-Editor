@@ -3,12 +3,11 @@ package com.rk.git
 import android.app.Application
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.commands.CommandProvider
@@ -17,7 +16,6 @@ import com.rk.components.DialogRegistry
 import com.rk.drawer.AddProjectCategory
 import com.rk.drawer.AddProjectOption
 import com.rk.drawer.AddProjectRegistry
-import com.rk.drawer.ServiceTabProvider
 import com.rk.drawer.ServiceTabRegistry
 import com.rk.editor.Editor
 import com.rk.editor.XedColorScheme
@@ -30,6 +28,7 @@ import com.rk.extension.api.DynamicRoute
 import com.rk.feature.Feature
 import com.rk.feature.FeatureRegistry
 import com.rk.feature.FeatureToggle
+import com.rk.feature.FeatureViewModel
 import com.rk.file.FileDecoration
 import com.rk.file.FileDecorationProvider
 import com.rk.file.FileDecorationRegistry
@@ -73,11 +72,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 import kotlin.time.Duration.Companion.milliseconds
 
 // Global reference for gitViewModel
-var gitViewModel = WeakReference<GitViewModel?>(null)
+val gitViewModel
+    get() = FeatureViewModel.get<GitViewModel>()
 
 class GitFeature : Feature {
     override val toggle =
@@ -90,7 +89,7 @@ class GitFeature : Feature {
 
     private var settingsCategory: SettingsCategory? = null
     private var settingsRoute: DynamicRoute? = null
-    private var serviceTabProvider: ServiceTabProvider? = null
+    private var gitTab: GitTab? = null
     private var addProjectOption: AddProjectOption? = null
     private var dialogProvider: DialogProvider? = null
     private var projectCategory: ProjectCategory? = null
@@ -121,18 +120,12 @@ class GitFeature : Feature {
 
         CommandProvider.registerCommand(GitInitCommand)
 
-        serviceTabProvider =
-            ServiceTabProvider { owner ->
-                val viewModel = ViewModelProvider(owner)[GitViewModel::class.java]
-                gitViewModel = WeakReference(viewModel)
-                GitTab(viewModel)
-            }
-                .also { ServiceTabRegistry.register(it) }
+        gitTab = GitTab().also { ServiceTabRegistry.register(it) }
 
         // Register file change notification listeners
         subscriptions.add(
             Events.subscribe<FileTreeEvent.Opened> { event ->
-                val viewModel = gitViewModel.get() ?: return@subscribe
+                val viewModel = gitViewModel ?: return@subscribe
                 val gitRoot = findGitRoot(event.projectRoot.getAbsolutePath())
                 if (gitRoot != null) {
                     viewModel.loadRepository(gitRoot)
@@ -144,13 +137,13 @@ class GitFeature : Feature {
 
         subscriptions.add(
             Events.subscribe<FileTreeEvent.TreeSynchronized> { event ->
-                gitViewModel.get()?.syncChanges(event.parent.getAbsolutePath())
+                gitViewModel?.syncChanges(event.parent.getAbsolutePath())
             }
         )
 
         subscriptions.add(
             Events.subscribe<EditorTabEvent.Saved> { event ->
-                gitViewModel.get()?.syncChanges(event.file.getAbsolutePath())
+                gitViewModel?.syncChanges(event.file.getAbsolutePath())
             }
         )
 
@@ -240,7 +233,7 @@ class GitFeature : Feature {
         FileDecorationRegistry.unregister(GitFileDecorationProvider)
         FilePropertiesRegistry.unregister(GitProperty)
         CommandProvider.unregisterCommand(GitInitCommand)
-        serviceTabProvider?.let { ServiceTabRegistry.unregister(it) }
+        gitTab?.let { ServiceTabRegistry.unregister(it) }
         subscriptions.forEach { it.unsubscribe() }
         subscriptions.clear()
         addProjectOption?.let { AddProjectRegistry.unregister(it) }
@@ -267,10 +260,10 @@ class GitFeature : Feature {
 object GitProperty : FilePropertiesProvider {
     @Composable
     override fun provideProperties(file: FileObject): List<FileProperty> {
-        val viewModel = gitViewModel.get() ?: return emptyList()
+        val viewModel = FeatureViewModel.get<GitViewModel>() ?: return emptyList()
         val changes by viewModel.changes.collectAsStateWithLifecycle(initialValue = emptyMap())
-        val changeType = changes.values.flatten().find { it.absolutePath == file.getAbsolutePath() }?.type
-            ?: return emptyList()
+        val changeType =
+            changes.values.flatten().find { it.absolutePath == file.getAbsolutePath() }?.type ?: return emptyList()
         val gitStatus = changeType.name.lowercase().replaceFirstChar { it.uppercase() }
         val color =
             when (changeType) {
@@ -295,10 +288,10 @@ object GitFileDecorationProvider : FileDecorationProvider {
     @Composable
     override fun provideDecoration(file: FileObject): FileDecoration? {
         if (!Settings.git_colorize_names) return null
-        val viewModel = gitViewModel.get() ?: return null
+        val viewModel = FeatureViewModel.get<GitViewModel>() ?: return null
         val changes by viewModel.changes.collectAsStateWithLifecycle(initialValue = emptyMap())
-        val changeType = changes.values.flatten().find { it.absolutePath == file.getAbsolutePath() }?.type
-            ?: return null
+        val changeType =
+            changes.values.flatten().find { it.absolutePath == file.getAbsolutePath() }?.type ?: return null
         val color =
             when (changeType) {
                 ChangeType.ADDED,
@@ -327,7 +320,7 @@ class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
     }
 
     fun requestUpdate() {
-        val viewModel = gitViewModel.get() ?: return
+        val viewModel = FeatureViewModel.get<GitViewModel>() ?: return
 
         val tab = editor.ownerTab as? EditorTab ?: return
         val file = tab.file ?: return
@@ -345,7 +338,7 @@ class GitDiffGutterProvider(private val editor: Editor) : ExtraStylesProvider {
 
     override fun getExtraStyles(line: Int, styles: MutableList<LineAnchorStyle>) {
         if (!Settings.git_gutter_indication) return
-        val viewModel = gitViewModel.get() ?: return
+        val viewModel = FeatureViewModel.get<GitViewModel>() ?: return
 
         val tab = editor.ownerTab as? EditorTab ?: return
         val file = tab.file ?: return

@@ -127,24 +127,22 @@ fun GitCloneDialog(
                                     false,
                                     repoURL.substringAfterLast("/").substringBeforeLast("."),
                                 )
-                        gitViewModel
-                            .get()
-                            ?.cloneRepository(
-                                repoURL = normalizeRepoUrl(repoURL),
-                                repoBranch = repoBranch,
-                                targetDir = File(fileObject!!.getAbsolutePath()),
-                                progressCoordinator = monitor,
-                                onComplete = { success ->
-                                    repoURL = ""
-                                    repoBranch = "main"
-                                    repoURLError = null
-                                    repoBranchError = null
-                                    onDismiss()
-                                    if (success) {
-                                        onCloneComplete(fileObject)
-                                    }
-                                },
-                            )
+                        gitViewModel?.cloneRepository(
+                            repoURL = normalizeRepoUrl(repoURL),
+                            repoBranch = repoBranch,
+                            targetDir = File(fileObject!!.getAbsolutePath()),
+                            progressCoordinator = monitor,
+                            onComplete = { success ->
+                                repoURL = ""
+                                repoBranch = "main"
+                                repoURLError = null
+                                repoBranchError = null
+                                onDismiss()
+                                if (success) {
+                                    onCloneComplete(fileObject)
+                                }
+                            },
+                        )
                     }
                 }
                     ?: run {
