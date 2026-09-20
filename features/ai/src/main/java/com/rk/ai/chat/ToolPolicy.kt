@@ -4,7 +4,6 @@ import com.rk.ai.settings.PermissionMode
 import com.rk.ai.tools.AiTool
 import com.rk.ai.tools.AiToolKind
 
-/** What the permission gate decides for a single tool call. */
 internal enum class ToolGate {
     RunNow,
 
@@ -13,12 +12,7 @@ internal enum class ToolGate {
     Blocked,
 }
 
-/**
- * Decides whether a tool may run, must ask, or is blocked outright.
- *
- * The rules are deliberately a pure function of the tool's declared [AiToolKind] and
- * `isDestructive` flag, plus the user's mode and whether this file was already allowed in the chat.
- */
+/** Decides whether a tool runs, asks or is blocked, from its [AiToolKind], flags and the user's mode. */
 internal fun gateFor(
     tool: AiTool,
     mode: PermissionMode,
@@ -34,10 +28,5 @@ internal fun gateFor(
         else -> ToolGate.RunNow
     }
 
-/**
- * Thrown when the user rejects a tool call.
- *
- * It aborts the whole run rather than being reported back to the model as a failed tool: the model
- * would otherwise simply ask for the same permission again, leaving the approval prompt on screen.
- */
+/** Thrown when the user rejects a tool call; aborts the run so the model cannot re-ask. */
 internal class ToolDeniedException(toolName: String) : Exception("Tool '$toolName' was denied by the user.")

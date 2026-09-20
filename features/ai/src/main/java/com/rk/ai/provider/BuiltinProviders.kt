@@ -7,13 +7,6 @@ import ai.koog.prompt.executor.llms.MultiLLMPromptExecutor
 import ai.koog.prompt.executor.model.PromptExecutor
 import ai.koog.prompt.llm.LLMProvider
 
-/**
- * The providers the app ships with.
- *
- * All three speak the OpenAI chat-completions protocol, which is why one implementation with a small
- * configuration object is enough. A provider with a different protocol implements [AiProvider]
- * directly and is registered the same way.
- */
 object BuiltinProviders {
     const val DEEPSEEK_ID = "deepseek"
     const val OPENAI_ID = "openai"
@@ -49,10 +42,7 @@ object BuiltinProviders {
             baseUrlMatcher = { it.contains("api.openai.com", ignoreCase = true) },
         )
 
-    /**
-     * Any other OpenAI-compatible endpoint. It never auto-matches a base URL: the user selects it
-     * explicitly and types the model id the endpoint expects.
-     */
+    /** Never auto-matches a base URL; the user selects it explicitly. */
     val openAiCompatible: AiProvider =
         OpenAiCompatibleProvider(
             id = OPENAI_COMPATIBLE_ID,
@@ -60,20 +50,13 @@ object BuiltinProviders {
             defaultBaseUrl = "https://api.deepseek.com",
             defaultChatCompletionsPath = "v1/chat/completions",
             models = emptyList(),
-            // Some gateways keep the vendor-specific `chat/completions`, others the canonical
-            // `v1/chat/completions`; the historical heuristic is preserved so existing setups work.
+            // Historical heuristic kept so existing setups keep working.
             pathResolver = { baseUrl -> if (baseUrl.contains("deepseek", ignoreCase = true)) "chat/completions" else "v1/chat/completions" },
         )
 
     fun all(): List<AiProvider> = listOf(deepseek, openAi, openAiCompatible)
 }
 
-/**
- * An [AiProvider] backed by koog's OpenAI client.
- *
- * @param baseUrlMatcher decides whether an existing base URL belongs to this provider.
- * @param pathResolver overrides how the chat-completions path is derived from the base URL.
- */
 class OpenAiCompatibleProvider(
     override val id: String,
     override val displayName: String,

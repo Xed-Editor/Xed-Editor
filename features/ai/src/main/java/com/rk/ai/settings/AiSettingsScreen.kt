@@ -46,12 +46,6 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 
-/**
- * The AI settings page.
- *
- * The provider, model and tool lists are read from the extension registries, so anything an extension
- * registers shows up here without a UI change.
- */
 @Composable
 fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {}) {
     var editing by remember { mutableStateOf<EditTarget?>(null) }
@@ -208,7 +202,6 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
     }
 }
 
-/** Applies a provider preset: endpoint, first model and a rebuilt executor. */
 private fun selectProvider(provider: AiProvider) {
     AiSettings.providerId = provider.id
     AiSettings.baseUrl = provider.defaultBaseUrl

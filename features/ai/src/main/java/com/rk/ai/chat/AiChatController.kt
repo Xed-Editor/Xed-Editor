@@ -37,17 +37,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import java.util.UUID
 
-/**
- * Owns one chat tab's transcript and runs the agent loop for it.
- *
- * The controller is the only place that knows about approvals, questions, the goal and the task
- * list; tools are looked up in [AiToolRegistry] and either executed directly or handed a
- * [Session] when they need that state. Nothing here is hard-coded to a specific tool name, so a tool
- * registered by an extension is first-class.
- *
- * It also owns the state the chat tab persists: everything the user would expect to still be there
- * after the app is killed lives here, and [snapshot] hands it over in one piece.
- */
+/** Owns one chat tab's transcript, agent loop and persisted state. */
 class AiChatController {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val history = mutableListOf<AiTurn>()
@@ -61,13 +51,7 @@ class AiChatController {
 
     val messages = mutableStateListOf<AiChatMessage>()
 
-    /**
-     * Bumped by [markChanged] on every edit to the persisted state.
-     *
-     * Comparing it against [cachedRevision] is how [snapshot] decides whether the cached payload is
-     * still current; the counter is a single `long` comparison for a save that changed nothing,
-     * while a real change is encoded exactly once no matter how many tabs are saved.
-     */
+    /** Bumped by [markChanged]; keeps [cachedPayload] valid until the persisted state changes. */
     private var revision = 0L
     private var cachedRevision = -1L
     private var cachedPayload: ByteArray? = null
@@ -81,42 +65,29 @@ class AiChatController {
     var pendingApproval by mutableStateOf<PendingApproval?>(null)
         private set
 
-    /** A question the run is blocked on, shown above the composer until it is answered. */
     var pendingQuestion by mutableStateOf<PendingQuestion?>(null)
         private set
 
-    /** The goal the agent declared for this chat, shown to the user above the transcript. */
     var goal by mutableStateOf<String?>(null)
         private set
 
-    /** The agent's task list for this chat, shown to the user above the transcript. */
     var todos by mutableStateOf<List<AiTodo>>(emptyList())
         private set
 
-    // Backing state for the two persisted view inputs. They are private with an explicit accessor
-    // rather than `var ... private set`, because a Kotlin setter of that name would clash with the
-    // accessor on the JVM; the public half is read-only, so the only way to change them is through
-    // the accessor that also flags the change for the next save.
+    // Backing fields: `var ... private set` would clash with the JVM accessor of the same name.
     private var draftState by mutableStateOf("")
     private var reasoningState by mutableStateOf(false)
 
-    /**
-     * Text typed into the composer but not sent yet.
-     *
-     * It lives here rather than in the screen's `rememberSaveable` so it is part of the persisted
-     * chat: a half-written prompt survives the process, and it is shared by every recomposition of
-     * the tab instead of being reset with the composition.
-     */
+    /** Composer text that has not been sent; persists with the chat. */
     val draft: String
         get() = draftState
 
-    /** Whether the model's reasoning is folded out in the transcript; a view preference, persisted. */
+    /** Whether the model's reasoning is folded out; persisted. */
     val showReasoning: Boolean
         get() = reasoningState
 
     init {
-        // Extension tools may register before the chat tab is opened; make sure the built-ins are
-        // present too so a run never starts with an empty tool set.
+        // `all()` installs the built-ins, in case no extension registered them first.
         AiToolRegistry.all()
     }
 
@@ -133,8 +104,6 @@ class AiChatController {
 
         lastError = null
         messages.add(AiChatMessage(id = nextId++, role = AiChatRole.User, text = text))
-        // The prompt has left the composer and joined the transcript, so both ends of the persisted
-        // state changed: the draft is cleared and the transcript has one more message.
         if (draftState.isNotEmpty()) draftState = ""
         markChanged()
 
@@ -150,7 +119,7 @@ class AiChatController {
                         basePrompt = AiSettings.systemPrompt,
                     )
                 } catch (e: ToolDeniedException) {
-                    // The user's rejection already stopped the run; it is not a failure, so no banner.
+                    // A denial already stopped the run cleanly; no error banner.
                     Log.i(TAG, "Run stopped: ${e.message}")
                 } catch (e: CancellationException) {
                     throw e
@@ -173,12 +142,10 @@ class AiChatController {
         approvalDeferred?.complete(allow)
     }
 
-    /** Answers the pending `ask_user` question with either a chosen option or a typed reply. */
     fun answerQuestion(answer: String) {
         questionDeferred?.complete(answer.trim())
     }
 
-    /** Records composer text as the user types it, so it is part of the persisted chat. */
     fun setDraft(text: String) {
         if (draftState == text) return
         draftState = text
@@ -191,13 +158,12 @@ class AiChatController {
         markChanged()
     }
 
-    /** Dismisses the declared goal; the agent is told about the change on its next turn. */
+    /** The agent is told about the cleared goal on its next turn. */
     fun clearGoal() {
         goal = null
         markChanged()
     }
 
-    /** Dismisses the task list; the agent is told about the change on its next turn. */
     fun clearTodos() {
         todos = emptyList()
         markChanged()
@@ -213,13 +179,11 @@ class AiChatController {
         pendingQuestion = null
         questionDeferred?.cancel()
         questionDeferred = null
-        // A cancelled stream never reaches its `finish`, so clear any spinners left behind, including
-        // the ones inside sub-agent transcripts.
+        // A cancelled stream never emits `finish`, so settle the spinners it left behind.
         for (index in messages.indices) {
             messages[index] = messages[index].stopped()
         }
-        // A stopped run leaves tool cards running in the transcript; the difference has to reach the
-        // saved chat too, or a restart would show a spinner for a tool that is no longer running.
+        // Persist the settled cards, or a restart shows spinners for tools that already stopped.
         markChanged()
     }
 
@@ -236,23 +200,14 @@ class AiChatController {
 
     fun dispose() {
         scope.cancel()
-        // The scratch pad lives and dies with the chat tab.
         AiScratchpad.clear()
     }
 
-    /** Flags the persisted state as changed, so the next [snapshot] re-encodes instead of reusing. */
     private fun markChanged() {
         revision++
     }
 
-    /**
-     * Everything the chat tab persists, in one piece.
-     *
-     * The snapshot is built from the live collections - they are immutable models, so handing over the
-     * lists costs nothing - and then encoded through [AiChatPayload]. The encoded bytes are kept: a
-     * session save that runs after no chat changes (the common case for a background app) returns the
-     * same array instead of walking the whole transcript again.
-     */
+    /** Everything the chat tab persists, in one piece. */
     fun snapshot(): AiChatSnapshot = AiChatSnapshot(
         messages = messages.toList(),
         history = history.toList(),
@@ -263,7 +218,6 @@ class AiChatController {
         showReasoning = showReasoning,
     )
 
-    /** The encoded form of [snapshot], reused until something changes. */
     private fun snapshotPayload(): ByteArray {
         cachedPayload?.let { if (cachedRevision == revision) return it }
 
@@ -273,14 +227,7 @@ class AiChatController {
         return payload
     }
 
-    /**
-     * Replaces the chat with a restored [snapshot].
-     *
-     * In-flight work never survives a restart, so the restored transcript is settled first: a tool
-     * card whose run died with the process is marked [ToolCallStatus.Interrupted] rather than left
-     * looking like it is still running. The agent history is restored unchanged - it is what the next
-     * request replays - and [nextId] is carried over so message ids stay unique.
-     */
+    /** Replaces the chat with a restored snapshot, settling work that did not survive the restart. */
     fun applySnapshot(snapshot: AiChatSnapshot) {
         val settled = snapshot.settled()
         messages.clear()
@@ -292,27 +239,14 @@ class AiChatController {
         draftState = settled.draft
         reasoningState = settled.showReasoning
         nextId = maxOf(settled.nextId, (settled.messages.maxOfOrNull { it.id } ?: -1L) + 1)
-        // A restored chat is on disk already; marking it changed only invalidates the (empty) cache.
+        // Invalidates the cache so the restored chat is re-encoded on the next save.
         markChanged()
     }
 
-    /**
-     * The bytes the session stores for this chat.
-     *
-     * The session file is the one copy of a chat's state: it is written on every save anyway, so a
-     * second copy on disk would only mean encoding and writing the whole transcript twice for every
-     * pause. This returns the cached encoding when nothing changed since the last save.
-     */
+    /** The bytes the session stores for this chat. */
     fun persist(): ByteArray = snapshotPayload()
 
-    /**
-     * Runs one agent to completion and returns its final answer.
-     *
-     * The loop is shared by the main agent and by sub-agents; the only differences are the [history]
-     * it accumulates, the [transcript] it reports to, and the [basePrompt]. A sub-agent gets a fresh
-     * history, which is the whole point: its intermediate tool output never enters the main
-     * conversation.
-     */
+    /** Runs one agent to completion; shared by the main agent and sub-agents. */
     private suspend fun runLoop(
         history: MutableList<AiTurn>,
         transcript: Transcript,
@@ -320,8 +254,7 @@ class AiChatController {
         basePrompt: String,
     ): String {
         repeat(MAX_STEPS) {
-            // Rebuilt every step so a goal, task list or memory the agent changed in the previous
-            // step is already reflected in the next request.
+            // Rebuilt every step so a goal, task list or memory changed by the agent is picked up.
             val assistant = streamAssistant(history, transcript, buildSystemPrompt(basePrompt, goal, todos), depth)
             history.add(assistant)
             markChanged()
@@ -332,11 +265,8 @@ class AiChatController {
                     try {
                         executeTool(call, transcript, depth)
                     } catch (t: Throwable) {
-                        // The assistant message that requested these calls is already in the history,
-                        // and the API requires a tool result for every `tool_call_id` in it. Without
-                        // these, the *next* request fails with "an assistant message with 'tool_calls'
-                        // must be followed by tool messages". This covers a user denial, the stop
-                        // button cancelling mid-tool, and any unexpected failure.
+                        // The API requires a result for every `tool_call_id` in the assistant message,
+                        // or the next request is rejected; cover denial, cancellation and failure.
                         answerRemainingToolCalls(history, assistant.toolCalls, fromIndex = index, cause = t)
                         throw t
                     }
@@ -347,7 +277,7 @@ class AiChatController {
 
         val message = "Stopped after $MAX_STEPS steps without a final answer."
         Log.w(TAG, message)
-        // Only the main run has an error banner; a sub-agent reports the same text as its result.
+        // Only the main run has an error banner; a sub-agent returns the text as its result.
         if (depth == 0) lastError = message
         return message
     }
@@ -362,8 +292,7 @@ class AiChatController {
         val messageId = nextId++
         transcript.add(AiChatMessage(id = messageId, role = AiChatRole.Assistant, isStreaming = true))
 
-        // A sub-agent works on its own, so the tools that talk to the user or own session state are
-        // withheld from it: it cannot ask questions, and it cannot overwrite the main goal or list.
+        // A sub-agent is withheld the tools that talk to the user or own session state.
         val offered = offeredTools(depth)
 
         val toolCalls = LinkedHashMap<String, AiToolCall>()
@@ -373,8 +302,7 @@ class AiChatController {
                 when (frame) {
                     is StreamFrame.TextDelta -> appendText(transcript, messageId, frame.text)
                     is StreamFrame.ReasoningDelta -> {
-                        // Chat-completions providers stream reasoning text; the Responses API can send
-                        // a summary instead.
+                        // Chat-completions providers stream reasoning text; the Responses API may not.
                         val chunk = frame.text ?: frame.summary
                         chunk?.let { appendReasoning(transcript, messageId, it) }
                     }
@@ -478,9 +406,8 @@ class AiChatController {
         if (!allowed) {
             Log.i(TAG, "Tool '${tool.name}' denied by user; stopping the run")
             transcript.update(id) { it.copy(toolStatus = ToolCallStatus.Denied, text = "Denied by user.") }
-            // Rejecting a tool must end the turn. Handing the denial back to the model invites it to
-            // ask for the same permission again, which is what left the approval prompt reappearing
-            // after every "deny".
+            // End the turn instead of reporting the denial: the model would just ask again, leaving
+            // the approval prompt reappearing after every "deny".
             throw ToolDeniedException(tool.name)
         }
 
@@ -493,12 +420,7 @@ class AiChatController {
         return runTool(transcript, tool, call, args, id, depth)
     }
 
-    /**
-     * Runs a tool and records its outcome on the card created for it.
-     *
-     * A plain tool runs on [Dispatchers.IO]; a session tool runs on the agent dispatcher because it
-     * reads and writes the controller's Compose state.
-     */
+    /** Session tools run on the agent dispatcher because they touch the controller's Compose state. */
     private suspend fun runTool(
         transcript: Transcript,
         tool: AiTool,
@@ -520,8 +442,7 @@ class AiChatController {
             Log.i(TAG, "Tool '${tool.name}' succeeded (${output.length} chars)")
             ToolOutcome(call.id, output, false)
         } catch (e: ToolDeniedException) {
-            // A denial raised deeper down (a sub-agent's tool call) stops the whole run; settle this
-            // card so it does not keep a spinner on the way out.
+            // A denial raised deeper down stops the whole run; settle this card on the way out.
             transcript.update(messageId) {
                 it.copy(toolStatus = ToolCallStatus.Denied, text = "Stopped: the user denied a tool.")
             }
@@ -598,12 +519,7 @@ class AiChatController {
         transcript.update(id) { it.copy(isStreaming = false) }
     }
 
-    /**
-     * The session a tool handler runs inside.
-     *
-     * It is bound to the tool card that is currently running so [updateCall] can settle it, and to
-     * the run's [depth] so sub-agent nesting is bounded.
-     */
+    /** The session a tool handler runs inside, bound to the running card and the run's [depth]. */
     private inner class Session(
         private val transcript: Transcript,
         private val messageId: Long,
@@ -640,8 +556,7 @@ class AiChatController {
             if (depth >= MAX_AGENT_DEPTH) {
                 throw IllegalArgumentException("Sub-agents cannot be nested more than $MAX_AGENT_DEPTH levels deep.")
             }
-            // A sub-agent shares the tool set, workspace and approval state, but not the
-            // conversation: it only sees the prompt it was given, so the main context stays clean.
+            // A sub-agent shares tools, workspace and approvals, but starts with a fresh history.
             val childHistory = mutableListOf<AiTurn>(AiTurn.User(prompt))
             val childTranscript = ChildTranscript(messageId)
             Log.i(TAG, "Spawning sub-agent (depth=${depth + 1}): ${prompt.snippet()}")
@@ -652,13 +567,7 @@ class AiChatController {
 
     private data class ToolOutcome(val id: String, val output: String, val isError: Boolean)
 
-    /**
-     * Where one agent run reports the turns it produces.
-     *
-     * The main run writes straight to [messages]. A sub-agent writes into the `children` of the tool
-     * call that launched it, so its work stays nested under that call instead of being interleaved
-     * into the main transcript.
-     */
+    /** Where one agent run reports its turns: the main transcript or a tool card's children. */
     private interface Transcript {
         fun add(message: AiChatMessage)
 
@@ -679,9 +588,7 @@ class AiChatController {
             val index = messages.indexOfFirst { it.id == id }
             if (index >= 0) {
                 messages[index] = transform(messages[index])
-                // Every transcript edit - a streamed token, a tool card settling, a sub-agent step -
-                // reaches the persisted state through here, so this is the one place that has to
-                // notice it.
+                // Every transcript edit reaches the persisted state through here.
                 markChanged()
             }
         }

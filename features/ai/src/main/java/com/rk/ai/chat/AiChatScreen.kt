@@ -96,18 +96,13 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
     val messages = controller.messages
 
-    // Slack for "the end is on screen". Streaming grows a message in steps: the layout can be a
-    // couple of pixels short of the end for a frame, and that should not count as "scrolled away".
+    // Slack for "the end is on screen": a streamed message can be a couple of pixels short for a frame.
     val endTolerance = with(LocalDensity.current) { 4.dp.roundToPx() }
 
-    // How far above the end the reader has to be before the jump-to-latest button is worth showing.
-    // Without this the button pops up for the small gap that remains while a streamed message is
-    // still being laid out, even though the transcript is effectively at the bottom.
+    // How far above the end the reader must be before the jump-to-latest button shows.
     val jumpThreshold = with(LocalDensity.current) { 72.dp.roundToPx() }
 
-    // True while the last message is fully visible. This cannot be used on its own to decide whether
-    // to follow: as soon as new text is laid out below the fold it becomes false, and by the time an
-    // effect runs the layout has already happened.
+    // Cannot drive following on its own: it goes false as soon as new text is laid out below the fold.
     val atEnd by
         remember(endTolerance) {
             derivedStateOf {
@@ -119,7 +114,7 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
             }
         }
 
-    // True only once the reader is meaningfully above the end, so the button has some hysteresis.
+    // Hysteresis for the button: only true once the reader is meaningfully above the end.
     val scrolledFromEnd by
         remember(jumpThreshold) {
             derivedStateOf {
@@ -131,19 +126,15 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
             }
         }
 
-    // Whether newly streamed tokens should keep the list pinned to the bottom. It starts enabled and
-    // is switched off only when the user drags the list, so auto-scroll never fights a reader who
-    // scrolled up. It is switched back on once the list is at the end again.
+    // Switched off while the user drags, so auto-scroll never fights a reader who scrolled up.
     var autoFollow by remember { mutableStateOf(true) }
 
-    // Re-pins the transcript to the end. Deliberately non-animated and non-suspending: an
-    // `animateScrollToItem` retargeted on every streamed token - and again whenever the markdown
-    // parser changed the height of the last message - is what made the growing text flicker.
-    // `requestScrollToItem` is applied during the next layout pass, carrying the content up in place.
+    // Non-animated on purpose: an `animateScrollToItem` retargeted on every streamed token made the
+    // growing text flicker. `requestScrollToItem` is applied during the next layout pass instead.
     fun followEnd() {
         if (autoFollow && messages.isNotEmpty()) {
-            // `scrollOffset = Int.MAX_VALUE` targets the *end* of the last item. Without it, a message
-            // taller than the viewport scrolls to its top and the text appended below stays off screen.
+            // `Int.MAX_VALUE` targets the end of the last item; a message taller than the viewport
+            // would otherwise scroll to its top.
             listState.requestScrollToItem(messages.lastIndex, Int.MAX_VALUE)
         }
     }
@@ -157,13 +148,12 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
         }
     }
 
-    // Covers flings that reach the end after the drag gesture itself has stopped.
+    // Covers a fling that reaches the end after the drag gesture stopped.
     LaunchedEffect(listState) {
         snapshotFlow { atEnd }.collect { if (it) autoFollow = true }
     }
 
-    // Follow the stream itself: the last message's text, the number of turns, and the panels below
-    // the transcript (which change the viewport height).
+    // Follow the stream: the last text, the turn count and the panels that change the viewport height.
     LaunchedEffect(listState) {
         snapshotFlow {
                 val last = controller.messages.lastOrNull()
@@ -177,10 +167,8 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
             .collect { followEnd() }
     }
 
-    // Follow the *layout*. Markdown is parsed off the main thread, so a message can grow after the
-    // request made for its last token; without this the list settles a few pixels short of the end
-    // and the scroll-to-latest button stays visible. Only the measured size of the bottom item is
-    // observed, so re-pinning does not feed back into another emission.
+    // Follow the layout too: markdown parses off the main thread, so a message can grow after its
+    // last token. Only the bottom item's measured size is observed, so re-pinning cannot feed back.
     LaunchedEffect(listState) {
         snapshotFlow {
                 listState.layoutInfo.visibleItemsInfo.lastOrNull()?.let { it.index to it.size }
@@ -189,15 +177,13 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
     }
 
     Column(modifier.fillMaxSize()) {
-        // The goal the agent declared, kept out of the scrolling transcript so it stays visible.
-        // The task list lives behind the toolbar action instead of taking up chat space.
+        // Kept out of the scrolling transcript so the goal stays visible.
         controller.goal?.let { goal ->
             GoalBanner(goal = goal, onClear = controller::clearGoal)
         }
 
-        // The transcript and its floating "scroll to latest" button share this box, so the button is
-        // anchored to the conversation area instead of the screen. A fixed bottom offset would be
-        // covered by the approval card whenever it appears above the composer.
+        // The button is anchored to the transcript area; a fixed screen offset would be covered by
+        // the approval card.
         Box(Modifier.weight(1f).fillMaxWidth()) {
             if (messages.isEmpty()) {
                 EmptyState(onSuggestion = controller::send, modifier = Modifier.fillMaxSize())
@@ -325,8 +311,6 @@ private fun EmptyState(onSuggestion: (String) -> Unit, modifier: Modifier = Modi
 
 @Composable
 private fun UserMessage(message: AiChatMessage) {
-    // A flat, full-width prompt marked by a slim accent rule. No container, no rounding, no
-    // right-alignment: the turn reads as a prompt in a transcript rather than a chat bubble.
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
         Box(
             Modifier.width(3.dp)
@@ -352,8 +336,6 @@ private fun AssistantMessage(
     reasoningExpanded: Boolean,
     onReasoningToggled: (Boolean) -> Unit,
 ) {
-    // No avatar and no container: the answer is rendered full width as document content, so the
-    // panel reads like an editor pane rather than a chat transcript.
     Column(Modifier.fillMaxWidth()) {
         if (message.reasoning.isNotBlank()) {
             ThinkingBlock(
@@ -366,13 +348,10 @@ private fun AssistantMessage(
         }
 
         when {
-            // While the model reasons there is nothing to answer yet, and the thinking block already
-            // shows a spinner, so the typing dots would just be noise.
+            // Nothing to show yet: the thinking block already has the spinner.
             message.text.isEmpty() && message.reasoning.isNotBlank() -> Unit
             message.text.isEmpty() && message.isStreaming -> TypingDots()
-            // Parse markdown while the message is still streaming. `AiMarkdownText` parses off
-            // the main thread and retains the previous result, so it grows in place instead of
-            // flashing or waiting for the response to finish.
+            // Parsed while streaming: `AiMarkdownText` retains the previous result, so it grows in place.
             message.text.isNotEmpty() ->
                 SelectionContainer {
                     AiMarkdownText(
@@ -397,12 +376,7 @@ private fun AssistantMessage(
     }
 }
 
-/**
- * The model's reasoning, folded into a quiet block above the answer.
- *
- * Collapsed by default: the header already says whether the model is still thinking, so the raw
- * reasoning is only worth the space when the reader asks for it.
- */
+/** The model's reasoning, collapsed by default. */
 @Composable
 private fun ThinkingBlock(
     reasoning: String,
@@ -410,7 +384,7 @@ private fun ThinkingBlock(
     expanded: Boolean,
     onToggled: (Boolean) -> Unit,
 ) {
-    // `KeyboardArrowDown` points down at rest, so the collapsed state rotates it left to point right.
+    // `KeyboardArrowDown` points down at rest; -90f while collapsed points it right.
     val rotation by animateFloatAsState(if (expanded) 0f else -90f, label = "thinkingChevron")
 
     Surface(
@@ -510,24 +484,21 @@ private fun StreamingCursor() {
 @Composable
 private fun AiToolStep(message: AiChatMessage, nested: Boolean = false) {
     val status = message.toolStatus ?: ToolCallStatus.Running
-    // Parsed once per call: the raw arguments are JSON written for the model, and this turns them
-    // into an action name, a header target and readable labels.
+    // Parsed once per call: the model's raw JSON becomes an action name, a target and labels.
     val view = remember(message.toolName, message.toolArgs) {
         toolCallView(message.toolName.orEmpty(), message.toolArgs)
     }
     val diff = message.diff?.takeIf { it.isNotBlank() }
     val result = message.text.takeIf { it.isNotBlank() }
-    // A sub-agent's final answer is repeated as this card's result, so only its intermediate steps
-    // are rendered as children.
+    // A sub-agent's final answer is repeated as the result, so only intermediate steps are children.
     val steps = message.children.dropLastWhile { it.role == AiChatRole.Assistant }
     val hasBody = view.arguments.isNotEmpty() || diff != null || result != null || steps.isNotEmpty()
 
     var expanded by remember { mutableStateOf(false) }
-    // `KeyboardArrowDown` points down at rest: rotate it left while collapsed so it points right.
+    // `KeyboardArrowDown` points down at rest: -90f while collapsed points it right.
     val rotation by animateFloatAsState(if (expanded && hasBody) 0f else -90f, label = "chevron")
 
-    // A running sub-agent is worth watching, so its card opens once it reports its first step. Only
-    // once: collapsing it by hand must not be undone by the next step.
+    // Open the card on the sub-agent's first step, but only once: a manual collapse must stick.
     var autoExpanded by remember { mutableStateOf(false) }
     LaunchedEffect(status, steps.size) {
         if (!autoExpanded && status == ToolCallStatus.Running && steps.isNotEmpty()) {
@@ -547,8 +518,7 @@ private fun AiToolStep(message: AiChatMessage, nested: Boolean = false) {
         modifier = Modifier.fillMaxWidth().animateContentSize(),
     ) {
         Column(Modifier.fillMaxWidth()) {
-            // Header: the action, plus the single value that identifies the call (usually the path,
-            // command, query or URL) so a collapsed card is still informative.
+            // The identifying value (path, command, query or URL) keeps a collapsed card informative.
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =
@@ -611,14 +581,14 @@ private fun AiToolStep(message: AiChatMessage, nested: Boolean = false) {
                     }
                 }
             } else if (diff != null) {
-                // A file change is worth surfacing without expanding the card.
+                // Surface the file change without expanding the card.
                 Box(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 10.dp)) { AiDiffView(diff) }
             }
         }
     }
 }
 
-/** The steps a sub-agent produced, rendered inside the card of the call that launched it. */
+/** A sub-agent's intermediate steps, rendered inside the launching call's card. */
 @Composable
 private fun SubAgentSteps(steps: List<AiChatMessage>) {
     Column(
@@ -733,8 +703,7 @@ private fun StatusLabel(status: ToolCallStatus) {
             color = MaterialTheme.colorScheme.error
         }
         ToolCallStatus.Interrupted -> {
-            // Restored from a session whose run did not survive: the work is not running and never
-            // completed, so it reads as stopped rather than as a failure.
+            // A run that did not survive the session: stopped rather than failed.
             label = "stopped"
             color = MaterialTheme.colorScheme.onSurfaceVariant
         }
@@ -811,10 +780,7 @@ private fun GoalBanner(goal: String, onClear: () -> Unit) {
     }
 }
 
-/**
- * The interactive half of [ASK_USER_TOOL]: the model's question with its options, plus a free-text
- * reply for anything the options missed.
- */
+/** The model's question with its options and a free-text reply. */
 @Composable
 private fun QuestionCard(question: PendingQuestion, onAnswer: (String) -> Unit) {
     var custom by remember { mutableStateOf("") }
@@ -912,9 +878,7 @@ private fun QuestionCard(question: PendingQuestion, onAnswer: (String) -> Unit) 
 
 @Composable
 private fun ApprovalCard(approval: PendingApproval, onDecision: (Boolean) -> Unit) {
-    // A flat, bordered prompt that matches the transcript. The pending tool call is already rendered
-    // above, so this only adds the decision: a neutral close for "deny" and a filled check for
-    // "allow", which keeps the primary action obvious without turning the panel into a dialog.
+    // The pending call is already rendered above; this only adds the decision.
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(12.dp),
@@ -1079,7 +1043,7 @@ private fun PermissionMode.label(): String =
 
 private data class Suggestion(val title: String, val subtitle: String, val prompt: String)
 
-/** How long a copy button shows its "copied" tick before returning to the copy glyph. */
+/** How long the copy button shows its tick. */
 private const val COPIED_FEEDBACK_MILLIS = 1_500L
 
 private val SUGGESTIONS =

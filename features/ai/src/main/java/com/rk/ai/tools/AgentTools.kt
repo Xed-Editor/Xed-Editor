@@ -8,25 +8,15 @@ import com.rk.ai.model.ToolCallStatus
 import com.rk.ai.model.parseOptions
 import com.rk.ai.model.parseTodos
 
-/** Tool name of the sub-agent launcher. */
 internal const val SUB_AGENT_TOOL = "spawn_agent"
 
-/** Tool the agent uses to ask the user a question. */
 internal const val ASK_USER_TOOL = "ask_user"
 
-/** Tool the agent uses to declare the goal it is working towards. */
 internal const val SET_GOAL_TOOL = "set_goal"
 
-/** Tool the agent uses to publish its task list. */
 internal const val WRITE_TODOS_TOOL = "write_todos"
 
-/**
- * The tools that need to talk to the running agent session rather than just transform their
- * arguments: they delegate to [AiToolSession] through [AiTool.handler].
- *
- * They are ordinary entries in [AiToolRegistry], so the controller no longer special-cases them by
- * name - an extension can register its own session tool the same way.
- */
+/** Tools that talk to the running session rather than just transform their arguments. */
 internal object AgentTools {
     fun all(): List<AiTool> = listOf(spawnAgent(), askUser(), setGoal(), writeTodos())
 

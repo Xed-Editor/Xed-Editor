@@ -3,18 +3,6 @@ package com.rk.ai.tools
 import ai.koog.agents.core.tools.ToolParameterType
 import kotlinx.serialization.json.JsonObject
 
-/**
- * Small builder for [AiTool] so an extension can declare a tool in one readable block without
- * importing the whole argument model:
- *
- * ```kotlin
- * val now = aiTool("current_time", "Return the current time.", AiToolKind.Read) {
- *     stringParam("format", "java.time format pattern", required = false)
- *     presents { args -> ToolCallView("Clock", args.displayArg("format"), emptyList()) }
- *     executes { args -> LocalTime.now().format(DateTimeFormatter.ofPattern(args.displayArg("format") ?: "HH:mm")) }
- * }
- * ```
- */
 fun aiTool(name: String, description: String, kind: AiToolKind, build: AiToolDsl.() -> Unit): AiTool =
     AiToolDsl(name, description, kind).apply(build).build()
 
@@ -32,7 +20,6 @@ class AiToolDsl internal constructor(
     private var execute: (suspend (JsonObject) -> String)? = null
     private var handler: (suspend (JsonObject, AiToolSession) -> String)? = null
 
-    /** Declares an argument of any koog parameter type. */
     fun param(name: String, description: String, type: ToolParameterType, required: Boolean = true) {
         parameters += AiToolParameter(name, description, type, required)
     }
@@ -46,32 +33,27 @@ class AiToolDsl internal constructor(
     fun boolParam(name: String, description: String, required: Boolean = true) =
         param(name, description, ToolParameterType.Boolean, required)
 
-    /** Declares an argument that is only meaningful to your own tool. */
     fun params(vararg parameters: AiToolParameter) {
         this.parameters += parameters
     }
 
-    /** Overrides the default (`kind != Read`). */
     fun destructive(value: Boolean = true) {
         isDestructive = value
     }
 
-    /** Withholds the tool from sub-agents. */
     fun mainAgentOnly(value: Boolean = true) {
         mainAgentOnly = value
     }
 
-    /** The argument that names the file the call touches, used for "allow this file" memory. */
+    /** The argument naming the file the call touches, used for "allow this file" memory. */
     fun touchesFile(target: (JsonObject) -> String?) {
         targetPath = target
     }
 
-    /** Supplies a unified diff preview shown before the call is approved. */
     fun previewDiff(block: suspend (JsonObject) -> String?) {
         preview = block
     }
 
-    /** Teaches the transcript how to render this tool; omit it for the generic key/value view. */
     fun presents(block: (JsonObject) -> ToolCallView) {
         presenter = AiToolPresenter(block)
     }
@@ -81,7 +63,7 @@ class AiToolDsl internal constructor(
         execute = block
     }
 
-    /** A tool that needs the running session (ask the user, sub-agent, goal/task list). */
+    /** A tool that needs the running session. */
     fun handles(block: suspend (JsonObject, AiToolSession) -> String) {
         handler = block
     }

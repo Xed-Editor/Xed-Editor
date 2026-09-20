@@ -5,13 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * The catalogue of chat backends.
- *
- * Built-ins are installed first (see [BuiltinProviders]); extensions add their own with
- * [registerProvider]. Registering an existing [AiProvider.id] replaces the previous provider, so an
- * extension can override a built-in; unregistering an override restores the built-in it shadowed.
- */
+/** Registering an existing id replaces it; unregistering an override restores the built-in. */
 object AiProviderRegistry {
     private val lock = Any()
     private val providersById = LinkedHashMap<String, AiProvider>()
@@ -21,13 +15,12 @@ object AiProviderRegistry {
 
     val providers: StateFlow<List<AiProvider>> = _providers.asStateFlow()
 
-    /** The provider with this id, or null when nothing registered it. */
     fun find(id: String): AiProvider? {
         installBuiltins()
         return _providers.value.firstOrNull { it.id == id }
     }
 
-    /** Registers (or replaces) a provider. Call it from `onLoad`; unregister from `onDispose`. */
+    /** Call from `onLoad`; unregister from `onDispose`. */
     @XedExtensionPoint
     fun registerProvider(provider: AiProvider) {
         synchronized(lock) {
@@ -49,12 +42,7 @@ object AiProviderRegistry {
         synchronized(lock) { removeOrRestoreLocked(id, expected = null) }
     }
 
-    /**
-     * Picks the provider a run should use.
-     *
-     * [configuredId] wins, except when its base URL clearly belongs to another registered provider -
-     * that is how settings written before providers existed are migrated without the user noticing.
-     */
+    /** [configuredId] wins unless its base URL belongs to another provider, to migrate older settings. */
     fun resolveActive(configuredId: String, baseUrl: String): AiProvider? {
         installBuiltins()
         val byId = providersById[configuredId]

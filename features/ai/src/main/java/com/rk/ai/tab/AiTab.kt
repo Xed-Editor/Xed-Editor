@@ -30,7 +30,6 @@ class AiTab(private val restored: AiChatSnapshot? = null) : Tab() {
         AiTasksButton(controller = controller)
     }
 
-    /** Hands this chat to the session as an opaque payload the AI feature knows how to read back. */
     override fun getState(): PayloadTabState =
         PayloadTabState(
             type = TYPE,
@@ -47,12 +46,6 @@ class AiTab(private val restored: AiChatSnapshot? = null) : Tab() {
         /** Session key for an AI chat; stable, because a restored session looks it up by this. */
         const val TYPE = "ai_chat"
 
-        /**
-         * Registers the restore path for [AiTab]. The type string is the same one [getState] writes,
-         * so a session saved by one install restores in another; the payload carries its own version,
-         * and [decodeChatSnapshot] returns null (an empty chat) rather than throwing when it meets
-         * one it cannot read.
-         */
         fun register() {
             PayloadTabRegistry.register(TYPE) { payload -> AiTab(restored = decodeChatSnapshot(payload)) }
         }

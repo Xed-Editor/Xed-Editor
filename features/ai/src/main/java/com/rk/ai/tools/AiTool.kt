@@ -7,10 +7,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 
-/**
- * What a tool does to the world. The permission gate ([com.rk.ai.chat.gateFor]) and the settings UI
- * both key off this, so a tool must pick the kind that matches its side effects.
- */
+/** What a tool does to the world; the permission gate ([com.rk.ai.chat.gateFor]) keys off this. */
 enum class AiToolKind {
     Read,
 
@@ -22,22 +19,11 @@ enum class AiToolKind {
 }
 
 /**
- * A single capability offered to the model.
+ * A single capability offered to the model. Exactly one of [execute] and [handler] must be set:
+ * [execute] runs on [kotlinx.coroutines.Dispatchers.IO], [handler] on the agent's own dispatcher so it
+ * can touch UI state.
  *
- * A tool is described once - schema, UI presentation and behaviour together - so adding one is a
- * single declaration registered with [AiToolRegistry]. Exactly one of [execute] and [handler] must be
- * set:
- *  - [execute] is a self-contained function of its arguments. It runs on [kotlinx.coroutines.Dispatchers.IO].
- *  - [handler] is used by tools that must talk to the running session (ask the user, run a sub-agent,
- *    update the goal). It runs on the agent's own dispatcher so it can touch UI state.
- *
- * @param targetPath the argument that identifies the file the call touches. When present it is the key
- *   used to remember "always allow this file" for the rest of the chat.
- * @param preview an optional unified diff shown to the user before a write is approved.
- * @param presenter how the call is rendered in the transcript. Without one a generic key/value view is
- *   used, which is enough for simple tools.
- * @param mainAgentOnly when true the tool is withheld from sub-agents (they cannot talk to the user or
- *   own the session state).
+ * @param targetPath the argument naming the file the call touches, the key for "always allow this file".
  */
 class AiTool(
     val name: String,
@@ -60,7 +46,6 @@ class AiTool(
     }
 }
 
-/** A named, typed argument of an [AiTool]. */
 class AiToolParameter(
     val name: String,
     val description: String,
@@ -79,19 +64,11 @@ fun AiTool.toDescriptor(): ToolDescriptor =
 private fun AiToolParameter.toParameterDescriptor(): ToolParameterDescriptor =
     ToolParameterDescriptor(name = name, description = description, type = type)
 
-/**
- * The argument readers a tool (or its presenter) uses.
- *
- * They tolerate the model sending numbers and booleans as strings, which is what most chat
- * completions providers do, and [displayArg] additionally treats a blank value as absent so a
- * presenter can fall back to a placeholder.
- */
+/** Tolerates the model sending numbers and booleans as strings. */
 fun JsonObject.arg(name: String): String? = (this[name] as? JsonPrimitive)?.contentOrNull
 
-/** Like [arg], but a blank value reads as null - what a transcript label wants. */
 fun JsonObject.displayArg(name: String): String? = arg(name)?.takeIf { it.isNotBlank() }
 
-/** Reads a required argument, failing the tool call when the model omitted it. */
 fun JsonObject.requireArg(name: String): String =
     arg(name) ?: throw IllegalArgumentException("Missing required argument '$name'")
 

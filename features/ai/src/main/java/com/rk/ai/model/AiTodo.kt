@@ -6,7 +6,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 
-/** The agent's task list, published to the UI through the `write_todos` tool. */
 enum class TodoStatus {
     Pending,
     InProgress,

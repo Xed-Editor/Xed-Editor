@@ -11,15 +11,6 @@ import com.rk.ai.model.ToolCallStatus
 /**
  * The wire format behind [AiChatSnapshot.encode].
  *
- * A chat is written as one hand-rolled binary blob rather than JSON or a Java object dump. A
- * transcript is a lot of short fields and a little text, and both of those formats charge per-object
- * overhead for the short fields: JSON repeats every field name in every message, and
- * `ObjectOutputStream` writes a class descriptor plus a type code and handle per object. Here a
- * message is one byte for its role, a varint id and its text; a field that is absent costs a single
- * byte, so the payload stays close to the size of the text it carries. Nothing is boxed, nothing is
- * turned into a `String` on the way out, and the reader checks every length before allocating, so a
- * corrupt or truncated payload can only fail, never allocate its way out.
- *
  * Layout - varints are unsigned LEB128, text is UTF-8, integers are big-endian:
  * ```
  * version   : uint8   (written by the envelope, not this object - see AiChatPayload)
@@ -51,7 +42,7 @@ import com.rk.ai.model.ToolCallStatus
  *
  * Enum members are written as explicit codes, not declaration order, so reordering an enum cannot
  * silently reinterpret an old payload. The reader ignores trailing bytes so a later version can
- * append fields without breaking this one; the envelope refuses a version from the future outright.
+ * append fields without breaking this one.
  */
 internal object AiChatCodec {
     private const val MAGIC = 0x58454441 // "XEDA"
@@ -81,7 +72,7 @@ internal object AiChatCodec {
         return writer.toByteArray()
     }
 
-    /** Reads a payload, or returns null when it is not one - corrupt, truncated or from the future. */
+    /** Returns null for anything this build cannot read. */
     fun decode(payload: ByteArray, version: Int): AiChatSnapshot? =
         runCatching { read(payload, version) }.getOrNull()
 
@@ -210,12 +201,7 @@ internal object AiChatCodec {
         }
     }
 
-    /**
-     * One pass over the text sizes so the buffer is not grown and copied repeatedly.
-     *
-     * The estimate counts characters, but the buffer holds UTF-8 bytes, so it is scaled up: text
-     * with multi-byte characters would otherwise still make the writer grow (and copy) a few times.
-     */
+    /** One pass over the sizes avoids repeated buffer growth; chars are scaled to their UTF-8 bytes. */
     private fun AiChatSnapshot.estimatedSize(): Int {
         var size = 96 + draft.length + (goal?.length ?: 0)
         messages.forEach { size += it.estimatedSize() }
@@ -301,17 +287,16 @@ internal object AiChatCodec {
     private const val ESTIMATED_MESSAGE_OVERHEAD = 28
     private const val ESTIMATED_TURN_OVERHEAD = 12
 
-    /** Planner slack for the size estimate: UTF-8 is at most three bytes per UTF-16 char, plus fields. */
+    /** Slack for the size estimate: UTF-8 is at most three bytes per UTF-16 char. */
     private const val BYTE_PER_CHAR = 3
 }
 
-/** Thrown while reading anything that is not a well-formed payload; [AiChatCodec.decode] turns it into null. */
+/** Thrown for anything malformed; [AiChatCodec.decode] turns it into null. */
 private class CorruptPayload(message: String = "Corrupt chat payload") : Exception(message)
 
-/** A ceiling that stops a corrupt count from turning into a huge allocation. */
+/** Stops a corrupt count from turning into a huge allocation. */
 private const val MAX_ITEMS = 1_000_000
 
-/** Appends the format's primitives to a growable buffer. */
 private class ChatWriter(initialCapacity: Int) {
     private var buffer = ByteArray(initialCapacity.coerceIn(64, MAX_INITIAL_CAPACITY))
     private var size = 0
@@ -377,17 +362,17 @@ private class ChatWriter(initialCapacity: Int) {
     private fun grow(count: Int) {
         val needed = size + count
         if (needed <= buffer.size) return
-        // Grow by half; a message is small, so this is a couple of copies for a whole transcript.
+        // Grow by half: a message is small, so a whole transcript costs a couple of copies.
         buffer = buffer.copyOf(maxOf(needed, buffer.size + (buffer.size shr 1)))
     }
 
     private companion object {
-        /** A corrupt size estimate must not become a huge allocation just to be thrown away. */
+        /** Caps a corrupt size estimate, which must not become a huge allocation. */
         const val MAX_INITIAL_CAPACITY = 1 shl 24
     }
 }
 
-/** Reads the format's primitives, refusing anything that would read past the end. */
+/** Reads the format's primitives; anything past the end throws. */
 private class ChatReader(private val payload: ByteArray) {
     private var position = 0
 
@@ -433,7 +418,6 @@ private class ChatReader(private val payload: ByteArray) {
         }
     }
 
-    /** A count that is safe to loop on: never negative, never absurd. */
     fun count(): Int {
         val value = varInt()
         if (value < 0 || value > MAX_ITEMS) throw CorruptPayload("Unreasonable item count $value")
@@ -456,30 +440,17 @@ private class ChatReader(private val payload: ByteArray) {
     }
 }
 
-/**
- * Reads a chat out of the bytes a session saved, or null when they are not a chat this build knows.
- *
- * This is the only entry point the tab needs, so the codec and its envelope can stay internal while
- * the tab that owns them is not.
- */
+/** Reads a chat from session bytes, or null when they are not a chat this build knows. */
 fun decodeChatSnapshot(payload: ByteArray?): AiChatSnapshot? = AiChatPayload.decode(payload)
 
 /**
- * The on-disk envelope around one encoded chat.
- *
- * The session file stores tab states as opaque bytes, so an AI chat is one [encode] blob. The
- * envelope adds a version byte that belongs to *this* layer: if the chat format ever changes in a way
- * that cannot be read forward, the reader recognises the payload as one it does not understand and
- * starts an empty chat instead of failing the whole session restore. Both [encode] and [decode] then
- * delegate to [AiChatCodec], so the session format never has to know the chat format.
+ * The version byte around one encoded chat: a format this build cannot read forward is dropped
+ * instead of failing the whole session restore.
  */
 internal object AiChatPayload {
     private const val PAYLOAD_VERSION = 1
 
-    /**
-     * The version byte is handed to the codec rather than prepended afterwards: prepending would mean
-     * allocating and copying the whole encoded transcript a second time, once per save.
-     */
+    /** The version is handed to the codec rather than prepended, to avoid a second copy per save. */
     fun encode(snapshot: AiChatSnapshot): ByteArray = AiChatCodec.encode(snapshot, PAYLOAD_VERSION)
 
     fun decode(payload: ByteArray?): AiChatSnapshot? {

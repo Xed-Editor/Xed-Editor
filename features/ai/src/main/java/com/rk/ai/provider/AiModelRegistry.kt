@@ -5,13 +5,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * Extra models that are not shipped on their [AiProvider].
- *
- * An extension uses this to add a model to an existing provider - for example a newer DeepSeek
- * release - without reimplementing the provider. Built-in providers declare their own models; both
- * sets are merged by [AiModelCatalog].
- */
 object AiModelRegistry {
     private val lock = Any()
     private val registered = LinkedHashMap<String, AiModel>()
@@ -39,7 +32,7 @@ object AiModelRegistry {
         }
     }
 
-    /** Models registered for [providerId], in registration order. */
+    /** In registration order. */
     fun forProvider(providerId: String): List<AiModel> = _models.value.filter { it.providerId == providerId }
 
     internal fun resetForTests() {
@@ -50,7 +43,6 @@ object AiModelRegistry {
     }
 }
 
-/** Merges a provider's shipped models with the ones extensions added for it. */
 object AiModelCatalog {
     fun modelsFor(providerId: String): List<AiModel> {
         val providerModels = AiProviderRegistry.find(providerId)?.models.orEmpty()
@@ -59,6 +51,5 @@ object AiModelCatalog {
 
     fun find(providerId: String, modelId: String): AiModel? = modelsFor(providerId).firstOrNull { it.id == modelId }
 
-    /** The model to select when a provider is chosen and the current id does not belong to it. */
     fun defaultFor(provider: AiProvider): AiModel? = modelsFor(provider.id).firstOrNull()
 }

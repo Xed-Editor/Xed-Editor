@@ -2,14 +2,8 @@ package com.rk.ai.settings
 
 import com.rk.settings.CachedPreference
 
-/**
- * The persisted AI configuration.
- *
- * Kept deliberately free of provider knowledge: [com.rk.ai.provider.AiProviderRuntime] turns these
- * values into a provider, a model and an executor, so adding a provider never touches this file.
- */
 object AiSettings {
-    /** Provider used until the user picks another one; matches the DeepSeek built-in. */
+    /** Must match the DeepSeek built-in provider id. */
     const val DEFAULT_PROVIDER_ID = "deepseek"
 
     var apiKey by CachedPreference("ai_api_key", "")

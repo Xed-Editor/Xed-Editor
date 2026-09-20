@@ -11,9 +11,8 @@ import com.rk.ai.settings.AiMemory
 import kotlinx.coroutines.CancellationException
 
 /**
- * Builds the system prompt for a run: the configured prompt plus the state the agent needs to carry
- * between turns - long-term memory, the declared goal and the task list. The scratch pad is
- * deliberately not included; the agent reads that back on demand.
+ * Builds the system prompt: base prompt plus memory, goal and task list. The scratch pad is
+ * deliberately excluded and read back on demand.
  */
 internal fun buildSystemPrompt(base: String, goal: String?, todos: List<AiTodo>): String =
     buildString {
@@ -29,7 +28,6 @@ internal fun buildSystemPrompt(base: String, goal: String?, todos: List<AiTodo>)
         }
     }
 
-/** Replays the conversation history as a koog prompt. */
 internal fun buildConversationPrompt(systemPrompt: String, history: List<AiTurn>): Prompt =
     prompt("xed-ai-chat") {
         system(systemPrompt)
@@ -45,7 +43,6 @@ internal fun buildConversationPrompt(systemPrompt: String, history: List<AiTurn>
         }
     }
 
-/** One assistant turn's text and tool calls, as koog response parts. */
 internal fun AiTurn.Assistant.toResponseParts(): List<MessagePart.ResponsePart> = buildList {
     if (text.isNotBlank()) add(MessagePart.Text(text))
     toolCalls.forEach { call ->
@@ -54,12 +51,8 @@ internal fun AiTurn.Assistant.toResponseParts(): List<MessagePart.ResponsePart> 
 }
 
 /**
- * Closes out the tool calls from [fromIndex] onwards after one of them aborted the run.
- *
- * The assistant turn that requested them is already in the history, and the API requires a tool
- * result for every `tool_call_id` in it. Without these the *next* request is rejected with "an
- * assistant message with 'tool_calls' must be followed by tool messages". This covers a user
- * denial, the stop button cancelling mid-tool, and any unexpected failure.
+ * Closes out the tool calls from [fromIndex] onwards when one of them aborted the run: the assistant
+ * turn is already in the history and the API requires a tool result for every `tool_call_id` in it.
  */
 internal fun answerRemainingToolCalls(
     history: MutableList<AiTurn>,

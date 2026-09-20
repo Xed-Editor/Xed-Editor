@@ -3,11 +3,6 @@ package com.rk.ai.tools
 import ai.koog.agents.core.tools.ToolParameterType
 import com.rk.file.FileObject
 
-/**
- * The tools that read and edit workspace files, plus the workspace-wide search.
- *
- * [search] walks the tree looking for a literal; the glob matcher lives in [FileOpsTools].
- */
 internal object FileTools {
     private const val MAX_READ_BYTES = 64 * 1024
 
@@ -324,10 +319,7 @@ internal object FileTools {
     }
 }
 
-/**
- * Counts non-overlapping occurrences of [needle] without building a regex; the previous
- * `Regex(Regex.escape(...))` round-trip was both slower and easy to misread as a pattern match.
- */
+/** Counts non-overlapping occurrences without building a regex. */
 private fun String.occurrencesOf(needle: String): Int {
     if (needle.isEmpty()) return 0
     var count = 0

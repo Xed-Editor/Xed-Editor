@@ -15,20 +15,7 @@ import com.rk.lsp.MarkdownDataUriDecoder
 import com.rk.markdown.AppMarkdownImageTransformer
 import com.rk.markdown.MarkdownText
 
-/**
- * Renders an assistant chat message as Markdown.
- *
- * Replaces the previous sora-editor based renderer, which rasterized the markdown into an Android
- * `TextView` `Spanned`. The Compose renderer supports the full GFM feature set (tables, task lists,
- * alerts, ...) and syntax highlights fenced code blocks.
- *
- * The message is rendered through [MarkdownText] while it is still streaming: that composable parses
- * on `Dispatchers.Default` and keeps the previous result visible until the next parse completes
- * (`retainState = true`), so markdown appears progressively without blocking the main thread.
- *
- * The content is passed to the renderer verbatim. No HTML sanitizing is needed: the renderer only
- * builds a Compose `AnnotatedString`, so tags cannot execute anything.
- */
+/** The content is passed verbatim: the renderer builds a Compose `AnnotatedString`, so tags cannot execute. */
 @Composable
 fun AiMarkdownText(markdown: String, modifier: Modifier = Modifier) {
     MarkdownText(
@@ -39,13 +26,7 @@ fun AiMarkdownText(markdown: String, modifier: Modifier = Modifier) {
     )
 }
 
-/**
- * Image transformer for assistant messages.
- *
- * Some providers inline images directly in the response as base64 `data:` URIs, which Coil cannot fetch
- * by itself. Those are decoded here; every other URL (http/https/file) is delegated to the app's default
- * Coil based transformer.
- */
+/** Decodes inline base64 `data:` URIs, which Coil cannot fetch; other URLs go to the app's transformer. */
 private object AiMarkdownImageTransformer : ImageTransformer {
     @Composable
     override fun transform(link: String): ImageData? {

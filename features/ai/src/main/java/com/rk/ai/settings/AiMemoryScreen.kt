@@ -32,12 +32,6 @@ import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 
-/**
- * Editor for the long-term memory the agent carries between chats.
- *
- * Kept separate from the main AI settings page because the list grows with use: here it is the whole
- * screen, so each note can be read, edited and removed without crowding the connection settings.
- */
 @Composable
 fun AiMemoryScreen(modifier: Modifier = Modifier) {
     var editing by remember { mutableStateOf<MemoryEdit?>(null) }

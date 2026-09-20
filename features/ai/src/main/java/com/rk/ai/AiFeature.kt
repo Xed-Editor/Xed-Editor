@@ -19,13 +19,6 @@ import com.rk.resources.strings
 import com.rk.settings.SettingsCategory
 import com.rk.settings.SettingsRegistry
 
-/**
- * Wires the AI feature into the app: installs the built-in tools/providers/models, then registers the
- * settings category, its routes and the chat command.
- *
- * Everything the agent can do lives in the registries ([AiExtensions]); this class only owns feature
- * lifecycle, so adding a tool or provider never changes it.
- */
 class AiFeature : Feature {
     override val toggle =
         FeatureToggle(
@@ -42,7 +35,7 @@ class AiFeature : Feature {
     override fun init(application: Application) {
         // Idempotent: extensions may already have registered their own tools before this runs.
         AiExtensions.installBuiltins()
-        // Restoring an AI chat needs a factory that can rebuild the tab from what the session saved.
+        // Needed to restore AI chat tabs from a saved session.
         AiTab.register()
         registerSettings()
         registerCommands()

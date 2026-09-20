@@ -41,12 +41,6 @@ import com.rk.ai.model.AiTodo
 import com.rk.ai.model.TodoStatus
 import com.rk.theme.greenStatus
 
-/**
- * Toolbar action that opens the agent's task list.
- *
- * The list is session state the agent publishes, so it is presented as a sheet on demand rather than
- * taking up permanent room in the transcript.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiTasksButton(controller: AiChatController) {

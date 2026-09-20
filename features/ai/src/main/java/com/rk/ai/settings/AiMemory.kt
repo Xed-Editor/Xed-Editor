@@ -8,16 +8,11 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
-/**
- * Notes the agent keeps between chats.
- *
- * Stored as a JSON array in the app's preferences, which keeps it observable for the AI settings
- * page and lets it be injected into the system prompt at the start of every run.
- */
+/** Stored as a JSON array in the app's preferences. */
 object AiMemory {
     private var stored by CachedPreference(KEY, "[]")
 
-    /** The remembered notes, in the order they were saved. Reading this is observable. */
+    /** In save order; reading this is observable. */
     val entries: List<String>
         get() = decode(stored)
 
@@ -27,10 +22,7 @@ object AiMemory {
         stored = encode(entries + entry)
     }
 
-    /**
-     * Removes the entry at a 1-based [index] - the same numbering the model is shown - and reports
-     * whether anything was removed.
-     */
+    /** [index] is 1-based, matching the numbering shown to the model. */
     fun removeAt(index: Int): Boolean {
         val current = entries
         if (index !in 1..current.size) return false
@@ -38,9 +30,6 @@ object AiMemory {
         return true
     }
 
-    /**
-     * Replaces the entry at a 1-based [index], and reports whether anything changed.
-     */
     fun updateAt(index: Int, content: String): Boolean {
         val entry = content.trim()
         val current = entries
@@ -53,7 +42,7 @@ object AiMemory {
         stored = "[]"
     }
 
-    /** The block appended to the system prompt, or null when nothing has been remembered yet. */
+    /** Appended to the system prompt; null when nothing is remembered. */
     fun promptSection(): String? {
         val current = entries
         if (current.isEmpty()) return null
@@ -75,12 +64,7 @@ object AiMemory {
     private const val KEY = "ai_memory"
 }
 
-/**
- * A per-chat scratch pad the agent can use to park information outside the conversation.
- *
- * Deliberately not persisted: it belongs to the open chat tab and the controller clears it when that
- * tab is closed, which is what makes it safe to treat as private working space.
- */
+/** Deliberately not persisted; cleared when the chat tab closes. */
 object AiScratchpad {
     var text by mutableStateOf("")
         private set

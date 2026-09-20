@@ -37,7 +37,6 @@ internal object FileOpsTools {
                     AiToolParameter("from", "Source path relative to the workspace root.", ToolParameterType.String),
                     AiToolParameter("to", "Destination path relative to the workspace root.", ToolParameterType.String),
                 ),
-            // The two paths are the whole call, so they belong in the header rather than the body.
             presenter = AiToolPresenter { args -> ToolCallView("Copy", args.pairOfPaths(), emptyList()) },
         ) { args ->
             val from = args.requireArg("from")

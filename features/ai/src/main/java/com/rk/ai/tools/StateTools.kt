@@ -4,12 +4,6 @@ import ai.koog.agents.core.tools.ToolParameterType
 import com.rk.ai.settings.AiMemory
 import com.rk.ai.settings.AiScratchpad
 
-/**
- * Tools that give the agent somewhere to keep information outside the conversation.
- *
- * [save_memory] and [forget_memory] edit the durable store shown in AI settings; `scratchpad` uses
- * the per-chat scratch pad, which is discarded when the chat tab closes.
- */
 object StateTools {
     fun all(): List<AiTool> = listOf(saveMemory(), forgetMemory(), scratchpad())
 

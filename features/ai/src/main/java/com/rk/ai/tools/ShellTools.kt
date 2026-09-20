@@ -3,11 +3,6 @@ package com.rk.ai.tools
 import ai.koog.agents.core.tools.ToolParameterType
 import com.rk.exec.ShellUtils
 
-/**
- * The two shell entry points: a plain Android `sh` and the root Ubuntu (proot) environment.
- *
- * Both share [formatShellResult] so the model sees a consistent `exit=…`, stdout, stderr shape.
- */
 object ShellTools {
     private const val MAX_OUTPUT_CHARS = 32_000
     private const val DEFAULT_ANDROID_TIMEOUT = 60
@@ -38,7 +33,6 @@ object ShellTools {
                         "Run shell",
                         args.displayArg("command"),
                         listOfNotNull(
-                            // Only repeat the command in the body when the header had to truncate it.
                             toolLargeBlock("Command", args.displayArg("command")),
                             toolField("Timeout", args.displayArg("timeout_seconds")?.plus("s")),
                         ),
@@ -125,7 +119,6 @@ object ShellTools {
             "edit_file, list_dir, search, file_info — instead."
     }
 
-    /** Renders a shell result the same way for both shell tools. */
     fun formatShellResult(result: ShellUtils.Result, timeoutSeconds: Long): String {
         val builder = StringBuilder()
         if (result.timedOut) {

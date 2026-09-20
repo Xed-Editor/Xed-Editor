@@ -6,13 +6,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-/**
- * Material "content_copy" glyph.
- *
- * `material-icons-core` - the only icon artifact this module depends on - does not ship a copy
- * icon, and pulling in `material-icons-extended` for a single glyph is not worth the build cost, so
- * the path is defined here.
- */
+/** Material "content_copy" glyph; material-icons-core does not ship a copy icon. */
 val ContentCopy: ImageVector
     get() {
         if (_ContentCopy != null) return _ContentCopy!!
@@ -26,7 +20,6 @@ val ContentCopy: ImageVector
                     viewportHeight = 24f,
                 )
                 .apply {
-                    // Back sheet.
                     path(fill = SolidColor(Color.Black)) {
                         moveTo(16f, 1f)
                         horizontalLineTo(4f)
@@ -38,7 +31,6 @@ val ContentCopy: ImageVector
                         verticalLineTo(1f)
                         close()
                     }
-                    // Front sheet.
                     path(fill = SolidColor(Color.Black)) {
                         moveTo(19f, 5f)
                         horizontalLineTo(8f)
