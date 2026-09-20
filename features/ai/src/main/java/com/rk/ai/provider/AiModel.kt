@@ -10,8 +10,11 @@ data class AiModel(
     val displayName: String = id,
     val capabilities: List<LLMCapability> = DEFAULT_CAPABILITIES,
     val contextWindowTokens: Int? = null,
+    /** The exact koog definition to send, for providers that resolve models by [LLModel]. */
+    val llmModel: LLModel? = null,
 ) {
-    fun toLLModel(provider: LLMProvider): LLModel = LLModel(provider = provider, id = id, capabilities = capabilities)
+    fun toLLModel(provider: LLMProvider): LLModel =
+        llmModel ?: LLModel(provider = provider, id = id, capabilities = capabilities)
 
     companion object {
         /** The capabilities a tool-calling chat model needs. */

@@ -95,8 +95,10 @@ class AiChatController {
         val text = rawText.trim()
         if (text.isEmpty() || isRunning) return
 
-        if (!AiSettings.hasApiKey) {
-            val message = "No API key configured. Open AI settings and add one."
+        if (!AiProviderRuntime.hasApiKey()) {
+            val message =
+                "No API key configured for ${AiProviderRuntime.activeProvider().displayName}. " +
+                    "Add one in AI settings."
             Log.w(TAG, message)
             lastError = message
             return
@@ -335,7 +337,8 @@ class AiChatController {
     }
 
     private fun offeredTools(depth: Int): List<AiTool> {
-        val all = AiToolRegistry.all()
+        val disabled = AiSettings.disabledTools
+        val all = AiToolRegistry.all().filterNot { it.name in disabled }
         return if (depth == 0) all else all.filterNot { it.mainAgentOnly }
     }
 
@@ -346,6 +349,11 @@ class AiChatController {
                     Log.e(TAG, "Model requested unknown tool '${call.name}'")
                     return ToolOutcome(call.id, "Unknown tool '${call.name}'.", true)
                 }
+
+        if (!AiSettings.isToolEnabled(tool.name)) {
+            Log.i(TAG, "Model requested disabled tool '${tool.name}'")
+            return ToolOutcome(call.id, "Tool '${tool.name}' is disabled in settings.", true)
+        }
 
         val mode = AiSettings.currentPermissionMode()
         val args = parseArgs(call.args)

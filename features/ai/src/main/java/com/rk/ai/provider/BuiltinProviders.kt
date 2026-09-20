@@ -1,37 +1,30 @@
 package com.rk.ai.provider
 
 import ai.koog.http.client.ktor.KtorKoogHttpClient
+import ai.koog.prompt.executor.clients.anthropic.AnthropicModels
 import ai.koog.prompt.executor.clients.openai.OpenAIClientSettings
 import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
 import ai.koog.prompt.executor.llms.MultiLLMPromptExecutor
 import ai.koog.prompt.executor.model.PromptExecutor
 import ai.koog.prompt.llm.LLMProvider
+import ai.koog.prompt.llm.LLModel
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.rk.ai.icons.AnthropicIcon
+import com.rk.ai.icons.DeepSeekIcon
+import com.rk.ai.icons.OpenAiIcon
 
 object BuiltinProviders {
     const val DEEPSEEK_ID = "deepseek"
     const val OPENAI_ID = "openai"
-    const val OPENAI_COMPATIBLE_ID = "openai-compatible"
-
-    val deepseek: AiProvider =
-        OpenAiCompatibleProvider(
-            id = DEEPSEEK_ID,
-            displayName = "DeepSeek",
-            defaultBaseUrl = "https://api.deepseek.com",
-            defaultChatCompletionsPath = "chat/completions",
-            models =
-                listOf(
-                    AiModel(id = "deepseek-chat", providerId = DEEPSEEK_ID, displayName = "deepseek-chat (tools)"),
-                    AiModel(id = "deepseek-reasoner", providerId = DEEPSEEK_ID, displayName = "deepseek-reasoner (thinking)"),
-                ),
-            baseUrlMatcher = { it.contains("deepseek", ignoreCase = true) },
-        )
+    const val ANTHROPIC_ID = "anthropic"
 
     val openAi: AiProvider =
         OpenAiCompatibleProvider(
             id = OPENAI_ID,
             displayName = "OpenAI",
-            defaultBaseUrl = "https://api.openai.com",
-            defaultChatCompletionsPath = "v1/chat/completions",
+            icon = OpenAiIcon,
+            baseUrl = "https://api.openai.com",
+            requestPath = "v1/chat/completions",
             models =
                 listOf(
                     AiModel(id = "gpt-4o", providerId = OPENAI_ID),
@@ -39,50 +32,68 @@ object BuiltinProviders {
                     AiModel(id = "gpt-4.1", providerId = OPENAI_ID),
                     AiModel(id = "gpt-4.1-mini", providerId = OPENAI_ID),
                 ),
-            baseUrlMatcher = { it.contains("api.openai.com", ignoreCase = true) },
         )
 
-    /** Never auto-matches a base URL; the user selects it explicitly. */
-    val openAiCompatible: AiProvider =
-        OpenAiCompatibleProvider(
-            id = OPENAI_COMPATIBLE_ID,
-            displayName = "OpenAI-compatible (custom)",
-            defaultBaseUrl = "https://api.deepseek.com",
-            defaultChatCompletionsPath = "v1/chat/completions",
-            models = emptyList(),
-            // Historical heuristic kept so existing setups keep working.
-            pathResolver = { baseUrl -> if (baseUrl.contains("deepseek", ignoreCase = true)) "chat/completions" else "v1/chat/completions" },
+    val anthropic: AiProvider =
+        AnthropicProvider(
+            id = ANTHROPIC_ID,
+            displayName = "Anthropic",
+            icon = AnthropicIcon,
+            models =
+                listOf(
+                    anthropicModel(AnthropicModels.Sonnet_4_6, "Claude Sonnet 4.6"),
+                    anthropicModel(AnthropicModels.Sonnet_4_5, "Claude Sonnet 4.5"),
+                    anthropicModel(AnthropicModels.Opus_4_7, "Claude Opus 4.7"),
+                    anthropicModel(AnthropicModels.Opus_4_6, "Claude Opus 4.6"),
+                    anthropicModel(AnthropicModels.Opus_4_5, "Claude Opus 4.5"),
+                    anthropicModel(AnthropicModels.Haiku_4_5, "Claude Haiku 4.5"),
+                ),
         )
 
-    fun all(): List<AiProvider> = listOf(deepseek, openAi, openAiCompatible)
+    fun all(): List<AiProvider> = listOf(openAi, anthropic)
+
+    fun default(): AiProvider = anthropic
+
+    private fun anthropicModel(model: LLModel, displayName: String): AiModel =
+        AiModel(
+            id = model.id,
+            providerId = ANTHROPIC_ID,
+            displayName = displayName,
+            capabilities = model.capabilities.orEmpty(),
+            contextWindowTokens = model.contextLength?.toInt(),
+            llmModel = model,
+        )
 }
 
-class OpenAiCompatibleProvider(
+/**
+ * A provider that speaks the OpenAI chat-completions protocol. Pass [executorFactory] to keep the
+ * protocol but change the client, or implement [AiProvider] directly for a different protocol.
+ */
+open class OpenAiCompatibleProvider(
     override val id: String,
     override val displayName: String,
-    override val defaultBaseUrl: String,
-    override val defaultChatCompletionsPath: String,
-    override val models: List<AiModel>,
-    private val baseUrlMatcher: (String) -> Boolean = { false },
-    private val pathResolver: ((String) -> String)? = null,
+    override val icon: ImageVector,
+    override val baseUrl: String,
+    override val requestPath: String = "v1/chat/completions",
+    override val models: List<AiModel> = emptyList(),
+    override val requiresApiKey: Boolean = true,
+    private val executorFactory: ((AiProviderConfig) -> PromptExecutor)? = null,
 ) : AiProvider {
     override val llmProvider: LLMProvider = LLMProvider.OpenAI
 
     override fun createExecutor(config: AiProviderConfig): PromptExecutor =
+        executorFactory?.invoke(config) ?: openAiExecutor(config)
+
+    private fun openAiExecutor(config: AiProviderConfig): PromptExecutor =
         MultiLLMPromptExecutor(
             OpenAILLMClient(
                 apiKey = config.apiKey,
                 settings =
                     OpenAIClientSettings(
                         baseUrl = config.baseUrl,
-                        chatCompletionsPath = config.chatCompletionsPath,
+                        chatCompletionsPath = config.requestPath,
                     ),
                 httpClientFactory = KtorKoogHttpClient.Factory(),
             )
         )
-
-    override fun resolveChatCompletionsPath(baseUrl: String): String =
-        pathResolver?.invoke(baseUrl) ?: defaultChatCompletionsPath
-
-    override fun matchesBaseUrl(baseUrl: String): Boolean = baseUrlMatcher.invoke(baseUrl)
 }

@@ -3,6 +3,7 @@ package com.rk.ai.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,12 +11,18 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -50,45 +58,70 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {}) {
     var editing by remember { mutableStateOf<EditTarget?>(null) }
     var pickingModel by remember { mutableStateOf(false) }
+    var providerMenuOpen by remember { mutableStateOf(false) }
 
     val providers by AiExtensions.providers.collectAsState()
     val tools by AiExtensions.tools.collectAsState()
     val provider = providers.firstOrNull { it.id == AiSettings.providerId } ?: providers.firstOrNull()
     val models = provider?.let { AiModelCatalog.modelsFor(it.id) }.orEmpty()
+    val apiKey = provider?.let { AiSettings.apiKey(it.id) }.orEmpty()
 
     PreferenceLayout(label = "AI", modifier = modifier) {
-        PreferenceGroup(
-            heading = "Provider",
-            description =
-                "Where requests are sent. Extensions can add providers; picking one restores its " +
-                    "default endpoint and first model.",
-        ) {
-            providers.forEach { candidate ->
-                ChoiceRow(
-                    title = candidate.displayName,
-                    description = candidate.defaultBaseUrl,
-                    selected = candidate.id == provider?.id,
-                    onSelect = { selectProvider(candidate) },
+        PreferenceGroup(heading = "Provider") {
+            Box {
+                SettingsItem(
+                    label = "Provider",
+                    description = provider?.displayName,
+                    singleLineDescription = true,
+                    showSwitch = false,
+                    startWidget = { provider?.let { ProviderIcon(it) } },
+                    endWidget = {
+                        Icon(
+                            imageVector = Icons.Filled.KeyboardArrowDown,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 16.dp),
+                        )
+                    },
+                    sideEffect = { providerMenuOpen = true },
                 )
+
+                DropdownMenu(
+                    expanded = providerMenuOpen,
+                    onDismissRequest = { providerMenuOpen = false },
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    providers.forEach { candidate ->
+                        DropdownMenuItem(
+                            text = { Text(candidate.displayName) },
+                            leadingIcon = { ProviderIcon(candidate) },
+                            trailingIcon = {
+                                if (candidate.id == provider?.id) {
+                                    Icon(Icons.Filled.Check, contentDescription = null)
+                                }
+                            },
+                            modifier =
+                                Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                            onClick = {
+                                selectProvider(candidate)
+                                providerMenuOpen = false
+                            },
+                        )
+                    }
+                }
             }
         }
 
         PreferenceGroup(heading = "Connection") {
-            SettingsItem(
-                label = "API key",
-                description = if (AiSettings.apiKey.isBlank()) "Not set" else maskKey(AiSettings.apiKey),
-                showSwitch = false,
-                endWidget = { NavigateChevron() },
-                sideEffect = { editing = EditTarget.ApiKey },
-            )
-
-            SettingsItem(
-                label = "Base URL",
-                description = AiSettings.baseUrl,
-                showSwitch = false,
-                endWidget = { NavigateChevron() },
-                sideEffect = { editing = EditTarget.BaseUrl },
-            )
+            if (provider?.requiresApiKey == true) {
+                SettingsItem(
+                    label = "API key",
+                    description = if (apiKey.isBlank()) "Not set" else maskKey(apiKey),
+                    showSwitch = false,
+                    endWidget = { NavigateChevron() },
+                    sideEffect = { editing = EditTarget.ApiKey },
+                )
+            }
 
             SettingsItem(
                 label = "Model",
@@ -99,10 +132,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
             )
         }
 
-        PreferenceGroup(
-            heading = "Agent",
-            description = "The system prompt is sent at the start of every conversation.",
-        ) {
+        PreferenceGroup(heading = "Agent") {
             SettingsItem(
                 label = "System prompt",
                 description = AiSettings.systemPrompt,
@@ -113,12 +143,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
             )
         }
 
-        PreferenceGroup(
-            heading = "Memory",
-            description =
-                "Notes the assistant carries between chats. They are added to the system prompt of " +
-                    "every run.",
-        ) {
+        PreferenceGroup(heading = "Memory") {
             val count = AiMemory.entries.size
             SettingsItem(
                 label = "Long-term memory",
@@ -134,24 +159,17 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
             )
         }
 
-        PreferenceGroup(
-            heading = "Tool permissions",
-            description = "Controls when the agent must ask before running a tool.",
-        ) {
+        PreferenceGroup(heading = "Tool permissions") {
             PermissionMode.entries.forEach { mode ->
                 ChoiceRow(
                     title = mode.title(),
-                    description = mode.description(),
                     selected = AiSettings.currentPermissionMode() == mode,
                     onSelect = { AiSettings.permissionMode = mode.name },
                 )
             }
         }
 
-        PreferenceGroup(
-            heading = "Tools (${tools.size})",
-            description = "Every tool the model can call, including the ones extensions registered.",
-        ) {
+        PreferenceGroup(heading = "Tools (${tools.size})") {
             tools.forEach { tool -> ToolRow(tool) }
         }
     }
@@ -160,20 +178,11 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
         EditTarget.ApiKey ->
             EditTextDialog(
                 title = "API key",
-                description = "Stored on device. DeepSeek keys start with 'sk-'.",
-                initial = AiSettings.apiKey,
+                description = "Stored on device only.",
+                initial = apiKey,
                 password = true,
                 onDismiss = { editing = null },
-                onSave = { AiSettings.apiKey = it },
-            )
-
-        EditTarget.BaseUrl ->
-            EditTextDialog(
-                title = "Base URL",
-                description = "Endpoint root for ${provider?.displayName ?: "the active provider"}.",
-                initial = AiSettings.baseUrl,
-                onDismiss = { editing = null },
-                onSave = { AiSettings.baseUrl = it },
+                onSave = { key -> provider?.let { AiSettings.setApiKey(it.id, key) } },
             )
 
         EditTarget.SystemPrompt ->
@@ -204,21 +213,28 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
 
 private fun selectProvider(provider: AiProvider) {
     AiSettings.providerId = provider.id
-    AiSettings.baseUrl = provider.defaultBaseUrl
     AiModelCatalog.defaultFor(provider)?.let { AiSettings.modelId = it.id }
     AiProviderRuntime.invalidate()
 }
 
 @Composable
-private fun ChoiceRow(title: String, description: String, selected: Boolean, onSelect: () -> Unit) {
+private fun ProviderIcon(provider: AiProvider) {
+    Icon(
+        imageVector = provider.icon,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = 16.dp).size(24.dp),
+    )
+}
+
+@Composable
+private fun ChoiceRow(title: String, selected: Boolean, onSelect: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     PreferenceTemplate(
         modifier = Modifier.clickable(indication = ripple(), interactionSource = interactionSource) { onSelect() },
-        contentModifier = Modifier.fillMaxHeight(),
         title = { Text(fontWeight = FontWeight.Bold, text = title) },
-        description = { Text(text = description) },
         enabled = true,
-        applyPaddings = true,
+        applyPaddings = false,
         startWidget = { RadioButton(selected = selected, onClick = onSelect) },
     )
 }
@@ -229,8 +245,8 @@ private fun ToolRow(tool: AiTool) {
         label = tool.name,
         description = "${tool.kind} · ${if (tool.isDestructive) "asks first" else "runs freely"}",
         singleLineDescription = true,
-        showSwitch = false,
-        isEnabled = false,
+        state = remember(tool.name) { mutableStateOf(AiSettings.isToolEnabled(tool.name)) },
+        sideEffect = { AiSettings.setToolEnabled(tool.name, it) },
     )
 }
 
@@ -356,7 +372,6 @@ private fun EditTextDialog(
 
 private enum class EditTarget {
     ApiKey,
-    BaseUrl,
     SystemPrompt,
 }
 
@@ -373,12 +388,4 @@ private fun PermissionMode.title(): String =
         PermissionMode.ACCEPT_EDITS -> "Auto-approve file edits"
         PermissionMode.PLAN -> "Plan only"
         PermissionMode.YOLO -> "Autonomous"
-    }
-
-private fun PermissionMode.description(): String =
-    when (this) {
-        PermissionMode.ASK -> "ask for writes and shell commands"
-        PermissionMode.ACCEPT_EDITS -> "Edits run freely; shell commands still ask"
-        PermissionMode.PLAN -> "writes and shell commands are blocked"
-        PermissionMode.YOLO -> "Run everything without asking"
     }

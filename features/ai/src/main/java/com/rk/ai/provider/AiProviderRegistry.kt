@@ -42,16 +42,10 @@ object AiProviderRegistry {
         synchronized(lock) { removeOrRestoreLocked(id, expected = null) }
     }
 
-    /** [configuredId] wins unless its base URL belongs to another provider, to migrate older settings. */
-    fun resolveActive(configuredId: String, baseUrl: String): AiProvider? {
+    /** The configured provider, or the first registered one when the id is unknown. */
+    fun resolveActive(configuredId: String): AiProvider {
         installBuiltins()
-        val byId = providersById[configuredId]
-        val byUrl = providersById.values.firstOrNull { it.matchesBaseUrl(baseUrl) }
-        return when {
-            byId != null && (byUrl == null || byId === byUrl) -> byId
-            byUrl != null -> byUrl
-            else -> byId ?: providersById.values.firstOrNull()
-        }
+        return providersById[configuredId] ?: providersById.values.firstOrNull() ?: BuiltinProviders.default()
     }
 
     internal fun installBuiltins() {

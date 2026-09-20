@@ -1,9 +1,13 @@
 package com.rk.ai.api
 
+import ai.koog.prompt.executor.model.PromptExecutor
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.rk.ai.provider.AiModel
 import com.rk.ai.provider.AiModelRegistry
 import com.rk.ai.provider.AiProvider
+import com.rk.ai.provider.AiProviderConfig
 import com.rk.ai.provider.AiProviderRegistry
+import com.rk.ai.provider.OpenAiCompatibleProvider
 import com.rk.ai.tools.AiTool
 import com.rk.ai.tools.AiToolRegistry
 import com.rk.extension.api.XedExtensionPoint
@@ -50,6 +54,33 @@ object AiExtensions {
     @XedExtensionPoint fun unregisterProvider(provider: AiProvider) = AiProviderRegistry.unregisterProvider(provider)
 
     @XedExtensionPoint fun unregisterProvider(id: String) = AiProviderRegistry.unregisterProvider(id)
+
+    /** Registers an OpenAI-compatible backend without implementing [AiProvider]. */
+    @XedExtensionPoint
+    fun registerOpenAiCompatibleProvider(
+        id: String,
+        displayName: String,
+        icon: ImageVector,
+        baseUrl: String,
+        requestPath: String = "v1/chat/completions",
+        models: List<AiModel> = emptyList(),
+        requiresApiKey: Boolean = true,
+        createExecutor: ((AiProviderConfig) -> PromptExecutor)? = null,
+    ): AiProvider {
+        val provider =
+            OpenAiCompatibleProvider(
+                id = id,
+                displayName = displayName,
+                icon = icon,
+                baseUrl = baseUrl,
+                requestPath = requestPath,
+                models = models,
+                requiresApiKey = requiresApiKey,
+                executorFactory = createExecutor,
+            )
+        registerProvider(provider)
+        return provider
+    }
 
     @XedExtensionPoint fun registerModel(model: AiModel) = AiModelRegistry.registerModel(model)
 
