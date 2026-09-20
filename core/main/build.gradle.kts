@@ -150,6 +150,15 @@ dependencies {
     debugImplementation(libs.leakcanary)
     implementation(libs.junit)
 
+    // Markdown rendering (Compose). This is a Kotlin Multiplatform library, but it publishes
+    // Android AAR variants that Gradle resolves automatically for this Android-only project.
+    // `api` is used because com.rk.markdown.MarkdownText exposes library types (ImageTransformer)
+    // in its public signature, so feature modules need them on their compile classpath.
+    api(libs.markdown.renderer)
+    api(libs.markdown.renderer.m3)
+    api(libs.markdown.renderer.code)
+    api(libs.markdown.renderer.coil2)
+
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
 
@@ -161,6 +170,10 @@ dependencies {
     implementation(libs.sorax.editor)
     implementation(libs.sorax.editor.lsp)
     implementation(libs.sorax.language.textmate)
+
+    //api is used so ai feature can access ktor
+    //api(libs.ktor.server.netty)
+    //api(libs.ktor.client.okhttp)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

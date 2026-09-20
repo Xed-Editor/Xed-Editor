@@ -116,4 +116,5 @@ dependencies {
     implementation(project(":features:extensions"))
     implementation(project(":features:runner"))
     implementation(project(":features:git"))
+    implementation(project(":features:ai"))
 }
