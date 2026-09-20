@@ -11,8 +11,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.rk.resources.strings
 import com.rk.theme.gitAdded
 
 @Composable
@@ -51,7 +53,7 @@ fun AiDiffView(diff: String, modifier: Modifier = Modifier) {
                 }
                 if (lines.size > shown.size) {
                     Text(
-                        text = "… ${lines.size - shown.size} more line(s)",
+                        text = stringResource(strings.ai_diff_more_lines, lines.size - shown.size),
                         color = headerColor,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),

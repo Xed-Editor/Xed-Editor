@@ -33,12 +33,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.rk.ai.chat.AiChatController
 import com.rk.ai.model.AiTodo
 import com.rk.ai.model.TodoStatus
+import com.rk.resources.strings
 import com.rk.theme.greenStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +52,8 @@ fun AiTasksButton(controller: AiChatController) {
     IconButton(onClick = { open = true }) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.List,
-            contentDescription = if (todos.isEmpty()) "Tasks" else "Tasks (${todos.size})",
+            contentDescription =
+                if (todos.isEmpty()) stringResource(strings.ai_tasks) else stringResource(strings.ai_tasks_count, todos.size),
         )
     }
 
@@ -76,7 +79,7 @@ private fun TasksSheet(todos: List<AiTodo>, onClear: () -> Unit) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = "Tasks",
+                text = stringResource(strings.ai_tasks),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
@@ -131,7 +134,7 @@ private fun TaskStatusIcon(status: TodoStatus) {
             TodoStatus.Completed ->
                 Icon(
                     imageVector = Icons.Filled.CheckCircle,
-                    contentDescription = "Completed",
+                    contentDescription = stringResource(strings.ai_task_completed),
                     tint = MaterialTheme.colorScheme.greenStatus,
                     modifier = Modifier.size(18.dp),
                 )

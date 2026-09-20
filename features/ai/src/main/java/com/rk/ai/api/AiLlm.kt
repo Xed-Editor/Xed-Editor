@@ -4,6 +4,8 @@ import ai.koog.prompt.Prompt
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.streaming.StreamFrame
 import com.rk.ai.provider.AiProviderRuntime
+import com.rk.resources.getFilledString
+import com.rk.resources.strings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -75,7 +77,7 @@ internal object AiLlm {
 
     private fun requireConfigured() {
         check(AiProviderRuntime.hasApiKey()) {
-            "No API key configured for ${AiProviderRuntime.activeProvider().displayName}. Add one in AI settings."
+            strings.ai_no_api_key.getFilledString(AiProviderRuntime.activeProvider().displayName)
         }
     }
 }

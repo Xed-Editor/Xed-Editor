@@ -2,6 +2,8 @@ package com.rk.ai.tools
 
 import ai.koog.agents.core.tools.ToolParameterType
 import com.rk.exec.ShellUtils
+import com.rk.resources.getString
+import com.rk.resources.strings
 
 object ShellTools {
     private const val MAX_OUTPUT_CHARS = 32_000
@@ -30,11 +32,11 @@ object ShellTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "Run shell",
+                        strings.ai_tool_run_shell.getString(),
                         args.displayArg("command"),
                         listOfNotNull(
-                            toolLargeBlock("Command", args.displayArg("command")),
-                            toolField("Timeout", args.displayArg("timeout_seconds")?.plus("s")),
+                            toolLargeBlock(strings.ai_tool_command.getString(), args.displayArg("command")),
+                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
                         ),
                     )
                 },
@@ -84,12 +86,12 @@ object ShellTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "Run in Ubuntu",
+                        strings.ai_tool_run_ubuntu.getString(),
                         args.displayArg("command"),
                         listOfNotNull(
-                            toolLargeBlock("Command", args.displayArg("command")),
-                            toolField("Working dir", args.displayArg("working_dir")),
-                            toolField("Timeout", args.displayArg("timeout_seconds")?.plus("s")),
+                            toolLargeBlock(strings.ai_tool_command.getString(), args.displayArg("command")),
+                            toolField(strings.ai_tool_working_dir.getString(), args.displayArg("working_dir")),
+                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
                         ),
                     )
                 },

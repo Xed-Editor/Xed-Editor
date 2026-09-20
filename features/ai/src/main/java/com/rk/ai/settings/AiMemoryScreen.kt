@@ -26,18 +26,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.components.SettingsItem
 import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.resources.strings
 
 @Composable
 fun AiMemoryScreen(modifier: Modifier = Modifier) {
     var editing by remember { mutableStateOf<MemoryEdit?>(null) }
     val memories = AiMemory.entries
 
-    PreferenceLayout(label = "Memory", modifier = modifier, actions = {
+    PreferenceLayout(label = stringResource(strings.ai_memory), modifier = modifier, actions = {
         IconButton(onClick = {
             AiMemory.clear()
         }) {
@@ -45,14 +47,12 @@ fun AiMemoryScreen(modifier: Modifier = Modifier) {
         }
     }) {
         PreferenceGroup(
-            heading = "Long-term memory",
-            description =
-                "Notes the assistant carries into every chat. They are added to the system prompt, " +
-                    "so keep them short and factual.",
+            heading = stringResource(strings.ai_long_term_memory),
+            description = stringResource(strings.ai_memory_screen_description),
         ) {
             SettingsItem(
-                label = "Add a memory",
-                description = "Write something the assistant should always know.",
+                label = stringResource(strings.ai_add_memory),
+                description = stringResource(strings.ai_add_memory_hint),
                 showSwitch = false,
                 startWidget = {
                     Icon(
@@ -66,8 +66,8 @@ fun AiMemoryScreen(modifier: Modifier = Modifier) {
 
             if (memories.isEmpty()) {
                 SettingsItem(
-                    label = "Nothing remembered yet",
-                    description = "The assistant can also add notes itself with save_memory.",
+                    label = stringResource(strings.ai_memory_empty),
+                    description = stringResource(strings.ai_memory_empty_hint),
                     showSwitch = false,
                     isEnabled = false,
                 )
@@ -76,13 +76,12 @@ fun AiMemoryScreen(modifier: Modifier = Modifier) {
 
         if (memories.isNotEmpty()) {
             PreferenceGroup(
-                heading = "Saved notes",
-                description =
-                    "Tap a note to edit it. The assistant sees the list in the order shown here.",
+                heading = stringResource(strings.ai_saved_notes),
+                description = stringResource(strings.ai_saved_notes_hint),
             ) {
                 memories.forEachIndexed { index, entry ->
                     SettingsItem(
-                        label = "Memory ${index + 1}",
+                        label = stringResource(strings.ai_memory_number, index + 1),
                         description = entry,
                         showSwitch = false,
                         onClick = { editing = MemoryEdit(index = index + 1) },
@@ -117,14 +116,14 @@ private fun MemoryActions(position: Int, onEdit: () -> Unit, onDelete: () -> Uni
         IconButton(onClick = onEdit) {
             Icon(
                 imageVector = Icons.Filled.Edit,
-                contentDescription = "Edit memory $position",
+                contentDescription = stringResource(strings.ai_edit_memory, position),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         IconButton(onClick = onDelete) {
             Icon(
                 imageVector = Icons.Outlined.Delete,
-                contentDescription = "Forget memory $position",
+                contentDescription = stringResource(strings.ai_forget_memory, position),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
@@ -143,12 +142,12 @@ private fun MemoryDialog(
     XedDialog(onDismissRequest = onDismiss) {
         Column(Modifier.fillMaxWidth().padding(20.dp)) {
             Text(
-                text = if (isNew) "Add a memory" else "Edit memory",
+                text = if (isNew) stringResource(strings.ai_add_memory) else stringResource(strings.ai_edit_memory_title),
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "The assistant will see this in every future chat.",
+                text = stringResource(strings.ai_memory_dialog_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -166,7 +165,7 @@ private fun MemoryDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
             ) {
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) }
                 Spacer(Modifier.width(8.dp))
                 Button(
                     onClick = {
@@ -175,7 +174,7 @@ private fun MemoryDialog(
                     },
                     enabled = text.isNotBlank(),
                 ) {
-                    Text("Save")
+                    Text(stringResource(strings.save))
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.rk.ai.model
 
+import com.rk.resources.getString
+import com.rk.resources.strings
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -15,9 +17,9 @@ enum class TodoStatus {
     val label: String
         get() =
             when (this) {
-                Pending -> "Todo"
-                InProgress -> "Doing"
-                Completed -> "Done"
+                Pending -> strings.ai_todo_pending.getString()
+                InProgress -> strings.ai_todo_in_progress.getString()
+                Completed -> strings.ai_todo_completed.getString()
             }
 
     companion object {

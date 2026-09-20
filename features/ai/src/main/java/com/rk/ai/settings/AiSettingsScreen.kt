@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -53,6 +54,8 @@ import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.resources.getString
+import com.rk.resources.strings
 
 @Composable
 fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {}) {
@@ -66,11 +69,11 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
     val models = provider?.let { AiModelCatalog.modelsFor(it.id) }.orEmpty()
     val apiKey = provider?.let { AiSettings.apiKey(it.id) }.orEmpty()
 
-    PreferenceLayout(label = "AI", modifier = modifier) {
-        PreferenceGroup(heading = "Provider") {
+    PreferenceLayout(label = stringResource(strings.ai_feature_label), modifier = modifier) {
+        PreferenceGroup(heading = stringResource(strings.ai_provider)) {
             Box {
                 SettingsItem(
-                    label = "Provider",
+                    label = stringResource(strings.ai_provider),
                     description = provider?.displayName,
                     singleLineDescription = true,
                     showSwitch = false,
@@ -112,11 +115,11 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
             }
         }
 
-        PreferenceGroup(heading = "Connection") {
+        PreferenceGroup(heading = stringResource(strings.ai_connection)) {
             if (provider?.requiresApiKey == true) {
                 SettingsItem(
-                    label = "API key",
-                    description = if (apiKey.isBlank()) "Not set" else maskKey(apiKey),
+                    label = stringResource(strings.ai_api_key),
+                    description = if (apiKey.isBlank()) stringResource(strings.ai_not_set) else maskKey(apiKey),
                     showSwitch = false,
                     endWidget = { NavigateChevron() },
                     sideEffect = { editing = EditTarget.ApiKey },
@@ -124,7 +127,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
             }
 
             SettingsItem(
-                label = "Model",
+                label = stringResource(strings.ai_model),
                 description = AiSettings.modelId,
                 showSwitch = false,
                 endWidget = { NavigateChevron() },
@@ -132,9 +135,9 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
             )
         }
 
-        PreferenceGroup(heading = "Agent") {
+        PreferenceGroup(heading = stringResource(strings.ai_agent)) {
             SettingsItem(
-                label = "System prompt",
+                label = stringResource(strings.ai_system_prompt),
                 description = AiSettings.systemPrompt,
                 singleLineDescription = true,
                 showSwitch = false,
@@ -143,15 +146,15 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
             )
         }
 
-        PreferenceGroup(heading = "Memory") {
+        PreferenceGroup(heading = stringResource(strings.ai_memory)) {
             val count = AiMemory.entries.size
             SettingsItem(
-                label = "Long-term memory",
+                label = stringResource(strings.ai_long_term_memory),
                 description =
                     when (count) {
-                        0 -> "Nothing remembered yet"
-                        1 -> "1 saved note"
-                        else -> "$count saved notes"
+                        0 -> stringResource(strings.ai_memory_empty)
+                        1 -> stringResource(strings.ai_memory_one_note)
+                        else -> stringResource(strings.ai_memory_notes, count)
                     },
                 showSwitch = false,
                 endWidget = { NavigateChevron() },
@@ -159,7 +162,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
             )
         }
 
-        PreferenceGroup(heading = "Tool permissions") {
+        PreferenceGroup(heading = stringResource(strings.ai_tool_permissions)) {
             PermissionMode.entries.forEach { mode ->
                 ChoiceRow(
                     title = mode.title(),
@@ -169,7 +172,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
             }
         }
 
-        PreferenceGroup(heading = "Tools (${tools.size})") {
+        PreferenceGroup(heading = stringResource(strings.ai_tools_count, tools.size)) {
             tools.forEach { tool -> ToolRow(tool) }
         }
     }
@@ -177,8 +180,8 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
     when (editing) {
         EditTarget.ApiKey ->
             EditTextDialog(
-                title = "API key",
-                description = "Stored on device only.",
+                title = stringResource(strings.ai_api_key),
+                description = stringResource(strings.ai_api_key_hint),
                 initial = apiKey,
                 password = true,
                 onDismiss = { editing = null },
@@ -187,8 +190,8 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
 
         EditTarget.SystemPrompt ->
             EditTextDialog(
-                title = "System prompt",
-                description = "Prepended to every conversation.",
+                title = stringResource(strings.ai_system_prompt),
+                description = stringResource(strings.ai_system_prompt_hint),
                 initial = AiSettings.systemPrompt,
                 singleLine = false,
                 onDismiss = { editing = null },
@@ -243,7 +246,16 @@ private fun ChoiceRow(title: String, selected: Boolean, onSelect: () -> Unit) {
 private fun ToolRow(tool: AiTool) {
     SettingsItem(
         label = tool.name,
-        description = "${tool.kind} · ${if (tool.isDestructive) "asks first" else "runs freely"}",
+        description =
+            stringResource(
+                strings.ai_tool_row_description,
+                tool.kind,
+                if (tool.isDestructive) {
+                    stringResource(strings.ai_tool_asks_first)
+                } else {
+                    stringResource(strings.ai_tool_runs_freely)
+                },
+            ),
         singleLineDescription = true,
         state = remember(tool.name) { mutableStateOf(AiSettings.isToolEnabled(tool.name)) },
         sideEffect = { AiSettings.setToolEnabled(tool.name, it) },
@@ -261,10 +273,10 @@ private fun ModelPickerDialog(
 
     XedDialog(onDismissRequest = onDismiss) {
         Column(Modifier.fillMaxWidth().padding(20.dp).verticalScroll(rememberScrollState())) {
-            Text(text = "Model", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(strings.ai_model), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "Models registered for this provider. Type an id below to use one that is not listed.",
+                text = stringResource(strings.ai_model_picker_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -289,14 +301,16 @@ private fun ModelPickerDialog(
                 onValueChange = { custom = it },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                label = { Text("Custom model id") },
+                label = { Text(stringResource(strings.ai_custom_model_id)) },
             )
 
             Spacer(Modifier.height(18.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) }
                 Spacer(Modifier.width(8.dp))
-                Button(onClick = { onPick(custom.trim()) }, enabled = custom.isNotBlank()) { Text("Use") }
+                Button(onClick = { onPick(custom.trim()) }, enabled = custom.isNotBlank()) {
+                    Text(stringResource(strings.ai_use))
+                }
             }
         }
     }
@@ -384,8 +398,8 @@ private fun maskKey(key: String): String =
 
 private fun PermissionMode.title(): String =
     when (this) {
-        PermissionMode.ASK -> "Ask before every tool"
-        PermissionMode.ACCEPT_EDITS -> "Auto-approve file edits"
-        PermissionMode.PLAN -> "Plan only"
-        PermissionMode.YOLO -> "Autonomous"
+        PermissionMode.ASK -> strings.ai_mode_ask.getString()
+        PermissionMode.ACCEPT_EDITS -> strings.ai_mode_accept_edits.getString()
+        PermissionMode.PLAN -> strings.ai_mode_plan.getString()
+        PermissionMode.YOLO -> strings.ai_mode_autonomous.getString()
     }

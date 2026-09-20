@@ -7,6 +7,8 @@ import com.rk.ai.model.TodoStatus
 import com.rk.ai.model.ToolCallStatus
 import com.rk.ai.model.parseOptions
 import com.rk.ai.model.parseTodos
+import com.rk.resources.getString
+import com.rk.resources.strings
 
 internal const val SUB_AGENT_TOOL = "spawn_agent"
 
@@ -48,9 +50,9 @@ internal object AgentTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "Sub-agent",
+                        strings.ai_tool_sub_agent.getString(),
                         args.displayArg("description"),
-                        listOfNotNull(toolDetail("Task", args.displayArg("prompt"))),
+                        listOfNotNull(toolDetail(strings.ai_tool_task.getString(), args.displayArg("prompt"))),
                     )
                 },
             handler = { args, session ->
@@ -112,7 +114,11 @@ internal object AgentTools {
             presenter =
                 AiToolPresenter { args ->
                     val goal = args.displayArg("goal")
-                    ToolCallView(if (goal == null) "Clear goal" else "Set goal", goal, emptyList())
+                    ToolCallView(
+                        if (goal == null) strings.ai_clear_goal.getString() else strings.ai_tool_set_goal.getString(),
+                        goal,
+                        emptyList(),
+                    )
                 },
             handler = { args, session ->
                 val requested = args.arg("goal")?.trim().orEmpty()

@@ -22,6 +22,9 @@ import com.rk.ai.tools.AiToolRegistry
 import com.rk.ai.tools.AiToolSession
 import com.rk.ai.tools.AiWorkspace
 import com.rk.ai.tools.toDescriptor
+import com.rk.resources.getFilledString
+import com.rk.resources.getString
+import com.rk.resources.strings
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -96,9 +99,7 @@ class AiChatController {
         if (text.isEmpty() || isRunning) return
 
         if (!AiProviderRuntime.hasApiKey()) {
-            val message =
-                "No API key configured for ${AiProviderRuntime.activeProvider().displayName}. " +
-                    "Add one in AI settings."
+            val message = strings.ai_no_api_key.getFilledString(AiProviderRuntime.activeProvider().displayName)
             Log.w(TAG, message)
             lastError = message
             return
@@ -126,7 +127,7 @@ class AiChatController {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    val message = e.message ?: e::class.simpleName ?: "Request failed"
+                    val message = e.displayMessage()
                     Log.e(TAG, "Agent run failed: $message", e)
                     lastError = message
                 } finally {
@@ -277,7 +278,7 @@ class AiChatController {
             }
         }
 
-        val message = "Stopped after $MAX_STEPS steps without a final answer."
+        val message = strings.ai_stopped_max_steps.getFilledString(MAX_STEPS)
         Log.w(TAG, message)
         // Only the main run has an error banner; a sub-agent returns the text as its result.
         if (depth == 0) lastError = message
@@ -298,30 +299,40 @@ class AiChatController {
         val offered = offeredTools(depth)
 
         val toolCalls = LinkedHashMap<String, AiToolCall>()
-        AiProviderRuntime.executor()
-            .executeStreaming(conversation, AiProviderRuntime.model(), offered.map { it.toDescriptor() })
-            .collect { frame ->
-                when (frame) {
-                    is StreamFrame.TextDelta -> appendText(transcript, messageId, frame.text)
-                    is StreamFrame.ReasoningDelta -> {
-                        // Chat-completions providers stream reasoning text; the Responses API may not.
-                        val chunk = frame.text ?: frame.summary
-                        chunk?.let { appendReasoning(transcript, messageId, it) }
-                    }
-                    is StreamFrame.ReasoningComplete ->
-                        if (frame.content.isNotEmpty()) {
-                            setReasoning(transcript, messageId, frame.content.joinToString(""))
+        var failure: Exception? = null
+        try {
+            AiProviderRuntime.executor()
+                .executeStreaming(conversation, AiProviderRuntime.model(), offered.map { it.toDescriptor() })
+                .collect { frame ->
+                    when (frame) {
+                        is StreamFrame.TextDelta -> appendText(transcript, messageId, frame.text)
+                        is StreamFrame.ReasoningDelta -> {
+                            // Chat-completions providers stream reasoning text; the Responses API may not.
+                            val chunk = frame.text ?: frame.summary
+                            chunk?.let { appendReasoning(transcript, messageId, it) }
                         }
-                    is StreamFrame.ToolCallComplete -> {
-                        val key = frame.id ?: "index-${frame.index ?: toolCalls.size}"
-                        val callId = frame.id ?: toolCalls[key]?.id ?: UUID.randomUUID().toString()
-                        toolCalls[key] = AiToolCall(callId, frame.name, frame.content)
+                        is StreamFrame.ReasoningComplete ->
+                            if (frame.content.isNotEmpty()) {
+                                setReasoning(transcript, messageId, frame.content.joinToString(""))
+                            }
+                        is StreamFrame.ToolCallComplete -> {
+                            val key = frame.id ?: "index-${frame.index ?: toolCalls.size}"
+                            val callId = frame.id ?: toolCalls[key]?.id ?: UUID.randomUUID().toString()
+                            toolCalls[key] = AiToolCall(callId, frame.name, frame.content)
+                        }
+                        else -> Unit
                     }
-                    is StreamFrame.End -> finish(transcript, messageId)
-                    else -> Unit
                 }
-            }
-        finish(transcript, messageId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            failure = e
+            throw e
+        } finally {
+            // Settle the bubble even when the stream threw, or it would spin forever. A sub-agent's
+            // failure is already reported by the launching tool card, so only the main run shows it.
+            finish(transcript, messageId, if (depth == 0) failure?.displayMessage() else null)
+        }
 
         if (toolCalls.isNotEmpty()) {
             Log.i(
@@ -368,7 +379,12 @@ class AiChatController {
                 } else if (alreadyApproved) {
                     Log.i(TAG, "Auto-running '${tool.name}': '$target' was already allowed in this chat")
                 }
-                val status = if (alreadyApproved) "Running (already allowed for this file)…" else "Running…"
+                val status =
+                    if (alreadyApproved) {
+                        strings.ai_running_allowed.getString()
+                    } else {
+                        strings.running.getString()
+                    }
                 val id = addToolMessage(transcript, tool.name, call.args, ToolCallStatus.Running, status, diff)
                 return runTool(transcript, tool, call, args, id, depth)
             }
@@ -381,7 +397,7 @@ class AiChatController {
                         tool.name,
                         call.args,
                         ToolCallStatus.Denied,
-                        "Plan mode: writes and shell commands are disabled.",
+                        strings.ai_plan_mode_blocked.getString(),
                         diff,
                     )
                 return ToolOutcome(call.id, transcript.get(id)?.text.orEmpty(), true)
@@ -396,7 +412,7 @@ class AiChatController {
                 tool.name,
                 call.args,
                 ToolCallStatus.AwaitingApproval,
-                "Waiting for approval…",
+                strings.ai_waiting_approval.getString(),
                 diff,
             )
         Log.i(TAG, "Tool '${tool.name}' awaiting approval (mode=$mode, args=${call.args.snippet()})")
@@ -413,7 +429,7 @@ class AiChatController {
 
         if (!allowed) {
             Log.i(TAG, "Tool '${tool.name}' denied by user; stopping the run")
-            transcript.update(id) { it.copy(toolStatus = ToolCallStatus.Denied, text = "Denied by user.") }
+            transcript.update(id) { it.copy(toolStatus = ToolCallStatus.Denied, text = strings.ai_denied_by_user.getString()) }
             // End the turn instead of reporting the denial: the model would just ask again, leaving
             // the approval prompt reappearing after every "deny".
             throw ToolDeniedException(tool.name)
@@ -424,7 +440,7 @@ class AiChatController {
             Log.i(TAG, "File '$target' allowed for the rest of this chat")
         }
 
-        transcript.update(id) { it.copy(toolStatus = ToolCallStatus.Running, text = "Running…") }
+        transcript.update(id) { it.copy(toolStatus = ToolCallStatus.Running, text = strings.running.getString()) }
         return runTool(transcript, tool, call, args, id, depth)
     }
 
@@ -452,7 +468,7 @@ class AiChatController {
         } catch (e: ToolDeniedException) {
             // A denial raised deeper down stops the whole run; settle this card on the way out.
             transcript.update(messageId) {
-                it.copy(toolStatus = ToolCallStatus.Denied, text = "Stopped: the user denied a tool.")
+                it.copy(toolStatus = ToolCallStatus.Denied, text = strings.ai_stopped_denied.getString())
             }
             throw e
         } catch (e: CancellationException) {
@@ -523,9 +539,13 @@ class AiChatController {
         transcript.update(id) { it.copy(reasoning = reasoning) }
     }
 
-    private fun finish(transcript: Transcript, id: Long) {
-        transcript.update(id) { it.copy(isStreaming = false) }
+    /** Ends the streamed message; [error] is shown when the reply stopped early. */
+    private fun finish(transcript: Transcript, id: Long, error: String? = null) {
+        transcript.update(id) { it.copy(isStreaming = false, error = it.error ?: error) }
     }
+
+    private fun Throwable.displayMessage(): String =
+        message ?: this::class.simpleName ?: strings.ai_request_failed.getString()
 
     /** The session a tool handler runs inside, bound to the running card and the run's [depth]. */
     private inner class Session(

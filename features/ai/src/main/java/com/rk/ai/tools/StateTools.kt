@@ -3,6 +3,8 @@ package com.rk.ai.tools
 import ai.koog.agents.core.tools.ToolParameterType
 import com.rk.ai.settings.AiMemory
 import com.rk.ai.settings.AiScratchpad
+import com.rk.resources.getString
+import com.rk.resources.strings
 
 object StateTools {
     fun all(): List<AiTool> = listOf(saveMemory(), forgetMemory(), scratchpad())
@@ -26,7 +28,11 @@ object StateTools {
                 ),
             presenter =
                 AiToolPresenter { args ->
-                    ToolCallView("Save memory", null, listOfNotNull(toolDetail("Note", args.displayArg("content"))))
+                    ToolCallView(
+                        strings.ai_tool_save_memory.getString(),
+                        null,
+                        listOfNotNull(toolDetail(strings.ai_tool_note.getString(), args.displayArg("content"))),
+                    )
                 },
         ) { args ->
             AiMemory.add(args.requireArg("content"))
@@ -52,9 +58,9 @@ object StateTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "Forget memory",
+                        strings.ai_tool_forget_memory.getString(),
                         args.displayArg("index"),
-                        listOfNotNull(toolField("Index", args.displayArg("index"))),
+                        listOfNotNull(toolField(strings.ai_tool_index.getString(), args.displayArg("index"))),
                     )
                 },
         ) { args ->
@@ -94,9 +100,9 @@ object StateTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "Scratch pad",
+                        strings.ai_tool_scratchpad.getString(),
                         args.displayArg("action"),
-                        listOfNotNull(toolDetail("Content", args.displayArg("content"))),
+                        listOfNotNull(toolDetail(strings.content.getString(), args.displayArg("content"))),
                     )
                 },
         ) { args ->

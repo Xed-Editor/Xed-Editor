@@ -47,8 +47,8 @@ class AiFeature : Feature {
     private fun registerSettings() {
         settingsCategory =
             SettingsCategory(
-                    label = "AI",
-                    description = "Chat model, API key and tool permissions",
+                    label = strings.ai_feature_label.getString(),
+                    description = strings.ai_settings_description.getString(),
                     icon = Icon.VectorIcon(SparklesBig),
                     route = AI_SETTINGS_ROUTE,
                 )

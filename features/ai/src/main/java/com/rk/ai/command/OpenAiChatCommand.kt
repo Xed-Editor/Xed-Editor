@@ -8,11 +8,13 @@ import com.rk.ai.tab.AiTab
 import com.rk.commands.ActionContext
 import com.rk.commands.GlobalCommand
 import com.rk.icons.Icon
+import com.rk.resources.getString
+import com.rk.resources.strings
 
 class OpenAiChatCommand : GlobalCommand() {
     override val id: String = "global.ai_chat"
 
-    override fun getLabel(): String = "AI chat"
+    override fun getLabel(): String = strings.ai_chat_command_label.getString()
 
     override fun execute(context: ActionContext) {
         MainActivity.instance?.viewModel?.tabManager?.addTab(AiTab(), switchToTab = true)

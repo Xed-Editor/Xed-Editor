@@ -3,6 +3,9 @@ package com.rk.ai.tools
 import com.rk.ai.model.AiTodo
 import com.rk.ai.model.parseOptions
 import com.rk.ai.model.parseTodos
+import com.rk.resources.getFilledString
+import com.rk.resources.getString
+import com.rk.resources.strings
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -73,9 +76,9 @@ internal fun JsonObject.lineRange(): ToolBodyPart? {
     val start = displayArg("start_line")
     val end = displayArg("end_line")
     return when {
-        start != null && end != null -> ToolBodyPart.Field("Lines", "$start–$end")
-        start != null -> ToolBodyPart.Field("Lines", "from $start")
-        end != null -> ToolBodyPart.Field("Lines", "up to $end")
+        start != null && end != null -> ToolBodyPart.Field(strings.ai_tool_lines.getString(), "$start–$end")
+        start != null -> ToolBodyPart.Field(strings.ai_tool_lines.getString(), strings.ai_tool_lines_from.getFilledString(start))
+        end != null -> ToolBodyPart.Field(strings.ai_tool_lines.getString(), strings.ai_tool_lines_up_to.getFilledString(end))
         else -> null
     }
 }
@@ -91,21 +94,24 @@ internal fun JsonObject.pairOfPaths(): String? {
 
 internal fun todosView(todos: List<AiTodo>): ToolCallView =
     ToolCallView(
-        action = "Update tasks",
+        action = strings.ai_tool_update_tasks.getString(),
         target =
             when (todos.size) {
-                0 -> "list cleared"
-                1 -> "1 task"
-                else -> "${todos.size} tasks"
+                0 -> strings.ai_tool_list_cleared.getString()
+                1 -> strings.ai_tool_one_task.getString()
+                else -> strings.ai_tool_tasks.getFilledString(todos.size)
             },
         arguments = todos.map { ToolBodyPart.Field(it.status.label, it.content) },
     )
 
 internal fun questionView(question: String?, options: List<String>): ToolCallView =
     ToolCallView(
-        action = "Ask you",
+        action = strings.ai_tool_ask_you.getString(),
         target = question,
-        arguments = options.mapIndexed { index, option -> ToolBodyPart.Field("Option ${index + 1}", option) },
+        arguments =
+            options.mapIndexed { index, option ->
+                ToolBodyPart.Field(strings.ai_tool_option.getFilledString(index + 1), option)
+            },
     )
 
 internal fun writeTodosView(args: JsonObject): ToolCallView = todosView(parseTodos(args["todos"]))

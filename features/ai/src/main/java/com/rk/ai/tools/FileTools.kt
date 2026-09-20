@@ -2,6 +2,8 @@ package com.rk.ai.tools
 
 import ai.koog.agents.core.tools.ToolParameterType
 import com.rk.file.FileObject
+import com.rk.resources.getString
+import com.rk.resources.strings
 
 internal object FileTools {
     private const val MAX_READ_BYTES = 64 * 1024
@@ -26,7 +28,10 @@ internal object FileTools {
                         required = false,
                     )
                 ),
-            presenter = AiToolPresenter { args -> ToolCallView("Inspect path", args.displayArg("path") ?: ".", emptyList()) },
+            presenter =
+                AiToolPresenter { args ->
+                    ToolCallView(strings.ai_tool_inspect_path.getString(), args.displayArg("path") ?: ".", emptyList())
+                },
         ) { args ->
             val file = AiWorkspace.resolve(args.arg("path") ?: ".")
             val native = file.nativePathOrNull()
@@ -74,7 +79,7 @@ internal object FileTools {
                 ),
             presenter =
                 AiToolPresenter { args ->
-                    ToolCallView("Read file", args.displayArg("path"), listOfNotNull(args.lineRange()))
+                    ToolCallView(strings.ai_tool_read_file.getString(), args.displayArg("path"), listOfNotNull(args.lineRange()))
                 },
         ) { args ->
             val file = AiWorkspace.resolve(args.requireArg("path"))
@@ -130,9 +135,9 @@ internal object FileTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "Write file",
+                        strings.ai_tool_write_file.getString(),
                         args.displayArg("path"),
-                        listOfNotNull(toolBlock("Content", args.displayArg("content"))),
+                        listOfNotNull(toolBlock(strings.content.getString(), args.displayArg("content"))),
                     )
                 },
         ) { args ->
@@ -177,13 +182,13 @@ internal object FileTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "Edit file",
+                        strings.ai_tool_edit_file.getString(),
                         args.displayArg("path"),
                         listOfNotNull(
-                            toolBlock("Find", args.displayArg("old_string")),
-                            toolBlock("Replace with", args.displayArg("new_string")),
+                            toolBlock(strings.ai_tool_find.getString(), args.displayArg("old_string")),
+                            toolBlock(strings.ai_tool_replace_with.getString(), args.displayArg("new_string")),
                             if (args.displayArg("replace_all").toBoolean()) {
-                                ToolBodyPart.Field("Replace all", "yes")
+                                ToolBodyPart.Field(strings.ai_tool_replace_all.getString(), "yes")
                             } else {
                                 null
                             },
@@ -227,7 +232,10 @@ internal object FileTools {
                         required = false,
                     )
                 ),
-            presenter = AiToolPresenter { args -> ToolCallView("List directory", args.displayArg("path") ?: ".", emptyList()) },
+            presenter =
+                AiToolPresenter { args ->
+                    ToolCallView(strings.ai_tool_list_dir.getString(), args.displayArg("path") ?: ".", emptyList())
+                },
         ) { args ->
             val requested = args.arg("path") ?: "."
             val dir = AiWorkspace.resolve(requested)
@@ -270,11 +278,11 @@ internal object FileTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "Search",
+                        strings.search.getString(),
                         args.displayArg("query"),
                         listOfNotNull(
-                            toolField("In", args.displayArg("path")),
-                            toolField("Max results", args.displayArg("max_results")),
+                            toolField(strings.ai_tool_in.getString(), args.displayArg("path")),
+                            toolField(strings.ai_tool_max_results.getString(), args.displayArg("max_results")),
                         ),
                     )
                 },

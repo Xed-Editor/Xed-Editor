@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -85,6 +86,8 @@ import com.rk.ai.settings.AiSettings
 import com.rk.ai.settings.PermissionMode
 import com.rk.ai.tools.ToolBodyPart
 import com.rk.ai.tools.toolCallView
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.theme.greenStatus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -222,7 +225,7 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(18.dp),
                 ) {
-                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Scroll to latest")
+                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = stringResource(strings.ai_scroll_to_latest))
                 }
             }
         }
@@ -257,10 +260,10 @@ private fun EmptyState(onSuggestion: (String) -> Unit, modifier: Modifier = Modi
                 .padding(horizontal = 22.dp, vertical = 26.dp),
         verticalArrangement = Arrangement.Center,
     ) {
-        Text("Xed AI", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(stringResource(strings.ai_chat_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Text(
-            "Ask about this project. I can read files, edit them, search the code and run shell commands.",
+            stringResource(strings.ai_empty_state_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -277,13 +280,13 @@ private fun EmptyState(onSuggestion: (String) -> Unit, modifier: Modifier = Modi
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        suggestion.title,
+                        stringResource(suggestion.title),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        suggestion.subtitle,
+                        stringResource(suggestion.subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -302,7 +305,7 @@ private fun EmptyState(onSuggestion: (String) -> Unit, modifier: Modifier = Modi
 
         Spacer(Modifier.height(24.dp))
         Text(
-            "${AiSettings.modelId} · ${AiSettings.currentPermissionMode().label()}",
+            stringResource(strings.ai_chat_status, AiSettings.modelId, AiSettings.currentPermissionMode().label()),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -402,13 +405,18 @@ private fun ThinkingBlock(
             ) {
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Hide thinking" else "Show thinking",
+                    contentDescription =
+                        if (expanded) {
+                            stringResource(strings.ai_hide_thinking)
+                        } else {
+                            stringResource(strings.ai_show_thinking)
+                        },
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp).rotate(rotation),
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = if (streaming) "Thinking…" else "Thought process",
+                    text = if (streaming) stringResource(strings.ai_thinking) else stringResource(strings.ai_thought_process),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
@@ -528,7 +536,7 @@ private fun AiToolStep(message: AiChatMessage, nested: Boolean = false) {
             ) {
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    contentDescription = if (expanded) stringResource(strings.collapse) else stringResource(strings.expand),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp).rotate(rotation),
                 )
@@ -572,9 +580,9 @@ private fun AiToolStep(message: AiChatMessage, nested: Boolean = false) {
                         CodePanel(
                             title =
                                 if (status == ToolCallStatus.Failed || status == ToolCallStatus.Denied) {
-                                    "error"
+                                    stringResource(strings.ai_tool_error)
                                 } else {
-                                    "result"
+                                    stringResource(strings.ai_tool_result)
                                 },
                             body = it.take(6000),
                         )
@@ -661,7 +669,7 @@ private fun CopyButton(text: String, modifier: Modifier = Modifier) {
     ) {
         Icon(
             imageVector = if (copied) Icons.Filled.Check else ContentCopy,
-            contentDescription = if (copied) "Copied" else "Copy",
+            contentDescription = if (copied) stringResource(strings.copied) else stringResource(strings.copy),
             tint =
                 if (copied) {
                     MaterialTheme.colorScheme.primary
@@ -679,32 +687,32 @@ private fun StatusLabel(status: ToolCallStatus) {
     val color: Color
     when (status) {
         ToolCallStatus.AwaitingApproval -> {
-            label = "awaiting approval"
+            label = stringResource(strings.ai_status_awaiting_approval)
             color = MaterialTheme.colorScheme.tertiary
         }
         ToolCallStatus.AwaitingInput -> {
-            label = "waiting for you"
+            label = stringResource(strings.ai_status_waiting_for_you)
             color = MaterialTheme.colorScheme.tertiary
         }
         ToolCallStatus.Running -> {
-            label = "running"
+            label = stringResource(strings.ai_status_running)
             color = MaterialTheme.colorScheme.primary
         }
         ToolCallStatus.Success -> {
-            label = "done"
+            label = stringResource(strings.ai_status_done)
             color = MaterialTheme.colorScheme.greenStatus
         }
         ToolCallStatus.Failed -> {
-            label = "failed"
+            label = stringResource(strings.ai_status_failed)
             color = MaterialTheme.colorScheme.error
         }
         ToolCallStatus.Denied -> {
-            label = "denied"
+            label = stringResource(strings.ai_status_denied)
             color = MaterialTheme.colorScheme.error
         }
         ToolCallStatus.Interrupted -> {
             // A run that did not survive the session: stopped rather than failed.
-            label = "stopped"
+            label = stringResource(strings.ai_status_stopped)
             color = MaterialTheme.colorScheme.onSurfaceVariant
         }
     }
@@ -757,7 +765,7 @@ private fun GoalBanner(goal: String, onClear: () -> Unit) {
             verticalAlignment = Alignment.Top,
         ) {
             Text(
-                text = "GOAL",
+                text = stringResource(strings.ai_goal_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.width(54.dp).padding(top = 2.dp),
@@ -771,7 +779,7 @@ private fun GoalBanner(goal: String, onClear: () -> Unit) {
             IconButton(onClick = onClear, modifier = Modifier.size(24.dp)) {
                 Icon(
                     imageVector = Icons.Filled.Close,
-                    contentDescription = "Clear goal",
+                    contentDescription = stringResource(strings.ai_clear_goal),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp),
                 )
@@ -847,7 +855,7 @@ private fun QuestionCard(question: PendingQuestion, onAnswer: (String) -> Unit) 
                             Box {
                                 if (custom.isEmpty()) {
                                     Text(
-                                        text = "Write your own reply…",
+                                        text = stringResource(strings.ai_reply_hint),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -866,7 +874,7 @@ private fun QuestionCard(question: PendingQuestion, onAnswer: (String) -> Unit) 
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "Send reply",
+                        contentDescription = stringResource(strings.ai_send_reply),
                         modifier = Modifier.size(16.dp),
                     )
                 }
@@ -898,7 +906,7 @@ private fun ApprovalCard(approval: PendingApproval, onDecision: (Boolean) -> Uni
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    text = "Allow this tool?",
+                    text = stringResource(strings.ai_allow_tool),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -915,7 +923,7 @@ private fun ApprovalCard(approval: PendingApproval, onDecision: (Boolean) -> Uni
             OutlinedIconButton(onClick = { onDecision(false) }) {
                 Icon(
                     imageVector = Icons.Filled.Close,
-                    contentDescription = "Deny",
+                    contentDescription = stringResource(strings.ai_deny),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp),
                 )
@@ -924,7 +932,7 @@ private fun ApprovalCard(approval: PendingApproval, onDecision: (Boolean) -> Uni
             FilledIconButton(onClick = { onDecision(true) }) {
                 Icon(
                     imageVector = Icons.Filled.Check,
-                    contentDescription = "Allow",
+                    contentDescription = stringResource(strings.ai_allow),
                     modifier = Modifier.size(18.dp),
                 )
             }
@@ -993,7 +1001,7 @@ private fun Composer(
                         Box {
                             if (value.isEmpty()) {
                                 Text(
-                                    text = "Ask Xed AI…",
+                                    text = stringResource(strings.ai_composer_hint),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -1023,7 +1031,7 @@ private fun Composer(
                 } else {
                     Icon(
                         imageVector = ArrowUpward,
-                        contentDescription = "Send",
+                        contentDescription = stringResource(strings.ai_send),
                         modifier = Modifier.size(24.dp),
                     )
                 }
@@ -1034,31 +1042,31 @@ private fun Composer(
 
 private fun PermissionMode.label(): String =
     when (this) {
-        PermissionMode.ASK -> "ask before changes"
-        PermissionMode.ACCEPT_EDITS -> "auto-approve edits"
-        PermissionMode.PLAN -> "plan only"
-        PermissionMode.YOLO -> "autonomous"
+        PermissionMode.ASK -> strings.ai_mode_ask_short.getString()
+        PermissionMode.ACCEPT_EDITS -> strings.ai_mode_accept_edits_short.getString()
+        PermissionMode.PLAN -> strings.ai_mode_plan_short.getString()
+        PermissionMode.YOLO -> strings.ai_mode_yolo_short.getString()
     }
 
-private data class Suggestion(val title: String, val subtitle: String, val prompt: String)
+private data class Suggestion(val title: Int, val subtitle: Int, val prompt: String)
 
 private const val COPIED_FEEDBACK_MILLIS = 1_500L
 
 private val SUGGESTIONS =
     listOf(
         Suggestion(
-            "Explain this project",
-            "Summarise the structure and the key files",
+            strings.ai_suggestion_explain_title,
+            strings.ai_suggestion_explain_subtitle,
             "Give me a quick overview of this project: what it does and how it is organised.",
         ),
         Suggestion(
-            "Find a bug",
-            "Search the code for likely problems",
+            strings.ai_suggestion_bug_title,
+            strings.ai_suggestion_bug_subtitle,
             "Look through the project for a likely bug or rough edge and explain what you find.",
         ),
         Suggestion(
-            "Add a feature",
-            "Describe it and let me edit the files",
+            strings.ai_suggestion_feature_title,
+            strings.ai_suggestion_feature_subtitle,
             "I want to add a small feature. Ask me what it should do, then implement it.",
         ),
     )

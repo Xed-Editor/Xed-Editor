@@ -1,6 +1,9 @@
 package com.rk.ai.tools
 
 import ai.koog.agents.core.tools.ToolParameterType
+import com.rk.resources.getFilledString
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.utils.okHttpClient
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -36,11 +39,11 @@ internal object HttpTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "HTTP GET",
+                        strings.ai_tool_http_get.getString(),
                         args.displayArg("url"),
                         listOfNotNull(
-                            toolDetail("Headers", args.displayArg("headers")),
-                            toolField("Timeout", args.displayArg("timeout_seconds")?.plus("s")),
+                            toolDetail(strings.ai_tool_headers.getString(), args.displayArg("headers")),
+                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
                         ),
                     )
                 },
@@ -79,14 +82,15 @@ internal object HttpTools {
                 ),
             presenter =
                 AiToolPresenter { args ->
+                    val method = args.displayArg("method")?.uppercase() ?: strings.ai_tool_request.getString()
                     ToolCallView(
-                        "HTTP " + (args.displayArg("method")?.uppercase() ?: "request"),
+                        strings.ai_tool_http.getFilledString(method),
                         args.displayArg("url"),
                         listOfNotNull(
-                            toolField("Content-Type", args.displayArg("content_type")),
-                            toolDetail("Headers", args.displayArg("headers")),
-                            toolDetail("Body", args.displayArg("body")),
-                            toolField("Timeout", args.displayArg("timeout_seconds")?.plus("s")),
+                            toolField(strings.ai_tool_content_type.getString(), args.displayArg("content_type")),
+                            toolDetail(strings.ai_tool_headers.getString(), args.displayArg("headers")),
+                            toolDetail(strings.ai_tool_body.getString(), args.displayArg("body")),
+                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
                         ),
                     )
                 },

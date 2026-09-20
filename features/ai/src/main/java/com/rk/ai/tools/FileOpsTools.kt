@@ -2,6 +2,8 @@ package com.rk.ai.tools
 
 import ai.koog.agents.core.tools.ToolParameterType
 import com.rk.file.FileObject
+import com.rk.resources.getString
+import com.rk.resources.strings
 import java.io.IOException
 
 internal object FileOpsTools {
@@ -18,7 +20,10 @@ internal object FileOpsTools {
                 listOf(
                     AiToolParameter("path", "Directory path relative to the workspace root.", ToolParameterType.String)
                 ),
-            presenter = AiToolPresenter { args -> ToolCallView("Create directory", args.displayArg("path"), emptyList()) },
+            presenter =
+                AiToolPresenter { args ->
+                    ToolCallView(strings.ai_tool_create_directory.getString(), args.displayArg("path"), emptyList())
+                },
         ) { args ->
             val path = args.requireArg("path")
             val dir = AiWorkspace.createDirectory(path)
@@ -37,7 +42,7 @@ internal object FileOpsTools {
                     AiToolParameter("from", "Source path relative to the workspace root.", ToolParameterType.String),
                     AiToolParameter("to", "Destination path relative to the workspace root.", ToolParameterType.String),
                 ),
-            presenter = AiToolPresenter { args -> ToolCallView("Copy", args.pairOfPaths(), emptyList()) },
+            presenter = AiToolPresenter { args -> ToolCallView(strings.copy.getString(), args.pairOfPaths(), emptyList()) },
         ) { args ->
             val from = args.requireArg("from")
             val to = args.requireArg("to")
@@ -59,7 +64,7 @@ internal object FileOpsTools {
                     AiToolParameter("from", "Source path relative to the workspace root.", ToolParameterType.String),
                     AiToolParameter("to", "Destination path relative to the workspace root.", ToolParameterType.String),
                 ),
-            presenter = AiToolPresenter { args -> ToolCallView("Move", args.pairOfPaths(), emptyList()) },
+            presenter = AiToolPresenter { args -> ToolCallView(strings.ai_tool_move.getString(), args.pairOfPaths(), emptyList()) },
         ) { args ->
             val from = args.requireArg("from")
             val to = args.requireArg("to")
@@ -80,7 +85,7 @@ internal object FileOpsTools {
                 listOf(
                     AiToolParameter("path", "Path relative to the workspace root.", ToolParameterType.String)
                 ),
-            presenter = AiToolPresenter { args -> ToolCallView("Delete", args.displayArg("path"), emptyList()) },
+            presenter = AiToolPresenter { args -> ToolCallView(strings.delete.getString(), args.displayArg("path"), emptyList()) },
         ) { args ->
             val path = args.requireArg("path")
             val target = AiWorkspace.resolve(path)
@@ -117,11 +122,11 @@ internal object FileOpsTools {
             presenter =
                 AiToolPresenter { args ->
                     ToolCallView(
-                        "Find files",
+                        strings.ai_tool_find_files.getString(),
                         args.displayArg("pattern"),
                         listOfNotNull(
-                            toolField("In", args.displayArg("path")),
-                            toolField("Max results", args.displayArg("max_results")),
+                            toolField(strings.ai_tool_in.getString(), args.displayArg("path")),
+                            toolField(strings.ai_tool_max_results.getString(), args.displayArg("max_results")),
                         ),
                     )
                 },
