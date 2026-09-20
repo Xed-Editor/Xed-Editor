@@ -27,6 +27,13 @@ enum class ToolCallStatus {
     Success,
     Failed,
     Denied,
+
+    /**
+     * The process went away while this call was still in flight, so nothing will ever settle it.
+     * Restoring a session rewrites the in-progress statuses to this one so a restored transcript
+     * does not keep a spinner for work that is no longer running.
+     */
+    Interrupted,
 }
 
 data class AiChatMessage(

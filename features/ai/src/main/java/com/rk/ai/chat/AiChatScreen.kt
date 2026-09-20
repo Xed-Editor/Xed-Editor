@@ -59,7 +59,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -95,7 +94,6 @@ import kotlinx.coroutines.launch
 fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    var input by rememberSaveable{ mutableStateOf("") }
     val messages = controller.messages
 
     // Slack for "the end is on screen". Streaming grows a message in steps: the layout can be a
@@ -215,7 +213,12 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
                         when (message.role) {
                             AiChatRole.Tool -> AiToolStep(message)
                             AiChatRole.User -> UserMessage(message)
-                            AiChatRole.Assistant -> AssistantMessage(message)
+                            AiChatRole.Assistant ->
+                                AssistantMessage(
+                                    message = message,
+                                    reasoningExpanded = controller.showReasoning,
+                                    onReasoningToggled = controller::setShowReasoning,
+                                )
                         }
                     }
                 }
@@ -249,14 +252,10 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
         controller.lastError?.let { ErrorBanner(it) }
 
         Composer(
-            value = input,
-            onValueChange = { input = it },
+            value = controller.draft,
+            onValueChange = controller::setDraft,
             running = controller.isRunning,
-            onSend = {
-                val pending = input
-                input = ""
-                controller.send(pending)
-            },
+            onSend = { controller.send(controller.draft) },
             onStop = controller::stop,
         )
     }
@@ -348,7 +347,11 @@ private fun UserMessage(message: AiChatMessage) {
 }
 
 @Composable
-private fun AssistantMessage(message: AiChatMessage) {
+private fun AssistantMessage(
+    message: AiChatMessage,
+    reasoningExpanded: Boolean,
+    onReasoningToggled: (Boolean) -> Unit,
+) {
     // No avatar and no container: the answer is rendered full width as document content, so the
     // panel reads like an editor pane rather than a chat transcript.
     Column(Modifier.fillMaxWidth()) {
@@ -356,6 +359,8 @@ private fun AssistantMessage(message: AiChatMessage) {
             ThinkingBlock(
                 reasoning = message.reasoning,
                 streaming = message.isStreaming && message.text.isEmpty(),
+                expanded = reasoningExpanded,
+                onToggled = onReasoningToggled,
             )
             if (message.text.isNotEmpty()) Spacer(Modifier.height(10.dp))
         }
@@ -399,8 +404,12 @@ private fun AssistantMessage(message: AiChatMessage) {
  * reasoning is only worth the space when the reader asks for it.
  */
 @Composable
-private fun ThinkingBlock(reasoning: String, streaming: Boolean) {
-    var expanded by remember { mutableStateOf(false) }
+private fun ThinkingBlock(
+    reasoning: String,
+    streaming: Boolean,
+    expanded: Boolean,
+    onToggled: (Boolean) -> Unit,
+) {
     // `KeyboardArrowDown` points down at rest, so the collapsed state rotates it left to point right.
     val rotation by animateFloatAsState(if (expanded) 0f else -90f, label = "thinkingChevron")
 
@@ -414,7 +423,7 @@ private fun ThinkingBlock(reasoning: String, streaming: Boolean) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =
                     Modifier.fillMaxWidth()
-                        .clickable { expanded = !expanded }
+                        .clickable { onToggled(!expanded) }
                         .padding(horizontal = 10.dp, vertical = 6.dp),
             ) {
                 Icon(
@@ -722,6 +731,12 @@ private fun StatusLabel(status: ToolCallStatus) {
         ToolCallStatus.Denied -> {
             label = "denied"
             color = MaterialTheme.colorScheme.error
+        }
+        ToolCallStatus.Interrupted -> {
+            // Restored from a session whose run did not survive: the work is not running and never
+            // completed, so it reads as stopped rather than as a failure.
+            label = "stopped"
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         }
     }
 

@@ -44,6 +44,9 @@ import java.util.UUID
  * list; tools are looked up in [AiToolRegistry] and either executed directly or handed a
  * [Session] when they need that state. Nothing here is hard-coded to a specific tool name, so a tool
  * registered by an extension is first-class.
+ *
+ * It also owns the state the chat tab persists: everything the user would expect to still be there
+ * after the app is killed lives here, and [snapshot] hands it over in one piece.
  */
 class AiChatController {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -57,6 +60,17 @@ class AiChatController {
     private val approvedPaths = mutableSetOf<String>()
 
     val messages = mutableStateListOf<AiChatMessage>()
+
+    /**
+     * Bumped by [markChanged] on every edit to the persisted state.
+     *
+     * Comparing it against [cachedRevision] is how [snapshot] decides whether the cached payload is
+     * still current; the counter is a single `long` comparison for a save that changed nothing,
+     * while a real change is encoded exactly once no matter how many tabs are saved.
+     */
+    private var revision = 0L
+    private var cachedRevision = -1L
+    private var cachedPayload: ByteArray? = null
 
     var isRunning by mutableStateOf(false)
         private set
@@ -79,6 +93,27 @@ class AiChatController {
     var todos by mutableStateOf<List<AiTodo>>(emptyList())
         private set
 
+    // Backing state for the two persisted view inputs. They are private with an explicit accessor
+    // rather than `var ... private set`, because a Kotlin setter of that name would clash with the
+    // accessor on the JVM; the public half is read-only, so the only way to change them is through
+    // the accessor that also flags the change for the next save.
+    private var draftState by mutableStateOf("")
+    private var reasoningState by mutableStateOf(false)
+
+    /**
+     * Text typed into the composer but not sent yet.
+     *
+     * It lives here rather than in the screen's `rememberSaveable` so it is part of the persisted
+     * chat: a half-written prompt survives the process, and it is shared by every recomposition of
+     * the tab instead of being reset with the composition.
+     */
+    val draft: String
+        get() = draftState
+
+    /** Whether the model's reasoning is folded out in the transcript; a view preference, persisted. */
+    val showReasoning: Boolean
+        get() = reasoningState
+
     init {
         // Extension tools may register before the chat tab is opened; make sure the built-ins are
         // present too so a run never starts with an empty tool set.
@@ -98,6 +133,10 @@ class AiChatController {
 
         lastError = null
         messages.add(AiChatMessage(id = nextId++, role = AiChatRole.User, text = text))
+        // The prompt has left the composer and joined the transcript, so both ends of the persisted
+        // state changed: the draft is cleared and the transcript has one more message.
+        if (draftState.isNotEmpty()) draftState = ""
+        markChanged()
 
         isRunning = true
         runJob =
@@ -139,14 +178,29 @@ class AiChatController {
         questionDeferred?.complete(answer.trim())
     }
 
+    /** Records composer text as the user types it, so it is part of the persisted chat. */
+    fun setDraft(text: String) {
+        if (draftState == text) return
+        draftState = text
+        markChanged()
+    }
+
+    fun setShowReasoning(show: Boolean) {
+        if (reasoningState == show) return
+        reasoningState = show
+        markChanged()
+    }
+
     /** Dismisses the declared goal; the agent is told about the change on its next turn. */
     fun clearGoal() {
         goal = null
+        markChanged()
     }
 
     /** Dismisses the task list; the agent is told about the change on its next turn. */
     fun clearTodos() {
         todos = emptyList()
+        markChanged()
     }
 
     fun stop() {
@@ -164,6 +218,9 @@ class AiChatController {
         for (index in messages.indices) {
             messages[index] = messages[index].stopped()
         }
+        // A stopped run leaves tool cards running in the transcript; the difference has to reach the
+        // saved chat too, or a restart would show a spinner for a tool that is no longer running.
+        markChanged()
     }
 
     fun clear() {
@@ -174,6 +231,7 @@ class AiChatController {
         goal = null
         todos = emptyList()
         lastError = null
+        markChanged()
     }
 
     fun dispose() {
@@ -181,6 +239,71 @@ class AiChatController {
         // The scratch pad lives and dies with the chat tab.
         AiScratchpad.clear()
     }
+
+    /** Flags the persisted state as changed, so the next [snapshot] re-encodes instead of reusing. */
+    private fun markChanged() {
+        revision++
+    }
+
+    /**
+     * Everything the chat tab persists, in one piece.
+     *
+     * The snapshot is built from the live collections - they are immutable models, so handing over the
+     * lists costs nothing - and then encoded through [AiChatPayload]. The encoded bytes are kept: a
+     * session save that runs after no chat changes (the common case for a background app) returns the
+     * same array instead of walking the whole transcript again.
+     */
+    fun snapshot(): AiChatSnapshot = AiChatSnapshot(
+        messages = messages.toList(),
+        history = history.toList(),
+        goal = goal,
+        todos = todos,
+        draft = draft,
+        nextId = nextId,
+        showReasoning = showReasoning,
+    )
+
+    /** The encoded form of [snapshot], reused until something changes. */
+    private fun snapshotPayload(): ByteArray {
+        cachedPayload?.let { if (cachedRevision == revision) return it }
+
+        val payload = AiChatPayload.encode(snapshot())
+        cachedPayload = payload
+        cachedRevision = revision
+        return payload
+    }
+
+    /**
+     * Replaces the chat with a restored [snapshot].
+     *
+     * In-flight work never survives a restart, so the restored transcript is settled first: a tool
+     * card whose run died with the process is marked [ToolCallStatus.Interrupted] rather than left
+     * looking like it is still running. The agent history is restored unchanged - it is what the next
+     * request replays - and [nextId] is carried over so message ids stay unique.
+     */
+    fun applySnapshot(snapshot: AiChatSnapshot) {
+        val settled = snapshot.settled()
+        messages.clear()
+        messages.addAll(settled.messages)
+        history.clear()
+        history.addAll(settled.history)
+        goal = settled.goal
+        todos = settled.todos
+        draftState = settled.draft
+        reasoningState = settled.showReasoning
+        nextId = maxOf(settled.nextId, (settled.messages.maxOfOrNull { it.id } ?: -1L) + 1)
+        // A restored chat is on disk already; marking it changed only invalidates the (empty) cache.
+        markChanged()
+    }
+
+    /**
+     * The bytes the session stores for this chat.
+     *
+     * The session file is the one copy of a chat's state: it is written on every save anyway, so a
+     * second copy on disk would only mean encoding and writing the whole transcript twice for every
+     * pause. This returns the cached encoding when nothing changed since the last save.
+     */
+    fun persist(): ByteArray = snapshotPayload()
 
     /**
      * Runs one agent to completion and returns its final answer.
@@ -201,6 +324,7 @@ class AiChatController {
             // step is already reflected in the next request.
             val assistant = streamAssistant(history, transcript, buildSystemPrompt(basePrompt, goal, todos), depth)
             history.add(assistant)
+            markChanged()
             if (assistant.toolCalls.isEmpty()) return assistant.text
 
             assistant.toolCalls.forEachIndexed { index, call ->
@@ -217,6 +341,7 @@ class AiChatController {
                         throw t
                     }
                 history.add(AiTurn.ToolOutput(outcome.id, call.name, outcome.output, outcome.isError))
+                markChanged()
             }
         }
 
@@ -503,10 +628,12 @@ class AiChatController {
 
         override fun setGoal(goal: String?) {
             this@AiChatController.goal = goal
+            markChanged()
         }
 
         override fun setTodos(todos: List<AiTodo>) {
             this@AiChatController.todos = todos
+            markChanged()
         }
 
         override suspend fun runSubAgent(prompt: String): String {
@@ -543,13 +670,20 @@ class AiChatController {
     private inner class MainTranscript : Transcript {
         override fun add(message: AiChatMessage) {
             messages.add(message)
+            markChanged()
         }
 
         override fun get(id: Long): AiChatMessage? = messages.firstOrNull { it.id == id }
 
         override fun update(id: Long, transform: (AiChatMessage) -> AiChatMessage) {
             val index = messages.indexOfFirst { it.id == id }
-            if (index >= 0) messages[index] = transform(messages[index])
+            if (index >= 0) {
+                messages[index] = transform(messages[index])
+                // Every transcript edit - a streamed token, a tool card settling, a sub-agent step -
+                // reaches the persisted state through here, so this is the one place that has to
+                // notice it.
+                markChanged()
+            }
         }
     }
 
@@ -570,6 +704,7 @@ class AiChatController {
             val index = messages.indexOfFirst { it.id == parentId }
             if (index >= 0) {
                 messages[index] = messages[index].copy(children = block(messages[index].children))
+                markChanged()
             }
         }
     }

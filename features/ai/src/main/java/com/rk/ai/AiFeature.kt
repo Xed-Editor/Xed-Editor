@@ -7,6 +7,7 @@ import com.rk.ai.icons.AiBrain
 import com.rk.ai.icons.SparklesBig
 import com.rk.ai.settings.AiMemoryScreen
 import com.rk.ai.settings.AiSettingsScreen
+import com.rk.ai.tab.AiTab
 import com.rk.commands.CommandProvider
 import com.rk.commands.ToolbarConfiguration
 import com.rk.extension.api.DynamicRoute
@@ -41,6 +42,8 @@ class AiFeature : Feature {
     override fun init(application: Application) {
         // Idempotent: extensions may already have registered their own tools before this runs.
         AiExtensions.installBuiltins()
+        // Restoring an AI chat needs a factory that can rebuild the tab from what the session saved.
+        AiTab.register()
         registerSettings()
         registerCommands()
     }
@@ -69,6 +72,7 @@ class AiFeature : Feature {
     }
 
     override fun dispose(application: Application) {
+        AiTab.unregister()
         ToolbarConfiguration.removeGlobalToolbarCommand(aiChatCommand)
         CommandProvider.unregisterCommand(aiChatCommand)
 
