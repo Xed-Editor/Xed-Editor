@@ -839,7 +839,7 @@
     <string name="ai_status_awaiting_approval">Onay bekliyor</string>
     <string name="ai_status_waiting_for_you">seni bekliyorum</string>
     <string name="ai_status_running">çalıştı</string>
-    <string name="ai_status_done">tamamlandı</string>
+    <string name="ai_status_done">bittii</string>
     <string name="ai_status_failed">Hata verdi</string>
     <string name="ai_status_denied">reddedildi</string>
     <string name="ai_status_stopped">durduruldu</string>
@@ -909,7 +909,7 @@
     <string name="ai_tool_lines_up_to">%s\'ye kadar</string>
     <string name="ai_todo_pending">Yapılacaklar</string>
     <string name="ai_todo_in_progress">Faaliyet</string>
-    <string name="ai_todo_completed">Tamamlandı</string>
+    <string name="ai_todo_completed">Tamam</string>
     <string name="ai_tool_sub_agent">Yedek ajan</string>
     <string name="ai_tool_task">Görev</string>
     <string name="ai_tool_set_goal">Hedef belirle</string>
