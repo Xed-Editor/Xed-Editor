@@ -814,4 +814,8 @@
     <string name="theme_format_error">Xed-Editor n\'accepte plus l\'installation de thèmes via fichiers uniques JSON. Sivotre thème suit ce format, convertissez-le au nouveau format et réessayez svp.</string>
     <string name="no_reviews">Pas de révision</string>
     <string name="command_palette_swipe_hint">Astuce : Vous pouvez ouvrir la palette de commandes en faisant un swipe vers le bas depuis la barre d\'outils !</string>
+    <string name="ai_feature_label">IA</string>
+    <string name="ai_settings_description">Modèle, clé API et permissions associées</string>
+    <string name="ai_chat_command_label">Chat IA</string>
+    <string name="ai_chat_title">IA Xed</string>
 </resources>
