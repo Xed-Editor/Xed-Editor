@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="unsupported_content">असमर्थित स्ट्रिङ</string>
+    <string name="restart_required">पुनः सुरु गर्न आवश्यक छ</string>
+    <string name="save">सुरक्षित गर्नुहोस्</string>
+    <string name="open_directory">डाइरेक्टरी खोल्नुहोस्</string>
+    <string name="new_file">नयाँ फाइल</string>
+    <string name="wait">एकैछिन पर्खनुहोस्…</string>
 </resources>
