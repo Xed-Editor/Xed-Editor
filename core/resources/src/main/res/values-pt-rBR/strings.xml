@@ -42,7 +42,7 @@
     <string name="replace_all">Substituir tudo</string>
     <string name="download">Baixar</string>
     <string name="apply">Aplicar</string>
-    <string name="open_in_terminal">Abrir no Terminal</string>
+    <string name="open_in_terminal">Abrir no terminal</string>
     <string name="file_open_denied">Abrir este arquivo em outros aplicativos não é permitido</string>
     <string name="close_current_project">Você tem certeza que deseja fechar o projeto \'%s\'?</string>
     <string name="file_name">Nome do arquivo</string>
