@@ -890,4 +890,13 @@
     <string name="ai_model_picker_hint">I modelli registrati per questo fornitore. Digita un id qui sotto per utilizzarne uno non elencato.</string>
     <string name="ai_custom_model_id">ID modello personalizzato</string>
     <string name="ai_use">Utilizza</string>
+    <string name="ai_memory_screen_description">Note che l\'assistente sfrutta in ogni chat. Vengono aggiunte al prompt di sistema, quindi mantienile brevi e concise.</string>
+    <string name="ai_add_memory">Aggiungi a memoria</string>
+    <string name="ai_add_memory_hint">Scrivi qualcosa che l\'assistente dovrebbe sempre sapere.</string>
+    <string name="ai_memory_empty_hint">L\'assistente può anche aggiungere note in autonomia con save_memory.</string>
+    <string name="ai_saved_notes">Note salvate</string>
+    <string name="ai_saved_notes_hint">Tocca una nota per modificarla. L\'assistente vede l\'elenco nell\'ordine mostrato qui.</string>
+    <string name="ai_tool_note">Nota</string>
+    <string name="ai_edit_memory_title">Modifica memoria</string>
+    <string name="ai_memory_dialog_hint">L\'assistente vedrà questo elemento in ogni chat futura.</string>
 </resources>
