@@ -872,4 +872,22 @@
     <string name="ai_tool_find_files">Trova file</string>
     <string name="ai_tool_http_get">HTTP GET</string>
     <string name="ai_tool_http">HTTP %s</string>
+    <string name="ai_memory_empty">Nessuna memoria presente</string>
+    <string name="ai_memory_one_note">1 nota salvata</string>
+    <string name="ai_memory_notes">%d note salvate</string>
+    <string name="ai_memory">Memoria</string>
+    <string name="ai_tool_permissions">Autorizzazioni strumenti</string>
+    <string name="ai_tools_count">Strumenti (%d)</string>
+    <string name="ai_mode_ask">Chiedi prima di ogni strumento</string>
+    <string name="ai_mode_accept_edits">Approva automaticamente le modifiche ai file</string>
+    <string name="ai_mode_plan">Solo pianificazione</string>
+    <string name="ai_mode_autonomous">Autonomo</string>
+    <string name="ai_tool_row_description">%1$s · %2$s</string>
+    <string name="ai_tool_asks_first">chiede prima</string>
+    <string name="ai_tool_runs_freely">esegue liberamente</string>
+    <string name="ai_api_key_hint">Archiviato solo nel dispositivo.</string>
+    <string name="ai_system_prompt_hint">Inserito prima di ogni conversazione.</string>
+    <string name="ai_model_picker_hint">I modelli registrati per questo fornitore. Digita un id qui sotto per utilizzarne uno non elencato.</string>
+    <string name="ai_custom_model_id">ID modello personalizzato</string>
+    <string name="ai_use">Utilizza</string>
 </resources>
