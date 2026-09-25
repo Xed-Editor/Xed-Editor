@@ -935,4 +935,9 @@
     <string name="ai_tool_command">Comando</string>
     <string name="ai_tool_run_ubuntu">Esegui su Ubuntu</string>
     <string name="ai_tool_working_dir">Directory di lavoro</string>
+    <string name="ai_diff_more_lines">… %d altre righe</string>
+    <string name="ai_tool_option">Opzione %d</string>
+    <string name="ai_tool_save_memory">Salva memoria</string>
+    <string name="ai_tool_forget_memory">Dimentica memoria</string>
+    <string name="ai_tool_index">Indice</string>
 </resources>
