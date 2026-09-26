@@ -57,7 +57,7 @@
     <string name="private_files">Özel dosyalar</string>
     <string name="private_files_desc">Xed-Editor\'ün özel dosyaları</string>
     <string name="cloning">Klon Deposu…</string>
-    <string name="error">Yanlış</string>
+    <string name="error">Hata</string>
     <string name="open_dir_desc">Sistem dosya seçicisinden bir klasör aç</string>
     <string name="internal_storage">Dahili depolama</string>
     <string name="open_internal_storage">Dahili depolamayı aç</string>
