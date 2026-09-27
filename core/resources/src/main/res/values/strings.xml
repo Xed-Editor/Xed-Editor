@@ -852,7 +852,6 @@
     <string name="ai_denied_by_user">Denied by user.</string>
     <string name="ai_stopped_denied">Stopped: the user denied a tool.</string>
     <string name="ai_plan_mode_blocked">Plan mode: writes and shell commands are disabled.</string>
-    <string name="ai_stopped_max_steps">Stopped after %d steps without a final answer.</string>
     <string name="ai_no_api_key">No API key configured for %s. Add one in AI settings.</string>
     <string name="ai_request_failed">Request failed</string>
     <string name="ai_provider">Provider</string>

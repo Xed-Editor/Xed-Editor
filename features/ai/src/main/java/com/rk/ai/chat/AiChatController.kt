@@ -256,7 +256,8 @@ class AiChatController {
         depth: Int,
         basePrompt: String,
     ): String {
-        repeat(MAX_STEPS) {
+        // No step cap: the agent keeps going until it produces a final answer or the run is cancelled.
+        while (true) {
             // Rebuilt every step so a goal, task list or memory changed by the agent is picked up.
             val assistant = streamAssistant(history, transcript, buildSystemPrompt(basePrompt, goal, todos), depth)
             history.add(assistant)
@@ -277,12 +278,6 @@ class AiChatController {
                 markChanged()
             }
         }
-
-        val message = strings.ai_stopped_max_steps.getFilledString(MAX_STEPS)
-        Log.w(TAG, message)
-        // Only the main run has an error banner; a sub-agent returns the text as its result.
-        if (depth == 0) lastError = message
-        return message
     }
 
     private suspend fun streamAssistant(
@@ -644,8 +639,6 @@ class AiChatController {
     }
 
     private companion object {
-        const val MAX_STEPS = 8
-
         /** How deep sub-agents may nest: 1 is a direct child of the main agent. */
         const val MAX_AGENT_DEPTH = 2
 

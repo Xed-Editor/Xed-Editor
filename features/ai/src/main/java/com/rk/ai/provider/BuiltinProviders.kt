@@ -14,7 +14,6 @@ import com.rk.ai.icons.DeepSeekIcon
 import com.rk.ai.icons.OpenAiIcon
 
 object BuiltinProviders {
-    const val DEEPSEEK_ID = "deepseek"
     const val OPENAI_ID = "openai"
     const val ANTHROPIC_ID = "anthropic"
 
