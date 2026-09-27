@@ -3,10 +3,12 @@ RESET='\033[0m'
 BOLD_BLUE='\033[1;34m'
 BOLD_YELLOW='\033[1;33m'
 BOLD_RED='\033[1;31m'
+BOLD_GREEN='\033[1;32m'
 
 BLUE_BG='\033[1;44m'
 YELLOW_BG='\033[1;43m'
 RED_BG='\033[1;41m'
+GREEN_BG='\033[42m'
 
 info() {
   printf "\n${BLUE_BG}  INFO  ${RESET} ${BOLD_BLUE}%s${RESET}\n" "$1"
@@ -18,6 +20,10 @@ warn() {
 
 error() {
   printf "\n${RED_BG} ERROR ${RESET} ${BOLD_RED}%s${RESET}\n" "$1"
+}
+
+success() {
+  printf "\n${GREEN_BG} SUCCESS ${RESET} ${BOLD_GREEN}%s${RESET}\n" "$1"
 }
 
 ask() {

@@ -180,10 +180,9 @@ fun MainContent(
                                         mainViewModel.tabManager.setCurrentTab(tabIndex)
 
                                         val visibleTabs = mainViewModel.visibleTabs
-                                        val unsavedOtherTabs =
-                                            visibleTabs.filter { tab ->
-                                                tab != tabState && (tab as? EditorTab)?.editorState?.isDirty == true
-                                            }
+                                        val unsavedOtherTabs = visibleTabs.filter { tab ->
+                                            tab != tabState && (tab as? EditorTab)?.editorState?.isDirty == true
+                                        }
                                         if (unsavedOtherTabs.isNotEmpty()) {
                                             dialogRes(
                                                 title = strings.files_unsaved.getString(),
@@ -200,10 +199,9 @@ fun MainContent(
                                     },
                                     onCloseAll = {
                                         val visibleTabs = mainViewModel.visibleTabs
-                                        val unsavedTabs =
-                                            visibleTabs.filter { tab ->
-                                                (tab as? EditorTab)?.editorState?.isDirty == true
-                                            }
+                                        val unsavedTabs = visibleTabs.filter { tab ->
+                                            (tab as? EditorTab)?.editorState?.isDirty == true
+                                        }
                                         if (unsavedTabs.isNotEmpty()) {
                                             dialogRes(
                                                 title = strings.files_unsaved.getString(),
@@ -481,12 +479,24 @@ private fun TabItemContent(
     val inactiveColor = fileColor ?: MaterialTheme.colorScheme.onSurfaceVariant
 
     val file = tab.file
+    val icon = tab.icon
+
     if (showIcon && file != null) {
         LeadingIconTab(
             modifier = tabModifier,
             selected = isSelected,
             onClick = onClick,
             icon = { FileIcon(file = file, iconTint = LocalContentColor.current) },
+            text = tabText,
+            selectedContentColor = activeColor,
+            unselectedContentColor = inactiveColor,
+        )
+    } else if (showIcon && icon != null) {
+        LeadingIconTab(
+            modifier = tabModifier,
+            selected = isSelected,
+            onClick = onClick,
+            icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp)) },
             text = tabText,
             selectedContentColor = activeColor,
             unselectedContentColor = inactiveColor,

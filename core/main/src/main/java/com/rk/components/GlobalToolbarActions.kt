@@ -62,7 +62,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     val fileSearchDialog by GlobalDialogs.fileSearchDialog.collectAsStateWithLifecycle()
     val codeSearchDialog by GlobalDialogs.codeSearchDialog.collectAsStateWithLifecycle()
 
-    if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
+    if (viewModel.visibleTabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         for (command in commands) {
             if (command.isSupported()) {
                 IconButton(

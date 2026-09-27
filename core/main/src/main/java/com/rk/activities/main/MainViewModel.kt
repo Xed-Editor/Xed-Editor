@@ -52,7 +52,7 @@ data class PendingPackageInstall(
 )
 
 class MainViewModel : ViewModel() {
-    val tabManager = TabManager()
+    val tabManager = TabManager(this)
     val editorManager = EditorManager(this)
 
     var currentProjectRoot by mutableStateOf<FileObject?>(null)
@@ -74,6 +74,11 @@ class MainViewModel : ViewModel() {
     val currentTab
         get() = tabManager.currentTab
 
+    /** Scoped tab variant of [currentTab] */
+    val currentVisibleTab
+        get() = visibleTabs.getOrNull(visibleCurrentTabIndex)
+
+    /** Scoped tab variant of [currentTabIndex] */
     val visibleCurrentTabIndex by derivedStateOf {
         val current = currentTab
         if (current == null) 0 else visibleTabs.indexOf(current).coerceAtLeast(0)

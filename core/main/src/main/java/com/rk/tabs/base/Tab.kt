@@ -18,7 +18,7 @@ abstract class Tab {
 
     var refreshKey by mutableIntStateOf(0)
     abstract val name: String
-    abstract val icon: ImageVector
+    abstract val icon: ImageVector?
 
     /** Can be null if tab is not file-related. */
     open val file: FileObject? = null

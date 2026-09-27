@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.rk.activities.main.ui.TaskOutputState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -74,8 +75,9 @@ object TaskRegistry {
         get() = _tasks.asStateFlow()
 
     fun addTask(task: Task) {
-        if (_tasks.value.any { it.id == task.id }) return
+        if (_tasks.value.any { it.id == task.id && it.isRunning }) return
         _tasks.update { it + task }
+        TaskOutputState.updateActiveTask()
     }
 
     fun removeTask(task: Task) {

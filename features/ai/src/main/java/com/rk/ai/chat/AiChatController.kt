@@ -32,7 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -111,34 +110,33 @@ class AiChatController {
         markChanged()
 
         isRunning = true
-        runJob =
-            scope.launch {
-                try {
-                    history.add(AiTurn.User(text))
-                    runLoop(
-                        history = history,
-                        transcript = MainTranscript(),
-                        depth = 0,
-                        basePrompt = AiSettings.systemPrompt,
-                    )
-                } catch (e: ToolDeniedException) {
-                    // A denial already stopped the run cleanly; no error banner.
-                    Log.i(TAG, "Run stopped: ${e.message}")
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    val message = e.displayMessage()
-                    Log.e(TAG, "Agent run failed: $message", e)
-                    lastError = message
-                } finally {
-                    isRunning = false
-                    runJob = null
-                    pendingApproval = null
-                    approvalDeferred = null
-                    pendingQuestion = null
-                    questionDeferred = null
-                }
+        runJob = scope.launch {
+            try {
+                history.add(AiTurn.User(text))
+                runLoop(
+                    history = history,
+                    transcript = MainTranscript(),
+                    depth = 0,
+                    basePrompt = AiSettings.systemPrompt,
+                )
+            } catch (e: ToolDeniedException) {
+                // A denial already stopped the run cleanly; no error banner.
+                Log.i(TAG, "Run stopped: ${e.message}")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                val message = e.displayMessage()
+                Log.e(TAG, "Agent run failed: $message", e)
+                lastError = message
+            } finally {
+                isRunning = false
+                runJob = null
+                pendingApproval = null
+                approvalDeferred = null
+                pendingQuestion = null
+                questionDeferred = null
             }
+        }
     }
 
     fun approve(allow: Boolean) {
@@ -182,7 +180,7 @@ class AiChatController {
         pendingQuestion = null
         questionDeferred?.cancel()
         questionDeferred = null
-        // A cancelled stream never emits `finish`, so settle the spinners it left behind.
+        // A canceled stream never emits `finish`, so settle the spinners it left behind.
         for (index in messages.indices) {
             messages[index] = messages[index].stopped()
         }
@@ -211,15 +209,16 @@ class AiChatController {
     }
 
     /** Everything the chat tab persists, in one piece. */
-    fun snapshot(): AiChatSnapshot = AiChatSnapshot(
-        messages = messages.toList(),
-        history = history.toList(),
-        goal = goal,
-        todos = todos,
-        draft = draft,
-        nextId = nextId,
-        showReasoning = showReasoning,
-    )
+    fun snapshot(): AiChatSnapshot =
+        AiChatSnapshot(
+            messages = messages.toList(),
+            history = history.toList(),
+            goal = goal,
+            todos = todos,
+            draft = draft,
+            nextId = nextId,
+            showReasoning = showReasoning,
+        )
 
     private fun snapshotPayload(): ByteArray {
         cachedPayload?.let { if (cachedRevision == revision) return it }
@@ -429,7 +428,9 @@ class AiChatController {
 
         if (!allowed) {
             Log.i(TAG, "Tool '${tool.name}' denied by user; stopping the run")
-            transcript.update(id) { it.copy(toolStatus = ToolCallStatus.Denied, text = strings.ai_denied_by_user.getString()) }
+            transcript.update(id) {
+                it.copy(toolStatus = ToolCallStatus.Denied, text = strings.ai_denied_by_user.getString())
+            }
             // End the turn instead of reporting the denial: the model would just ask again, leaving
             // the approval prompt reappearing after every "deny".
             throw ToolDeniedException(tool.name)
@@ -523,7 +524,8 @@ class AiChatController {
             .getOrElse { JsonObject(emptyMap()) }
     }
 
-    private fun String.snippet(): String = if (length <= SNIPPET_CHARS) this else take(SNIPPET_CHARS) + "…($length chars)"
+    private fun String.snippet(): String =
+        if (length <= SNIPPET_CHARS) this else take(SNIPPET_CHARS) + "…($length chars)"
 
     private fun appendText(transcript: Transcript, id: Long, chunk: String) {
         if (chunk.isEmpty()) return
@@ -588,8 +590,9 @@ class AiChatController {
             val childHistory = mutableListOf<AiTurn>(AiTurn.User(prompt))
             val childTranscript = ChildTranscript(messageId)
             Log.i(TAG, "Spawning sub-agent (depth=${depth + 1}): ${prompt.snippet()}")
-            return runLoop(childHistory, childTranscript, depth + 1, SUB_AGENT_SYSTEM_PROMPT)
-                .ifBlank { "The sub-agent finished without producing an answer." }
+            return runLoop(childHistory, childTranscript, depth + 1, SUB_AGENT_SYSTEM_PROMPT).ifBlank {
+                "The sub-agent finished without producing an answer."
+            }
         }
     }
 

@@ -17,10 +17,13 @@ import com.rk.tabs.base.Tab
 class AiTab(private val restored: AiChatSnapshot? = null) : Tab() {
     override val name: String = strings.ai_feature_label.getString()
     override val icon: ImageVector = SparklesBig
-    override val title: String = strings.ai_feature_label.getString()
+    override val title: String = strings.ai_chat_label.getString()
 
-    private val controller: AiChatController = AiChatController()
-        .also { if (restored != null) it.applySnapshot(restored) }
+    private val controller: AiChatController =
+        AiChatController().also { if (restored != null) it.applySnapshot(restored) }
+
+    val isEmptyState: Boolean
+        get() = controller.messages.isEmpty()
 
     @Composable
     override fun Content() {
@@ -42,6 +45,23 @@ class AiTab(private val restored: AiChatSnapshot? = null) : Tab() {
 
     override fun onTabRemoved() {
         controller.dispose()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AiTab) return false
+
+        return isEmptyState && other.isEmptyState
+    }
+
+    override fun hashCode(): Int {
+        var result = restored?.hashCode() ?: 0
+        result = 31 * result + name.hashCode()
+        result = 31 * result + icon.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + controller.hashCode()
+        result = 31 * result + isEmptyState.hashCode()
+        return result
     }
 
     companion object {

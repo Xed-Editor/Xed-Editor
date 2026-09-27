@@ -809,6 +809,7 @@
     <string name="no_reviews">No reviews</string>
     <string name="command_palette_swipe_hint">Tip: You can also open the command palette by swiping down from the toolbar!</string>
     <string name="ai_feature_label">AI</string>
+    <string name="ai_chat_label">Chat</string>
     <string name="ai_settings_description">Chat model, API key and tool permissions</string>
     <string name="ai_chat_command_label">AI chat</string>
     <string name="ai_chat_title">Xed AI</string>
@@ -893,6 +894,7 @@
     <string name="ai_edit_memory_title">Edit memory</string>
     <string name="ai_memory_dialog_hint">The assistant will see this in every future chat.</string>
     <string name="ai_tasks">Tasks</string>
+    <string name="ai_no_tasks">No tasks yet.\nTasks created by the AI will appear here.</string>
     <string name="ai_tasks_count">Tasks (%d)</string>
     <string name="ai_task_completed">Completed</string>
     <string name="ai_diff_more_lines">… %d more line(s)</string>

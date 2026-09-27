@@ -2,7 +2,7 @@ package com.rk.ai
 
 import android.app.Application
 import com.rk.ai.api.AiExtensions
-import com.rk.ai.command.OpenAiChatCommand
+import com.rk.ai.command.AIChatCommand
 import com.rk.ai.icons.AiBrain
 import com.rk.ai.icons.SparklesBig
 import com.rk.ai.settings.AiMemoryScreen
@@ -30,7 +30,7 @@ class AiFeature : Feature {
 
     private var settingsCategory: SettingsCategory? = null
     private val settingsRoutes = mutableListOf<DynamicRoute>()
-    private val aiChatCommand = OpenAiChatCommand()
+    private val aiChatCommand = AIChatCommand()
 
     override fun init(application: Application) {
         AiExtensions.installBuiltins()

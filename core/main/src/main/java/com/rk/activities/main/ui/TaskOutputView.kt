@@ -31,8 +31,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -58,9 +59,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.extension.api.Task
+import com.rk.extension.api.TaskRegistry
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.settings.Settings
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -97,13 +101,16 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
     val floating = !imeVisible
     val corner = if (floating) 12.dp else 0.dp
 
+    val extraKeysPadding = if (Settings.split_extra_keys) 88.dp else 48.dp
+    val bottomPadding = if (Settings.show_extra_keys) extraKeysPadding else 0.dp
+
     Surface(
         modifier =
             modifier
                 .fillMaxWidth()
                 .padding(
                     horizontal = if (floating) 8.dp else 0.dp,
-                    vertical = if (floating) 8.dp else 0.dp,
+                    vertical = bottomPadding + (if (floating) 8.dp else 0.dp),
                 ),
         shape =
             RoundedCornerShape(
@@ -113,7 +120,7 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
                 bottomEnd = corner,
             ),
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shadowElevation = 4.dp,
+        shadowElevation = if (floating) 4.dp else 0.dp,
     ) {
         Column(
             modifier =
@@ -167,8 +174,6 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
                             trackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f),
                         )
                     }
-                } else {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f))
                 }
             }
 
@@ -204,8 +209,25 @@ private fun Header(task: Task, expanded: Boolean) {
         modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val tasks = TaskRegistry.tasks.collectAsStateWithLifecycle().value
+
         Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) {
-            task.icon()
+            if (tasks.size > 1) {
+                BadgedBox(
+                    badge = {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ) {
+                            Text(tasks.size.toString())
+                        }
+                    }
+                ) {
+                    task.icon()
+                }
+            } else {
+                task.icon()
+            }
         }
 
         Spacer(modifier = Modifier.width(12.dp))

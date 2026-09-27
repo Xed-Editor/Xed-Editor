@@ -15,7 +15,7 @@ object TaskOutputState {
 
     fun updateActiveTask() {
         if (activeTask == null || activeTask !in TaskRegistry.tasks.value) {
-            activeTask = TaskRegistry.tasks.value.lastOrNull()
+            activeTask = TaskRegistry.tasks.value.lastOrNull { it.isRunning } ?: TaskRegistry.tasks.value.lastOrNull()
         }
     }
 }

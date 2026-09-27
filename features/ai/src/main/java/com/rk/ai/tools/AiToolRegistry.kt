@@ -15,7 +15,6 @@ object AiToolRegistry {
 
     val tools: StateFlow<List<AiTool>> = _tools.asStateFlow()
 
-    /** A snapshot, safe to iterate while a run is in flight. */
     fun all(): List<AiTool> {
         installBuiltins()
         return _tools.value
@@ -31,8 +30,7 @@ object AiToolRegistry {
         }
     }
 
-    @XedExtensionPoint
-    fun registerTools(vararg tools: AiTool) = tools.forEach(::registerTool)
+    @XedExtensionPoint fun registerTools(vararg tools: AiTool) = tools.forEach(::registerTool)
 
     /** Removes [tool] if it is still the registered tool under that name. */
     @XedExtensionPoint

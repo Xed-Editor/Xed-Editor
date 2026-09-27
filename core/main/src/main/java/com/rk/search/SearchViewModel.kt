@@ -213,7 +213,7 @@ class SearchViewModel : ViewModel() {
                         Settings.always_index_projects,
                     )
 
-                val openedEditorTabs = mainViewModel.tabs.filterIsInstance<EditorTab>()
+                val openedEditorTabs = mainViewModel.visibleTabs.filterIsInstance<EditorTab>()
                 val openPaths = openedEditorTabs.mapNotNull { it.file?.getAbsolutePath() }.toSet()
 
                 // Emit results from open editor tabs first
@@ -326,12 +326,13 @@ class SearchViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 if (codeItem.isOpen) {
                     val tab =
-                        mainViewModel.tabs.filterIsInstance<EditorTab>().find { tab -> tab.file == codeItem.file }
-                            ?: return@withContext
+                        mainViewModel.visibleTabs.filterIsInstance<EditorTab>().find { tab ->
+                            tab.file == codeItem.file
+                        } ?: return@withContext
                     val editor = tab.editorState.editor.get() ?: return@withContext
                     replaceInEditor(codeItem, editor)
                 } else {
-                    val content = codeItem.file.readText() ?: return@withContext
+                    val content = codeItem.file.readText()
                     val lines = content.lines().toMutableList()
 
                     replaceInRawList(codeItem, lines)
@@ -367,7 +368,8 @@ class SearchViewModel : ViewModel() {
                         items.sortedWith(compareByDescending<CodeItem> { it.line }.thenByDescending { it.column })
                     val firstItem = itemsSorted.first()
                     if (firstItem.isOpen) {
-                        val tab = mainViewModel.tabs.filterIsInstance<EditorTab>().find { tab -> tab.file == file }
+                        val tab =
+                            mainViewModel.visibleTabs.filterIsInstance<EditorTab>().find { tab -> tab.file == file }
                         val editor = tab?.editorState?.editor?.get()
                         if (editor != null) {
                             for (codeItem in itemsSorted) {
