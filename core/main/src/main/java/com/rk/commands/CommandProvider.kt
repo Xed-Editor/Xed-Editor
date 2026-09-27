@@ -23,6 +23,7 @@ import com.rk.commands.editor.ToggleReadOnlyCommand
 import com.rk.commands.editor.ToggleWordWrapCommand
 import com.rk.commands.editor.UndoCommand
 import com.rk.commands.editor.UpperCaseCommand
+import com.rk.commands.global.BrowseProjectCommand
 import com.rk.commands.global.CommandPaletteCommand
 import com.rk.commands.global.DocumentationCommand
 import com.rk.commands.global.NewFileCommand
@@ -49,6 +50,7 @@ object CommandProvider {
     val commandList: StateFlow<List<Command>> = _commandList.asStateFlow()
 
     lateinit var DocumentationCommand: DocumentationCommand
+    lateinit var BrowseProjectCommand: BrowseProjectCommand
     lateinit var SettingsCommand: SettingsCommand
     lateinit var NewFileCommand: NewFileCommand
     lateinit var CommandPaletteCommand: CommandPaletteCommand
@@ -88,6 +90,7 @@ object CommandProvider {
     fun buildCommands() =
         synchronized(this) {
             registerBuiltin(DocumentationCommand()) { DocumentationCommand = it }
+            registerBuiltin(BrowseProjectCommand()) { BrowseProjectCommand = it }
             registerBuiltin(SettingsCommand()) { SettingsCommand = it }
             registerBuiltin(NewFileCommand()) { NewFileCommand = it }
             registerBuiltin(CommandPaletteCommand()) { CommandPaletteCommand = it }

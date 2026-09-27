@@ -188,7 +188,6 @@ fun MainActivity.MainContentHost(
                         mainViewModel = viewModel,
                         drawerViewModel = drawerViewModel,
                         fileTreeViewModel = fileTreeViewModel,
-                        drawerState = drawerState,
                     )
                 }
             }

@@ -97,7 +97,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
                         drawerStateRef.get()?.close()
                     } else {
                         fileTreeViewModel.get()?.goToFolder(projectFile, fileObject)
-                        drawerStateRef.get()!!.open()
+                        drawerStateRef.get()?.open()
                     }
                 }
             },

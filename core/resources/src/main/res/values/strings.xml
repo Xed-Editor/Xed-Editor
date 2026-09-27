@@ -942,4 +942,5 @@
     <string name="ai_tool_forget_memory">Forget memory</string>
     <string name="ai_tool_index">Index</string>
     <string name="ai_tool_scratchpad">Scratch pad</string>
+    <string name="browse_project">Browse project</string>
 </resources>

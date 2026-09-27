@@ -3,8 +3,8 @@ package com.rk.ai
 import android.app.Application
 import com.rk.ai.api.AiExtensions
 import com.rk.ai.command.AIChatCommand
-import com.rk.ai.icons.AiBrain
 import com.rk.ai.icons.SparklesBig
+import com.rk.ai.icons.SparklesTiny
 import com.rk.ai.settings.AiMemoryScreen
 import com.rk.ai.settings.AiSettingsScreen
 import com.rk.ai.tab.AiTab
@@ -25,7 +25,7 @@ class AiFeature : Feature {
             name = strings.ai_feature_label.getString(),
             key = "feature_ai",
             default = true,
-            icon = Icon.VectorIcon(AiBrain),
+            icon = Icon.VectorIcon(SparklesTiny),
         )
 
     private var settingsCategory: SettingsCategory? = null

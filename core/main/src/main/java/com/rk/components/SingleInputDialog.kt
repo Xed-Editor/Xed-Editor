@@ -1,7 +1,9 @@
 package com.rk.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -23,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
 import com.rk.resources.strings
@@ -57,6 +60,9 @@ fun SingleInputDialog(
         text = {
             Column {
                 message?.invoke()
+                if (message != null) {
+                    Spacer(Modifier.height(12.dp))
+                }
 
                 OutlinedTextField(
                     value = textFieldValue,
@@ -103,7 +109,7 @@ fun SingleInputDialog(
         },
         confirmButton = {
             TextButton(
-                enabled = confirmEnabled && errorMessage == null,
+                enabled = confirmEnabled && (errorMessage == null),
                 onClick = {
                     onConfirm()
                     onFinish()
@@ -117,7 +123,7 @@ fun SingleInputDialog(
                 onClick = {
                     onDismiss()
                     onFinish()
-                }
+                },
             ) {
                 Text(stringResource(id = strings.cancel))
             }

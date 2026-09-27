@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -83,7 +82,6 @@ fun MainContent(
     mainViewModel: MainViewModel,
     drawerViewModel: DrawerViewModel,
     fileTreeViewModel: FileTreeViewModel,
-    drawerState: DrawerState,
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -119,7 +117,7 @@ fun MainContent(
     Box(modifier = Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().padding(innerPadding)) {
             if (mainViewModel.visibleTabs.isEmpty()) {
-                WelcomeScreen(drawerViewModel, drawerState, scope)
+                WelcomeScreen(drawerViewModel)
             } else {
                 val pagerState = rememberPagerState(pageCount = { mainViewModel.visibleTabs.size })
 

@@ -9,14 +9,14 @@ import com.rk.ai.chat.AiChatController
 import com.rk.ai.chat.AiChatScreen
 import com.rk.ai.chat.AiChatSnapshot
 import com.rk.ai.chat.decodeChatSnapshot
-import com.rk.ai.icons.SparklesBig
+import com.rk.ai.icons.SparklesTiny
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.base.Tab
 
 class AiTab(private val restored: AiChatSnapshot? = null) : Tab() {
     override val name: String = strings.ai_feature_label.getString()
-    override val icon: ImageVector = SparklesBig
+    override val icon: ImageVector = SparklesTiny
     override val title: String = strings.ai_chat_label.getString()
 
     private val controller: AiChatController =

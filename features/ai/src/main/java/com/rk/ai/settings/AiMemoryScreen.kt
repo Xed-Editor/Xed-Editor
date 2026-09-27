@@ -1,24 +1,15 @@
 package com.rk.ai.settings
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,8 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rk.components.ResetButton
 import com.rk.components.SettingsItem
-import com.rk.components.XedDialog
+import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.strings
@@ -39,46 +31,22 @@ fun AiMemoryScreen(modifier: Modifier = Modifier) {
     var editing by remember { mutableStateOf<MemoryEdit?>(null) }
     val memories = AiMemory.entries
 
-    PreferenceLayout(label = stringResource(strings.ai_memory), modifier = modifier, actions = {
-        IconButton(onClick = {
-            AiMemory.clear()
-        }) {
-            Icon(imageVector = Icons.Outlined.Delete,null)
-        }
-    }) {
+    PreferenceLayout(
+        label = stringResource(strings.ai_memory),
+        modifier = modifier,
+        actions = { ResetButton { AiMemory.clear() } },
+    ) {
         PreferenceGroup(
             heading = stringResource(strings.ai_long_term_memory),
             description = stringResource(strings.ai_memory_screen_description),
         ) {
-            SettingsItem(
-                label = stringResource(strings.ai_add_memory),
-                description = stringResource(strings.ai_add_memory_hint),
-                showSwitch = false,
-                startWidget = {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = null,
-                        modifier = Modifier.padding(start = 16.dp),
-                    )
-                },
-                sideEffect = { editing = MemoryEdit(index = null) },
-            )
-
             if (memories.isEmpty()) {
                 SettingsItem(
                     label = stringResource(strings.ai_memory_empty),
-                    description = stringResource(strings.ai_memory_empty_hint),
                     showSwitch = false,
                     isEnabled = false,
                 )
-            }
-        }
-
-        if (memories.isNotEmpty()) {
-            PreferenceGroup(
-                heading = stringResource(strings.ai_saved_notes),
-                description = stringResource(strings.ai_saved_notes_hint),
-            ) {
+            } else {
                 memories.forEachIndexed { index, entry ->
                     SettingsItem(
                         label = stringResource(strings.ai_memory_number, index + 1),
@@ -95,17 +63,44 @@ fun AiMemoryScreen(modifier: Modifier = Modifier) {
                     )
                 }
             }
+
+            SettingsItem(
+                label = stringResource(strings.ai_add_memory),
+                showSwitch = false,
+                startWidget = {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                        modifier = Modifier.padding(start = 16.dp).size(24.dp),
+                    )
+                },
+                sideEffect = { editing = MemoryEdit(index = null) },
+            )
         }
     }
 
     editing?.let { edit ->
-        MemoryDialog(
-            initial = edit.index?.let { memories.getOrNull(it - 1) }.orEmpty(),
-            isNew = edit.index == null,
-            onDismiss = { editing = null },
-            onSave = { text ->
-                if (edit.index == null) AiMemory.add(text) else AiMemory.updateAt(edit.index, text)
+        val editIndex = edit.index
+        val initialText = editIndex?.let { memories.getOrNull(it - 1) }.orEmpty()
+        var text by remember { mutableStateOf(initialText) }
+        val isNew = editIndex == null
+
+        SingleInputDialog(
+            title = if (isNew) stringResource(strings.ai_add_memory) else stringResource(strings.ai_edit_memory_title),
+            inputLabel = stringResource(strings.ai_memory),
+            inputValue = text,
+            onInputValueChange = { text = it },
+            singleLineMode = false,
+            confirmEnabled = text.isNotBlank(),
+            onConfirm = {
+                if (editIndex == null) {
+                    AiMemory.add(text.trim())
+                } else {
+                    AiMemory.updateAt(editIndex, text.trim())
+                }
+                editing = null
             },
+            onDismiss = { editing = null },
         )
     }
 }
@@ -115,7 +110,7 @@ private fun MemoryActions(position: Int, onEdit: () -> Unit, onDelete: () -> Uni
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = onEdit) {
             Icon(
-                imageVector = Icons.Filled.Edit,
+                imageVector = Icons.Rounded.Edit,
                 contentDescription = stringResource(strings.ai_edit_memory, position),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -126,57 +121,6 @@ private fun MemoryActions(position: Int, onEdit: () -> Unit, onDelete: () -> Uni
                 contentDescription = stringResource(strings.ai_forget_memory, position),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
-    }
-}
-
-@Composable
-private fun MemoryDialog(
-    initial: String,
-    isNew: Boolean,
-    onDismiss: () -> Unit,
-    onSave: (String) -> Unit,
-) {
-    var text by remember { mutableStateOf(initial) }
-
-    XedDialog(onDismissRequest = onDismiss) {
-        Column(Modifier.fillMaxWidth().padding(20.dp)) {
-            Text(
-                text = if (isNew) stringResource(strings.ai_add_memory) else stringResource(strings.ai_edit_memory_title),
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(strings.ai_memory_dialog_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            Spacer(Modifier.height(16.dp))
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-            )
-
-            Spacer(Modifier.height(18.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) }
-                Spacer(Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        onSave(text)
-                        onDismiss()
-                    },
-                    enabled = text.isNotBlank(),
-                ) {
-                    Text(stringResource(strings.save))
-                }
-            }
         }
     }
 }
