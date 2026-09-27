@@ -926,6 +926,13 @@
     <string name="ai_tool_http_get">HTTP GET</string>
     <string name="ai_tool_http">HTTP %s</string>
     <string name="ai_tool_request">request</string>
+    <string name="ai_tool_download">Download</string>
+    <string name="ai_tool_upload">Upload</string>
+    <string name="ai_tool_save_to">Save to</string>
+    <string name="ai_tool_url">URL</string>
+    <string name="ai_tool_method">Method</string>
+    <string name="ai_tool_field">Field</string>
+    <string name="ai_tool_max_bytes">Max bytes</string>
     <string name="ai_tool_headers">Headers</string>
     <string name="ai_tool_timeout">Timeout</string>
     <string name="ai_tool_content_type">Content-Type</string>
