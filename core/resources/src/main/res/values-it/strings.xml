@@ -940,4 +940,11 @@
     <string name="ai_tool_save_memory">Salva memoria</string>
     <string name="ai_tool_forget_memory">Dimentica memoria</string>
     <string name="ai_tool_index">Indice</string>
+    <string name="ai_tool_download">Scarica</string>
+    <string name="ai_tool_upload">Carica</string>
+    <string name="ai_tool_save_to">Salva in</string>
+    <string name="ai_tool_url">URL</string>
+    <string name="ai_tool_method">Metodo</string>
+    <string name="ai_tool_field">Campo</string>
+    <string name="ai_tool_max_bytes">Byte massimi</string>
 </resources>
