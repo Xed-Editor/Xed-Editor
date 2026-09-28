@@ -930,4 +930,11 @@
     <string name="ai_tool_forget_memory">メモリを削除</string>
     <string name="ai_tool_index">インデックス</string>
     <string name="ai_tool_scratchpad">スクラッチパッド</string>
+    <string name="ai_tool_upload">アップロード</string>
+    <string name="ai_tool_save_to">保存先</string>
+    <string name="ai_tool_url">URL</string>
+    <string name="ai_tool_method">方法</string>
+    <string name="ai_tool_field">フィールド</string>
+    <string name="ai_tool_max_bytes">最大バイト</string>
+    <string name="ai_tool_download">ダウンロード</string>
 </resources>
