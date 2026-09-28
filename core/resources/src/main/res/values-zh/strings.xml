@@ -937,4 +937,11 @@
     <string name="ai_tool_forget_memory">忘掉记忆</string>
     <string name="ai_tool_index">索引</string>
     <string name="ai_tool_scratchpad">便笺本</string>
+    <string name="ai_tool_download">下载</string>
+    <string name="ai_tool_upload">上传</string>
+    <string name="ai_tool_save_to">保存到</string>
+    <string name="ai_tool_url">URL</string>
+    <string name="ai_tool_method">Method</string>
+    <string name="ai_tool_field">字段</string>
+    <string name="ai_tool_max_bytes">最大字节数</string>
 </resources>
