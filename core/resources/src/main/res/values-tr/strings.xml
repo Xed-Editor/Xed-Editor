@@ -942,4 +942,11 @@
     <string name="ai_tool_forget_memory">Hafızayı unut</string>
     <string name="ai_tool_index">İndex</string>
     <string name="ai_tool_scratchpad">Geçici çalışma alanı</string>
+    <string name="ai_tool_download">İndir</string>
+    <string name="ai_tool_upload">Yükle</string>
+    <string name="ai_tool_save_to">Kaydet</string>
+    <string name="ai_tool_url">URL</string>
+    <string name="ai_tool_method">Yöntem</string>
+    <string name="ai_tool_field">Alan</string>
+    <string name="ai_tool_max_bytes">Maksimum bayt</string>
 </resources>
