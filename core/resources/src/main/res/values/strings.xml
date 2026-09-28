@@ -110,7 +110,6 @@
     <string name="auto_mode">Auto</string>
     <string name="theme_mode">Theme mode</string>
     <string name="theme_mode_desc">Change app color theme</string>
-    <string name="show_suggestions">Show keyboard suggestions</string>
     <string name="about">About</string>
     <string name="about_desc">About Xed-Editor</string>
     <string name="version">Version</string>
@@ -943,4 +942,9 @@
     <string name="ai_tool_index">Index</string>
     <string name="ai_tool_scratchpad">Scratch pad</string>
     <string name="browse_project">Browse project</string>
+    <string name="no_suggestions">No suggestions</string>
+    <string name="suggestions">Suggestions</string>
+    <string name="suggestions_autocorrect">Suggestions + Autocorrect</string>
+    <string name="input_behavior">Input behavior</string>
+    <string name="input_behavior_msg">The actual input behavior may vary depending on the IME. Users of CJK languages should avoid the \'No suggestions\' option, as these languages rely on suggestions.</string>
 </resources>

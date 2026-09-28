@@ -25,8 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.ui.drawerStateRef
@@ -59,6 +58,7 @@ import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.utils.application
 import com.rk.utils.formatFileSize
 import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.Dispatchers
@@ -188,7 +188,8 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
                             val searchVM = searchViewModel.get()
                             val isIndexing =
-                                searchVM?.isIndexing
+                                searchVM
+                                    ?.isIndexing
                                     ?.collectAsStateWithLifecycle(initialValue = emptyMap())
                                     ?.value
                                     ?.get(root) == true
@@ -253,6 +254,8 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         val iconId =
             if ((root is UriWrapper && root.isTermuxUri()) || (root is FileWrapper && root.file == sandboxHomeDir())) {
                 drawables.terminal
+            } else if (root.getAbsolutePath() == application?.filesDir?.parentFile?.absolutePath) {
+                drawables.build
             } else {
                 drawables.outline_folder
             }

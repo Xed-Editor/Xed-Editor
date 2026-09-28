@@ -36,6 +36,7 @@ fun <T> PreferenceList(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     showIds: Boolean = false,
+    message: @Composable (() -> Unit)? = null,
     customInputLabel: String? = null,
     customInputValue: String = "",
 ) {
@@ -60,6 +61,11 @@ fun <T> PreferenceList(
             title = { Text(text = label) },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
+                    message?.invoke()
+                    if (message != null) {
+                        Spacer(Modifier.height(12.dp))
+                    }
+
                     items.forEach { (item, string) ->
                         PreferenceTemplate(
                             modifier =

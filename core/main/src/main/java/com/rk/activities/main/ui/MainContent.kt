@@ -53,7 +53,6 @@ import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.addIf
 import com.rk.drawer.DrawerViewModel
 import com.rk.editor.preloadSelectionColor
-import com.rk.extension.api.TaskRegistry
 import com.rk.filetree.BaseFileAction
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext
@@ -107,11 +106,6 @@ fun MainContent(
             initialPlaceholder = initialPlaceholder,
             onDismissRequest = { scope.launch { mainViewModel.closeCommandPalette() } },
         )
-    }
-
-    val tasks = TaskRegistry.tasks.collectAsStateWithLifecycle().value
-    LaunchedEffect(tasks.size) {
-        TaskOutputState.updateActiveTask()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {

@@ -55,6 +55,7 @@ import com.rk.icons.XedIcon
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.utils.application
 import kotlinx.coroutines.launch
 import kotlin.math.min
 
@@ -414,6 +415,8 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
 fun FileObject.getAppropriateName(): String {
     return if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath) {
         strings.storage.getString()
+    } else if (getAbsolutePath() == application?.filesDir?.parentFile?.absolutePath) {
+        strings.private_files.getString()
     } else {
         getName()
     }

@@ -82,5 +82,6 @@ object TaskRegistry {
 
     fun removeTask(task: Task) {
         _tasks.update { it - task }
+        TaskOutputState.updateActiveTask()
     }
 }

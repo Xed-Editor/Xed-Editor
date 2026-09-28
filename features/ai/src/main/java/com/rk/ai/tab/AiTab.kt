@@ -3,6 +3,8 @@ package com.rk.ai.tab
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.rk.activities.main.session.PayloadTabRegistry
 import com.rk.activities.main.session.PayloadTabState
 import com.rk.ai.chat.AiChatController
@@ -18,6 +20,9 @@ class AiTab(private val restored: AiChatSnapshot? = null) : Tab() {
     override val name: String = strings.ai_feature_label.getString()
     override val icon: ImageVector = SparklesTiny
     override val title: String = strings.ai_chat_label.getString()
+
+    override val floatPadding: Dp
+        get() = 48.dp
 
     private val controller: AiChatController =
         AiChatController().also { if (restored != null) it.applySnapshot(restored) }

@@ -60,16 +60,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rk.activities.main.MainActivity
 import com.rk.extension.api.Task
 import com.rk.extension.api.TaskRegistry
 import com.rk.resources.drawables
 import com.rk.resources.strings
-import com.rk.settings.Settings
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TaskOutputView(modifier: Modifier = Modifier) {
-    val activeTask = TaskOutputState.activeTask ?: return
+    val activeTask = TaskOutputState.focusedTask ?: return
     val expanded = TaskOutputState.expanded
     val imeVisible = WindowInsets.isImeVisible
 
@@ -101,8 +101,8 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
     val floating = !imeVisible
     val corner = if (floating) 12.dp else 0.dp
 
-    val extraKeysPadding = if (Settings.split_extra_keys) 88.dp else 48.dp
-    val bottomPadding = if (Settings.show_extra_keys) extraKeysPadding else 0.dp
+    val currentTab = MainActivity.instance?.viewModel?.currentVisibleTab
+    val bottomPadding = currentTab?.floatPadding ?: 0.dp
 
     Surface(
         modifier =

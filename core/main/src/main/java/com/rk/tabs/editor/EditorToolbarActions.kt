@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.ActionContext
+import com.rk.commands.Command
 import com.rk.commands.KeybindingsManager
 import com.rk.commands.ToggleableCommand
 import com.rk.commands.ToolbarConfiguration
@@ -81,32 +82,7 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
                     }
             }
             toolbarActions.forEach { command ->
-                IconButton(
-                    onClick = { /* Handled by holdable modifier */ },
-                    modifier =
-                        Modifier.size(48.dp)
-                            .holdable(
-                                enabled = command.isEnabled(),
-                                repeatOnHold = command.repeatOnHold,
-                                onLongClick = { command.onLongClick(ActionContext(activity!!)) },
-                                onClick = { command.perform(ActionContext(activity!!)) },
-                            ),
-                    enabled = command.isEnabled(),
-                    colors =
-                        IconButtonDefaults.iconButtonColors().let {
-                            if (command is ToggleableCommand && command.isOn())
-                                it.copy(
-                                    contentColor = MaterialTheme.colorScheme.primary,
-                                    disabledContentColor = MaterialTheme.colorScheme.primary,
-                                )
-                            else it
-                        },
-                ) {
-                    XedIcon(
-                        icon = if (command.preferText) Icon.TextIcon(command.getLabel()) else command.getIcon(),
-                        contentDescription = command.getLabel(),
-                    )
-                }
+                ToolbarAction(command)
             }
 
             if (dropdownActions.isNotEmpty()) {
@@ -166,5 +142,37 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ToolbarAction(command: Command) {
+    val activity = LocalActivity.current
+
+    IconButton(
+        onClick = { /* Handled by holdable modifier */ },
+        modifier =
+            Modifier.size(48.dp)
+                .holdable(
+                    enabled = command.isEnabled(),
+                    repeatOnHold = command.repeatOnHold,
+                    onLongClick = { activity?.let { command.onLongClick(ActionContext(it)) } ?: false },
+                    onClick = { activity?.let { command.perform(ActionContext(it)) } },
+                ),
+        enabled = command.isEnabled(),
+        colors =
+            IconButtonDefaults.iconButtonColors().let {
+                if (command is ToggleableCommand && command.isOn())
+                    it.copy(
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        disabledContentColor = MaterialTheme.colorScheme.primary,
+                    )
+                else it
+            },
+    ) {
+        XedIcon(
+            icon = if (command.preferText) Icon.TextIcon(command.getLabel()) else command.getIcon(),
+            contentDescription = command.getLabel(),
+        )
     }
 }

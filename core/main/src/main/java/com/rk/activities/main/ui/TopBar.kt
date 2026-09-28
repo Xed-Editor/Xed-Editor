@@ -65,8 +65,6 @@ fun XedTopBar(
                 }
             },
             actions = {
-                GlobalToolbarActions(viewModel, drawerViewModel)
-
                 if (viewModel.visibleTabs.isNotEmpty()) {
                     val tab =
                         if (isV) {
@@ -81,6 +79,8 @@ fun XedTopBar(
                         toast(strings.unknown_error)
                     }
                 }
+
+                GlobalToolbarActions(viewModel, drawerViewModel)
             },
         )
     }
