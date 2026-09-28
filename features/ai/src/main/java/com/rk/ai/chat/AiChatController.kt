@@ -62,9 +62,6 @@ class AiChatController {
     var isRunning by mutableStateOf(false)
         private set
 
-    var lastError by mutableStateOf<String?>(null)
-        private set
-
     var pendingApproval by mutableStateOf<PendingApproval?>(null)
         private set
 
@@ -101,11 +98,10 @@ class AiChatController {
         if (!AiProviderRuntime.hasApiKey()) {
             val message = strings.ai_no_api_key.getFilledString(AiProviderRuntime.activeProvider().displayName)
             Log.w(TAG, message)
-            lastError = message
+            reportError(message)
             return
         }
 
-        lastError = null
         messages.add(AiChatMessage(id = nextId++, role = AiChatRole.User, text = text))
         if (draftState.isNotEmpty()) draftState = ""
         markChanged()
@@ -129,7 +125,11 @@ class AiChatController {
                 } catch (e: Exception) {
                     val message = e.displayMessage()
                     Log.e(TAG, "Agent run failed: $message", e)
-                    lastError = message
+                    // A streamed reply failure is already on its bubble; anything else raised by the
+                    // run (tool setup, request rejection) still needs its own error in the chat.
+                    if (messages.lastOrNull()?.error != message) {
+                        reportError(message)
+                    }
                 } finally {
                     isRunning = false
                     runJob = null
@@ -197,7 +197,6 @@ class AiChatController {
         approvedPaths.clear()
         goal = null
         todos = emptyList()
-        lastError = null
         markChanged()
     }
 
@@ -537,6 +536,12 @@ class AiChatController {
     /** Ends the streamed message; [error] is shown when the reply stopped early. */
     private fun finish(transcript: Transcript, id: Long, error: String? = null) {
         transcript.update(id) { it.copy(isStreaming = false, error = it.error ?: error) }
+    }
+
+    /** Reports a failure that no reply bubble carries; the chat is the only error surface. */
+    private fun reportError(message: String) {
+        messages.add(AiChatMessage(id = nextId++, role = AiChatRole.Assistant, error = message))
+        markChanged()
     }
 
     private fun Throwable.displayMessage(): String =

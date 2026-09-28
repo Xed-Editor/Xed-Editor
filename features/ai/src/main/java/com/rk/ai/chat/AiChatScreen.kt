@@ -238,8 +238,6 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
             ApprovalCard(approval = approval, onDecision = controller::approve)
         }
 
-        controller.lastError?.let { ErrorBanner(it) }
-
         Composer(
             value = controller.draft,
             onValueChange = controller::setDraft,
@@ -936,30 +934,6 @@ private fun ApprovalCard(approval: PendingApproval, onDecision: (Boolean) -> Uni
                     modifier = Modifier.size(18.dp),
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun ErrorBanner(message: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.errorContainer,
-        shape = RoundedCornerShape(14.dp),
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
-    ) {
-        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Filled.Warning,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onErrorContainer,
-                modifier = Modifier.size(18.dp),
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onErrorContainer,
-            )
         }
     }
 }
