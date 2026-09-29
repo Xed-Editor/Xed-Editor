@@ -54,7 +54,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material.icons.core)
 
-    implementation("com.github.termux.termux-app:terminal-view:v0.118.3")
-    implementation("com.github.termux.termux-app:terminal-emulator:v0.118.3")
+    // Built from the in-tree sources (NDK 28) so libtermux.so is 16 KB aligned.
+    implementation(project(":terminal-view"))
+    implementation(project(":terminal-emulator"))
 
 }

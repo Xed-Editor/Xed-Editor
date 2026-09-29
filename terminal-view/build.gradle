@@ -2,17 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
 android {
-    compileSdkVersion 36
+    compileSdkVersion 37
     namespace = "com.termux.view"
-
-    dependencies {
-        implementation libs.androidx.annotation
-        api project(":terminal-emulator")
-    }
 
     defaultConfig {
         minSdkVersion 26
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -29,6 +24,8 @@ android {
 }
 
 dependencies {
+    implementation libs.androidx.annotation
+    api project(":terminal-emulator")
     testImplementation libs.junit
 }
 
