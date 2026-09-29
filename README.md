@@ -59,6 +59,41 @@ https://xed-editor.app
 
 ## Build the Project
 
+The app ships in two flavors:
+
+| Flavor      | applicationId        | Extensions module | Notes                                              |
+| ----------- | -------------------- | ----------------- | -------------------------------------------------- |
+| `community` | `com.rk.xededitor`   | included          | Default flavor. GitHub / F-Droid / IzzyOnDroid.     |
+| `playstore` | `com.rk.axion`       | excluded          | Google Play build; minified, without the extension store. |
+
+The `community` flavor is the default flavor (used by CI and by tooling that needs a default
+variant). Build a specific flavor with a flavor-qualified task; the unqualified aggregate tasks such
+as `assembleDebug` build every flavor.
+
+### Detecting the flavour at runtime
+
+The flavour is declared once per product flavour in `app/build.gradle.kts` as the
+`BuildConfig.FLAVOUR` field, and each flavour's `XedApplication` publishes it during startup. Library
+modules cannot read the application module's `BuildConfig`, so they should branch on the shared
+`com.rk.app.AppFlavour` instead:
+
+```kotlin
+// True when this build bundles the extensions module and the user has not disabled it.
+if (AppFlavour.current.bundlesExtensions && FeatureRegistry.isEnabled("enable_extension")) {
+    // e.g. show the theme/icon-pack/extension store entries
+}
+```
+
+Unknown or uninitialized flavours fall back to `AppFlavour.COMMUNITY`, so previews and unit tests
+still work.
+
+### Bundled terminal rootfs (playstore)
+
+The `playstore` flavour bundles the arm64 Ubuntu rootfs at
+`app/src/playstore/assets/arm64-v8a/ubuntu.rootfs`, so the terminal sets up without downloading it.
+That flavour therefore supports `arm64-v8a` devices only and shows an error dialog on other ABIs; the
+`community` flavour keeps downloading the matching rootfs from the network.
+
 Choose one of the following build methods.
 
 <details>
@@ -67,10 +102,16 @@ Choose one of the following build methods.
 Build the **debug APK** (signed with the included test key):
 
 ```bash
-./gradlew assembleDebug
+./gradlew assembleCommunityDebug
 ```
 
-The compiled APK will be located at `app/build/outputs/apk/debug/app-debug.apk`.
+The compiled APK will be located at `app/build/outputs/apk/community/debug/app-community-debug.apk`.
+
+To build the Play Store variant instead:
+
+```bash
+./gradlew assemblePlaystoreRelease
+```
 
 </details>
 
@@ -84,7 +125,7 @@ container:
 DOCKER_BUILDKIT=1 docker build --target export-stage --output ./out .
 ```
 
-The generated debug APK will be located at `out/debug/app-debug.apk`.
+The generated debug APK will be located at `out/community/debug/app-community-debug.apk`.
 
 </details>
 

@@ -24,7 +24,6 @@ import com.rk.components.GlobalToolbarActions
 import com.rk.components.isPermanentDrawer
 import com.rk.drawer.DrawerViewModel
 import com.rk.resources.strings
-import com.rk.utils.isV
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
@@ -68,12 +67,7 @@ fun XedTopBar(
                 GlobalToolbarActions(viewModel, drawerViewModel)
 
                 if (viewModel.tabs.isNotEmpty()) {
-                    val tab =
-                        if (isV) {
-                            viewModel.tabs[viewModel.currentTabIndex]
-                        } else {
-                            viewModel.tabs.getOrNull(viewModel.currentTabIndex)
-                        }
+                    val tab = viewModel.tabs.getOrNull(viewModel.currentTabIndex)
 
                     if (tab != null) {
                         tab.apply { Actions() }

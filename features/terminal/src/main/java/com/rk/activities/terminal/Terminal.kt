@@ -43,12 +43,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.rk.app.AppFlavour
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.terminal.BUNDLED_ROOTFS_ABI
+import com.rk.terminal.BUNDLED_ROOTFS_ASSET
 import com.rk.terminal.NEXT_STAGE
 import com.rk.terminal.ROOTFS_ARM
 import com.rk.terminal.ROOTFS_ARM64
@@ -60,9 +63,10 @@ import com.rk.terminal.changeSession
 import com.rk.terminal.getNextStage
 import com.rk.terminal.terminalView
 import com.rk.theme.XedTheme
-import com.rk.utils.logError
+import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
+import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -214,10 +218,25 @@ class Terminal : AppCompatActivity() {
         LaunchedEffect(Unit) {
             try {
                 val abi = Build.SUPPORTED_ABIS
+                val playStore = AppFlavour.current.isPlayStore
+                val installed = isTerminalInstalled()
+
+                // The Play Store flavour bundles a single arm64 rootfs. Reject other architectures
+                // up front with a clear message instead of failing later inside proot.
+                if (!installed && playStore && !abi.contains(BUNDLED_ROOTFS_ABI)) {
+                    dialogRes(
+                        activity = this@Terminal,
+                        title = strings.error.getString(),
+                        msg = strings.playstore_arm64_only.getString(),
+                        cancelable = false,
+                        onOk = { finish() },
+                    )
+                    return@LaunchedEffect
+                }
 
                 val filesToDownload = mutableListOf<DownloadFile>()
 
-                if (isTerminalInstalled().not()) {
+                if (!installed && !playStore) {
                     filesToDownload.add(
                         DownloadFile(
                             url =
@@ -235,17 +254,24 @@ class Terminal : AppCompatActivity() {
                     )
                 }
 
-                needsDownload = filesToDownload.any { file -> file.outputFile.exists().not() }
+                // Play Store builds copy the rootfs bundled in the APK; community builds download it.
+                val bundledRootfsAsset = if (!installed && playStore) BUNDLED_ROOTFS_ASSET else null
+
+                needsDownload =
+                    bundledRootfsAsset != null || filesToDownload.any { file -> file.outputFile.exists().not() }
 
                 setupEnvironment(
                     context = context,
                     filesToDownload = filesToDownload,
+                    bundledRootfsAsset = bundledRootfsAsset,
                     onProgress = { fileName, downloaded, total ->
                         downloadedBytes = downloaded
                         totalBytes = total
                         currentFileName = fileName
 
-                        if (total > 0) {
+                        // Bundled assets are copied from the APK, not downloaded, so keep the
+                        // generic "Installing…" label for them.
+                        if (total > 0 && bundledRootfsAsset == null) {
                             val downloadedMB = formatBytesToMB(downloaded)
                             val totalMB = formatBytesToMB(total)
                             progressText =
@@ -315,17 +341,24 @@ class Terminal : AppCompatActivity() {
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth(0.8f))
-
+                            // The bundled rootfs is a compressed asset, so its size (and therefore a
+                            // percentage) is not always known. Fall back to an indeterminate bar.
                             if (totalBytes > 0) {
                                 val percent = (downloadedBytes.toFloat() / totalBytes * 100).toInt()
                                 progress = downloadedBytes.toFloat() / totalBytes
+
+                                LinearProgressIndicator(
+                                    progress = { progress },
+                                    modifier = Modifier.fillMaxWidth(0.8f),
+                                )
 
                                 Text(
                                     text = "$percent%",
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(top = 8.dp),
                                 )
+                            } else {
+                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth(0.8f))
                             }
                         }
 
@@ -350,6 +383,7 @@ class Terminal : AppCompatActivity() {
     private suspend fun setupEnvironment(
         context: Context,
         filesToDownload: List<DownloadFile>,
+        bundledRootfsAsset: String? = null,
         onProgress: (fileName: String, downloadedBytes: Long, totalBytes: Long) -> Unit,
         onComplete: (NEXT_STAGE) -> Unit,
         onError: (Exception, File?) -> Unit,
@@ -358,27 +392,42 @@ class Terminal : AppCompatActivity() {
 
         withContext(Dispatchers.IO) {
             try {
-                var completedFiles = 0
-
-                filesToDownload.forEach { file ->
-                    val outputFile = file.outputFile
+                if (bundledRootfsAsset != null) {
+                    // Play Store builds ship the rootfs inside the APK, so just stage it for extraction.
+                    val outputFile = getTempDir().child("sandbox.tar.gz")
                     currentFile = outputFile
-
                     outputFile.parentFile?.mkdirs()
 
-                    if (!outputFile.exists()) {
-                        downloadFile(
-                            url = file.url,
-                            outputFile = outputFile,
-                            onProgress = { downloaded, total -> onProgress(file.outputFile.name, downloaded, total) },
-                        )
-                    } else {
-                        // Report existing file as already downloaded
-                        onProgress(file.outputFile.name, outputFile.length(), outputFile.length())
-                    }
-                    completedFiles++
+                    copyAsset(
+                        context = context,
+                        assetPath = bundledRootfsAsset,
+                        outputFile = outputFile,
+                        onProgress = { downloaded, total -> onProgress(outputFile.name, downloaded, total) },
+                    )
 
                     runCatching { outputFile.setExecutable(true) }.onFailure { logError(it) }
+                } else {
+                    filesToDownload.forEach { file ->
+                        val outputFile = file.outputFile
+                        currentFile = outputFile
+
+                        outputFile.parentFile?.mkdirs()
+
+                        if (!outputFile.exists()) {
+                            downloadFile(
+                                url = file.url,
+                                outputFile = outputFile,
+                                onProgress = { downloaded, total ->
+                                    onProgress(file.outputFile.name, downloaded, total)
+                                },
+                            )
+                        } else {
+                            // Report existing file as already downloaded
+                            onProgress(file.outputFile.name, outputFile.length(), outputFile.length())
+                        }
+
+                        runCatching { outputFile.setExecutable(true) }.onFailure { logError(it) }
+                    }
                 }
 
                 val stage = getNextStage(this@Terminal)
@@ -386,8 +435,38 @@ class Terminal : AppCompatActivity() {
             } catch (e: Exception) {
                 logError(e)
                 withContext(Dispatchers.Main) { onError(e, currentFile) }
-                if (currentFile?.exists() == true) {
-                    currentFile.delete()
+                // Read into a local so it can be smart-cast: `currentFile` is mutated by the
+                // lambdas above, which blocks a smart cast on the captured variable itself.
+                val failedFile = currentFile
+                if (failedFile?.exists() == true) {
+                    failedFile.delete()
+                }
+            }
+        }
+    }
+
+    /** Copies an asset bundled in the APK to [outputFile], reporting progress as it goes. */
+    private suspend fun copyAsset(
+        context: Context,
+        assetPath: String,
+        outputFile: File,
+        onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit,
+    ) {
+        withContext(Dispatchers.IO) {
+            // openFd() only works for uncompressed assets, so fall back to a length-less stream.
+            val totalBytes = runCatching { context.assets.openFd(assetPath).use { it.length } }.getOrDefault(0L)
+
+            var copiedBytes = 0L
+            context.assets.open(assetPath).use { input ->
+                outputFile.outputStream().use { output ->
+                    val buffer = ByteArray(64 * 1024)
+                    var bytesRead: Int
+
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        copiedBytes += bytesRead
+                        withContext(Dispatchers.Main) { onProgress(copiedBytes, totalBytes) }
+                    }
                 }
             }
         }

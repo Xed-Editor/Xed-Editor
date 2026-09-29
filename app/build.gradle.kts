@@ -6,6 +6,10 @@ plugins {
     alias(libs.plugins.ktfmt)
 }
 
+val distributionDimension = "distribution"
+val communityFlavor = "community"
+val playStoreFlavor = "playstore"
+
 android {
     namespace = "com.rk.application"
     compileSdk = 37
@@ -20,6 +24,27 @@ android {
         versionCode = 107
         versionName = "3.4.5"
         vectorDrawables { useSupportLibrary = true }
+    }
+
+    flavorDimensions += distributionDimension
+
+    productFlavors {
+        // Default, fully featured distribution (GitHub, F-Droid, IzzyOnDroid).
+        create(communityFlavor) {
+            dimension = distributionDimension
+            isDefault = true
+            // Published at runtime as com.rk.app.AppFlavour via AppFlavour.init(BuildConfig.FLAVOUR).
+            buildConfigField("String", "FLAVOUR", "\"$communityFlavor\"")
+        }
+
+        // Google Play distribution. Identical to community except that it does not bundle
+        // the `:features:extensions` module.
+        create(playStoreFlavor) {
+            dimension = distributionDimension
+            //using this id because I don't want to go through 14 day testing again
+            applicationId = "com.rk.axion"
+            buildConfigField("String", "FLAVOUR", "\"$playStoreFlavor\"")
+        }
     }
 
     buildFeatures {
@@ -79,6 +104,7 @@ android {
 
     buildTypes {
         release {
+            // Community keeps minification off; the playstore flavor enables it below.
             isMinifyEnabled = false
             isShrinkResources = false
             isCrunchPngs = false
@@ -102,6 +128,14 @@ android {
     }
 }
 
+// Play Store releases are minified; community releases stay unminified so extension work
+//play store requires r8 to be enabled
+androidComponents {
+    beforeVariants(selector().withFlavor(distributionDimension, playStoreFlavor).withBuildType("release")) {
+        it.isMinifyEnabled = true
+    }
+}
+
 kotlin { jvmToolchain(21) }
 
 dependencies {
@@ -113,8 +147,11 @@ dependencies {
     implementation(project(":core:resources"))
     implementation(libs.androidx.appcompat)
     implementation(project(":features:terminal"))
-    implementation(project(":features:extensions"))
     implementation(project(":features:runner"))
     implementation(project(":features:git"))
     implementation(project(":features:ai"))
+
+    // The extensions feature module is only bundled in the community distribution.
+    // The playstore build intentionally ships without it due to play store policy
+    "communityImplementation"(project(":features:extensions"))
 }

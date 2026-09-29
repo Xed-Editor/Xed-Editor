@@ -34,8 +34,9 @@ WORKDIR /app
 COPY . .
 
 # Set up build arguments for release signing (optional)
-# BUILD_TASK can be assembleDebug, assembleRelease, etc.
-ARG BUILD_TASK=assembleDebug
+# BUILD_TASK can be assembleCommunityDebug, assembleCommunityRelease,
+# assemblePlaystoreRelease, etc.
+ARG BUILD_TASK=assembleCommunityDebug
 ARG RELEASE_KEYSTORE_BASE64=""
 ARG RELEASE_PROPERTIES_BASE64=""
 

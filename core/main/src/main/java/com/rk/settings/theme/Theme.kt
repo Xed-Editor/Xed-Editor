@@ -33,6 +33,7 @@ import com.rk.App.Companion.iconPackManager
 import com.rk.App.Companion.themeManager
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.app.AppFlavour
 import com.rk.components.BottomSheetContent
 import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -40,6 +41,7 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.events.AppEvent
 import com.rk.events.Events
+import com.rk.feature.FeatureRegistry
 import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables
 import com.rk.resources.strings
@@ -117,22 +119,25 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                 )
             }
 
-            SettingsItem(
-                label = stringResource(strings.browse_themes),
-                description = null,
-                showSwitch = false,
-                default = false,
-                startWidget = {
-                    Icon(
-                        modifier = Modifier.padding(start = 16.dp),
-                        painter = painterResource(drawables.arrow_outward),
-                        contentDescription = null,
-                    )
-                },
-                sideEffect = {
-                    navController.navigate("${SettingsRoutes.Extensions.route}?category=themes")
-                },
-            )
+            // The store exists only when this build bundles extensions and the user has not disabled them.
+            if (AppFlavour.current.bundlesExtensions && FeatureRegistry.isEnabled("enable_extension")) {
+                SettingsItem(
+                    label = stringResource(strings.browse_themes),
+                    description = null,
+                    showSwitch = false,
+                    default = false,
+                    startWidget = {
+                        Icon(
+                            modifier = Modifier.padding(start = 16.dp),
+                            painter = painterResource(drawables.arrow_outward),
+                            contentDescription = null,
+                        )
+                    },
+                    sideEffect = {
+                        navController.navigate("${SettingsRoutes.Extensions.route}?category=themes")
+                    },
+                )
+            }
         }
 
         PreferenceGroup(heading = stringResource(strings.icon_packs)) {
@@ -186,22 +191,25 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                 )
             }
 
-            SettingsItem(
-                label = stringResource(strings.browse_icon_packs),
-                description = null,
-                showSwitch = false,
-                default = false,
-                startWidget = {
-                    Icon(
-                        modifier = Modifier.padding(start = 16.dp),
-                        painter = painterResource(drawables.arrow_outward),
-                        contentDescription = null,
-                    )
-                },
-                sideEffect = {
-                    navController.navigate("${SettingsRoutes.Extensions.route}?category=icon_packs")
-                },
-            )
+            // The store exists only when this build bundles extensions and the user has not disabled them.
+            if (AppFlavour.current.bundlesExtensions && FeatureRegistry.isEnabled("enable_extension")) {
+                SettingsItem(
+                    label = stringResource(strings.browse_icon_packs),
+                    description = null,
+                    showSwitch = false,
+                    default = false,
+                    startWidget = {
+                        Icon(
+                            modifier = Modifier.padding(start = 16.dp),
+                            painter = painterResource(drawables.arrow_outward),
+                            contentDescription = null,
+                        )
+                    },
+                    sideEffect = {
+                        navController.navigate("${SettingsRoutes.Extensions.route}?category=icon_packs")
+                    },
+                )
+            }
         }
 
         if (showDayNightBottomSheet.value) {

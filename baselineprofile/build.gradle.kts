@@ -12,6 +12,10 @@ android {
         targetSdk = 37
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // The app module is split into `community` and `playstore` distributions; baseline
+        // profiles target the default community build.
+        missingDimensionStrategy("distribution", "community")
     }
 
     compileOptions {

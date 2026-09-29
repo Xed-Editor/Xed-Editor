@@ -211,6 +211,7 @@
     <string name="no_folder_opened">No folder opened</string>
     <string name="cut">Cut</string>
     <string name="timeout">Download canceled due to timeout. Please ensure your internet connection is stable</string>
+    <string name="playstore_arm64_only">The Play Store build only supports 64-bit ARM (arm64-v8a) devices.</string>
     <string name="more">More</string>
     <string name="theme_settings">Theme settings</string>
     <string name="add_theme">Add theme</string>
