@@ -947,4 +947,7 @@
     <string name="ai_tool_method">Metodo</string>
     <string name="ai_tool_field">Campo</string>
     <string name="ai_tool_max_bytes">Byte massimi</string>
+    <string name="playstore_arm64_only">La versione Play Store supporta solo i dispositivi ARM 64-bit (arm64-v8a).</string>
+    <string name="ai_tool_in">In</string>
+    <string name="ai_tool_scratchpad">Blocco appunti</string>
 </resources>
