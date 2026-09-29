@@ -952,4 +952,5 @@
     <string name="ai_tool_method">Метод</string>
     <string name="ai_tool_field">Поле</string>
     <string name="ai_tool_max_bytes">Максимум байтів</string>
+    <string name="playstore_arm64_only">Версія програми з Play Store підтримує тільки пристрої 64-бітної архітектури ARM (arm64-v8a).</string>
 </resources>
