@@ -949,4 +949,5 @@
     <string name="ai_tool_method">Yöntem</string>
     <string name="ai_tool_field">Alan</string>
     <string name="ai_tool_max_bytes">Maksimum bayt</string>
+    <string name="playstore_arm64_only">Play Store sürümü yalnızca 64-bit ARM (arm64-v8a) cihazları destekler.</string>
 </resources>
