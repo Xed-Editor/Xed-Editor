@@ -28,7 +28,7 @@ class DrawerViewModel : ViewModel() {
     val currentDrawerTab: DrawerTab?
         get() = _drawerTabs.value.getOrNull(_currentDrawerTabIndex.value)
 
-    private val _currentServiceTabIndex = MutableStateFlow(0)
+    private val _currentServiceTabIndex = MutableStateFlow(-1)
     val currentServiceTabIndex = _currentServiceTabIndex.asStateFlow()
 
     val currentServiceTab: DrawerTab?

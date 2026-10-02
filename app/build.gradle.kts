@@ -21,8 +21,8 @@ android {
         targetSdk = 37
 
         // versioning
-        versionCode = 109
-        versionName = "3.4.7"
+        versionCode = 110
+        versionName = "3.4.8"
         vectorDrawables { useSupportLibrary = true }
     }
 
@@ -133,6 +133,7 @@ android {
 androidComponents {
     beforeVariants(selector().withFlavor(distributionDimension, playStoreFlavor).withBuildType("release")) {
         it.isMinifyEnabled = true
+        it.shrinkResources = true
     }
 }
 
