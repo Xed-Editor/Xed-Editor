@@ -33,6 +33,7 @@ baselineProfile { useConnectedDevices = true }
 
 dependencies {
     implementation(libs.junit)
+    implementation(libs.androidx.test.junit)
     implementation(libs.androidx.test.espresso)
     implementation(libs.androidx.uiautomator)
     implementation(libs.androidx.benchmark.macro.junit4)
