@@ -938,4 +938,12 @@
     <string name="ai_tool_forget_memory">Esquecer memória</string>
     <string name="ai_tool_index">Índice</string>
     <string name="ai_tool_scratchpad">Bloco de rascunho</string>
+    <string name="playstore_arm64_only">A versão da Play Store oferece suporte apenas a dispositivos ARM de 64 bits (arm64-v8a).</string>
+    <string name="ai_tool_download">Download</string>
+    <string name="ai_tool_upload">Upload</string>
+    <string name="ai_tool_save_to">Salvar em</string>
+    <string name="ai_tool_url">URL</string>
+    <string name="ai_tool_method">Método</string>
+    <string name="ai_tool_field">Campo</string>
+    <string name="ai_tool_max_bytes">Máximo de bytes</string>
 </resources>

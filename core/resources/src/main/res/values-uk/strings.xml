@@ -945,4 +945,12 @@
     <string name="ai_memory_screen_description">Записки, які помічник приносить у кожен чат. Вони додаються до системного запиту, тому робіть їх короткими й точними.</string>
     <string name="ai_tool_save_memory">Зберегти пам\'ять</string>
     <string name="ai_tool_scratchpad">Записник</string>
+    <string name="ai_tool_download">Завантажити</string>
+    <string name="ai_tool_upload">Вивантажити</string>
+    <string name="ai_tool_save_to">Зберегти в</string>
+    <string name="ai_tool_url">Посилання</string>
+    <string name="ai_tool_method">Метод</string>
+    <string name="ai_tool_field">Поле</string>
+    <string name="ai_tool_max_bytes">Максимум байтів</string>
+    <string name="playstore_arm64_only">Версія програми з Play Store підтримує тільки пристрої 64-бітної архітектури ARM (arm64-v8a).</string>
 </resources>

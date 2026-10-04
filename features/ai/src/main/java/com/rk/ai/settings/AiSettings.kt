@@ -32,13 +32,9 @@ object AiSettings {
     }
 
     /** The credential for [providerId]; each provider keeps its own. */
-    fun apiKey(providerId: String): String {
-        migrateLegacyKeys()
-        return Preference.getString(apiKeyPreference(providerId), "")
-    }
+    fun apiKey(providerId: String): String = Preference.getString(apiKeyPreference(providerId), "")
 
     fun setApiKey(providerId: String, key: String) {
-        migrateLegacyKeys()
         Preference.setString(apiKeyPreference(providerId), key.trim())
     }
 
@@ -46,25 +42,6 @@ object AiSettings {
         PermissionMode.entries.firstOrNull { it.name == permissionMode } ?: PermissionMode.ASK
 
     private fun apiKeyPreference(providerId: String) = "ai_api_key_" + providerId.replace(NON_ID_CHARS, "_")
-
-    private var legacyKeysMigrated = false
-
-    /** Older builds stored one key and an editable base URL; move the key, drop the URL. */
-    @Synchronized
-    private fun migrateLegacyKeys() {
-        if (legacyKeysMigrated) return
-        legacyKeysMigrated = true
-        val legacy = Preference.getString(LEGACY_API_KEY, "")
-        if (legacy.isNotBlank() && Preference.getString(apiKeyPreference(DEFAULT_PROVIDER_ID), "").isBlank()) {
-            Preference.setString(apiKeyPreference(DEFAULT_PROVIDER_ID), legacy)
-        }
-        Preference.removeKey(LEGACY_API_KEY)
-        Preference.removeKey(LEGACY_BASE_URL)
-    }
-
-    private const val LEGACY_API_KEY = "ai_api_key"
-
-    private const val LEGACY_BASE_URL = "ai_base_url"
 
     private val NON_ID_CHARS = Regex("[^A-Za-z0-9]")
 

@@ -15,6 +15,7 @@ import com.rk.editor.CodeHighlighter
 import com.rk.editor.FontCache
 import com.rk.editor.KeywordManager
 import com.rk.editor.LanguageManager
+import com.rk.extension.ActivityProvider
 import com.rk.icons.pack.IconPackManager
 import com.rk.lsp.FileIconProvider
 import com.rk.lsp.LspPersistence
@@ -80,7 +81,7 @@ open class App : Application() {
         Res.application = this
 
         logInfo("App.onCreate")
-        registerActivityLifecycleCallbacks(ActivityLifecycleLogger)
+        registerActivityLifecycleCallbacks(ActivityProvider)
 
         LspPersistence.restoreServers()
 

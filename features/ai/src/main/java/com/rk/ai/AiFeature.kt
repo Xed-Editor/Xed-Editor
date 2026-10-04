@@ -42,6 +42,11 @@ class AiFeature : Feature {
     private fun registerCommands() {
         CommandProvider.registerCommand(aiChatCommand)
         ToolbarConfiguration.addGlobalToolbarCommand(aiChatCommand, 0)
+
+        // Editor tabs hide the global toolbar (see EditorTab.showGlobalActions), so the AI command
+        // must also be part of the editor toolbar to stay reachable while editing a file. This is a
+        // no-op when the command is already present, so a user's custom ordering is preserved.
+        ToolbarConfiguration.addEditorToolbarCommand(aiChatCommand)
     }
 
     private fun registerSettings() {
@@ -65,6 +70,7 @@ class AiFeature : Feature {
     override fun dispose(application: Application) {
         AiTab.unregister()
         ToolbarConfiguration.removeGlobalToolbarCommand(aiChatCommand)
+        ToolbarConfiguration.removeEditorToolbarCommand(aiChatCommand)
         CommandProvider.unregisterCommand(aiChatCommand)
 
         settingsCategory?.let { SettingsRegistry.unregisterCategory(it) }

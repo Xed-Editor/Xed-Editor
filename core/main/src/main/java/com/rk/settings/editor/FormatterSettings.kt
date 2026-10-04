@@ -48,6 +48,7 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.app.AppFlavour
 import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
 import com.rk.components.compose.preferences.base.NestedScrollStretch
@@ -56,6 +57,7 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.editor.FormatterProvider
 import com.rk.editor.FormatterSource
 import com.rk.editor.Formatters
+import com.rk.feature.FeatureRegistry
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
@@ -84,11 +86,14 @@ fun FormatterSettings(navController: NavController, modifier: Modifier = Modifie
         backArrowVisible = true,
         isExpandedScreen = LocalIsExpandedScreen.current,
         fab = {
-            ExtendedFloatingActionButton(
-                onClick = { navController.navigate("${SettingsRoutes.Extensions.route}?query=formatter") },
-                icon = { Icon(painter = painterResource(drawables.extension), contentDescription = null) },
-                text = { Text(stringResource(strings.browse_extensions)) },
-            )
+            // The store exists only when this build bundles extensions and the user has not disabled them.
+            if (AppFlavour.current.bundlesExtensions && FeatureRegistry.isEnabled("enable_extension")) {
+                ExtendedFloatingActionButton(
+                    onClick = { navController.navigate("${SettingsRoutes.Extensions.route}?query=formatter") },
+                    icon = { Icon(painter = painterResource(drawables.extension), contentDescription = null) },
+                    text = { Text(stringResource(strings.browse_extensions)) },
+                )
+            }
         },
     ) { paddingValues ->
         ReorderContainer(state = reorderState, modifier = modifier) {

@@ -73,4 +73,6 @@ fun JsonObject.requireArg(name: String): String =
 
 fun JsonObject.argInt(name: String): Int? = arg(name)?.trim()?.toIntOrNull()
 
+fun JsonObject.argLong(name: String): Long? = arg(name)?.trim()?.toLongOrNull()
+
 fun JsonObject.argBoolean(name: String): Boolean? = arg(name)?.trim()?.toBooleanStrictOrNull()

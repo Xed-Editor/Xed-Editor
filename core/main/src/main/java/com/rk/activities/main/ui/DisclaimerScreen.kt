@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rk.activities.main.navigation.MainRoutes
+import com.rk.app.AppFlavour
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
@@ -79,19 +80,21 @@ fun DisclaimerScreen(navController: NavHostController, onDecline: () -> Unit) {
 
                 Text(text = stringResource(strings.terminal_risks_content), style = MaterialTheme.typography.bodyMedium)
 
-                Spacer(modifier = Modifier.height(8.dp))
+                if (AppFlavour.current.bundlesExtensions){
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = stringResource(strings.third_party_ext),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error,
-                )
+                    Text(
+                        text = stringResource(strings.third_party_ext),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error,
+                    )
 
-                Text(
-                    text = stringResource(strings.third_party_ext_content),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                    Text(
+                        text = stringResource(strings.third_party_ext_content),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 

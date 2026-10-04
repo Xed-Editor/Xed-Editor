@@ -17,4 +17,21 @@
     <string name="replace">Înlocuiește</string>
     <string name="share">Partajare</string>
     <string name="open_file">Deschide fișier</string>
+    <string name="new_folder">Folder nou</string>
+    <string name="rename">Redenumește</string>
+    <string name="open_with">Deschide cu…</string>
+    <string name="save_as">Salvează ca</string>
+    <string name="delete">Șterge</string>
+    <string name="close_this">Închide asta</string>
+    <string name="close_others">Închide-le pe celelalte</string>
+    <string name="close_all">Închide-le pe toate</string>
+    <string name="close">Închide</string>
+    <string name="cancel">Anulează</string>
+    <string name="exit">Ieși</string>
+    <string name="oled">Tema neagră</string>
+    <string name="restart">Repornește</string>
+    <string name="refresh">Reîncarcă</string>
+    <string name="create">Crează</string>
+    <string name="attention">Atenție</string>
+    <string name="ask_deletion_one">Sunteți sigur că veți șterge permanent \'%s\'?</string>
 </resources>

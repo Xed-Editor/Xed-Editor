@@ -42,7 +42,7 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
 
     override fun onTerminalCursorStateChange(state: Boolean) {}
 
-    //override fun setTerminalShellPid(session: TerminalSession, pid: Int) {}
+    override fun setTerminalShellPid(session: TerminalSession, pid: Int) {}
 
     override fun getTerminalCursorStyle(): Int {
         return when (Settings.terminal_cursor_style) {
@@ -103,11 +103,9 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
         return true
     }
 
-    //TODO
-
-//    override fun shouldSupportClipboardKeybindings(): Boolean {
-//        return Settings.terminal_clipboard_keybindings
-//    }
+    override fun shouldSupportClipboardKeybindings(): Boolean {
+        return Settings.terminal_clipboard_keybindings
+    }
 
 
     override fun isTerminalViewSelected(): Boolean {

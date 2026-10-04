@@ -61,9 +61,6 @@ class AiChatController {
     var isRunning by mutableStateOf(false)
         private set
 
-    var lastError by mutableStateOf<String?>(null)
-        private set
-
     var pendingApproval by mutableStateOf<PendingApproval?>(null)
         private set
 
@@ -100,41 +97,46 @@ class AiChatController {
         if (!AiProviderRuntime.hasApiKey()) {
             val message = strings.ai_no_api_key.getFilledString(AiProviderRuntime.activeProvider().displayName)
             Log.w(TAG, message)
-            lastError = message
+            reportError(message)
             return
         }
 
-        lastError = null
         messages.add(AiChatMessage(id = nextId++, role = AiChatRole.User, text = text))
         if (draftState.isNotEmpty()) draftState = ""
         markChanged()
 
         isRunning = true
-        runJob = scope.launch {
-            try {
-                history.add(AiTurn.User(text))
-                runLoop(
-                    history = history,
-                    transcript = MainTranscript(),
-                    depth = 0,
-                    basePrompt = AiSettings.systemPrompt,
-                )
-            } catch (e: ToolDeniedException) {
-                // A denial already stopped the run cleanly; no error banner.
-                Log.i(TAG, "Run stopped: ${e.message}")
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                val message = e.displayMessage()
-                Log.e(TAG, "Agent run failed: $message", e)
-                lastError = message
-            } finally {
-                isRunning = false
-                runJob = null
-                pendingApproval = null
-                approvalDeferred = null
-                pendingQuestion = null
-                questionDeferred = null
+        runJob =
+            scope.launch {
+                try {
+                    history.add(AiTurn.User(text))
+                    runLoop(
+                        history = history,
+                        transcript = MainTranscript(),
+                        depth = 0,
+                        basePrompt = AiSettings.systemPrompt,
+                    )
+                } catch (e: ToolDeniedException) {
+                    // A denial already stopped the run cleanly; no error banner.
+                    Log.i(TAG, "Run stopped: ${e.message}")
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    val message = e.displayMessage()
+                    Log.e(TAG, "Agent run failed: $message", e)
+                    // A streamed reply failure is already on its bubble; anything else raised by the
+                    // run (tool setup, request rejection) still needs its own error in the chat.
+                    if (messages.lastOrNull()?.error != message) {
+                        reportError(message)
+                    }
+                } finally {
+                    isRunning = false
+                    runJob = null
+                    pendingApproval = null
+                    approvalDeferred = null
+                    pendingQuestion = null
+                    questionDeferred = null
+                }
             }
         }
     }
@@ -195,7 +197,6 @@ class AiChatController {
         approvedPaths.clear()
         goal = null
         todos = emptyList()
-        lastError = null
         markChanged()
     }
 
@@ -255,7 +256,8 @@ class AiChatController {
         depth: Int,
         basePrompt: String,
     ): String {
-        repeat(MAX_STEPS) {
+        // No step cap: the agent keeps going until it produces a final answer or the run is cancelled.
+        while (true) {
             // Rebuilt every step so a goal, task list or memory changed by the agent is picked up.
             val assistant = streamAssistant(history, transcript, buildSystemPrompt(basePrompt, goal, todos), depth)
             history.add(assistant)
@@ -276,12 +278,6 @@ class AiChatController {
                 markChanged()
             }
         }
-
-        val message = strings.ai_stopped_max_steps.getFilledString(MAX_STEPS)
-        Log.w(TAG, message)
-        // Only the main run has an error banner; a sub-agent returns the text as its result.
-        if (depth == 0) lastError = message
-        return message
     }
 
     private suspend fun streamAssistant(
@@ -546,6 +542,12 @@ class AiChatController {
         transcript.update(id) { it.copy(isStreaming = false, error = it.error ?: error) }
     }
 
+    /** Reports a failure that no reply bubble carries; the chat is the only error surface. */
+    private fun reportError(message: String) {
+        messages.add(AiChatMessage(id = nextId++, role = AiChatRole.Assistant, error = message))
+        markChanged()
+    }
+
     private fun Throwable.displayMessage(): String =
         message ?: this::class.simpleName ?: strings.ai_request_failed.getString()
 
@@ -647,8 +649,6 @@ class AiChatController {
     }
 
     private companion object {
-        const val MAX_STEPS = 8
-
         /** How deep sub-agents may nest: 1 is a direct child of the main agent. */
         const val MAX_AGENT_DEPTH = 2
 

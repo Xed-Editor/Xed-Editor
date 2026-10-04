@@ -12,6 +12,10 @@ android {
         targetSdk = 37
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // The app module is split into `community` and `playstore` distributions; baseline
+        // profiles target the default community build.
+        missingDimensionStrategy("distribution", "community")
     }
 
     compileOptions {
@@ -29,6 +33,7 @@ baselineProfile { useConnectedDevices = true }
 
 dependencies {
     implementation(libs.junit)
+    implementation(libs.androidx.test.junit)
     implementation(libs.androidx.test.espresso)
     implementation(libs.androidx.uiautomator)
     implementation(libs.androidx.benchmark.macro.junit4)

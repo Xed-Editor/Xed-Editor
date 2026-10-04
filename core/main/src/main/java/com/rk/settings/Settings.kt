@@ -230,6 +230,7 @@ object Settings {
     var command_palette_note_dismissed by CachedPreference("command_palette_note_dismissed", false)
 }
 
+@Deprecated("Use datastore")
 object Preference {
     private var sharedPreferences: SharedPreferences =
         application!!.getSharedPreferences("Settings", Context.MODE_PRIVATE)

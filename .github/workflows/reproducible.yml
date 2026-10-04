@@ -206,11 +206,11 @@ jobs:
           sed -r '/signingConfigs.getByName/d' -i app/build.gradle.kts || true
           
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
-            ./gradlew assembleRelease --no-daemon
-            find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
+            ./gradlew assembleCommunityRelease --no-daemon
+            find app/build/outputs/apk/community/release/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
           else
-            ./gradlew assembleDebug --no-daemon
-            find app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
+            ./gradlew assembleCommunityDebug --no-daemon
+            find app/build/outputs/apk/community/debug/ -name "*.apk" -exec cp {} /tmp/build1.apk \;
           fi
           echo "First built APK size: $(wc -c < /tmp/build1.apk) bytes"
 
@@ -276,11 +276,11 @@ jobs:
           ./gradlew clean
           
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
-            ./gradlew assembleRelease --no-daemon
-            find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} /tmp/build2.apk \;
+            ./gradlew assembleCommunityRelease --no-daemon
+            find app/build/outputs/apk/community/release/ -name "*.apk" -exec cp {} /tmp/build2.apk \;
           else
-            ./gradlew assembleDebug --no-daemon
-            find app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} /tmp/build2.apk \;
+            ./gradlew assembleCommunityDebug --no-daemon
+            find app/build/outputs/apk/community/debug/ -name "*.apk" -exec cp {} /tmp/build2.apk \;
           fi
 
           
