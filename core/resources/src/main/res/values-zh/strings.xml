@@ -365,7 +365,7 @@
     <string name="no_warranty">不提供任何担保</string>
     <string name="no_warranty_content">本软件根据 GNU 通用公共许可证 v3.0 进行分发，按“原样”提供，不包含任何形式的明示或暗示担保，包括但不限于对适销性、特定用途的适用性以及不侵权的担保。</string>
     <string name="not_liable">责任限制</string>
-    <string name="not_liable_content">在任何情况下，开发者或版权持有人均不对因使用本软件而产生的任何索赔、损害或损失承担责任。这包括但不限于：数据丢失、系统故障、收入损失，或任何附带或间接损害，即使已被告知存在此类损害的可能性。</string>
+    <string name="not_liable_content">在任何情况下，开发者或版权持有人均不对因使用本软件而产生的任何索赔、损害或损失承担责任，包括系统故障、收入损失，或任何附带或间接损害，即使已被告知存在此类损害的可能性。</string>
     <string name="consent_statement">点击“我接受”，即表示您已阅读、理解并同意这些条款。</string>
     <string name="decline">拒绝</string>
     <string name="i_accept">我接受</string>
@@ -944,4 +944,5 @@
     <string name="ai_tool_method">Method</string>
     <string name="ai_tool_field">字段</string>
     <string name="ai_tool_max_bytes">最大字节数</string>
+    <string name="playstore_arm64_only">Play 商店渠道的构建只支持64位 ARM（arm64-v8a）设备。</string>
 </resources>
