@@ -359,9 +359,9 @@
     <string name="data_loss_risk">数据丢失风险</string>
     <string name="data_loss_risk_content">此软件的使用前提是，由于不可预见的情况（包括但不限于软件不稳定、系统故障、意外终止或存储设备问题），可能会发生数据丢失。用户须自行负责对所有关键数据进行独立且定期的备份。</string>
     <string name="terminal_risks">终端风险</string>
-    <string name="terminal_risks_content">此应用程序包含终端功能，可直接访问您的文件系统。不当使用终端命令可能导致：\n• 永久删除文件或目录\n• 安全漏洞\n• 丢失关键数据\n\n您有责任了解自己执行的命令及其可能产生的后果。</string>
+    <string name="terminal_risks_content">本应用含提供直接访问文件系统的终端功能。你运行的命令可能永久删除文件或目录，因此执行命令前，你有责任理解命令是做什么的。</string>
     <string name="third_party_ext">第三方扩展程序</string>
-    <string name="third_party_ext_content">本应用程序支持可能由第三方开发的扩展程序。这些扩展程序可以：\n• 访问并修改您的文件和数据\n• 在您的系统上执行任意代码\n• 包含漏洞、安全漏洞或恶意代码\n• 导致系统不稳定或崩溃\n• 威胁您的安全或隐私\n\n我们不对任何第三方扩展进行审核、背书或承担责任。安装和使用扩展程序的风险完全由您自行承担。对于由第三方扩展引起的任何损坏、数据丢失或安全问题，我们概不负责。</string>
+    <string name="third_party_ext_content">本应用支持非作者开发的第三方扩展。 它们可能访问或修改你的文件、执行任意代码或含漏洞、bug 或恶意代码。我们不为第三方扩展背书或负责，安装及使用它们的风险完全由你承担。</string>
     <string name="no_warranty">不提供任何担保</string>
     <string name="no_warranty_content">本软件根据 GNU 通用公共许可证 v3.0 进行分发，按“原样”提供，不包含任何形式的明示或暗示担保，包括但不限于对适销性、特定用途的适用性以及不侵权的担保。</string>
     <string name="not_liable">责任限制</string>
