@@ -361,7 +361,7 @@
     <string name="terminal_risks">终端风险</string>
     <string name="terminal_risks_content">本应用含提供直接访问文件系统的终端功能。你运行的命令可能永久删除文件或目录，因此执行命令前，你有责任理解命令是做什么的。</string>
     <string name="third_party_ext">第三方扩展程序</string>
-    <string name="third_party_ext_content">本应用支持非作者开发的第三方扩展。 它们可能访问或修改你的文件、执行任意代码或含漏洞、bug 或恶意代码。我们不为第三方扩展背书或负责，安装及使用它们的风险完全由你承担。</string>
+    <string name="third_party_ext_content">本应用程序支持非作者开发的第三方扩展。 它们可能访问或修改你的文件、执行任意代码，也可能包含缺陷、漏洞或恶意代码。我们不为第三方扩展背书或负责，安装及使用它们的风险完全由你承担。</string>
     <string name="no_warranty">不提供任何担保</string>
     <string name="no_warranty_content">本软件根据 GNU 通用公共许可证 v3.0 进行分发，按“原样”提供，不包含任何形式的明示或暗示担保，包括但不限于对适销性、特定用途的适用性以及不侵权的担保。</string>
     <string name="not_liable">责任限制</string>
