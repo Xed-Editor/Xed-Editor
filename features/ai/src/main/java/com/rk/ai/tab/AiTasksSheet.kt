@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +52,8 @@ fun AiTasksButton(controller: AiChatController) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.List,
             contentDescription =
-                if (todos.isEmpty()) stringResource(strings.ai_tasks) else stringResource(strings.ai_tasks_count, todos.size),
+                if (todos.isEmpty()) stringResource(strings.ai_tasks)
+                else stringResource(strings.ai_tasks_count, todos.size),
         )
     }
 
@@ -72,11 +72,7 @@ fun AiTasksButton(controller: AiChatController) {
 
 @Composable
 private fun TasksSheet(todos: List<AiTodo>, onClear: () -> Unit) {
-    val done = todos.count { it.status == TodoStatus.Completed }
-
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 32.dp),
-    ) {
+    Column(modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 32.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = stringResource(strings.ai_tasks),
@@ -84,19 +80,23 @@ private fun TasksSheet(todos: List<AiTodo>, onClear: () -> Unit) {
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
             )
+
             if (todos.isNotEmpty()) {
                 IconButton(onClick = onClear) {
-                    Icon(imageVector = Icons.Outlined.Clear,null)
+                    Icon(imageVector = Icons.Outlined.Clear, null)
                 }
-
             }
         }
 
-        Spacer(Modifier.height(4.dp))
-
-        if (todos.isEmpty()) return@Column
-
         Spacer(Modifier.height(16.dp))
+
+        if (todos.isEmpty()) {
+            Text(
+                text = stringResource(strings.ai_no_tasks),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            return@Column
+        }
 
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             todos.forEach { todo -> TaskRow(todo) }
@@ -138,8 +138,7 @@ private fun TaskStatusIcon(status: TodoStatus) {
                     tint = MaterialTheme.colorScheme.greenStatus,
                     modifier = Modifier.size(18.dp),
                 )
-            TodoStatus.InProgress ->
-                CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
+            TodoStatus.InProgress -> CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
             TodoStatus.Pending ->
                 Box(
                     Modifier.size(16.dp)
@@ -152,4 +151,3 @@ private fun TaskStatusIcon(status: TodoStatus) {
         }
     }
 }
-

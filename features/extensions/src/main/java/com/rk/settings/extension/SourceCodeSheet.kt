@@ -66,6 +66,7 @@ fun SourceCodeSheet(pkg: Package, onDismissRequest: () -> Unit) {
                 SettingsItem(
                     label = stringResource(sourceCodeProvider.viewStringRes),
                     description = repo,
+                    singleLineDescription = true,
                     isEnabled = true,
                     showSwitch = false,
                     default = false,

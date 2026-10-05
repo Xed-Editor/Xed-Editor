@@ -110,7 +110,6 @@
     <string name="auto_mode">Auto</string>
     <string name="theme_mode">Theme mode</string>
     <string name="theme_mode_desc">Change app color theme</string>
-    <string name="show_suggestions">Show keyboard suggestions</string>
     <string name="about">About</string>
     <string name="about_desc">About Xed-Editor</string>
     <string name="version">Version</string>
@@ -810,6 +809,7 @@
     <string name="no_reviews">No reviews</string>
     <string name="command_palette_swipe_hint">Tip: You can also open the command palette by swiping down from the toolbar!</string>
     <string name="ai_feature_label">AI</string>
+    <string name="ai_chat_label">Chat</string>
     <string name="ai_settings_description">Chat model, API key and tool permissions</string>
     <string name="ai_chat_command_label">AI chat</string>
     <string name="ai_chat_title">Xed AI</string>
@@ -893,6 +893,7 @@
     <string name="ai_edit_memory_title">Edit memory</string>
     <string name="ai_memory_dialog_hint">The assistant will see this in every future chat.</string>
     <string name="ai_tasks">Tasks</string>
+    <string name="ai_no_tasks">No tasks yet.\nTasks created by the AI will appear here.</string>
     <string name="ai_tasks_count">Tasks (%d)</string>
     <string name="ai_task_completed">Completed</string>
     <string name="ai_diff_more_lines">… %d more line(s)</string>
@@ -947,4 +948,10 @@
     <string name="ai_tool_forget_memory">Forget memory</string>
     <string name="ai_tool_index">Index</string>
     <string name="ai_tool_scratchpad">Scratch pad</string>
+    <string name="browse_project">Browse project</string>
+    <string name="no_suggestions">No suggestions</string>
+    <string name="suggestions">Suggestions</string>
+    <string name="suggestions_autocorrect">Suggestions + Autocorrect</string>
+    <string name="input_behavior">Input behavior</string>
+    <string name="input_behavior_msg">The actual input behavior may vary depending on the IME. Users of CJK languages should avoid the \'No suggestions\' option, as these languages rely on suggestions.</string>
 </resources>

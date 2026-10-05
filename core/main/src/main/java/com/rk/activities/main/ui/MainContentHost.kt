@@ -127,9 +127,9 @@ fun MainActivity.MainContentHost(
             val softThreshold = with(density) { 50.dp.toPx() }
             val hardThreshold = with(density) { 100.dp.toPx() }
 
-            val extraKeysPadding = if (Settings.split_extra_keys) 88.dp else 48.dp
+            val floatPadding = viewModel.currentVisibleTab?.floatPadding ?: 0.dp
             val taskOutputPadding = if (TaskOutputState.isActive) 72.dp else 0.dp
-            val snackbarBottomPadding = (if (Settings.show_extra_keys) extraKeysPadding else 0.dp) + taskOutputPadding
+            val snackbarBottomPadding = floatPadding + taskOutputPadding
 
             val mainContent: @Composable () -> Unit = {
                 Scaffold(
@@ -188,7 +188,6 @@ fun MainActivity.MainContentHost(
                         mainViewModel = viewModel,
                         drawerViewModel = drawerViewModel,
                         fileTreeViewModel = fileTreeViewModel,
-                        drawerState = drawerState,
                     )
                 }
             }

@@ -82,7 +82,17 @@ fun CommandPalette(
             derivedStateOf {
                 buildList {
                     lastUsedCommand?.let { add(it) }
-                    addAll(commands.filter { it != lastUsedCommand }.sortedBy { it.getLabel() })
+                    addAll(
+                        commands
+                            .filter { it != lastUsedCommand }
+                            .sortedWith(
+                                compareBy(
+                                    { it.prefix != null },
+                                    { it.prefix },
+                                    { it.getLabel() },
+                                )
+                            )
+                    )
                 }
             }
         }

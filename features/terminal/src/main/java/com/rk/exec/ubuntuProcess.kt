@@ -12,8 +12,8 @@ import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
-import com.rk.utils.logError
 import com.rk.utils.getTempDir
+import com.rk.utils.logError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -50,6 +50,7 @@ fun getDefaultBindings(): List<Binding> {
 
     with(list) {
         bind(sandboxHomeDir().absolutePath, "/home")
+        bind(sandboxHomeDir().absolutePath, "/root")
         bind("/sdcard")
         bind("/storage")
         bind("/data")
@@ -237,17 +238,17 @@ suspend fun Process.awaitExit(): Int = withContext(Dispatchers.IO) { waitFor() }
 /**
  * Asks the process to stop, then force-kills it if it is still alive shortly after.
  *
- * SIGTERM first matters for [ubuntuProcess]: proot runs with `--kill-on-exit`, so it needs the
- * chance to tear the sandboxed command down itself before it is SIGKILLed.
+ * SIGTERM first matters for [ubuntuProcess]: proot runs with `--kill-on-exit`, so it needs the chance to tear the
+ * sandboxed command down itself before it is SIGKILLed.
  */
 fun Process.terminate() {
     if (!isAlive) return
     destroy()
     Thread {
-            runCatching {
-                if (!waitFor(TERMINATE_GRACE_MS, TimeUnit.MILLISECONDS)) destroyForcibly()
-            }
+        runCatching {
+            if (!waitFor(TERMINATE_GRACE_MS, TimeUnit.MILLISECONDS)) destroyForcibly()
         }
+    }
         .apply { isDaemon = true }
         .start()
 }
