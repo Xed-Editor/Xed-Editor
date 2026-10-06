@@ -946,4 +946,12 @@
     <string name="ai_tool_forget_memory">Effacer la mémoire</string>
     <string name="ai_tool_index">Index</string>
     <string name="ai_tool_scratchpad">Bloc-notes</string>
+    <string name="playstore_arm64_only">Le PlayStore n\'est que pour les matériels 64-bit ARM (arm64-v8a).</string>
+    <string name="ai_tool_download">Télécharger</string>
+    <string name="ai_tool_upload">Téléverser</string>
+    <string name="ai_tool_save_to">Enregistrer sous</string>
+    <string name="ai_tool_url">URL</string>
+    <string name="ai_tool_method">Méthode</string>
+    <string name="ai_tool_field">Champ</string>
+    <string name="ai_tool_max_bytes">Octets max</string>
 </resources>
