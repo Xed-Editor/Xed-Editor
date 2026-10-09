@@ -806,4 +806,11 @@
     <string name="unknown_package_format">Tidak dapat menentukan tipe paket.</string>
     <string name="no_reviews">Belum ada ulasan</string>
     <string name="command_palette_swipe_hint">Tips: Anda juga bisa membuka palet perintah dengan menggeser ke bawah dari bilah alat!</string>
+    <string name="playstore_arm64_only">Versi Play Store ini hanya mendukung perangkat ARM 64-bit (arm64-v8a).</string>
+    <string name="ai_feature_label">AI</string>
+    <string name="ai_settings_description">Model obrolan, kunci API, dan izin alat</string>
+    <string name="ai_chat_command_label">Obrolan AI</string>
+    <string name="ai_chat_title">AI Xed</string>
+    <string name="ai_empty_state_hint">Tanyakan tentang proyek ini. Saya bisa membaca file, mengeditnya, mencari kode, dan menjalankan perintah shell.</string>
+    <string name="ai_suggestion_explain_title">Jelaskan proyek ini</string>
 </resources>
