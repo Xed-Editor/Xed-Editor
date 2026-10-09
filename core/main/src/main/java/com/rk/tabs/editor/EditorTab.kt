@@ -400,6 +400,10 @@ open class EditorTab(
 
     private fun showConflictDialog(file: FileObject) {
         if (conflictDialogShowing) return
+        // No usable activity: don't show anything and don't set the flag. The tab is already marked dirty, so the next
+        // save attempt checks again.
+        val activity = MainActivity.instance
+        if (activity == null || activity.isFinishing || activity.isDestroyed) return
         conflictDialogShowing = true
 
         showDiskConflictDialog(
@@ -422,6 +426,7 @@ open class EditorTab(
                 }
             },
             onCancel = { conflictDialogShowing = false },
+            onDismiss = { conflictDialogShowing = false },
         )
     }
 
