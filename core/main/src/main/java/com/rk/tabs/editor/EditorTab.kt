@@ -214,8 +214,9 @@ open class EditorTab(
             loadEditorConfig()
 
             // Stat before reading so that a change landing mid-read causes a prompt later instead of a silent miss.
-            // For a dirty buffer restored from a session this only guards against changes from now on.
-            diskState = readDiskState(file)
+            // A dirty buffer restored from a session keeps the snapshot saved with it, so that a change made while the
+            // app was dead is still caught; without one this only guards against changes from now on.
+            diskState = (if (editorState.content != null) restoreDiskState(file) else null) ?: readDiskState(file)
 
             if (editorState.content == null) {
                 withContext(Dispatchers.IO) {
@@ -366,6 +367,17 @@ open class EditorTab(
         return runCatching {
             val lastModified = file.lastModified() ?: return@runCatching null
             DiskState(file.getAbsolutePath(), lastModified, file.length())
+        }
+            .getOrNull()
+    }
+
+    private suspend fun restoreDiskState(file: FileObject): DiskState? {
+        return runCatching {
+            val path = file.getAbsolutePath()
+            val saved = DocumentStateDatabase.getDatabase(MainActivity.instance!!).documentStateDao().getState(path)
+            val lastModified = saved?.diskLastModified ?: return@runCatching null
+            val length = saved.diskLength ?: return@runCatching null
+            DiskState(path, lastModified, length)
         }
             .getOrNull()
     }
@@ -799,6 +811,8 @@ open class EditorTab(
                 scrollX = scrollX,
                 scrollY = scrollY,
                 lastOpened = System.currentTimeMillis(),
+                diskLastModified = diskState?.lastModified,
+                diskLength = diskState?.length,
             )
 
         GlobalScope.launch(Dispatchers.IO) {
