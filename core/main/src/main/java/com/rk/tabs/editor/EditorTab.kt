@@ -103,6 +103,17 @@ open class EditorTab(
         get() = file == null && !isReadOnly
 
     private var autoSaveJob: Job? = null
+
+    /**
+     * Snapshot of the file on disk (path, mtime, size) taken when the buffer was last known to match it: after loading,
+     * after [refresh] and after a successful write. `null` means the check is skipped, e.g. for SAF documents or
+     * network files that don't report a modification time.
+     */
+    private data class DiskState(val path: String, val lastModified: Long, val length: Long)
+
+    @Volatile private var diskState: DiskState? = null
+    @Volatile private var conflictDialogShowing = false
+
     private var activeTasks = mutableStateSetOf<String>()
 
     private var charset = Charset.forName(Settings.encoding)
@@ -201,6 +212,10 @@ open class EditorTab(
             }
 
             loadEditorConfig()
+
+            // Stat before reading so that a change landing mid-read causes a prompt later instead of a silent miss.
+            // For a dirty buffer restored from a session this only guards against changes from now on.
+            diskState = readDiskState(file)
 
             if (editorState.content == null) {
                 withContext(Dispatchers.IO) {
@@ -332,6 +347,7 @@ open class EditorTab(
         scope.launch(Dispatchers.IO) {
             if (!file.exists() || !file.canRead()) return@launch
 
+            val newDiskState = readDiskState(file)
             val newContent = file.getInputStream().use { ContentIO.createFrom(it, charset) }
 
             withContext(Dispatchers.Main) {
@@ -341,30 +357,111 @@ open class EditorTab(
                     editorState.updateUndoRedo()
                     editorState.isDirty = false
                 }
+                diskState = newDiskState
             }
         }
     }
 
+    private suspend fun readDiskState(file: FileObject): DiskState? {
+        return runCatching {
+            val lastModified = file.lastModified() ?: return@runCatching null
+            DiskState(file.getAbsolutePath(), lastModified, file.length())
+        }
+            .getOrNull()
+    }
+
+    /**
+     * Whether the file on disk no longer matches the recorded [diskState]. Returns `false` whenever the check can't be
+     * made reliably (no record, no mtime available, file was moved or renamed), so saving is never blocked by it.
+     */
+    private suspend fun hasChangedOnDisk(file: FileObject): Boolean {
+        val recorded = diskState ?: return false
+        if (recorded.path != file.getAbsolutePath()) return false
+        val current = readDiskState(file) ?: return false
+        return current != recorded
+    }
+
+    /**
+     * Reloads this tab from disk if the file was changed externally and the buffer has no unsaved edits. Dirty tabs,
+     * tabs with a pending auto-save and tabs with an open conflict dialog are never touched.
+     */
+    suspend fun refreshIfChangedOnDisk() {
+        val file = file ?: return
+        if (isTemp || editorState.isDirty || conflictDialogShowing) return
+        if (autoSaveJob?.isActive == true) return
+        // Session restore sets isDirty only after the content is rendered, so wait for that before trusting it.
+        if (!editorState.contentLoaded.isCompleted || !editorState.contentRendered.isCompleted) return
+        if (!hasChangedOnDisk(file)) return
+        if (!file.exists() || !file.canRead()) return
+
+        refresh()
+        Events.publish(EditorTabEvent.Refreshed(this))
+    }
+
+    private fun showConflictDialog(file: FileObject) {
+        if (conflictDialogShowing) return
+        conflictDialogShowing = true
+
+        showDiskConflictDialog(
+            fileName = file.getName(),
+            onReload = {
+                conflictDialogShowing = false
+                autoSaveJob?.cancel()
+                refresh()
+                scope.launch { Events.publish(EditorTabEvent.Refreshed(this@EditorTab)) }
+            },
+            onOverwrite = {
+                conflictDialogShowing = false
+                scope.launch(Dispatchers.IO) {
+                    saveMutex.withLock {
+                        if (this@EditorTab.file != file) return@withLock
+                        if (!write(checkConflict = false)) return@withLock
+                        searchViewModel.get()?.syncIndex(file)
+                        Events.publish(EditorTabEvent.Saved(this@EditorTab, file, false))
+                    }
+                }
+            },
+            onCancel = { conflictDialogShowing = false },
+        )
+    }
+
     private val saveMutex = Mutex()
 
-    private suspend fun write() {
-        val file = file ?: return
-        withContext(Dispatchers.IO) {
+    /**
+     * Writes the buffer to [file].
+     *
+     * When [checkConflict] is true and the file was changed on disk since it was loaded or last saved, nothing is
+     * written: the buffer is marked dirty and the user is asked whether to reload, overwrite or cancel.
+     *
+     * @return `true` if the buffer was written.
+     */
+    private suspend fun write(checkConflict: Boolean = true): Boolean {
+        val file = file ?: return false
+        return withContext(Dispatchers.IO) {
             runCatching {
                 if (!file.canWrite()) {
                     errorDialog(strings.cant_write)
-                    return@withContext
+                    return@withContext false
                 }
 
-                val editor = editorState.editor.get() ?: return@runCatching
+                if (checkConflict && hasChangedOnDisk(file)) {
+                    editorState.isDirty = true
+                    showConflictDialog(file)
+                    return@withContext false
+                }
+
+                val editor = editorState.editor.get() ?: return@runCatching false
                 val content = editor.text.toString()
                 val normalizedContent = editor.lineEnding.applyOn(content)
                 file.writeText(normalizedContent, charset)
 
                 editorState.isDirty = false
+                diskState = readDiskState(file)
                 lspConnector?.notifySave()
+                true
             }
                 .onFailure { errorDialog(throwable = it) }
+                .getOrDefault(false)
         }
     }
 
@@ -373,7 +470,7 @@ open class EditorTab(
         if (isTemp) return@withLock
         val file = file ?: return@withLock
 
-        write()
+        if (!write()) return@withLock
 
         searchViewModel.get()?.syncIndex(file)
         Events.publish(EditorTabEvent.Saved(this, file, true))
@@ -392,7 +489,8 @@ open class EditorTab(
                     editorState.textmateScope = FileTypeManager.fromFileName(it.getName()).textmateScope
 
                     scope.launch {
-                        write()
+                        // The user explicitly picked this destination, so there is nothing to protect on it.
+                        if (!write(checkConflict = false)) return@launch
                         searchViewModel.get()?.syncIndex(it)
                         Events.publish(EditorTabEvent.Saved(this@EditorTab, it, false))
                     }
@@ -422,7 +520,7 @@ open class EditorTab(
         }
         val file = file ?: return@withLock
 
-        write()
+        if (!write()) return@withLock
 
         searchViewModel.get()?.syncIndex(file)
         Events.publish(EditorTabEvent.Saved(this, file, false))
