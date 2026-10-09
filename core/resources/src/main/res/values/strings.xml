@@ -947,4 +947,7 @@
     <string name="ai_tool_forget_memory">Forget memory</string>
     <string name="ai_tool_index">Index</string>
     <string name="ai_tool_scratchpad">Scratch pad</string>
+    <string name="file_changed_on_disk">File changed on disk</string>
+    <string name="file_changed_on_disk_desc">This file was modified outside Xed since it was opened or last saved. Overwrite will replace those changes with your version. Reload will discard your unsaved edits and load the version on disk.</string>
+    <string name="overwrite">Overwrite</string>
 </resources>
