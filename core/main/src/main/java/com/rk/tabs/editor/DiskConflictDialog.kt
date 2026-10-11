@@ -1,91 +1,39 @@
 package com.rk.tabs.editor
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.rk.resources.strings
-import com.rk.utils.composableDialog
 
 /**
  * Asks the user what to do when the file behind an editor tab was modified on disk since it was loaded or last saved.
  *
- * The dialog is not cancelable by tapping outside. [onDismiss] runs whenever the dialog goes away, including when the
- * activity is destroyed while it is open (rotation, theme change, process pressure) and no button was pressed.
+ * The dialog is not dismissed by tapping outside; back press counts as [onCancel].
  */
-fun showDiskConflictDialog(
-    fileName: String,
-    onReload: () -> Unit,
-    onOverwrite: () -> Unit,
-    onCancel: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    composableDialog(cancelable = false) { alertDialog ->
-        DisposableEffect(Unit) { onDispose { onDismiss() } }
-
-        Column(modifier = Modifier.padding(24.dp)) {
-            Text(
-                text = stringResource(strings.file_changed_on_disk),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
-
-            Column(modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
-                Text(
-                    text = fileName,
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                )
-                Text(
-                    text = stringResource(strings.file_changed_on_disk_desc),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 24.dp),
-                )
+@Composable
+fun DiskConflictDialog(fileName: String, onReload: () -> Unit, onOverwrite: () -> Unit, onCancel: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onCancel,
+        properties = DialogProperties(dismissOnClickOutside = false),
+        title = { Text(stringResource(strings.file_changed_on_disk)) },
+        text = {
+            Column {
+                Text(text = fileName, style = MaterialTheme.typography.titleSmall)
+                Text(text = stringResource(strings.file_changed_on_disk_desc))
             }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                TextButton(
-                    onClick = {
-                        alertDialog?.dismiss()
-                        onCancel()
-                    }
-                ) {
-                    Text(stringResource(strings.cancel))
-                }
-
-                TextButton(
-                    onClick = {
-                        alertDialog?.dismiss()
-                        onReload()
-                    }
-                ) {
-                    Text(stringResource(strings.refresh))
-                }
-
-                TextButton(
-                    onClick = {
-                        alertDialog?.dismiss()
-                        onOverwrite()
-                    }
-                ) {
-                    Text(stringResource(strings.overwrite))
-                }
+        },
+        confirmButton = { TextButton(onClick = onOverwrite) { Text(stringResource(strings.overwrite)) } },
+        dismissButton = {
+            Row {
+                TextButton(onClick = onCancel) { Text(stringResource(strings.cancel)) }
+                TextButton(onClick = onReload) { Text(stringResource(strings.refresh)) }
             }
-        }
-    }
+        },
+    )
 }

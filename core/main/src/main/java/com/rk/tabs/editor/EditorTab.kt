@@ -112,7 +112,6 @@ open class EditorTab(
     private data class DiskState(val path: String, val lastModified: Long, val length: Long)
 
     @Volatile private var diskState: DiskState? = null
-    @Volatile private var conflictDialogShowing = false
 
     private var activeTasks = mutableStateSetOf<String>()
 
@@ -399,7 +398,7 @@ open class EditorTab(
      */
     suspend fun refreshIfChangedOnDisk() {
         val file = file ?: return
-        if (isTemp || editorState.isDirty || conflictDialogShowing) return
+        if (isTemp || editorState.isDirty || editorState.showDiskConflictDialog) return
         if (autoSaveJob?.isActive == true) return
         // Session restore sets isDirty only after the content is rendered, so wait for that before trusting it.
         if (!editorState.contentLoaded.isCompleted || !editorState.contentRendered.isCompleted) return
@@ -410,36 +409,24 @@ open class EditorTab(
         Events.publish(EditorTabEvent.Refreshed(this))
     }
 
-    private fun showConflictDialog(file: FileObject) {
-        if (conflictDialogShowing) return
-        // No usable activity: don't show anything and don't set the flag. The tab is already marked dirty, so the next
-        // save attempt checks again.
-        val activity = MainActivity.instance
-        if (activity == null || activity.isFinishing || activity.isDestroyed) return
-        conflictDialogShowing = true
+    private fun reloadFromDisk() {
+        editorState.showDiskConflictDialog = false
+        autoSaveJob?.cancel()
+        refresh()
+        scope.launch { Events.publish(EditorTabEvent.Refreshed(this@EditorTab)) }
+    }
 
-        showDiskConflictDialog(
-            fileName = file.getName(),
-            onReload = {
-                conflictDialogShowing = false
-                autoSaveJob?.cancel()
-                refresh()
-                scope.launch { Events.publish(EditorTabEvent.Refreshed(this@EditorTab)) }
-            },
-            onOverwrite = {
-                conflictDialogShowing = false
-                scope.launch(Dispatchers.IO) {
-                    saveMutex.withLock {
-                        if (this@EditorTab.file != file) return@withLock
-                        if (!write(checkConflict = false)) return@withLock
-                        searchViewModel.get()?.syncIndex(file)
-                        Events.publish(EditorTabEvent.Saved(this@EditorTab, file, false))
-                    }
-                }
-            },
-            onCancel = { conflictDialogShowing = false },
-            onDismiss = { conflictDialogShowing = false },
-        )
+    private fun overwriteDisk() {
+        editorState.showDiskConflictDialog = false
+        val file = file ?: return
+        scope.launch(Dispatchers.IO) {
+            saveMutex.withLock {
+                if (this@EditorTab.file != file) return@withLock
+                if (!write(checkConflict = false)) return@withLock
+                searchViewModel.get()?.syncIndex(file)
+                Events.publish(EditorTabEvent.Saved(this@EditorTab, file, false))
+            }
+        }
     }
 
     private val saveMutex = Mutex()
@@ -463,7 +450,7 @@ open class EditorTab(
 
                 if (checkConflict && hasChangedOnDisk(file)) {
                     editorState.isDirty = true
-                    showConflictDialog(file)
+                    editorState.showDiskConflictDialog = true
                     return@withContext false
                 }
 
@@ -577,6 +564,15 @@ open class EditorTab(
             LaunchedEffect(editorState.editable) { editorState.editor.get()?.editable = editorState.editable }
 
             Column {
+                if (editorState.showDiskConflictDialog) {
+                    DiskConflictDialog(
+                        fileName = file?.getName() ?: title,
+                        onReload = ::reloadFromDisk,
+                        onOverwrite = ::overwriteDisk,
+                        onCancel = { editorState.showDiskConflictDialog = false },
+                    )
+                }
+
                 if (editorState.showFindingsDialog) {
                     FindingsDialog(
                         title = editorState.findingsTitle,
