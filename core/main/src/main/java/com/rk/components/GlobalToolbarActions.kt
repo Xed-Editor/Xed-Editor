@@ -46,21 +46,10 @@ object GlobalDialogs {
     val codeSearchDialog = MutableStateFlow(false)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
     val activity = LocalActivity.current
-    val scope = rememberCoroutineScope()
-
     val commands by ToolbarConfiguration.globalCommands.collectAsStateWithLifecycle()
-
-    val drawerTabs by drawerViewModel.drawerTabs.collectAsStateWithLifecycle()
-    val currentDrawerTabIndex by drawerViewModel.currentDrawerTabIndex.collectAsStateWithLifecycle()
-    val currentDrawerTab = drawerTabs.getOrNull(currentDrawerTabIndex)
-
-    val addDialog by GlobalDialogs.addDialog.collectAsStateWithLifecycle()
-    val fileSearchDialog by GlobalDialogs.fileSearchDialog.collectAsStateWithLifecycle()
-    val codeSearchDialog by GlobalDialogs.codeSearchDialog.collectAsStateWithLifecycle()
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         for (command in commands) {
@@ -78,6 +67,20 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GlobalDialogHost(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
+    val scope = rememberCoroutineScope()
+
+    val drawerTabs by drawerViewModel.drawerTabs.collectAsStateWithLifecycle()
+    val currentDrawerTabIndex by drawerViewModel.currentDrawerTabIndex.collectAsStateWithLifecycle()
+    val currentDrawerTab = drawerTabs.getOrNull(currentDrawerTabIndex)
+
+    val addDialog by GlobalDialogs.addDialog.collectAsStateWithLifecycle()
+    val fileSearchDialog by GlobalDialogs.fileSearchDialog.collectAsStateWithLifecycle()
+    val codeSearchDialog by GlobalDialogs.codeSearchDialog.collectAsStateWithLifecycle()
 
     if (fileSearchDialog && currentDrawerTab is FileTreeTab) {
         FileSearchDialog(
