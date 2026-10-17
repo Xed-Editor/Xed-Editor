@@ -74,9 +74,7 @@ fun <T> PreferenceList(
                                     tempCustomValue = ""
                                 },
                             title = { Text(text = string) },
-                            description = {
-                                if (showIds) Text(text = item.toString())
-                            },
+                            description = { if (showIds) Text(text = item.toString()) },
                             startWidget = {
                                 RadioButton(
                                     selected = (tempSelectedItem == item) && tempCustomValue.isBlank(),
@@ -114,9 +112,7 @@ fun <T> PreferenceList(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(text = strings.cancel.getString())
-                }
+                TextButton(onClick = { showDialog = false }) { Text(text = strings.cancel.getString()) }
             },
         )
     }

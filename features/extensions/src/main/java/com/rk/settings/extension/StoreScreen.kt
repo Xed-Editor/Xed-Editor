@@ -190,29 +190,32 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
             installAutoDetect(scope, uri, activity)
         }
 
-    val extensions by remember(installedExtensions, storeExtensions) {
-        derivedStateOf {
-            val all = extensionManager.getSyncedExtensions()
-            val filtered = applyExtensionsFilter(searchQuery, all, currentFilterOption)
-            applyExtensionsSort(currentSortOption, filtered)
+    val extensions by
+        remember(installedExtensions, storeExtensions) {
+            derivedStateOf {
+                val all = extensionManager.getSyncedExtensions()
+                val filtered = applyExtensionsFilter(searchQuery, all, currentFilterOption)
+                applyExtensionsSort(currentSortOption, filtered)
+            }
         }
-    }
 
-    val sortedThemes by remember(localThemes, storeThemes) {
-        derivedStateOf {
-            val all = themeManager.getSyncedThemes()
-            val filtered = applyGenericFilter(searchQuery, all)
-            filtered.sortedBy { it.name }
+    val sortedThemes by
+        remember(localThemes, storeThemes) {
+            derivedStateOf {
+                val all = themeManager.getSyncedThemes()
+                val filtered = applyGenericFilter(searchQuery, all)
+                filtered.sortedBy { it.name }
+            }
         }
-    }
 
-    val sortedIconPacks by remember(localIconPacks, storeIconPacks) {
-        derivedStateOf {
-            val all = iconPackManager.getSyncedIconPacks()
-            val filtered = applyGenericFilter(searchQuery, all)
-            filtered.sortedBy { it.name }
+    val sortedIconPacks by
+        remember(localIconPacks, storeIconPacks) {
+            derivedStateOf {
+                val all = iconPackManager.getSyncedIconPacks()
+                val filtered = applyGenericFilter(searchQuery, all)
+                filtered.sortedBy { it.name }
+            }
         }
-    }
 
     RefreshablePreferenceLayoutLazyColumn(
         label = stringResource(strings.store),
@@ -227,9 +230,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
             ExtendedFloatingActionButton(
                 onClick = {
                     if (Settings.warn_extensions) {
-                        dialogManager.showWarning {
-                            filePickerLauncher.launch(arrayOf("*/*"))
-                        }
+                        dialogManager.showWarning { filePickerLauncher.launch(arrayOf("*/*")) }
                     } else {
                         filePickerLauncher.launch(arrayOf("*/*"))
                     }
@@ -239,9 +240,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
             )
         },
     ) {
-        item {
-            ExtensionDialogRenderer(dialogManager)
-        }
+        item { ExtensionDialogRenderer(dialogManager) }
 
         when (selectedCategory) {
             StoreCategory.EXTENSIONS -> {
@@ -283,9 +282,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
                     LeadingIconTab(
                         selected = selectedCategory == category,
                         onClick = { selectedCategory = category },
-                        text = {
-                            Text(stringResource(category.stringRes))
-                        },
+                        text = { Text(stringResource(category.stringRes)) },
                         icon = {
                             Icon(
                                 painter = painterResource(category.drawableRes),
@@ -361,15 +358,9 @@ private fun LazyListScope.packageList(
                         PackageCard(
                             pkg = pkg,
                             installState = installState,
-                            onInstallClick = {
-                                runPackageInstallAction(pkg, {}, context, activity, dialogManager)
-                            },
-                            onUninstallClick = {
-                                runPackageUninstallAction(pkg, {}, scope, activity)
-                            },
-                            onUpdateClick = {
-                                runPackageUpdateAction(pkg, {}, context, activity, dialogManager)
-                            },
+                            onInstallClick = { runPackageInstallAction(pkg, {}, context, activity, dialogManager) },
+                            onUninstallClick = { runPackageUninstallAction(pkg, {}, scope, activity) },
+                            onUpdateClick = { runPackageUpdateAction(pkg, {}, context, activity, dialogManager) },
                             onClick = {
                                 val route =
                                     when (pkg.type) {

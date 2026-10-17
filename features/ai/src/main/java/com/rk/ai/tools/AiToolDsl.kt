@@ -6,7 +6,8 @@ import kotlinx.serialization.json.JsonObject
 fun aiTool(name: String, description: String, kind: AiToolKind, build: AiToolDsl.() -> Unit): AiTool =
     AiToolDsl(name, description, kind).apply(build).build()
 
-class AiToolDsl internal constructor(
+class AiToolDsl
+internal constructor(
     private val name: String,
     private val description: String,
     private val kind: AiToolKind,

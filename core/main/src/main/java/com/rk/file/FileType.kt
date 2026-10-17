@@ -18,8 +18,8 @@ import com.rk.resources.drawables
  * @property name The short identifier name of the file type.
  * @property title A human-readable title for the file type.
  * @property markdownNames A list of language identifiers used in Markdown code blocks.
- * @property lspLanguageId The language identifier sent to the language server in the `didOpen` notification
- *   (e.g., "typescriptreact"). Null if the file type does not support LSP.
+ * @property lspLanguageId The language identifier sent to the language server in the `didOpen` notification (e.g.,
+ *   "typescriptreact"). Null if the file type does not support LSP.
  */
 interface FileType {
     val extensions: List<String>

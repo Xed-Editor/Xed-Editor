@@ -79,7 +79,11 @@ internal object FileTools {
                 ),
             presenter =
                 AiToolPresenter { args ->
-                    ToolCallView(strings.ai_tool_read_file.getString(), args.displayArg("path"), listOfNotNull(args.lineRange()))
+                    ToolCallView(
+                        strings.ai_tool_read_file.getString(),
+                        args.displayArg("path"),
+                        listOfNotNull(args.lineRange()),
+                    )
                 },
         ) { args ->
             val file = AiWorkspace.resolve(args.requireArg("path"))
@@ -126,10 +130,11 @@ internal object FileTools {
             targetPath = { it.arg("path") },
             preview = { args ->
                 val path = args.arg("path").orEmpty()
-                val oldText =
-                    runCatching { AiWorkspace.resolve(path).takeIf { it.isFile() }?.readText() }
-                        .getOrNull()
-                        .orEmpty()
+                val oldText = runCatching {
+                    AiWorkspace.resolve(path).takeIf { it.isFile() }?.readText()
+                }
+                    .getOrNull()
+                    .orEmpty()
                 AiDiff.unified(path, oldText, args.arg("content").orEmpty())
             },
             presenter =

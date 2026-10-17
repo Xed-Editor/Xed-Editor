@@ -14,12 +14,12 @@ val AnthropicIcon: ImageVector by lazy { providerIcon("anthropic", ANTHROPIC_PAT
 
 private fun providerIcon(name: String, path: String): ImageVector =
     ImageVector.Builder(
-        name = name,
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f,
-    )
+            name = name,
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        )
         .addPath(PathParser().parsePathString(path).toNodes(), fill = SolidColor(Color.Black))
         .build()
 

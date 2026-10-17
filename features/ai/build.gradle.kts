@@ -6,9 +6,7 @@ plugins {
 
 android {
     namespace = "com.rk.ai"
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk { version = release(37) }
 
     defaultConfig { minSdk = 26 }
 
@@ -19,7 +17,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
     kotlin { jvmToolchain(21) }
-
 }
 
 dependencies {

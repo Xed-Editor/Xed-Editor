@@ -114,9 +114,7 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
     }
 
     // Stick to the bottom while new lines arrive
-    LaunchedEffect(lines.size) {
-        if (follow && lines.isNotEmpty()) listState.scrollToItem(lines.lastIndex)
-    }
+    LaunchedEffect(lines.size) { if (follow && lines.isNotEmpty()) listState.scrollToItem(lines.lastIndex) }
 
     val floating = !imeVisible
     val corner = if (floating) 12.dp else 0.dp
@@ -210,9 +208,7 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
 
                         val textMeasurer = rememberTextMeasurer()
                         val charWidthPx =
-                            remember(textMeasurer) {
-                                textMeasurer.measure("0".repeat(20), textStyle).size.width / 20f
-                            }
+                            remember(textMeasurer) { textMeasurer.measure("0".repeat(20), textStyle).size.width / 20f }
 
                         val maxColumns by remember(lines) { derivedStateOf { lines.maxOfOrNull { it.columns } ?: 0 } }
                         val contentWidth = with(LocalDensity.current) { ((maxColumns + 1) * charWidthPx).toDp() }

@@ -123,7 +123,7 @@ fun SingleInputDialog(
                 onClick = {
                     onDismiss()
                     onFinish()
-                },
+                }
             ) {
                 Text(stringResource(id = strings.cancel))
             }

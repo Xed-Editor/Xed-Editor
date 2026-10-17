@@ -120,9 +120,7 @@ data class LspServerInstance(
 
         _logs.update { it.plus(lspLogEntry).takeLast(Settings.lsp_log_limit) }
 
-        DefaultScope.launch {
-            Events.publish(LSPEvent.LogEntryWritten(this@LspServerInstance, lspLogEntry))
-        }
+        DefaultScope.launch { Events.publish(LSPEvent.LogEntryWritten(this@LspServerInstance, lspLogEntry)) }
     }
 
     fun getLspLogs() = _logs.value

@@ -45,7 +45,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +63,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -96,9 +96,9 @@ import com.rk.utils.toast
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Properties
+import kotlinx.coroutines.launch
 
 var terminalView = WeakReference<TerminalView?>(null)
 var virtualKeysView = WeakReference<VirtualKeysView?>(null)
@@ -368,7 +368,8 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
     var renameError by remember { mutableStateOf<String?>(null) }
 
     val service = terminalActivity.sessionBinder?.get()?.getService()
-    val sessionList = service?.sessionList?.collectAsStateWithLifecycle(initialValue = emptyList())?.value ?: emptyList()
+    val sessionList =
+        service?.sessionList?.collectAsStateWithLifecycle(initialValue = emptyList())?.value ?: emptyList()
     val currentSession = service?.currentSession?.collectAsStateWithLifecycle(initialValue = "main")?.value ?: "main"
 
     if (showRenameDialog) {

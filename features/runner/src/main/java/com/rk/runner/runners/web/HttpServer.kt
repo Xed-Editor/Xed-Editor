@@ -9,8 +9,8 @@ import com.rk.settings.Settings
 import com.rk.utils.isDarkTheme
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.Response.Status
-import kotlinx.coroutines.runBlocking
 import java.net.URLConnection
+import kotlinx.coroutines.runBlocking
 
 class HttpServer(
     val context: Context,

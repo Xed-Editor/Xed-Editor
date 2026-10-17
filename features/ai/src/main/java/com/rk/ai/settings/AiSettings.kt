@@ -45,10 +45,11 @@ object AiSettings {
 
     private val NON_ID_CHARS = Regex("[^A-Za-z0-9]")
 
-    private fun decodeToolNames(raw: String): Set<String> =
-        runCatching { Json.decodeFromString(ListSerializer(String.serializer()), raw) }
-            .getOrDefault(emptyList())
-            .toSet()
+    private fun decodeToolNames(raw: String): Set<String> = runCatching {
+        Json.decodeFromString(ListSerializer(String.serializer()), raw)
+    }
+        .getOrDefault(emptyList())
+        .toSet()
 
     private fun encodeToolNames(names: Set<String>): String =
         Json.encodeToString(ListSerializer(String.serializer()), names.toList())

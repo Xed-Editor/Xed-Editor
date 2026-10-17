@@ -36,11 +36,7 @@ fun AppLogs() {
     var logLevel by remember { mutableStateOf(LogLevel.INFO) }
     var logText by remember { mutableStateOf(strings.loading.getString()) }
 
-    LaunchedEffect(logLevel) {
-        withContext(Dispatchers.IO) {
-            logText = buildLogs(logLevel)
-        }
-    }
+    LaunchedEffect(logLevel) { withContext(Dispatchers.IO) { logText = buildLogs(logLevel) } }
 
     val logFlow =
         remember(logLevel) {
@@ -51,21 +47,14 @@ fun AppLogs() {
             }
         }
 
-    LogScreen(logText, "App Logs Report", "app_logs", flow = logFlow) {
-        LogLevelDropdown(logLevel, { logLevel = it })
-    }
+    LogScreen(logText, "App Logs Report", "app_logs", flow = logFlow) { LogLevelDropdown(logLevel, { logLevel = it }) }
 }
 
 private fun buildLogs(logLevel: LogLevel): String {
     val entries =
         if (Settings.enable_logcat) {
             val logsCopy = LogcatService.logcatLogs.value
-            logsCopy
-                .filter { line ->
-                    line.matchesLogLevel(logLevel)
-                }
-                .takeLast(1000)
-                .joinToString("\n")
+            logsCopy.filter { line -> line.matchesLogLevel(logLevel) }.takeLast(1000).joinToString("\n")
         } else {
             LogCollector.logs.value
                 .filter { it.level.ordinal <= logLevel.ordinal }

@@ -213,39 +213,38 @@ val ArrowUpward: ImageVector
     get() {
         if (_MaterialIconsArrowUpward != null) return _MaterialIconsArrowUpward!!
 
-        _MaterialIconsArrowUpward = ImageVector.Builder(
-            name = "arrow_upward",
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
-            viewportWidth = 24f,
-            viewportHeight = 24f
-        ).apply {
-            path(
-                fill = SolidColor(Color.Transparent)
-            ) {
-                moveTo(0f, 0f)
-                horizontalLineToRelative(24f)
-                verticalLineToRelative(24f)
-                horizontalLineTo(0f)
-                verticalLineTo(0f)
-                close()
-            }
-            path(
-                fill = SolidColor(Color.Black)
-            ) {
-                moveTo(4f, 12f)
-                lineToRelative(1.41f, 1.41f)
-                lineTo(11f, 7.83f)
-                verticalLineTo(20f)
-                horizontalLineToRelative(2f)
-                verticalLineTo(7.83f)
-                lineToRelative(5.58f, 5.59f)
-                lineTo(20f, 12f)
-                lineToRelative(-8f, -8f)
-                lineToRelative(-8f, 8f)
-                close()
-            }
-        }.build()
+        _MaterialIconsArrowUpward =
+            ImageVector.Builder(
+                    name = "arrow_upward",
+                    defaultWidth = 24.dp,
+                    defaultHeight = 24.dp,
+                    viewportWidth = 24f,
+                    viewportHeight = 24f,
+                )
+                .apply {
+                    path(fill = SolidColor(Color.Transparent)) {
+                        moveTo(0f, 0f)
+                        horizontalLineToRelative(24f)
+                        verticalLineToRelative(24f)
+                        horizontalLineTo(0f)
+                        verticalLineTo(0f)
+                        close()
+                    }
+                    path(fill = SolidColor(Color.Black)) {
+                        moveTo(4f, 12f)
+                        lineToRelative(1.41f, 1.41f)
+                        lineTo(11f, 7.83f)
+                        verticalLineTo(20f)
+                        horizontalLineToRelative(2f)
+                        verticalLineTo(7.83f)
+                        lineToRelative(5.58f, 5.59f)
+                        lineTo(20f, 12f)
+                        lineToRelative(-8f, -8f)
+                        lineToRelative(-8f, 8f)
+                        close()
+                    }
+                }
+                .build()
 
         return _MaterialIconsArrowUpward!!
     }

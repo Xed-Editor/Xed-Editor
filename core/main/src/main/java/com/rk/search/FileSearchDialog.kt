@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -40,6 +39,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainViewModel
 import com.rk.components.XedDialog
 import com.rk.components.compose.utils.addIf
@@ -73,15 +73,11 @@ fun FileSearchDialog(
 
     val editorTab = mainViewModel.currentTab as? EditorTab
     val textFieldState =
-        rememberTextFieldState(
-            editorTab?.editorState?.editor?.get()?.getSelectedText() ?: fileSearchQuery
-        )
+        rememberTextFieldState(editorTab?.editorState?.editor?.get()?.getSelectedText() ?: fileSearchQuery)
 
     LaunchedEffect(textFieldState.text) { searchViewModel.setFileSearchQuery(textFieldState.text.toString()) }
 
-    LaunchedEffect(isIndexingProject, fileSearchQuery) {
-        searchViewModel.launchFileSearch(context, projectFile)
-    }
+    LaunchedEffect(isIndexingProject, fileSearchQuery) { searchViewModel.launchFileSearch(context, projectFile) }
 
     val viewportHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
@@ -97,9 +93,9 @@ fun FileSearchDialog(
                         text = stringResource(strings.searching_in).fillPlaceholders(projectFile.getAppropriateName()),
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
-                }
+                },
             )
 
             Row(
@@ -111,9 +107,7 @@ fun FileSearchDialog(
                     CircularProgressIndicator(modifier = Modifier.size(9.dp), strokeWidth = 2.dp)
                 }
                 val numberFormatter = rememberNumberFormatter()
-                val resultCount by remember {
-                    derivedStateOf { numberFormatter.format(fileSearchResults.size) }
-                }
+                val resultCount by remember { derivedStateOf { numberFormatter.format(fileSearchResults.size) } }
                 Text(
                     stringResource(
                             when {

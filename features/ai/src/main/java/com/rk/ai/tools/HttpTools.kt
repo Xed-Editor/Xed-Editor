@@ -8,6 +8,10 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.okHttpClient
+import java.io.IOException
+import java.util.Locale
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,10 +34,6 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.BufferedSink
-import java.io.IOException
-import java.util.Locale
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.CoroutineContext
 
 internal object HttpTools {
     private const val TRANSFER_BUFFER_BYTES = 64 * 1024
@@ -73,12 +73,17 @@ internal object HttpTools {
                         args.displayArg("url"),
                         listOfNotNull(
                             toolDetail(strings.ai_tool_headers.getString(), args.displayArg("headers")),
-                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
+                            toolField(
+                                strings.ai_tool_timeout.getString(),
+                                args.displayArg("timeout_seconds")?.plus("s"),
+                            ),
                             toolField(strings.ai_tool_max_bytes.getString(), args.displayArg("max_bytes")),
                         ),
                     )
                 },
-        ) { args -> call(args, method = "GET", allowBody = false) }
+        ) { args ->
+            call(args, method = "GET", allowBody = false)
+        }
 
     private fun request(): AiTool =
         AiTool(
@@ -123,16 +128,17 @@ internal object HttpTools {
                             toolField(strings.ai_tool_content_type.getString(), args.displayArg("content_type")),
                             toolDetail(strings.ai_tool_headers.getString(), args.displayArg("headers")),
                             toolDetail(strings.ai_tool_body.getString(), args.displayArg("body")),
-                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
+                            toolField(
+                                strings.ai_tool_timeout.getString(),
+                                args.displayArg("timeout_seconds")?.plus("s"),
+                            ),
                             toolField(strings.ai_tool_max_bytes.getString(), args.displayArg("max_bytes")),
                         ),
                     )
                 },
         ) { args ->
             val method = args.requireArg("method").trim().uppercase()
-            require(method in MUTATING_METHODS) {
-                "Unsupported method '$method'; use http_get for reads."
-            }
+            require(method in MUTATING_METHODS) { "Unsupported method '$method'; use http_get for reads." }
             call(args, method = method, allowBody = method != "HEAD")
         }
 
@@ -173,7 +179,10 @@ internal object HttpTools {
                         listOfNotNull(
                             toolField(strings.ai_tool_save_to.getString(), args.displayArg("path")),
                             toolDetail(strings.ai_tool_headers.getString(), args.displayArg("headers")),
-                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
+                            toolField(
+                                strings.ai_tool_timeout.getString(),
+                                args.displayArg("timeout_seconds")?.plus("s"),
+                            ),
                         ),
                     )
                 },
@@ -239,7 +248,10 @@ internal object HttpTools {
                             ),
                             toolField(strings.ai_tool_content_type.getString(), args.displayArg("content_type")),
                             toolDetail(strings.ai_tool_headers.getString(), args.displayArg("headers")),
-                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
+                            toolField(
+                                strings.ai_tool_timeout.getString(),
+                                args.displayArg("timeout_seconds")?.plus("s"),
+                            ),
                         ),
                     )
                 },
@@ -250,21 +262,21 @@ internal object HttpTools {
         val rawUrl = args.requireArg("url").trim()
         val url = rawUrl.toHttpUrlOrNull() ?: throw IllegalArgumentException("Not a valid URL: $rawUrl")
         val timeoutSeconds =
-            (args.argInt("timeout_seconds") ?: DEFAULT_TIMEOUT_SECONDS)
-                .coerceIn(1, MAX_TIMEOUT_SECONDS)
-                .toLong()
+            (args.argInt("timeout_seconds") ?: DEFAULT_TIMEOUT_SECONDS).coerceIn(1, MAX_TIMEOUT_SECONDS).toLong()
         val maxBytes = args.argLong("max_bytes")?.coerceAtLeast(1)
 
         val request =
-            Request.Builder().url(url).apply {
-                headers(args).forEach { (name, value) -> addHeader(name, value) }
-                if (allowBody) {
-                    val mediaType = (args.arg("content_type") ?: "application/json").toMediaTypeOrNull()
-                    method(method, (args.arg("body") ?: "").toRequestBody(mediaType))
-                } else {
-                    method(method, null)
+            Request.Builder()
+                .url(url)
+                .apply {
+                    headers(args).forEach { (name, value) -> addHeader(name, value) }
+                    if (allowBody) {
+                        val mediaType = (args.arg("content_type") ?: "application/json").toMediaTypeOrNull()
+                        method(method, (args.arg("body") ?: "").toRequestBody(mediaType))
+                    } else {
+                        method(method, null)
+                    }
                 }
-            }
                 .build()
 
         val client = okHttpClient.newBuilder().callTimeout(timeoutSeconds, TimeUnit.SECONDS).build()
@@ -329,14 +341,18 @@ internal object HttpTools {
         // Stream into a sibling temp file so a failure never leaves a half-written destination.
         val tempName = "$name.part"
         parent.getChild(tempName)?.delete()
-        val temp = parent.createChild(createFile = true, name = tempName)
-            ?: throw IOException("Cannot create $tempName in the workspace")
+        val temp =
+            parent.createChild(createFile = true, name = tempName)
+                ?: throw IOException("Cannot create $tempName in the workspace")
 
         val request =
-            Request.Builder().url(url).apply {
-                headers(args).forEach { (header, value) -> addHeader(header, value) }
-                get()
-            }.build()
+            Request.Builder()
+                .url(url)
+                .apply {
+                    headers(args).forEach { (header, value) -> addHeader(header, value) }
+                    get()
+                }
+                .build()
         val client = okHttpClient.newBuilder().callTimeout(timeoutSeconds, TimeUnit.SECONDS).build()
         val call = client.newCall(request)
         val progressContext = currentCoroutineContext().minusKey(Job)
@@ -346,9 +362,8 @@ internal object HttpTools {
                 withContext(Dispatchers.IO) {
                     // The blocking execute() ignores coroutine cancellation, so cancel the call
                     // itself when the run is stopped.
-                    val cancellation = currentCoroutineContext()[Job]?.invokeOnCompletion { cause ->
-                        if (cause != null) call.cancel()
-                    }
+                    val cancellation =
+                        currentCoroutineContext()[Job]?.invokeOnCompletion { cause -> if (cause != null) call.cancel() }
                     try {
                         call.execute().use { response -> transfer(response, temp, path, session, progressContext) }
                     } finally {
@@ -452,10 +467,13 @@ internal object HttpTools {
             }
 
         val request =
-            Request.Builder().url(url).apply {
-                headers(args).forEach { (header, value) -> addHeader(header, value) }
-                method(method, body)
-            }.build()
+            Request.Builder()
+                .url(url)
+                .apply {
+                    headers(args).forEach { (header, value) -> addHeader(header, value) }
+                    method(method, body)
+                }
+                .build()
 
         val client = okHttpClient.newBuilder().callTimeout(timeoutSeconds, TimeUnit.SECONDS).build()
         val call = client.newCall(request)
@@ -464,9 +482,8 @@ internal object HttpTools {
         return try {
             withContext(Dispatchers.IO) {
                 // Uploads run through a blocking writer, so cancel the call itself when the run stops.
-                val cancellation = currentCoroutineContext()[Job]?.invokeOnCompletion { cause ->
-                    if (cause != null) call.cancel()
-                }
+                val cancellation =
+                    currentCoroutineContext()[Job]?.invokeOnCompletion { cause -> if (cause != null) call.cancel() }
                 try {
                     withContext(progressContext) {
                         session.updateCall(ToolCallStatus.Running, uploadProgressText(file.getName(), 0L, size))

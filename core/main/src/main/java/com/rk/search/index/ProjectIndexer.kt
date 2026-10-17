@@ -10,6 +10,7 @@ import com.rk.settings.Settings
 import com.rk.utils.logDebug
 import com.rk.utils.logError
 import com.rk.utils.logWarn
+import java.nio.charset.Charset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.nio.charset.Charset
 
 /** Manages indexing for a single project with proper lifecycle management. */
 class ProjectIndexer(

@@ -89,9 +89,9 @@ import com.rk.ai.tools.toolCallView
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.greenStatus
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
@@ -153,9 +153,7 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
     }
 
     // Covers a fling that reaches the end after the drag gesture stopped.
-    LaunchedEffect(listState) {
-        snapshotFlow { atEnd }.collect { if (it) autoFollow = true }
-    }
+    LaunchedEffect(listState) { snapshotFlow { atEnd }.collect { if (it) autoFollow = true } }
 
     // Follow the stream: the last text, the turn count and the panels that change the viewport height.
     LaunchedEffect(listState) {
@@ -182,9 +180,7 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
 
     Column(modifier.fillMaxSize()) {
         // Kept out of the scrolling transcript so the goal stays visible.
-        controller.goal?.let { goal ->
-            GoalBanner(goal = goal, onClear = controller::clearGoal)
-        }
+        controller.goal?.let { goal -> GoalBanner(goal = goal, onClear = controller::clearGoal) }
 
         // The button is anchored to the transcript area; a fixed screen offset would be covered by
         // the approval card.
@@ -217,9 +213,7 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
                 SmallFloatingActionButton(
                     onClick = {
                         autoFollow = true
-                        scope.launch {
-                            listState.animateScrollToItem(messages.lastIndex, Int.MAX_VALUE)
-                        }
+                        scope.launch { listState.animateScrollToItem(messages.lastIndex, Int.MAX_VALUE) }
                     },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -354,10 +348,7 @@ private fun AssistantMessage(
             message.text.isEmpty() && message.reasoning.isNotBlank() -> Unit
             message.text.isEmpty() && message.isStreaming -> TypingDots()
             // Parsed while streaming: `AiMarkdownText` retains the previous result, so it grows in place.
-            message.text.isNotEmpty() ->
-                SelectionContainer {
-                    AiMarkdownText(markdown = message.text)
-                }
+            message.text.isNotEmpty() -> SelectionContainer { AiMarkdownText(markdown = message.text) }
         }
 
         if (message.isStreaming && message.text.isNotEmpty()) {
@@ -493,9 +484,7 @@ private fun AiToolStep(message: AiChatMessage, nested: Boolean = false) {
     val status = message.toolStatus ?: ToolCallStatus.Running
     // Parsed once per call: the model's raw JSON becomes an action name, a target and labels.
     val view =
-        remember(message.toolName, message.toolArgs) {
-            toolCallView(message.toolName.orEmpty(), message.toolArgs)
-        }
+        remember(message.toolName, message.toolArgs) { toolCallView(message.toolName.orEmpty(), message.toolArgs) }
     val diff = message.diff?.takeIf { it.isNotBlank() }
     val result = message.text.takeIf { it.isNotBlank() }
     // A sub-agent's final answer is repeated as the result, so only intermediate steps are children.

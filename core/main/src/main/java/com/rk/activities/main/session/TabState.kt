@@ -5,8 +5,8 @@ import com.rk.activities.main.MainActivity
 import com.rk.file.FileObject
 import com.rk.tabs.base.Tab
 import com.rk.tabs.base.TabRegistry
-import kotlinx.coroutines.launch
 import java.io.Serializable
+import kotlinx.coroutines.launch
 
 sealed interface TabState : Serializable {
     suspend fun toTab(): Tab?
@@ -47,8 +47,8 @@ data class EditorTabState(
     }
 }
 
-
-data class FileTabState(val fileObject: FileObject, val projectRoot: FileObject?, val scopeRoot: FileObject?) : TabState {
+data class FileTabState(val fileObject: FileObject, val projectRoot: FileObject?, val scopeRoot: FileObject?) :
+    TabState {
     override suspend fun toTab() =
         TabRegistry.getTab(
             file = fileObject,
@@ -63,10 +63,9 @@ data class FileTabState(val fileObject: FileObject, val projectRoot: FileObject?
 /**
  * A tab state owned by a feature that lives outside the core, carried as opaque [payload] bytes.
  *
- * [type] is the key the owning feature registered with [PayloadTabRegistry], which decides how the
- * bytes are written and read. [projectRoot] and [scopeRoot] are kept here rather than inside the
- * payload because every tab has them, so restoring a payload tab needs no cooperation from the
- * feature to land in the right project scope.
+ * [type] is the key the owning feature registered with [PayloadTabRegistry], which decides how the bytes are written
+ * and read. [projectRoot] and [scopeRoot] are kept here rather than inside the payload because every tab has them, so
+ * restoring a payload tab needs no cooperation from the feature to land in the right project scope.
  */
 data class PayloadTabState(
     val type: String,

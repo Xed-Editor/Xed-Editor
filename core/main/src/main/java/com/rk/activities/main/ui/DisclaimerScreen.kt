@@ -80,7 +80,7 @@ fun DisclaimerScreen(navController: NavHostController, onDecline: () -> Unit) {
 
                 Text(text = stringResource(strings.terminal_risks_content), style = MaterialTheme.typography.bodyMedium)
 
-                if (AppFlavour.current.bundlesExtensions){
+                if (AppFlavour.current.bundlesExtensions) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(

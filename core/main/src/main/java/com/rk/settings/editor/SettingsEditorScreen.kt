@@ -268,15 +268,34 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             SettingsItem(
-                label = stringResource(strings.text_mate_suggestion),
-                description = stringResource(strings.text_mate_suggestion_desc),
-                default = Settings.textmate_suggestions,
-                sideEffect = { newValue ->
-                    Settings.textmate_suggestions = newValue
+                label = stringResource(strings.suggest_identifiers),
+                description = stringResource(strings.suggest_identifiers_desc),
+                default = Settings.suggest_identifiers,
+                sideEffect = {
+                    Settings.suggest_identifiers = it
 
                     scope.launch {
                         MainActivity.instance?.apply {
-                            viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                            viewModel.editorTabs.forEach { tab ->
+                                val scope = tab.editorState.textmateScope ?: return@forEach
+                                val editor = tab.editorState.editor.get() ?: return@forEach
+                                editor.configureLanguage(scope)
+                            }
+                        }
+                    }
+                },
+            )
+
+            SettingsItem(
+                label = stringResource(strings.suggest_keywords),
+                description = stringResource(strings.suggest_keywords_desc),
+                default = Settings.suggest_keywords,
+                sideEffect = { newValue ->
+                    Settings.suggest_keywords = newValue
+
+                    scope.launch {
+                        MainActivity.instance?.apply {
+                            viewModel.editorTabs.forEach { tab ->
                                 val scope = tab.editorState.textmateScope ?: return@forEach
                                 val textMateLanguage = tab.editorState.editor.get()?.getTextMateLanguage()
 
@@ -302,7 +321,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 Settings.tab_size = it
 
                 MainActivity.instance?.apply {
-                    viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                    viewModel.editorTabs.forEach { tab ->
                         val textMateLanguage = tab.editorState.editor.get()?.getTextMateLanguage()
                         textMateLanguage?.tabSize = it
                     }
@@ -319,7 +338,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     Settings.actual_tabs = it
 
                     MainActivity.instance?.apply {
-                        viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                        viewModel.editorTabs.forEach { tab ->
                             val textMateLanguage = tab.editorState.editor.get()?.getTextMateLanguage()
                             textMateLanguage?.useTab(it)
                         }

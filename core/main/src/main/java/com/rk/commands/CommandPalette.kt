@@ -107,9 +107,7 @@ fun CommandPalette(
                         it.getLabel().contains(searchQuery, ignoreCase = true) ||
                             it.prefix?.contains(searchQuery, ignoreCase = true) == true
                     }
-                    .filter {
-                        it.isSupported()
-                    }
+                    .filter { it.isSupported() }
             }
         }
 
@@ -173,10 +171,7 @@ fun CommandPalette(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = stringResource(strings.close),
-                        modifier =
-                            Modifier.size(16.dp).clickable {
-                                Settings.command_palette_note_dismissed = true
-                            },
+                        modifier = Modifier.size(16.dp).clickable { Settings.command_palette_note_dismissed = true },
                         tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     )
                 }

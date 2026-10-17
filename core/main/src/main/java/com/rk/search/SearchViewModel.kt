@@ -25,6 +25,7 @@ import com.rk.utils.logDebug
 import com.rk.utils.logError
 import com.rk.utils.parseExtensions
 import com.rk.utils.toast
+import java.nio.charset.Charset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -35,7 +36,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.nio.charset.Charset
 
 class SearchViewModel : ViewModel() {
     private val projectIndexers = mutableMapOf<FileObject, ProjectIndexer>()
@@ -503,9 +503,7 @@ class SearchViewModel : ViewModel() {
             ProjectIndexer(
                 context = context,
                 projectRoot = projectRoot,
-                onIndexingStateChanged = { isIndexing ->
-                    _isIndexing.update { it + (projectRoot to isIndexing) }
-                },
+                onIndexingStateChanged = { isIndexing -> _isIndexing.update { it + (projectRoot to isIndexing) } },
                 onError = { errorMessage ->
                     logError("Indexer error: $errorMessage")
                     toast("Indexer error: $errorMessage")

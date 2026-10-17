@@ -223,8 +223,10 @@
     <string name="release_wakelock">Release wakelock</string>
     <string name="native_runner">This runner only works on native files, consider moving it to terminal home directory</string>
     <string name="terminal_virus_notice">On some devices, especially certain models from China, you may see a system security warning when many processes are running in the terminal (for example during \'apt update\' or \'apt upgrade\'). This is a false positive and does not indicate a real virus.</string>
-    <string name="text_mate_suggestion">TextMate auto-completion</string>
-    <string name="text_mate_suggestion_desc">Suggest predefined keywords</string>
+    <string name="suggest_keywords">Suggest keywords</string>
+    <string name="suggest_keywords_desc">Show predefined keywords in autocomplete suggestions</string>
+    <string name="suggest_identifiers">Suggest identifiers</string>
+    <string name="suggest_identifiers_desc">Collect and show identifiers in autocomplete suggestions</string>
     <string name="install">Install</string>
     <string name="ask_lsp_install">Would you like to install \'%s\' language server?</string>
     <string name="ask_lsp_update">Would you like to update \'%s\' language server?</string>

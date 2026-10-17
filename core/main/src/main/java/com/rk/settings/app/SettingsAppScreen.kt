@@ -36,8 +36,8 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
-import com.rk.utils.logError
 import com.rk.utils.application
+import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -107,9 +107,8 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         )
 
                     hasManageExternalStorageDeclared =
-                        pkgInfo.requestedPermissions?.any {
-                            it == android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
-                        } ?: false
+                        pkgInfo.requestedPermissions?.any { it == android.Manifest.permission.MANAGE_EXTERNAL_STORAGE }
+                            ?: false
                 }
 
                 SettingsItem(
@@ -147,9 +146,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                     checked = toggle.state.value,
                     onSwitch = { checked ->
                         if (toggle.onSwitch != null) {
-                            toggle.onSwitch.invoke(activity, checked) { ok ->
-                                toggle.setEnable(ok)
-                            }
+                            toggle.onSwitch.invoke(activity, checked) { ok -> toggle.setEnable(ok) }
                         } else {
                             toggle.setEnable(checked)
                         }

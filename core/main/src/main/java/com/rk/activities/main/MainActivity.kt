@@ -6,12 +6,13 @@ import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -39,19 +40,23 @@ import com.rk.settings.support.handleSupport
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
+import java.lang.ref.WeakReference
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
-import kotlin.time.Duration.Companion.milliseconds
 
 var mainNavController = WeakReference<NavController?>(null)
 
 class MainActivity : AppCompatActivity() {
-    val viewModel: MainViewModel by viewModels()
-    val drawerViewModel: DrawerViewModel by viewModels()
+    lateinit var viewModel: MainViewModel
+        private set
+
+    lateinit var drawerViewModel: DrawerViewModel
+        private set
+
     val fileManager = FileManager(this)
 
     // suspend (isForeground) -> Unit
@@ -92,9 +97,7 @@ class MainActivity : AppCompatActivity() {
             if (lspConfigChanges.isNotEmpty()) {
                 val affectedExtensions = lspConfigChanges.flatMap { it.supportedExtensions }
                 viewModel.editorTabs
-                    .filterWithFiles { _, file ->
-                        affectedExtensions.contains(file.getExtension())
-                    }
+                    .filterWithFiles { _, file -> affectedExtensions.contains(file.getExtension()) }
                     .forEach { it.applyHighlightingAndConnectLSP() }
             }
 
@@ -147,6 +150,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         instance = this
 
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        drawerViewModel = ViewModelProvider(this)[DrawerViewModel::class.java]
+
+        val splash = installSplashScreen()
+        splash.setKeepOnScreenCondition { !themeManager.activeThemeReady }
+
+        lifecycleScope.launch {
+            themeManager.loadActiveTheme()
+            themeManager.indexLocalThemes()
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
             val db = DocumentStateDatabase.getDatabase(applicationContext)
             db.documentStateDao().deleteOldestRecords(1000)
@@ -173,9 +187,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 composable(MainRoutes.Main.route) {
                     MainContentHost()
-                    LaunchedEffect(Unit) {
-                        FilePermission.verifyStoragePermission(this@MainActivity)
-                    }
+                    LaunchedEffect(Unit) { FilePermission.verifyStoragePermission(this@MainActivity) }
                 }
                 composable(MainRoutes.Disclaimer.route) { DisclaimerScreen(navController) { finishAffinity() } }
 

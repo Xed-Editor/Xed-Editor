@@ -72,19 +72,19 @@ object ToolbarConfiguration {
         _globalCommands.update { current ->
             val existingIndex = current.indexOf(command)
 
-            val list = if (existingIndex != -1) {
-                current.toMutableList().apply {
-                    removeAt(existingIndex)
+            val list =
+                if (existingIndex != -1) {
+                    current.toMutableList().apply { removeAt(existingIndex) }
+                } else {
+                    current.toMutableList()
                 }
-            } else {
-                current.toMutableList()
-            }
 
-            val insertIndex = when {
-                index != null -> index.coerceIn(0, list.size)
-                existingIndex != -1 -> existingIndex.coerceIn(0, list.size)
-                else -> list.size
-            }
+            val insertIndex =
+                when {
+                    index != null -> index.coerceIn(0, list.size)
+                    existingIndex != -1 -> existingIndex.coerceIn(0, list.size)
+                    else -> list.size
+                }
 
             list.add(insertIndex, command)
             list

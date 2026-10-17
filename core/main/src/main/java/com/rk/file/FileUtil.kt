@@ -76,11 +76,7 @@ fun File.unzipTo(destDir: File) {
                 target.mkdirs()
             } else {
                 target.parentFile?.mkdirs()
-                zip.getInputStream(entry).use { input ->
-                    target.outputStream().use { output ->
-                        input.copyTo(output)
-                    }
-                }
+                zip.getInputStream(entry).use { input -> target.outputStream().use { output -> input.copyTo(output) } }
             }
         }
     }

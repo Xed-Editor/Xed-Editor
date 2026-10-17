@@ -53,9 +53,7 @@ object AiToolRegistry {
             }
         synchronized(lock) {
             builtinsByName = toInstall
-            toInstall.forEach { (name, tool) ->
-                if (!toolsByName.containsKey(name)) toolsByName[name] = tool
-            }
+            toInstall.forEach { (name, tool) -> if (!toolsByName.containsKey(name)) toolsByName[name] = tool }
             publishLocked()
         }
     }

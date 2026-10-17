@@ -229,6 +229,8 @@ object Events {
 
     @PublishedApi internal val listeners = mutableMapOf<KClass<out Event>, MutableList<suspend (Event) -> Unit>>()
 
+    @PublishedApi internal val lock = Any()
+
     /**
      * Subscribes to events of type [T].
      *
@@ -238,17 +240,13 @@ object Events {
      */
     @XedExtensionPoint
     inline fun <reified T : Event> subscribe(noinline listener: suspend (T) -> Unit): EventSubscription {
-        val list = listeners.getOrPut(T::class) { mutableListOf() }
+        val wrapper: suspend (Event) -> Unit = { listener(it as T) }
 
-        val wrapper: suspend (Event) -> Unit = {
-            listener(it as T)
-        }
-
-        list += wrapper
+        val list = synchronized(lock) { listeners.getOrPut(T::class) { mutableListOf() }.also { it += wrapper } }
 
         return object : EventSubscription {
             override fun unsubscribe() {
-                list -= wrapper
+                synchronized(lock) { list -= wrapper }
             }
         }
     }
@@ -259,16 +257,14 @@ object Events {
      * @param event The event to trigger.
      */
     suspend fun publish(event: Event) {
-        listeners
-            .filterKeys { it.isInstance(event) }
-            .values
-            .flatten()
-            .forEach { listener ->
-                try {
-                    listener(event)
-                } catch (t: Throwable) {
-                    logError(t, "Listener failed for ${event::class.simpleName}")
-                }
+        val snapshot = synchronized(lock) { listeners.filterKeys { it.isInstance(event) }.values.flatten() }
+
+        snapshot.forEach { listener ->
+            try {
+                listener(event)
+            } catch (t: Throwable) {
+                logError(t, "Listener failed for ${event::class.simpleName}")
             }
+        }
     }
 }

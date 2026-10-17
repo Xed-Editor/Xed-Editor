@@ -8,6 +8,7 @@ import com.rk.search.CodeItem
 import com.rk.search.index.IndexDatabase
 import com.rk.search.utils.SearchUtils
 import com.rk.utils.logError
+import java.io.File
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -15,7 +16,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.withContext
-import java.io.File
 
 /** Code search using indexed database. Returns results as Flow for streaming. */
 class CodeSearchIndexed(

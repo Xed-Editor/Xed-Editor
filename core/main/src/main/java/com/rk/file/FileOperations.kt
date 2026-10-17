@@ -190,9 +190,7 @@ object FileOperations {
                     Events.publish(FileEvent.Copied(newFile, sourceFile.getAbsolutePath()))
                 }
             }
-                .onFailure {
-                    logError(it, "Failed to paste file")
-                }
+                .onFailure { logError(it, "Failed to paste file") }
         }
 
     /** Recursively copies a file or directory */

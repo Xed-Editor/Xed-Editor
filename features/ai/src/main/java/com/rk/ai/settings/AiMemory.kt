@@ -47,19 +47,19 @@ object AiMemory {
         val current = entries
         if (current.isEmpty()) return null
         return buildString {
-                appendLine("Long-term memory carried over from earlier chats. Save new notes with")
-                appendLine("`save_memory` and drop stale ones with `forget_memory` by their number.")
-                current.forEachIndexed { index, entry -> appendLine("${index + 1}. $entry") }
-            }
+            appendLine("Long-term memory carried over from earlier chats. Save new notes with")
+            appendLine("`save_memory` and drop stale ones with `forget_memory` by their number.")
+            current.forEachIndexed { index, entry -> appendLine("${index + 1}. $entry") }
+        }
             .trim()
     }
 
-    private fun decode(raw: String): List<String> =
-        runCatching { Json.decodeFromString(ListSerializer(String.serializer()), raw) }
-            .getOrDefault(emptyList())
+    private fun decode(raw: String): List<String> = runCatching {
+        Json.decodeFromString(ListSerializer(String.serializer()), raw)
+    }
+        .getOrDefault(emptyList())
 
-    private fun encode(list: List<String>): String =
-        Json.encodeToString(ListSerializer(String.serializer()), list)
+    private fun encode(list: List<String>): String = Json.encodeToString(ListSerializer(String.serializer()), list)
 
     private const val KEY = "ai_memory"
 }

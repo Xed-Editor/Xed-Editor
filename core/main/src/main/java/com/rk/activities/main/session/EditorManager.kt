@@ -79,7 +79,7 @@ class EditorManager(private val viewModel: MainViewModel) {
             )
         }
 
-        val targetTab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file == file } ?: return
+        val targetTab = viewModel.editorTabs.find { it.file == file } ?: return
 
         // Wait until editor content is loaded
         targetTab.editorState.contentRendered.await()

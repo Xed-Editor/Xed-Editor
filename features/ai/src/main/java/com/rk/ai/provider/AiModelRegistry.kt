@@ -20,8 +20,7 @@ object AiModelRegistry {
         }
     }
 
-    @XedExtensionPoint
-    fun registerModels(vararg models: AiModel) = models.forEach(::registerModel)
+    @XedExtensionPoint fun registerModels(vararg models: AiModel) = models.forEach(::registerModel)
 
     @XedExtensionPoint
     fun unregisterModel(model: AiModel) {

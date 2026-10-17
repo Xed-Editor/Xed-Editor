@@ -46,17 +46,17 @@ fun WelcomeScreen(drawerViewModel: DrawerViewModel) {
     val currentProject = (currentDrawerTab as? FileTreeTab)?.root
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Icon(
-            painter = painterResource(drawables.xed_editor),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.02f),
-            modifier = Modifier.align(Alignment.Center).size(420.dp),
-        )
-
         Column(
             modifier = Modifier.align(Alignment.Center).padding(horizontal = 32.dp).widthIn(max = 520.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Icon(
+                painter = painterResource(drawables.xed_editor),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(64.dp).padding(bottom = 16.dp),
+            )
+
             currentProject?.let { project ->
                 Text(
                     text = project.getAppropriateName(),
@@ -103,9 +103,7 @@ fun WelcomeScreen(drawerViewModel: DrawerViewModel) {
 @Composable
 private fun WelcomeActions(commands: List<Command>) {
     Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-        commands.forEach { command ->
-            WelcomeActionButton(command = command, modifier = Modifier.fillMaxWidth())
-        }
+        commands.forEach { command -> WelcomeActionButton(command = command, modifier = Modifier.fillMaxWidth()) }
     }
 }
 

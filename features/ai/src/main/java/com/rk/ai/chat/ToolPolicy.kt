@@ -6,9 +6,7 @@ import com.rk.ai.tools.AiToolKind
 
 internal enum class ToolGate {
     RunNow,
-
     AskUser,
-
     Blocked,
 }
 
@@ -23,8 +21,7 @@ internal fun gateFor(
         mode == PermissionMode.PLAN -> ToolGate.Blocked
         alreadyApproved -> ToolGate.RunNow
         mode == PermissionMode.ASK -> ToolGate.AskUser
-        mode == PermissionMode.ACCEPT_EDITS ->
-            if (tool.kind == AiToolKind.Write) ToolGate.RunNow else ToolGate.AskUser
+        mode == PermissionMode.ACCEPT_EDITS -> if (tool.kind == AiToolKind.Write) ToolGate.RunNow else ToolGate.AskUser
         else -> ToolGate.RunNow
     }
 

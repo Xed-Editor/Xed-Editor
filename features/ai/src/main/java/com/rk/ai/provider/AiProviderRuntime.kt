@@ -39,9 +39,7 @@ object AiProviderRuntime {
         val resolved = resolveModelId(provider, modelId)
         val key = "${provider.id}|$apiKey|$baseUrl|$path|$resolved"
 
-        cachedExecutor?.let { existing ->
-            if (cachedKey == key) return existing
-        }
+        cachedExecutor?.let { existing -> if (cachedKey == key) return existing }
 
         runCatching { cachedExecutor?.close() }
         Log.i(TAG, "Building executor: provider=${provider.id} baseUrl=$baseUrl path=$path model=$resolved")

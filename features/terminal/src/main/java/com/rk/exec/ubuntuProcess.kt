@@ -14,13 +14,13 @@ import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
 import com.rk.utils.logError
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.io.OutputStreamWriter
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 data class Binding(val outside: String, val inside: String? = null)
 
@@ -245,9 +245,7 @@ fun Process.terminate() {
     if (!isAlive) return
     destroy()
     Thread {
-        runCatching {
-            if (!waitFor(TERMINATE_GRACE_MS, TimeUnit.MILLISECONDS)) destroyForcibly()
-        }
+        runCatching { if (!waitFor(TERMINATE_GRACE_MS, TimeUnit.MILLISECONDS)) destroyForcibly() }
     }
         .apply { isDaemon = true }
         .start()

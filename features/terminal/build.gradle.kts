@@ -36,7 +36,7 @@ dependencies {
 
     // Editor dependency for ExtraKeys code editor settings
     implementation(libs.sorax.editor)
-    
+
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.utilcode)
@@ -45,7 +45,7 @@ dependencies {
     implementation(libs.androidx.browser)
     implementation(libs.gson)
     implementation(libs.semver)
-    
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -57,5 +57,4 @@ dependencies {
     // Built from the in-tree sources (NDK 28) so libtermux.so is 16 KB aligned.
     implementation(project(":terminal-view"))
     implementation(project(":terminal-emulator"))
-
 }

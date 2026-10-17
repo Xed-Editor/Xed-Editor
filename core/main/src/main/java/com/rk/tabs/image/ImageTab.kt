@@ -102,9 +102,7 @@ class ImageTab(
                             factory = { context ->
                                 PhotoView(context).apply { scaleType = ImageView.ScaleType.FIT_CENTER }
                             },
-                            update = { view ->
-                                view.setImageDrawable(targetState.drawable)
-                            },
+                            update = { view -> view.setImageDrawable(targetState.drawable) },
                         )
                     }
                 }

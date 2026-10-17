@@ -82,9 +82,7 @@ private fun TasksSheet(todos: List<AiTodo>, onClear: () -> Unit) {
             )
 
             if (todos.isNotEmpty()) {
-                IconButton(onClick = onClear) {
-                    Icon(imageVector = Icons.Outlined.Clear, null)
-                }
+                IconButton(onClick = onClear) { Icon(imageVector = Icons.Outlined.Clear, null) }
             }
         }
 
@@ -98,9 +96,7 @@ private fun TasksSheet(todos: List<AiTodo>, onClear: () -> Unit) {
             return@Column
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            todos.forEach { todo -> TaskRow(todo) }
-        }
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) { todos.forEach { todo -> TaskRow(todo) } }
     }
 }
 

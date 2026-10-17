@@ -28,7 +28,8 @@ interface AiProvider {
     val requestPath: String
 
     /** False when the provider authenticates itself or needs no credentials. */
-    val requiresApiKey: Boolean get() = true
+    val requiresApiKey: Boolean
+        get() = true
 
     val llmProvider: LLMProvider
 

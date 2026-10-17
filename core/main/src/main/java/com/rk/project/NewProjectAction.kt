@@ -19,9 +19,7 @@ object NewProjectAction : FileAction() {
     override suspend fun execute(context: FileActionContext) {
         DefaultScope.launch {
             val intent =
-                Intent(context.context, ProjectCreatorActivity::class.java).apply {
-                    putExtra("root", context.file)
-                }
+                Intent(context.context, ProjectCreatorActivity::class.java).apply { putExtra("root", context.file) }
             context.context.startActivity(intent)
         }
     }

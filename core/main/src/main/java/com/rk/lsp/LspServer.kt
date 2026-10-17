@@ -20,14 +20,14 @@ import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.greenStatus
 import com.rk.theme.yellowStatus
 import io.github.rosemoe.sora.lsp.requests.Timeouts
+import java.io.File
+import java.net.URI
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.eclipse.lsp4j.ServerCapabilities
-import java.io.File
-import java.net.URI
 
 abstract class ScriptedLspServer : LspServer() {
     abstract val installScript: File
@@ -95,9 +95,7 @@ abstract class LspServer {
 
     fun addInstance(instance: LspServerInstance) {
         _instances.update { it + instance }
-        DefaultScope.launch {
-            Events.publish(LSPEvent.InstanceCreated(instance))
-        }
+        DefaultScope.launch { Events.publish(LSPEvent.InstanceCreated(instance)) }
     }
 
     fun removeInstance(instance: LspServerInstance) {

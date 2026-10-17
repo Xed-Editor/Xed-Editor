@@ -21,9 +21,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 @Deprecated("This loading popup is ancient and should not be used anymore")
 class LoadingPopup(private val activity: AppCompatActivity?, hideAfterMillis: Long? = null) {

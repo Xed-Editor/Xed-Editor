@@ -11,11 +11,11 @@ import androidx.compose.ui.text.SpanStyle
 import com.rk.activities.main.ui.TaskOutputState
 import com.rk.utils.parseAnsiToAnnotatedString
 import com.rk.utils.stripAnsi
+import java.util.Properties
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.util.Properties
 
 /** Interface for a task that can be shown in the floating output view. */
 @XedExtensionPoint
@@ -80,9 +80,7 @@ sealed interface OutputLine {
         override val columns
             get() = text.length
 
-        private val annotated by lazy {
-            AnnotatedString(text, spanStyle = style, paragraphStyle = paragraphStyle)
-        }
+        private val annotated by lazy { AnnotatedString(text, spanStyle = style, paragraphStyle = paragraphStyle) }
 
         override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
 

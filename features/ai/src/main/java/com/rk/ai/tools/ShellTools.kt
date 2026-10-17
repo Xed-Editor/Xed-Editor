@@ -36,7 +36,10 @@ object ShellTools {
                         args.displayArg("command"),
                         listOfNotNull(
                             toolLargeBlock(strings.ai_tool_command.getString(), args.displayArg("command")),
-                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
+                            toolField(
+                                strings.ai_tool_timeout.getString(),
+                                args.displayArg("timeout_seconds")?.plus("s"),
+                            ),
                         ),
                     )
                 },
@@ -91,7 +94,10 @@ object ShellTools {
                         listOfNotNull(
                             toolLargeBlock(strings.ai_tool_command.getString(), args.displayArg("command")),
                             toolField(strings.ai_tool_working_dir.getString(), args.displayArg("working_dir")),
-                            toolField(strings.ai_tool_timeout.getString(), args.displayArg("timeout_seconds")?.plus("s")),
+                            toolField(
+                                strings.ai_tool_timeout.getString(),
+                                args.displayArg("timeout_seconds")?.plus("s"),
+                            ),
                         ),
                     )
                 },

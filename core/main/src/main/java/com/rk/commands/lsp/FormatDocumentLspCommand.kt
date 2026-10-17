@@ -16,9 +16,7 @@ class FormatDocumentLspCommand : LspCommand() {
     override fun getLabel(): String = strings.format_document_lsp.getString()
 
     override fun execute(context: LspActionContext) {
-        context.editorTab.scope.launch {
-            formatDocumentSuspend(context.editorTab)
-        }
+        context.editorTab.scope.launch { formatDocumentSuspend(context.editorTab) }
     }
 
     override fun isEnabled(context: LspNonActionContext): Boolean {

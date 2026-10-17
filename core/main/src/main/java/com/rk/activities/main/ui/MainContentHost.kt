@@ -44,8 +44,8 @@ import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.XedTheme
 import com.rk.utils.dialogRes
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.launch
 
 var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
 var searchViewModel = WeakReference<SearchViewModel?>(null)
@@ -211,9 +211,7 @@ fun MainActivity.MainContentHost(
 
             GlobalDialogHost(viewModel, drawerViewModel)
 
-            DialogRegistry.getDialogs().forEach { dialog ->
-                dialog()
-            }
+            DialogRegistry.getDialogs().forEach { dialog -> dialog() }
         }
     }
 }

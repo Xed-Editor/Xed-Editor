@@ -68,6 +68,11 @@ import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
 import com.rk.utils.logError
 import com.rk.utils.toast
+import java.io.File
+import java.lang.ref.WeakReference
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -75,11 +80,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.File
-import java.lang.ref.WeakReference
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
-import java.util.concurrent.TimeUnit
 
 class Terminal : AppCompatActivity() {
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
