@@ -32,6 +32,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.activities.main.MainActivity
 import com.rk.components.DialogRegistry
+import com.rk.components.GlobalDialogHost
 import com.rk.components.ResponsiveDrawer
 import com.rk.drawer.DrawerContent
 import com.rk.drawer.DrawerPersistence
@@ -207,6 +208,8 @@ fun MainActivity.MainContentHost(
                 mainContent = mainContent,
                 sheetContent = sheetContent,
             )
+
+            GlobalDialogHost(viewModel, drawerViewModel)
 
             DialogRegistry.getDialogs().forEach { dialog ->
                 dialog()
