@@ -22,13 +22,19 @@ object DrawerPersistence {
     private const val CURRENT_DRAWER_TAB = "currentDrawerTab"
     private const val EXPANDED_FILE_TREE_NODES = "expandedFileTree"
 
+    var stateRestored = false
+
     suspend fun saveState(viewModel: DrawerViewModel) {
+        if (!stateRestored) return
+
         saveMutex.withLock {
-            val file = FileWrapper(application!!.filesDir.child(DRAWER_TABS))
+            val filesDir = application?.filesDir ?: return@withLock
+
+            val file = FileWrapper(filesDir.child(DRAWER_TABS))
             val serializableList = ArrayList(viewModel.drawerTabs.value)
             file.writeObject(serializableList)
 
-            val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
+            val currentTabFile = FileWrapper(filesDir.child(CURRENT_DRAWER_TAB))
             val currentTab = viewModel.currentDrawerTab
             if (currentTab != null) {
                 currentTabFile.writeObject(currentTab)
@@ -36,17 +42,21 @@ object DrawerPersistence {
                 currentTabFile.delete()
             }
 
-            val expandedNodeFile = FileWrapper(application!!.filesDir.child(EXPANDED_FILE_TREE_NODES))
+            val expandedNodeFile = FileWrapper(filesDir.child(EXPANDED_FILE_TREE_NODES))
             fileTreeViewModel.get()?.getExpandedNodes()?.let { expandedNodeFile.writeObject(it) }
         }
     }
 
     suspend fun restoreState(viewModel: DrawerViewModel) {
+        if (stateRestored) return
+
         saveMutex.withLock {
+            val filesDir = application?.filesDir ?: return@withLock
+
             runCatching {
                 val loadedTabs =
                     withContext(Dispatchers.IO) {
-                        val file = FileWrapper(application!!.filesDir.child(DRAWER_TABS))
+                        val file = FileWrapper(filesDir.child(DRAWER_TABS))
 
                         if (file.exists() && file.canRead()) {
                             file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
@@ -58,12 +68,12 @@ object DrawerPersistence {
                 // Update the existing state list on Main thread
                 withContext(Dispatchers.Main) { viewModel.forcePushDrawerTabs(loadedTabs) }
 
-                val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
+                val currentTabFile = FileWrapper(filesDir.child(CURRENT_DRAWER_TAB))
                 if (currentTabFile.exists() && currentTabFile.canRead()) {
                     viewModel.selectDrawerTab(currentTabFile.readObject() as DrawerTab)
                 }
 
-                val expandedNodeFile = FileWrapper(application!!.filesDir.child(EXPANDED_FILE_TREE_NODES))
+                val expandedNodeFile = FileWrapper(filesDir.child(EXPANDED_FILE_TREE_NODES))
                 if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
                     fileTreeViewModel
                         .get()

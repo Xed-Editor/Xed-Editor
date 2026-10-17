@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.MainViewModel
 import com.rk.events.EditorTabEvent
 import com.rk.events.Events
 import com.rk.events.TabEvent
@@ -14,7 +15,7 @@ import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.launch
 
-class TabManager {
+class TabManager(private val viewModel: MainViewModel) {
     private val _tabs = mutableStateListOf<Tab>()
     val tabs: List<Tab>
         get() = _tabs.toList()
@@ -36,7 +37,7 @@ class TabManager {
 
         val duplicateIndex =
             if (checkDuplicate) {
-                _tabs.indexOfFirst { it == tab }
+                viewModel.visibleTabs.indexOfFirst { it == tab }
             } else -1
 
         if (duplicateIndex != -1) {

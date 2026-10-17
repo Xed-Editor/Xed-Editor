@@ -4,7 +4,7 @@ file="$1"
 source "$LOCAL/bin/utils"
 
 if [ ! -f "$file" ]; then
-  error "Error: File not found -> $file"
+  error "File not found -> $file"
   exit 1
 fi
 
@@ -72,7 +72,7 @@ install_kotlin() {
         | cut -d '"' -f 4)
 
     if [ -z "$url" ]; then
-        error "Error: Could not find Kotlin compiler download URL."
+        error "Could not find Kotlin compiler download URL."
         return 1
     fi
 

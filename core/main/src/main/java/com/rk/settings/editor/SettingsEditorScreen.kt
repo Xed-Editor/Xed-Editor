@@ -1,5 +1,7 @@
 package com.rk.settings.editor
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +23,7 @@ import com.rk.components.SmoothValueSlider
 import com.rk.components.SteppedValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.editor.EditorInputBehavior
 import com.rk.editor.KeywordManager
 import com.rk.filetree.SortMode
 import com.rk.resources.strings
@@ -202,11 +205,21 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { Settings.render_whitespace = it },
             )
 
-            EditorSettingsItem(
-                label = stringResource(id = strings.show_suggestions),
-                description = stringResource(id = strings.show_suggestions),
-                default = Settings.show_suggestions,
-                sideEffect = { Settings.show_suggestions = it },
+            PreferenceList(
+                label = stringResource(id = strings.input_behavior),
+                description = stringResource(id = EditorInputBehavior.fromValue(Settings.input_behavior).stringRes),
+                message = {
+                    Text(
+                        text = stringResource(id = strings.input_behavior_msg),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+                items = EditorInputBehavior.entries.map { it.value to stringResource(it.stringRes) },
+                selectedItem = Settings.input_behavior,
+                onItemSelected = {
+                    Settings.input_behavior = it
+                    scope.launch { refreshEditorSettings() }
+                },
             )
 
             EditorSettingsItem(

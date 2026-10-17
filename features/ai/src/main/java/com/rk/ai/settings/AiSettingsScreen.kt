@@ -2,25 +2,16 @@ package com.rk.ai.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -41,16 +32,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.rk.ai.api.AiExtensions
-import com.rk.ai.provider.AiModel
 import com.rk.ai.provider.AiModelCatalog
 import com.rk.ai.provider.AiProvider
 import com.rk.ai.provider.AiProviderRuntime
 import com.rk.ai.tools.AiTool
+import com.rk.components.NextScreenCard
+import com.rk.components.PreferenceList
 import com.rk.components.SettingsItem
-import com.rk.components.XedDialog
+import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -60,7 +51,6 @@ import com.rk.resources.strings
 @Composable
 fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {}) {
     var editing by remember { mutableStateOf<EditTarget?>(null) }
-    var pickingModel by remember { mutableStateOf(false) }
     var providerMenuOpen by remember { mutableStateOf(false) }
 
     val providers by AiExtensions.providers.collectAsState()
@@ -103,8 +93,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
                                 }
                             },
                             modifier =
-                                Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                    .clip(RoundedCornerShape(12.dp)),
+                                Modifier.padding(horizontal = 6.dp, vertical = 2.dp).clip(RoundedCornerShape(12.dp)),
                             onClick = {
                                 selectProvider(candidate)
                                 providerMenuOpen = false
@@ -121,17 +110,20 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
                     label = stringResource(strings.ai_api_key),
                     description = if (apiKey.isBlank()) stringResource(strings.ai_not_set) else maskKey(apiKey),
                     showSwitch = false,
-                    endWidget = { NavigateChevron() },
                     sideEffect = { editing = EditTarget.ApiKey },
                 )
             }
 
-            SettingsItem(
+            val modelItems = models.map { it.id to it.displayName }
+            PreferenceList(
                 label = stringResource(strings.ai_model),
                 description = AiSettings.modelId,
-                showSwitch = false,
-                endWidget = { NavigateChevron() },
-                sideEffect = { pickingModel = true },
+                items = modelItems,
+                selectedItem = AiSettings.modelId,
+                showIds = true,
+                onItemSelected = { modelId -> AiSettings.modelId = modelId },
+                customInputLabel = stringResource(strings.ai_custom_model_id),
+                customInputValue = if (models.any { it.id == AiSettings.modelId }) "" else AiSettings.modelId,
             )
         }
 
@@ -141,14 +133,13 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
                 description = AiSettings.systemPrompt,
                 singleLineDescription = true,
                 showSwitch = false,
-                endWidget = { NavigateChevron() },
                 sideEffect = { editing = EditTarget.SystemPrompt },
             )
         }
 
         PreferenceGroup(heading = stringResource(strings.ai_memory)) {
             val count = AiMemory.entries.size
-            SettingsItem(
+            NextScreenCard(
                 label = stringResource(strings.ai_long_term_memory),
                 description =
                     when (count) {
@@ -156,9 +147,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
                         1 -> stringResource(strings.ai_memory_one_note)
                         else -> stringResource(strings.ai_memory_notes, count)
                     },
-                showSwitch = false,
-                endWidget = { NavigateChevron() },
-                sideEffect = { onOpenMemory() },
+                onClick = { onOpenMemory() },
             )
         }
 
@@ -178,39 +167,60 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
     }
 
     when (editing) {
-        EditTarget.ApiKey ->
-            EditTextDialog(
-                title = stringResource(strings.ai_api_key),
-                description = stringResource(strings.ai_api_key_hint),
-                initial = apiKey,
-                password = true,
-                onDismiss = { editing = null },
-                onSave = { key -> provider?.let { AiSettings.setApiKey(it.id, key) } },
+        EditTarget.ApiKey -> {
+            var keyText by remember { mutableStateOf(apiKey) }
+            AlertDialog(
+                onDismissRequest = { editing = null },
+                title = { Text(stringResource(strings.ai_api_key)) },
+                text = {
+                    Column {
+                        OutlinedTextField(
+                            value = keyText,
+                            onValueChange = { keyText = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            visualTransformation = PasswordVisualTransformation(),
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            provider?.let { AiSettings.setApiKey(it.id, keyText.trim()) }
+                            editing = null
+                        }
+                    ) {
+                        Text(stringResource(strings.apply))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { editing = null }) {
+                        Text(stringResource(strings.cancel))
+                    }
+                },
             )
+        }
 
-        EditTarget.SystemPrompt ->
-            EditTextDialog(
+        EditTarget.SystemPrompt -> {
+            var promptText by remember { mutableStateOf(AiSettings.systemPrompt) }
+            SingleInputDialog(
                 title = stringResource(strings.ai_system_prompt),
-                description = stringResource(strings.ai_system_prompt_hint),
-                initial = AiSettings.systemPrompt,
-                singleLine = false,
+                inputLabel = stringResource(strings.ai_system_prompt),
+                inputValue = promptText,
+                onInputValueChange = { promptText = it },
+                onConfirm = { AiSettings.systemPrompt = promptText.trim() },
                 onDismiss = { editing = null },
-                onSave = { AiSettings.systemPrompt = it },
+                singleLineMode = false,
+                message = {
+                    Text(
+                        text = stringResource(strings.ai_system_prompt_hint),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
             )
+        }
 
         null -> Unit
-    }
-
-    if (pickingModel) {
-        ModelPickerDialog(
-            models = models,
-            current = AiSettings.modelId,
-            onDismiss = { pickingModel = false },
-            onPick = { modelId ->
-                AiSettings.modelId = modelId
-                pickingModel = false
-            },
-        )
     }
 }
 
@@ -260,128 +270,6 @@ private fun ToolRow(tool: AiTool) {
         state = remember(tool.name) { mutableStateOf(AiSettings.isToolEnabled(tool.name)) },
         sideEffect = { AiSettings.setToolEnabled(tool.name, it) },
     )
-}
-
-@Composable
-private fun ModelPickerDialog(
-    models: List<AiModel>,
-    current: String,
-    onDismiss: () -> Unit,
-    onPick: (String) -> Unit,
-) {
-    var custom by remember { mutableStateOf("") }
-
-    XedDialog(onDismissRequest = onDismiss) {
-        Column(Modifier.fillMaxWidth().padding(20.dp).verticalScroll(rememberScrollState())) {
-            Text(text = stringResource(strings.ai_model), style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(strings.ai_model_picker_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            Spacer(Modifier.height(12.dp))
-            models.forEach { model ->
-                SettingsItem(
-                    label = model.displayName,
-                    description = model.id,
-                    singleLineDescription = true,
-                    showSwitch = false,
-                    startWidget = {
-                        RadioButton(selected = model.id == current, onClick = { onPick(model.id) })
-                    },
-                    sideEffect = { onPick(model.id) },
-                )
-            }
-
-            Spacer(Modifier.height(12.dp))
-            OutlinedTextField(
-                value = custom,
-                onValueChange = { custom = it },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                label = { Text(stringResource(strings.ai_custom_model_id)) },
-            )
-
-            Spacer(Modifier.height(18.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) }
-                Spacer(Modifier.width(8.dp))
-                Button(onClick = { onPick(custom.trim()) }, enabled = custom.isNotBlank()) {
-                    Text(stringResource(strings.ai_use))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun NavigateChevron() {
-    Icon(
-        modifier = Modifier.padding(16.dp),
-        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-        contentDescription = null,
-    )
-}
-
-@Composable
-private fun EditTextDialog(
-    title: String,
-    initial: String,
-    onDismiss: () -> Unit,
-    onSave: (String) -> Unit,
-    description: String? = null,
-    singleLine: Boolean = true,
-    password: Boolean = false,
-) {
-    var text by remember { mutableStateOf(initial) }
-
-    XedDialog(onDismissRequest = onDismiss) {
-        Column(Modifier.fillMaxWidth().padding(20.dp)) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium)
-            description?.let {
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            Spacer(Modifier.height(16.dp))
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = singleLine,
-                minLines = if (singleLine) 1 else 4,
-                visualTransformation =
-                    if (password) {
-                        PasswordVisualTransformation()
-                    } else {
-                        VisualTransformation.None
-                    },
-            )
-
-            Spacer(Modifier.height(18.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                TextButton(onClick = onDismiss) { Text("Cancel") }
-                Spacer(Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        onSave(text.trim())
-                        onDismiss()
-                    }
-                ) {
-                    Text("Save")
-                }
-            }
-        }
-    }
 }
 
 private enum class EditTarget {

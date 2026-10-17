@@ -203,7 +203,7 @@ class Editor : CodeEditor {
         val cursorAnimation = Settings.cursor_animation
         val textSize = Settings.editor_text_size
         val wordWrap = Settings.word_wrap
-        val keyboardSuggestion = Settings.show_suggestions
+        val inputBehavior = EditorInputBehavior.fromValue(Settings.input_behavior)
         val lineSpacing = Settings.line_spacing
         val renderWhitespace = Settings.render_whitespace
         val hideSoftKbd = Settings.hide_soft_keyboard_if_hardware
@@ -229,7 +229,7 @@ class Editor : CodeEditor {
         setWordwrap(wordWrap, true, true)
         lineSpacingMultiplier = lineSpacing
         isDisableSoftKbdIfHardKbdAvailable = hideSoftKbd
-        showSuggestions(keyboardSuggestion)
+        setInputBehavior(inputBehavior)
 
         LineEnding.fromValue(lineEndingSetting)?.let { lineEnding = it }
         lineSeparator = lineEnding.type
@@ -323,12 +323,18 @@ class Editor : CodeEditor {
             .onFailure { errorDialog(throwable = it) }
     }
 
-    fun showSuggestions(yes: Boolean) {
+    fun setInputBehavior(inputBehavior: EditorInputBehavior) {
         inputType =
-            if (yes) {
-                InputType.TYPE_TEXT_VARIATION_NORMAL
-            } else {
-                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            when (inputBehavior) {
+                EditorInputBehavior.NO_SUGGESTIONS -> {
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                }
+                EditorInputBehavior.SUGGESTIONS -> {
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+                }
+                EditorInputBehavior.SUGGESTIONS_AUTOCORRECT -> {
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL
+                }
             }
     }
 

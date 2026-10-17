@@ -1,8 +1,6 @@
 package com.rk.ai.command
 
 import com.rk.activities.main.MainActivity
-import com.rk.ai.icons.AiBrain
-import com.rk.ai.icons.SparklesBig
 import com.rk.ai.icons.SparklesTiny
 import com.rk.ai.tab.AiTab
 import com.rk.commands.ActionContext
@@ -11,7 +9,7 @@ import com.rk.icons.Icon
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-class OpenAiChatCommand : GlobalCommand() {
+class AIChatCommand : GlobalCommand() {
     override val id: String = "global.ai_chat"
 
     override fun getLabel(): String = strings.ai_chat_command_label.getString()
@@ -21,4 +19,8 @@ class OpenAiChatCommand : GlobalCommand() {
     }
 
     override fun getIcon(): Icon = Icon.VectorIcon(SparklesTiny)
+
+    override fun isSupported(): Boolean {
+        return MainActivity.instance?.viewModel?.currentVisibleTab !is AiTab
+    }
 }
