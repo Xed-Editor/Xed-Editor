@@ -44,8 +44,7 @@ object GlobalDialogs {
 }
 
 @Composable
-fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
-    val activity = LocalActivity.current
+fun GlobalToolbarActions(viewModel: MainViewModel) {
     val commands by ToolbarConfiguration.globalCommands.collectAsStateWithLifecycle()
 
     if (viewModel.visibleTabs.isEmpty() || viewModel.currentVisibleTab?.showGlobalActions == true) {

@@ -74,7 +74,7 @@ fun XedTopBar(
                     }
                 }
 
-                GlobalToolbarActions(viewModel, drawerViewModel)
+                GlobalToolbarActions(viewModel)
             },
         )
     }

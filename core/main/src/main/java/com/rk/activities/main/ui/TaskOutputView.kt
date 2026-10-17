@@ -1,6 +1,5 @@
 package com.rk.activities.main.ui
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -9,18 +8,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -31,11 +28,12 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +46,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,8 +64,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -77,63 +76,6 @@ import com.rk.extension.api.TaskRegistry
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import kotlinx.coroutines.launch
-
-class FollowTailState internal constructor(private val scrollState: ScrollState) {
-    /** When true, stick to the bottom as new output arrives */
-    var following by mutableStateOf(true)
-        internal set
-
-    val showJumpButton: Boolean
-        get() = !following && scrollState.maxValue > 0
-
-    /** Number of our own auto-scroll animations currently running */
-    private var autoScrollCount = 0
-
-    internal val isAutoScrolling: Boolean
-        get() = autoScrollCount > 0
-
-    internal suspend fun animateToBottom() {
-        autoScrollCount++
-        try {
-            scrollState.animateScrollTo(scrollState.maxValue)
-        } finally {
-            autoScrollCount--
-        }
-    }
-
-    suspend fun jumpToBottom() {
-        following = true
-        animateToBottom()
-    }
-}
-
-@Composable
-fun rememberFollowTail(
-    scrollState: ScrollState,
-    key: Any?,
-    threshold: Dp = 24.dp,
-): FollowTailState {
-    val state = remember(scrollState, key) { FollowTailState(scrollState) }
-    val thresholdPx = with(LocalDensity.current) { threshold.toPx() }
-
-    LaunchedEffect(state, thresholdPx) {
-        snapshotFlow { scrollState.value }
-            .collect { value ->
-                if (!state.isAutoScrolling) {
-                    state.following = scrollState.maxValue - value <= thresholdPx
-                }
-            }
-    }
-
-    LaunchedEffect(state) {
-        snapshotFlow { scrollState.maxValue }
-            .collect {
-                if (state.following) state.animateToBottom()
-            }
-    }
-
-    return state
-}
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -152,9 +94,29 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
             label = "taskOutputHeight",
         )
 
-    val scrollState = rememberScrollState()
+    val props =
+        if (isSystemInDarkTheme()) {
+            themeManager.currentTheme.darkTerminalColors
+        } else {
+            themeManager.currentTheme.lightTerminalColors
+        }
+
+    val lines = activeTask.output
+    val listState = rememberLazyListState()
     val hScrollState = rememberScrollState()
-    val tail = rememberFollowTail(scrollState, key = activeTask.id)
+
+    var follow by remember { mutableStateOf(true) }
+
+    // Only the user's own scrolling changes follow mode (at bottom = follow, scrolled up = stop)
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.isScrollInProgress to listState.canScrollForward }
+            .collect { (scrolling, canForward) -> if (scrolling) follow = !canForward }
+    }
+
+    // Stick to the bottom while new lines arrive
+    LaunchedEffect(lines.size) {
+        if (follow && lines.isNotEmpty()) listState.scrollToItem(lines.lastIndex)
+    }
 
     val floating = !imeVisible
     val corner = if (floating) 12.dp else 0.dp
@@ -238,40 +200,46 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
             Column(modifier = Modifier.fillMaxWidth().height(contentHeight)) {
                 if (contentHeight > 0.dp) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        SelectionContainer(modifier = Modifier.fillMaxSize()) {
-                            val props =
-                                if (isSystemInDarkTheme()) {
-                                    themeManager.currentTheme.darkTerminalColors
-                                } else {
-                                    themeManager.currentTheme.lightTerminalColors
-                                }
-
-                            val output =
-                                remember(props, activeTask.output.size) {
-                                    activeTask.buildOutput(props)
-                                }
-
-                            Text(
-                                text = output,
-                                modifier =
-                                    Modifier.fillMaxSize()
-                                        .verticalScroll(scrollState)
-                                        .horizontalScroll(hScrollState)
-                                        .padding(8.dp),
-                                style =
-                                    TextStyle(
-                                        fontFamily = FontFamily.Monospace,
-                                        fontSize = 12.sp,
-                                        lineHeight = 16.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    ),
-                                softWrap = false,
+                        val textStyle =
+                            TextStyle(
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+
+                        val textMeasurer = rememberTextMeasurer()
+                        val charWidthPx =
+                            remember(textMeasurer) {
+                                textMeasurer.measure("0".repeat(20), textStyle).size.width / 20f
+                            }
+
+                        val maxColumns by remember(lines) { derivedStateOf { lines.maxOfOrNull { it.columns } ?: 0 } }
+                        val contentWidth = with(LocalDensity.current) { ((maxColumns + 1) * charWidthPx).toDp() }
+
+                        SelectionContainer(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(
+                                state = listState,
+                                modifier = Modifier.fillMaxSize().horizontalScroll(hScrollState),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                contentPadding = PaddingValues(8.dp),
+                            ) {
+                                items(count = lines.size) { index ->
+                                    val line = lines.getOrNull(index) ?: return@items
+                                    Text(
+                                        text = line.toAnnotatedString(props),
+                                        modifier = Modifier.width(contentWidth),
+                                        minLines = 1, // keeps empty lines at full height
+                                        softWrap = false,
+                                        style = textStyle,
+                                    )
+                                }
+                            }
                         }
 
                         Column(modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp)) {
                             AnimatedVisibility(
-                                visible = tail.showJumpButton,
+                                visible = !follow,
                                 enter = fadeIn() + scaleIn(initialScale = 0.6f),
                                 exit = fadeOut() + scaleOut(targetScale = 0.6f),
                             ) {
@@ -279,7 +247,10 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
 
                                 SmallFloatingActionButton(
                                     onClick = {
-                                        coroutineScope.launch { tail.jumpToBottom() }
+                                        coroutineScope.launch {
+                                            follow = true
+                                            listState.scrollToItem(lines.lastIndex)
+                                        }
                                     },
                                     modifier = Modifier.size(36.dp),
                                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -338,8 +309,8 @@ private fun Header(task: Task, expanded: Boolean) {
                 overflow = TextOverflow.Ellipsis,
             )
 
-            AnimatedContent(
-                targetState =
+            Text(
+                text =
                     task.latestLine.ifBlank {
                         if (task.isRunning) {
                             stringResource(strings.running)
@@ -347,19 +318,11 @@ private fun Header(task: Task, expanded: Boolean) {
                             stringResource(strings.finished)
                         }
                     },
-                transitionSpec = {
-                    (slideInVertically { it } + fadeIn()) togetherWith (slideOutVertically { -it } + fadeOut())
-                },
-                label = "latestLine",
-            ) { line ->
-                Text(
-                    text = line,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
 
         if (task.isRunning) {

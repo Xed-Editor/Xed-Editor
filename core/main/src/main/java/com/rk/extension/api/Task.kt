@@ -8,7 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import com.rk.activities.main.ui.TaskOutputState
 import com.rk.utils.parseAnsiToAnnotatedString
 import com.rk.utils.stripAnsi
@@ -32,31 +31,66 @@ abstract class Task {
     abstract fun stop()
 
     abstract fun dismiss()
-
-    /** Builds the output for the given terminal theme. Call this from composition. */
-    fun buildOutput(props: Properties): AnnotatedString = buildAnnotatedString {
-        for (line in output) {
-            when (line) {
-                is OutputLine.Ansi -> append(parseAnsiToAnnotatedString(line.raw, props))
-                is OutputLine.Plain -> append(line.text)
-                is OutputLine.Styled ->
-                    append(AnnotatedString(line.text, spanStyle = line.style, paragraphStyle = line.paragraphStyle))
-            }
-            append("\n")
-        }
-    }
 }
 
 sealed interface OutputLine {
-    data class Ansi(val raw: String) : OutputLine
+    fun toAnnotatedString(props: Properties): AnnotatedString
 
-    data class Plain(val text: String) : OutputLine
+    val columns: Int
 
-    data class Styled(
+    class Ansi(val raw: String) : OutputLine {
+        override val columns by lazy { stripAnsi(raw).length }
+
+        @Volatile private var cachedProps: Properties? = null
+        @Volatile private var cachedAnnotated: AnnotatedString? = null
+
+        override fun toAnnotatedString(props: Properties): AnnotatedString {
+            if (cachedProps === props && cachedAnnotated != null) {
+                return cachedAnnotated!!
+            }
+            val parsed = parseAnsiToAnnotatedString(raw, props)
+            cachedProps = props
+            cachedAnnotated = parsed
+            return parsed
+        }
+
+        override fun equals(other: Any?): Boolean = other is Ansi && other.raw == raw
+
+        override fun hashCode(): Int = raw.hashCode()
+    }
+
+    class Plain(val text: String) : OutputLine {
+        override val columns
+            get() = text.length
+
+        private val annotated by lazy { AnnotatedString(text) }
+
+        override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
+
+        override fun equals(other: Any?): Boolean = other is Plain && other.text == text
+
+        override fun hashCode(): Int = text.hashCode()
+    }
+
+    class Styled(
         val text: String,
         val style: SpanStyle,
         val paragraphStyle: ParagraphStyle?,
-    ) : OutputLine
+    ) : OutputLine {
+        override val columns
+            get() = text.length
+
+        private val annotated by lazy {
+            AnnotatedString(text, spanStyle = style, paragraphStyle = paragraphStyle)
+        }
+
+        override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
+
+        override fun equals(other: Any?): Boolean =
+            other is Styled && other.text == text && other.style == style && other.paragraphStyle == paragraphStyle
+
+        override fun hashCode(): Int = 31 * text.hashCode() + style.hashCode()
+    }
 }
 
 /** Base implementation of a Task. */
@@ -85,24 +119,22 @@ open class BaseTask(
         TaskRegistry.removeTask(this)
     }
 
-    fun updateOutput(line: String) {
-        updateOutput(line, true)
-    }
-
     /** Appends a line of text to the output, parsing ANSI color escape sequences if enabled. */
     fun updateOutput(line: String, parseAnsi: Boolean = true) {
+        if (output.size >= 5500) output.removeRange(0, 500)
         if (parseAnsi) {
-            output += OutputLine.Ansi(line)
+            output.add(OutputLine.Ansi(line))
             latestLine = stripAnsi(line)
         } else {
-            output += OutputLine.Plain(line)
+            output.add(OutputLine.Plain(line))
             latestLine = line
         }
     }
 
     /** Appends a line of text with a custom [SpanStyle] and [ParagraphStyle] to the output. */
     fun updateOutput(line: String, style: SpanStyle, paragraphStyle: ParagraphStyle? = null) {
-        output += OutputLine.Styled(line, style, paragraphStyle)
+        if (output.size >= 5500) output.removeRange(0, 500)
+        output.add(OutputLine.Styled(line, style, paragraphStyle))
         latestLine = line
     }
 
