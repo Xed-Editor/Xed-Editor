@@ -82,9 +82,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         val mainViewModel = MainActivity.instance?.viewModel
         val drawerViewModel = MainActivity.instance?.drawerViewModel
 
-        LaunchedEffect(root) {
-            Events.publish(FileTreeEvent.Opened(root))
-        }
+        LaunchedEffect(root) { Events.publish(FileTreeEvent.Opened(root)) }
 
         LaunchedEffect(enableIndexing) {
             if (enableIndexing) {

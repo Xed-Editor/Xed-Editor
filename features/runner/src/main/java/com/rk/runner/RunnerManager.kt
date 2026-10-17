@@ -24,8 +24,7 @@ object RunnerManager {
 
     val extensionRunners = _extensionRunners.asStateFlow()
 
-    private val _builtinRunners =
-        MutableStateFlow<List<Runner>>(listOf(HtmlRunner, MarkdownRunner, XedProjectRunner))
+    private val _builtinRunners = MutableStateFlow<List<Runner>>(listOf(HtmlRunner, MarkdownRunner, XedProjectRunner))
     val builtinRunners = _builtinRunners.asStateFlow()
 
     @XedExtensionPoint

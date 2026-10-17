@@ -10,17 +10,14 @@ import kotlinx.serialization.json.contentOrNull
 /** What a tool does to the world; the permission gate ([com.rk.ai.chat.gateFor]) keys off this. */
 enum class AiToolKind {
     Read,
-
     Write,
-
     Shell,
-
     Network,
 }
 
 /**
- * A capability offered to the model. Exactly one of [execute] (IO dispatcher) and [handler] (agent
- * dispatcher, may touch UI state) must be set.
+ * A capability offered to the model. Exactly one of [execute] (IO dispatcher) and [handler] (agent dispatcher, may
+ * touch UI state) must be set.
  *
  * @param targetPath the argument naming the file the call touches, the key for "always allow this file".
  */

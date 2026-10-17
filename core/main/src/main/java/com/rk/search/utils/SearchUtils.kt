@@ -9,11 +9,11 @@ import com.rk.settings.Settings
 import com.rk.utils.hasBinaryChars
 import com.rk.utils.isBinaryExtension
 import com.rk.utils.logError
+import java.io.InputStreamReader
+import java.nio.charset.Charset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.InputStreamReader
-import java.nio.charset.Charset
 
 object SearchUtils {
     private const val MAX_FILE_SIZE_SEARCH = 10_000_000 // 10 MB limit

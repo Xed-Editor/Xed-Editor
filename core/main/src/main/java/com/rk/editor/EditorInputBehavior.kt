@@ -49,9 +49,7 @@ enum class EditorInputBehavior(val value: String, val stringRes: Int) {
             val composingLanguages = setOf("zh", "ja", "ko")
 
             val usesComposition =
-                currentIme.languages().any { language ->
-                    language.substringBefore('-') in composingLanguages
-                }
+                currentIme.languages().any { language -> language.substringBefore('-') in composingLanguages }
 
             return if (usesComposition) {
                 SUGGESTIONS

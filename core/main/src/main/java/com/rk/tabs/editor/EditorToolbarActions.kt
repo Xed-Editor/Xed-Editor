@@ -18,7 +18,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +41,6 @@ import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.strings
 import com.rk.theme.Typography
-import com.rk.utils.x
 import kotlin.math.min
 
 @Composable
@@ -50,9 +48,7 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
-    val allActions by remember {
-        derivedStateOf { ToolbarConfiguration.editorCommands }
-    }
+    val allActions by remember { derivedStateOf { ToolbarConfiguration.editorCommands } }
 
     BoxWithConstraints(modifier = modifier) {
         val itemWidth = 64.dp
@@ -74,9 +70,7 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
         val dropdownActions = visibleActions.drop(actualVisibleCount)
 
         Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-            toolbarActions.forEach { command ->
-                ToolbarAction(command)
-            }
+            toolbarActions.forEach { command -> ToolbarAction(command) }
 
             if (dropdownActions.isNotEmpty()) {
                 Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {

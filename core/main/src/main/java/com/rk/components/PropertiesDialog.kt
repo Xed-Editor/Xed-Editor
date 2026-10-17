@@ -48,12 +48,12 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.formatFileSize
 import com.rk.utils.rememberNumberFormatter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class ContentProgress(val totalSize: Long, val totalItems: Long)
 
@@ -256,9 +256,7 @@ private fun ZipProperties(file: ZipFileObject) {
     if (file.isFile()) {
         InfoRow(stringResource(strings.crc_32), crc.toString(16).uppercase())
     }
-    comment?.let {
-        InfoRow(stringResource(strings.comment), it)
-    }
+    comment?.let { InfoRow(stringResource(strings.comment), it) }
 }
 
 @Composable

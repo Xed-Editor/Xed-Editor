@@ -193,11 +193,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
                         Text(stringResource(strings.apply))
                     }
                 },
-                dismissButton = {
-                    TextButton(onClick = { editing = null }) {
-                        Text(stringResource(strings.cancel))
-                    }
-                },
+                dismissButton = { TextButton(onClick = { editing = null }) { Text(stringResource(strings.cancel)) } },
             )
         }
 

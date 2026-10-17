@@ -240,24 +240,13 @@ object Events {
      */
     @XedExtensionPoint
     inline fun <reified T : Event> subscribe(noinline listener: suspend (T) -> Unit): EventSubscription {
-        val wrapper: suspend (Event) -> Unit = {
-            listener(it as T)
-        }
+        val wrapper: suspend (Event) -> Unit = { listener(it as T) }
 
-        val list =
-            synchronized(lock) {
-                listeners
-                    .getOrPut(T::class) { mutableListOf() }
-                    .also {
-                        it += wrapper
-                    }
-            }
+        val list = synchronized(lock) { listeners.getOrPut(T::class) { mutableListOf() }.also { it += wrapper } }
 
         return object : EventSubscription {
             override fun unsubscribe() {
-                synchronized(lock) {
-                    list -= wrapper
-                }
+                synchronized(lock) { list -= wrapper }
             }
         }
     }
@@ -268,10 +257,7 @@ object Events {
      * @param event The event to trigger.
      */
     suspend fun publish(event: Event) {
-        val snapshot =
-            synchronized(lock) {
-                listeners.filterKeys { it.isInstance(event) }.values.flatten()
-            }
+        val snapshot = synchronized(lock) { listeners.filterKeys { it.isInstance(event) }.values.flatten() }
 
         snapshot.forEach { listener ->
             try {

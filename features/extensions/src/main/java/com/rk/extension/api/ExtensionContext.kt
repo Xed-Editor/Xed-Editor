@@ -12,8 +12,8 @@ import com.rk.extension.api.logError
 import com.rk.extension.api.logInfo
 import com.rk.extension.api.logWarn
 import com.rk.file.createDirIfNot
-import kotlinx.coroutines.CoroutineScope
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
 
 @Keep
 class ExtensionContext(val extension: LocalExtension, val appContext: Context, val scope: CoroutineScope) {
@@ -23,9 +23,7 @@ class ExtensionContext(val extension: LocalExtension, val appContext: Context, v
     val currentActivity
         get() = ActivityProvider.currentActivity
 
-    val appResources by lazy {
-        AppResources(appContext, appContext.resources, appContext.packageName)
-    }
+    val appResources by lazy { AppResources(appContext, appContext.resources, appContext.packageName) }
 
     val extensionFiles
         get() = File(extension.installPath).resolve("files").createDirIfNot()

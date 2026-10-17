@@ -107,9 +107,7 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
 
     @Composable
     override fun Configuration() {
-        LaunchedEffect(Unit) {
-            configStates = ConfigStates()
-        }
+        LaunchedEffect(Unit) { configStates = ConfigStates() }
 
         OutlinedTextField(
             value = configStates.id,
@@ -386,9 +384,7 @@ object ExtensionTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/
                     dir = parent
                 }
             }
-                .onFailure {
-                    logError(it)
-                }
+                .onFailure { logError(it) }
         }
     }
 }

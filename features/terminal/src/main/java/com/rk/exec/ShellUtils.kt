@@ -32,9 +32,9 @@ object ShellUtils {
     /**
      * Drains a started [process]'s streams and waits for it to exit.
      *
-     * When the calling coroutine is cancelled — the chat's Stop button — the process is terminated
-     * instead of being left running in the background. For [runUbuntu] that process is proot, which
-     * runs with `--kill-on-exit`, so terminating it also tears down the sandboxed command.
+     * When the calling coroutine is cancelled — the chat's Stop button — the process is terminated instead of being
+     * left running in the background. For [runUbuntu] that process is proot, which runs with `--kill-on-exit`, so
+     * terminating it also tears down the sandboxed command.
      */
     private suspend fun await(process: Process, timeoutSeconds: Long?): Result {
         val output = StringBuilder()
@@ -52,21 +52,20 @@ object ShellUtils {
 
         var finished = false
         try {
-            finished =
-                suspendCancellableCoroutine { continuation ->
-                    // Cancelling unblocks waitFor below by killing the process, so the coroutine
-                    // does not sit here until the command finishes on its own.
-                    continuation.invokeOnCancellation { process.terminate() }
+            finished = suspendCancellableCoroutine { continuation ->
+                // Cancelling unblocks waitFor below by killing the process, so the coroutine
+                // does not sit here until the command finishes on its own.
+                continuation.invokeOnCancellation { process.terminate() }
 
-                    val exited =
-                        if (timeoutSeconds != null) {
-                            process.waitFor(timeoutSeconds, TimeUnit.SECONDS)
-                        } else {
-                            process.waitFor()
-                            true
-                        }
-                    continuation.resumeWith(kotlin.Result.success(exited))
-                }
+                val exited =
+                    if (timeoutSeconds != null) {
+                        process.waitFor(timeoutSeconds, TimeUnit.SECONDS)
+                    } else {
+                        process.waitFor()
+                        true
+                    }
+                continuation.resumeWith(kotlin.Result.success(exited))
+            }
         } finally {
             if (!finished) {
                 process.destroyForcibly()

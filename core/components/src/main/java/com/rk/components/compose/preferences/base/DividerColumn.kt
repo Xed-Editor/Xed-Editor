@@ -54,11 +54,10 @@ fun DividerColumn(
     ) { measurables, constraints ->
         // Don't constrain child views further, measure them with given constraints
         // List of measured children
-        val placeables =
-            measurables.map { measurable ->
-                // Measure each children
-                measurable.measure(constraints)
-            }
+        val placeables = measurables.map { measurable ->
+            // Measure each children
+            measurable.measure(constraints)
+        }
 
         val width = constraints.maxWidth
         val childCount = measurables.size

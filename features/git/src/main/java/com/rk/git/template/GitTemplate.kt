@@ -5,9 +5,9 @@ import com.rk.file.FileObject
 import com.rk.project.ProjectTemplate
 import com.rk.resources.getString
 import com.rk.resources.strings
+import java.io.File
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ProgressMonitor
-import java.io.File
 
 abstract class GitTemplate(protected val repoUrl: String) : ProjectTemplate {
 

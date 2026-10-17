@@ -64,8 +64,8 @@ object StateTools {
                     )
                 },
         ) { args ->
-            val index = args.argInt("index")
-                ?: throw IllegalArgumentException("Missing or non-numeric argument 'index'")
+            val index =
+                args.argInt("index") ?: throw IllegalArgumentException("Missing or non-numeric argument 'index'")
             if (AiMemory.removeAt(index)) {
                 "Removed memory $index. ${AiMemory.entries.size} note(s) left."
             } else {

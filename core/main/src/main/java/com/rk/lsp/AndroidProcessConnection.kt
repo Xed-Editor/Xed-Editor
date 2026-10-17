@@ -4,13 +4,13 @@ import android.util.Log
 import com.rk.file.localBinDir
 import com.rk.file.localLibDir
 import com.rk.settings.Settings
+import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.InputStream
-import java.io.OutputStream
 
 class AndroidProcessConnection(private val cmd: Array<String>, instance: LspServerInstance) :
     BaseLspConnectionProvider(instance) {

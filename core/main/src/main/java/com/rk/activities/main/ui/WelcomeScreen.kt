@@ -103,9 +103,7 @@ fun WelcomeScreen(drawerViewModel: DrawerViewModel) {
 @Composable
 private fun WelcomeActions(commands: List<Command>) {
     Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-        commands.forEach { command ->
-            WelcomeActionButton(command = command, modifier = Modifier.fillMaxWidth())
-        }
+        commands.forEach { command -> WelcomeActionButton(command = command, modifier = Modifier.fillMaxWidth()) }
     }
 }
 

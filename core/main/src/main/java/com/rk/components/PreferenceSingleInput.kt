@@ -42,9 +42,7 @@ fun PreferenceSingleInput(
                 currentValue = it
                 error = validate(it)
             },
-            onConfirm = {
-                onConfirm(currentValue)
-            },
+            onConfirm = { onConfirm(currentValue) },
             onFinish = {
                 currentValue = value
                 error = null

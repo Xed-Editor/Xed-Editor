@@ -11,8 +11,7 @@ import kotlinx.serialization.json.contentOrNull
 enum class TodoStatus {
     Pending,
     InProgress,
-    Completed,
-    ;
+    Completed;
 
     val label: String
         get() =
@@ -25,8 +24,13 @@ enum class TodoStatus {
     companion object {
         fun from(value: String?): TodoStatus =
             when (value?.trim()?.lowercase()?.replace('-', '_')) {
-                "in_progress", "inprogress", "doing", "active" -> InProgress
-                "completed", "complete", "done" -> Completed
+                "in_progress",
+                "inprogress",
+                "doing",
+                "active" -> InProgress
+                "completed",
+                "complete",
+                "done" -> Completed
                 else -> Pending
             }
     }

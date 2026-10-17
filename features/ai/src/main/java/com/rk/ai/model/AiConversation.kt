@@ -13,7 +13,6 @@ enum class AiChatRole {
 
 enum class ToolCallStatus {
     AwaitingApproval,
-
     AwaitingInput,
     Running,
     Success,
@@ -63,7 +62,5 @@ sealed interface AiTurn {
 /** Reads the `options` array of an `ask_user` call, tolerating anything malformed. */
 internal fun parseOptions(element: JsonElement?): List<String> {
     val array = element as? JsonArray ?: return emptyList()
-    return array.mapNotNull { item ->
-        (item as? JsonPrimitive)?.contentOrNull?.trim()?.takeIf { it.isNotEmpty() }
-    }
+    return array.mapNotNull { item -> (item as? JsonPrimitive)?.contentOrNull?.trim()?.takeIf { it.isNotEmpty() } }
 }

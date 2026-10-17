@@ -60,6 +60,11 @@ import com.rk.utils.errorDialog
 import com.rk.utils.hasBinaryChars
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
+import java.nio.charset.Charset
+import java.nio.file.Paths
+import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -80,11 +85,6 @@ import org.ec4j.core.ResourcePath
 import org.ec4j.core.ResourceProperties
 import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.PropertyType
-import java.nio.charset.Charset
-import java.nio.file.Paths
-import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(DelicateCoroutinesApi::class)
 open class EditorTab(
@@ -129,9 +129,7 @@ open class EditorTab(
     val editorState by mutableStateOf(CodeEditorState(initialContent))
 
     override fun onTabAdded() {
-        scope.launch(Dispatchers.Main) {
-            restoreDocumentState()
-        }
+        scope.launch(Dispatchers.Main) { restoreDocumentState() }
     }
 
     override fun onTabRemoved() {
@@ -190,9 +188,7 @@ open class EditorTab(
                 val titleAlreadyExists = viewModel.tabs.any { it.title == title && it != this@EditorTab }
 
                 if (titleAlreadyExists && parent != null) {
-                    withContext(Dispatchers.Main) {
-                        title = "${parent.getName()}/$title"
-                    }
+                    withContext(Dispatchers.Main) { title = "${parent.getName()}/$title" }
                 }
             }
 
@@ -418,9 +414,7 @@ open class EditorTab(
 
             registerTask(FORMAT_DOCUMENT_TASK_ID)
             editor.formatCodeAsync()
-            withTimeoutOrNull(10.seconds) {
-                deferred.await()
-            }
+            withTimeoutOrNull(10.seconds) { deferred.await() }
             unregisterTask(FORMAT_DOCUMENT_TASK_ID)
         }
 

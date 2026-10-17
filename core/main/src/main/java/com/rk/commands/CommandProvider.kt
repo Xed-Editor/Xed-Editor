@@ -152,10 +152,7 @@ object CommandProvider {
         KeybindingsManager.invalidate()
     }
 
-    private val disposer =
-        Disposer<Command> {
-            unregisterCommand(it)
-        }
+    private val disposer = Disposer<Command> { unregisterCommand(it) }
 
     @XedExtensionPoint
     fun registerCommand(command: Command, dm: DisposableManager) {

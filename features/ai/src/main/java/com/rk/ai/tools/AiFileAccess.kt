@@ -8,13 +8,9 @@ import com.rk.file.ZipFileObject
 
 enum class AiFileKind {
     Local,
-
     Document,
-
     Remote,
-
     Archive,
-
     Unknown,
 }
 

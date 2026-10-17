@@ -3,13 +3,13 @@ package com.rk.lsp
 import android.util.Log
 import com.rk.SandboxedProcessRegistry
 import com.rk.settings.Settings
+import java.io.InputStream
+import java.io.OutputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.io.InputStream
-import java.io.OutputStream
 
 class ProcessConnection(private val cmd: Array<String>, instance: LspServerInstance) :
     BaseLspConnectionProvider(instance) {

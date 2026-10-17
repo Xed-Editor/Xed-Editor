@@ -43,9 +43,7 @@ fun ExtensionDialogRenderer(dialogManager: ExtensionDialogManager) {
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { dialogManager.onDismiss() }) {
-                        Text(stringResource(strings.cancel))
-                    }
+                    TextButton(onClick = { dialogManager.onDismiss() }) { Text(stringResource(strings.cancel)) }
                 },
             )
         }

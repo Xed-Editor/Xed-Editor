@@ -22,9 +22,7 @@ class BrowseProjectCommand : GlobalCommand() {
     override fun getIcon(): Icon = Icon.VectorIcon(Icons.Rounded.Menu)
 
     override fun execute(context: ActionContext) {
-        DefaultScope.launch(AndroidUiDispatcher.Main) {
-            drawerStateRef.get()?.open()
-        }
+        DefaultScope.launch(AndroidUiDispatcher.Main) { drawerStateRef.get()?.open() }
     }
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_B, ctrl = true)

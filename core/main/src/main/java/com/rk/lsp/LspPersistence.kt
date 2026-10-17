@@ -6,9 +6,9 @@ import com.rk.lsp.servers.ExternalProcessServer
 import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.settings.Preference
 import com.rk.utils.application
+import kotlin.random.Random
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlin.random.Random
 
 @Serializable
 data class SavedLspConfig(

@@ -38,8 +38,8 @@ import com.rk.theme.GitColorScheme
 import com.rk.utils.isSystemInDarkTheme
 import com.rk.utils.openDocs
 import io.github.rosemoe.sora.event.ContentChangeEvent
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.launch
 
 const val DEFAULT_TERMINAL_EXTRA_KEYS =
     ("[" +
@@ -112,11 +112,7 @@ fun TerminalExtraKeys() {
             EditorNotice(
                 text = stringResource(strings.see_termux_extra_keys),
                 actionButton = {
-                    IconButton(
-                        onClick = {
-                            context.openDocs("terminal/#virtual-keys-extra-keys")
-                        }
-                    ) {
+                    IconButton(onClick = { context.openDocs("terminal/#virtual-keys-extra-keys") }) {
                         Icon(
                             painter = painterResource(drawables.open_in_new),
                             contentDescription = stringResource(strings.open),

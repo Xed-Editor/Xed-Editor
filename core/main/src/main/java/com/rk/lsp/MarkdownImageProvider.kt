@@ -40,9 +40,8 @@ class MarkdownImageProvider : SimpleMarkdownRenderer.ImageProvider {
 /**
  * Decodes an inline `data:` URI into a [Bitmap].
  *
- * This is shared by the sora-editor markdown renderer (used for LSP hover/signature documentation, which
- * expects a [Drawable]) and by the Compose markdown renderer used in the AI chat (which expects a Compose
- * `Painter`).
+ * This is shared by the sora-editor markdown renderer (used for LSP hover/signature documentation, which expects a
+ * [Drawable]) and by the Compose markdown renderer used in the AI chat (which expects a Compose `Painter`).
  *
  * Supports base64 encoded payloads:
  * - **SVG images:** parsed using AndroidSVG, scaled so the result stays within a visible size range.

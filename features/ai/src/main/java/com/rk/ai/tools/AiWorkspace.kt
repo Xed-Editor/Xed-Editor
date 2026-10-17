@@ -11,7 +11,9 @@ import java.io.IOException
 object AiWorkspace {
     fun root(): FileObject {
         val activity = MainActivity.instance
-        activity?.viewModel?.currentProjectRoot?.let { return it }
+        activity?.viewModel?.currentProjectRoot?.let {
+            return it
+        }
         val dir = activity?.getExternalFilesDir(null) ?: activity?.filesDir
         return FileWrapper(dir ?: File("/"))
     }
@@ -22,8 +24,7 @@ object AiWorkspace {
         val segments = segmentsOf(path)
         val base = root()
         if (segments.isEmpty()) return base
-        return base.resolve(segments.joinToString("/"))
-            ?: throw IllegalArgumentException("Not found: $path")
+        return base.resolve(segments.joinToString("/")) ?: throw IllegalArgumentException("Not found: $path")
     }
 
     suspend fun resolveForWrite(path: String): FileObject {
@@ -73,11 +74,7 @@ object AiWorkspace {
 
     private fun segmentsOf(path: String): List<String> {
         val segments =
-            path.trim()
-                .replace('\\', '/')
-                .removePrefix("/")
-                .split('/')
-                .filter { it.isNotBlank() && it != "." }
+            path.trim().replace('\\', '/').removePrefix("/").split('/').filter { it.isNotBlank() && it != "." }
         require(segments.none { it == ".." }) { "Path escapes the workspace: $path" }
         return segments
     }

@@ -28,8 +28,6 @@ object GitInitCommand : GlobalCommand() {
         val rootPath = currentTab.root.getAbsolutePath()
 
         val gitViewModel = gitViewModel
-        gitViewModel?.initRepository(File(rootPath)) {
-            gitViewModel.loadRepository(rootPath)
-        }
+        gitViewModel?.initRepository(File(rootPath)) { gitViewModel.loadRepository(rootPath) }
     }
 }

@@ -29,11 +29,11 @@ dependencies {
     implementation(project(":core:main"))
     implementation(project(":core:components"))
     implementation(project(":core:resources"))
-    
+
     // Editor dependencies for code runner settings and markdown rendering
     implementation(libs.sorax.editor)
     implementation(libs.sorax.editor.lsp)
-    
+
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.utilcode)
@@ -41,7 +41,7 @@ dependencies {
     implementation(libs.nanohttpd)
     implementation(libs.androidx.browser)
     implementation(libs.gson)
-    
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)

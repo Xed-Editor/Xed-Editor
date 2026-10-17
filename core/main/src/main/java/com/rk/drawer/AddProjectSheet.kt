@@ -67,9 +67,8 @@ fun AddProjectSheet(
             modifier =
                 Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).verticalScroll(rememberScrollState())
         ) {
-            val storageOptions = remember(allOptions) {
-                allOptions.filter { it.category == AddProjectCategory.STORAGE }
-            }
+            val storageOptions =
+                remember(allOptions) { allOptions.filter { it.category == AddProjectCategory.STORAGE } }
 
             SectionHeader(stringResource(strings.storage))
 
@@ -137,9 +136,7 @@ fun AddProjectSheet(
                 )
             }
 
-            val createOptions = remember(allOptions) {
-                allOptions.filter { it.category == AddProjectCategory.CREATE }
-            }
+            val createOptions = remember(allOptions) { allOptions.filter { it.category == AddProjectCategory.CREATE } }
             val categories by ProjectTemplateRegistry.categories.collectAsStateWithLifecycle()
             val hasTemplates = categories.any { it.templates.isNotEmpty() }
 
@@ -170,9 +167,7 @@ fun AddProjectSheet(
                 }
             }
 
-            val otherOptions = remember(allOptions) {
-                allOptions.filter { it.category == AddProjectCategory.OTHER }
-            }
+            val otherOptions = remember(allOptions) { allOptions.filter { it.category == AddProjectCategory.OTHER } }
             val isDebugMode = FeatureRegistry.isEnabled("debug_mode")
 
             if (isDebugMode || otherOptions.isNotEmpty()) {
@@ -209,7 +204,6 @@ fun AddProjectSheet(
                 }
             }
         }
-
     }
 }
 

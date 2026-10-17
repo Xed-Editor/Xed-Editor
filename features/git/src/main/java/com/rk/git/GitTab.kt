@@ -94,9 +94,9 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.greenStatus
 import com.rk.utils.getUnderlineColor
+import java.io.File
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import java.io.File
 
 class GitTab : DrawerTab() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -154,13 +154,9 @@ class GitTab : DrawerTab() {
                 }
             }
         val conflicts by
-            remember(gitChanges) {
-                derivedStateOf { gitChanges.filter { it.type == ChangeType.CONFLICTING } }
-            }
+            remember(gitChanges) { derivedStateOf { gitChanges.filter { it.type == ChangeType.CONFLICTING } } }
         val untracked by
-            remember(gitChanges) {
-                derivedStateOf { gitChanges.filter { it.type == ChangeType.UNTRACKED } }
-            }
+            remember(gitChanges) { derivedStateOf { gitChanges.filter { it.type == ChangeType.UNTRACKED } } }
 
         var changesExpanded by remember { mutableStateOf(true) }
         var untrackedExpanded by remember { mutableStateOf(true) }
@@ -301,9 +297,7 @@ class GitTab : DrawerTab() {
                                                 contentDescription = stringResource(strings.delete),
                                             )
                                         },
-                                        text = {
-                                            Text(stringResource(strings.delete))
-                                        },
+                                        text = { Text(stringResource(strings.delete)) },
                                         onClick = {
                                             branchToDelete = branch
                                             showDeleteBranchDialog = true
@@ -448,11 +442,7 @@ class GitTab : DrawerTab() {
                                 conflictsExpanded = !conflictsExpanded
                             }
                         }
-                        item {
-                            ChangesList(viewModel, changes, changesExpanded) {
-                                changesExpanded = !changesExpanded
-                            }
-                        }
+                        item { ChangesList(viewModel, changes, changesExpanded) { changesExpanded = !changesExpanded } }
                         item {
                             UntrackedList(viewModel, untracked, untrackedExpanded) {
                                 untrackedExpanded = !untrackedExpanded

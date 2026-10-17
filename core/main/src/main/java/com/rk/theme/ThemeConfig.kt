@@ -2,12 +2,12 @@ package com.rk.theme
 
 import androidx.annotation.Keep
 import com.google.gson.JsonParser
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serial
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 
 @Keep
 @Serializable
@@ -149,9 +149,8 @@ data class ThemeConfig(
 ) : java.io.Serializable
 
 /**
- * Content of a theme's `theme.json`. Kept separate from [ThemeManifest] at all
- * times: `manifest.json` carries package metadata only, `theme.json` carries the
- * color palettes only.
+ * Content of a theme's `theme.json`. Kept separate from [ThemeManifest] at all times: `manifest.json` carries package
+ * metadata only, `theme.json` carries the color palettes only.
  */
 @Serializable
 data class ThemeFile(

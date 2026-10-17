@@ -11,8 +11,8 @@ import com.rk.runner.RunnerFeature
 /**
  * Application entry point for the `playstore` distribution.
  *
- * The Play Store build deliberately does not bundle the `:features:extensions` module, because Play
- * policy forbids loading executable code at runtime, so its feature is not registered here.
+ * The Play Store build deliberately does not bundle the `:features:extensions` module, because Play policy forbids
+ * loading executable code at runtime, so its feature is not registered here.
  */
 class XedApplication : App() {
     override fun onCreate() {

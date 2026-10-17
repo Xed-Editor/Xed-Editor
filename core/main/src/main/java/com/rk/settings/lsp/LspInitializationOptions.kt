@@ -41,8 +41,8 @@ import com.rk.tabs.editor.EditorErrorNotice
 import com.rk.theme.GitColorScheme
 import com.rk.utils.isSystemInDarkTheme
 import io.github.rosemoe.sora.event.ContentChangeEvent
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,18 +64,12 @@ fun LspInitializationOptions(server: LspServer) {
 
     val preferenceKey = "lsp_${server.id}_initialization_options"
     val defaultInitOptions = server.getInitializationOptions(null)
-    val defaultInitJson =
-        defaultInitOptions?.let {
-            runCatching { Gson().toJson(it) }.getOrNull()
-        } ?: "{}"
+    val defaultInitJson = defaultInitOptions?.let { runCatching { Gson().toJson(it) }.getOrNull() } ?: "{}"
 
     var isJsonInvalid by remember { mutableStateOf(false) }
 
     fun Editor.validateJson(text: String) {
-        runCatching { JsonParser.parseString(text) }
-            .also {
-                isJsonInvalid = it.isFailure
-            }
+        runCatching { JsonParser.parseString(text) }.also { isJsonInvalid = it.isFailure }
     }
 
     Scaffold(

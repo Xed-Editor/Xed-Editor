@@ -10,7 +10,6 @@ import ai.koog.prompt.llm.LLMProvider
 import ai.koog.prompt.llm.LLModel
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rk.ai.icons.AnthropicIcon
-import com.rk.ai.icons.DeepSeekIcon
 import com.rk.ai.icons.OpenAiIcon
 
 object BuiltinProviders {

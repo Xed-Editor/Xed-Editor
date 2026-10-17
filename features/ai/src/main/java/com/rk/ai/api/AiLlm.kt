@@ -43,22 +43,20 @@ internal object AiLlm {
         return run(conversation(messages), modelId)
     }
 
-    fun chatStream(messages: List<AiMessage>, modelId: String?): Flow<String> =
-        stream(conversation(messages), modelId)
+    fun chatStream(messages: List<AiMessage>, modelId: String?): Flow<String> = stream(conversation(messages), modelId)
 
     private suspend fun run(conversation: Prompt, modelId: String?): String {
         val model = AiProviderRuntime.model(modelId)
         return AiProviderRuntime.executor(modelId).execute(conversation, model).textContent()
     }
 
-    private fun stream(conversation: Prompt, modelId: String?): Flow<String> =
-        flow {
-            requireConfigured()
-            val model = AiProviderRuntime.model(modelId)
-            AiProviderRuntime.executor(modelId).executeStreaming(conversation, model).collect { frame ->
-                if (frame is StreamFrame.TextDelta) emit(frame.text)
-            }
+    private fun stream(conversation: Prompt, modelId: String?): Flow<String> = flow {
+        requireConfigured()
+        val model = AiProviderRuntime.model(modelId)
+        AiProviderRuntime.executor(modelId).executeStreaming(conversation, model).collect { frame ->
+            if (frame is StreamFrame.TextDelta) emit(frame.text)
         }
+    }
 
     private fun conversation(
         messages: List<AiMessage>,

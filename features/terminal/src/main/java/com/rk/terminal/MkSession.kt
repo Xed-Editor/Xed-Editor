@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Context
 import com.rk.activities.main.MainActivity
 import com.rk.exec.pendingCommand
-import com.rk.file.FileWrapper
 import com.rk.feature.FeatureRegistry
+import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localDir
@@ -18,8 +18,8 @@ import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
-import kotlinx.coroutines.runBlocking
 import java.io.File
+import kotlinx.coroutines.runBlocking
 
 object MkSession {
 

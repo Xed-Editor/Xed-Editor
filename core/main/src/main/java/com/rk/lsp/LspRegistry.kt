@@ -21,7 +21,9 @@ object LspRegistry {
     private val configuration: MutableMap<LspServer, Boolean> = mutableMapOf()
 
     suspend fun updateConfiguration(context: Context) {
-        (_builtInServers.value + _extensionServers.value + _externalServers.value).forEach { configuration[it] = it.isInstalled(context) }
+        (_builtInServers.value + _extensionServers.value + _externalServers.value).forEach {
+            configuration[it] = it.isInstalled(context)
+        }
     }
 
     suspend fun getConfigurationChanges(context: Context): List<LspServer> {
@@ -57,9 +59,7 @@ object LspRegistry {
 
     @XedExtensionPoint
     fun registerServer(server: LspServer) {
-        _extensionServers.update { list ->
-            if (list.contains(server)) list else list + server
-        }
+        _extensionServers.update { list -> if (list.contains(server)) list else list + server }
     }
 
     @XedExtensionPoint

@@ -35,6 +35,10 @@ import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.logError
 import com.rk.utils.toast
+import java.io.File
+import java.io.FileInputStream
+import java.io.ObjectInputStream
+import java.util.Properties
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,10 +53,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.io.File
-import java.io.FileInputStream
-import java.io.ObjectInputStream
-import java.util.Properties
 import kotlinx.serialization.json.JsonElement as KJsonElement
 
 @Serializable
@@ -95,9 +95,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
     private val _storeThemes = MutableStateFlow<Map<String, StoreTheme>>(emptyMap())
     val storeThemes: StateFlow<Map<String, StoreTheme>> = _storeThemes.asStateFlow()
 
-    val currentTheme by derivedStateOf {
-        loadedThemesState.value.find { it.id == Settings.theme } ?: blueberry
-    }
+    val currentTheme by derivedStateOf { loadedThemesState.value.find { it.id == Settings.theme } ?: blueberry }
 
     private fun setLoadedThemes(themes: List<ThemeHolder>) {
         _loadedThemesState.value = themes
@@ -145,9 +143,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
     suspend fun uninstallTheme(id: String) {
         withContext(Dispatchers.IO) {
             themeDir().child(id).deleteRecursively()
-            withContext(Dispatchers.Main) {
-                removeLocalTheme(id)
-            }
+            withContext(Dispatchers.Main) { removeLocalTheme(id) }
         }
     }
 
@@ -176,9 +172,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
         return runCatching {
             json.decodeFromString<PackageCache>(cacheFile.readText())
         }
-            .getOrElse {
-                PackageCache()
-            }
+            .getOrElse { PackageCache() }
     }
 
     private fun writeCache(dir: File, cache: PackageCache) {
@@ -195,9 +189,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
             val newSize = calcSize(dir)
             writeCache(dir, cache.copy(size = newSize))
 
-            withContext(Dispatchers.Main) {
-                localThemes.value[pkg.id]?.size = newSize
-            }
+            withContext(Dispatchers.Main) { localThemes.value[pkg.id]?.size = newSize }
         }
     }
 
@@ -328,9 +320,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
         withContext(Dispatchers.IO) {
             val themesList = runCatching { StoreManager.fetchThemes() }.getOrNull() ?: return@withContext
             val newThemes = themesList.associateBy({ it.id }, { StoreTheme(it) })
-            withContext(Dispatchers.Main) {
-                _storeThemes.value = newThemes
-            }
+            withContext(Dispatchers.Main) { _storeThemes.value = newThemes }
         }
 
     suspend fun indexLocalThemes() = mutex.withLock {
@@ -351,9 +341,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
                             val themeFile =
                                 dir.resolve("theme.json")
                                     .takeIf { it.exists() }
-                                    ?.let {
-                                        json.decodeFromString<ThemeFile>(it.readText())
-                                    }
+                                    ?.let { json.decodeFromString<ThemeFile>(it.readText()) }
                             newLoadedThemes.add(manifest.build(themeFile))
 
                             val cache = resolveCache(dir)
@@ -371,9 +359,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
                             newLocalThemes[manifest.id] = theme
                         }
                     }
-                        .onFailure {
-                            logError(it, "Failed to index local themes")
-                        }
+                        .onFailure { logError(it, "Failed to index local themes") }
                 }
             }
             withContext(Dispatchers.Main) {
@@ -391,9 +377,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
             if (file.isFile) {
                 runCatching {
                     if (migratedCount == 0) {
-                        withContext(Dispatchers.Main) {
-                            toast(strings.migrating_themes.getString())
-                        }
+                        withContext(Dispatchers.Main) { toast(strings.migrating_themes.getString()) }
                     }
                     ObjectInputStream(FileInputStream(file)).use { input ->
                         val oldConfig = input.readObject()
@@ -417,9 +401,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
                         file.delete()
                     }
                 }
-                    .onFailure {
-                        file.delete()
-                    }
+                    .onFailure { file.delete() }
             } else if (file.isDirectory) {
                 runCatching {
                     val manifestFile = file.resolve("manifest.json")
@@ -452,9 +434,7 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
         }
 
         if (migratedCount > 0) {
-            withContext(Dispatchers.Main) {
-                toast(strings.theme_migrated.getFilledString(migratedCount))
-            }
+            withContext(Dispatchers.Main) { toast(strings.theme_migrated.getFilledString(migratedCount)) }
         }
     }
 

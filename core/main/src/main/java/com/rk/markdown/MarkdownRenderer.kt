@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.SvgDecoder
-import coil.size.Size
 import com.mikepenz.markdown.compose.components.MarkdownComponents
 import com.mikepenz.markdown.compose.components.markdownComponents
 import com.mikepenz.markdown.compose.elements.MarkdownCheckBox
@@ -60,12 +59,12 @@ import com.mikepenz.markdown.model.rememberMarkdownState
 /**
  * Default image loader for markdown images.
  *
- * This mirrors the library's `Coil2ImageTransformerImpl`, but uses an [ImageLoader] with an SVG decoder
- * so that `.svg` images referenced by markdown render as well. This matters here because the app does not
- * register an SVG decoder on the global Coil loader.
+ * This mirrors the library's `Coil2ImageTransformerImpl`, but uses an [ImageLoader] with an SVG decoder so that `.svg`
+ * images referenced by markdown render as well. This matters here because the app does not register an SVG decoder on
+ * the global Coil loader.
  *
- * Callers that need inline `data:` URIs - which Coil cannot fetch on its own - should pass a custom
- * [ImageTransformer] that delegates back to this one.
+ * Callers that need inline `data:` URIs - which Coil cannot fetch on its own - should pass a custom [ImageTransformer]
+ * that delegates back to this one.
  */
 object AppMarkdownImageTransformer : ImageTransformer {
     private var imageLoader: ImageLoader? = null
@@ -88,11 +87,11 @@ object AppMarkdownImageTransformer : ImageTransformer {
 
 /**
  * Heading scale (h1..h6, relative to the base text style) taken from sora-editor's
- * [io.github.rosemoe.sora.lsp.editor.text.SimpleMarkdownRenderer], so markdown rendered by this
- * Compose library matches the sizes used by hover/signature documentation.
+ * [io.github.rosemoe.sora.lsp.editor.text.SimpleMarkdownRenderer], so markdown rendered by this Compose library matches
+ * the sizes used by hover/signature documentation.
  *
- * The library's own `markdownTypography()` defaults map h1/h2/h3 to the Material3 *display* styles
- * (57sp/45sp/36sp), which are far too large inside a chat bubble or a document body.
+ * The library's own `markdownTypography()` defaults map h1/h2/h3 to the Material3 *display* styles (57sp/45sp/36sp),
+ * which are far too large inside a chat bubble or a document body.
  */
 private val HEADING_SCALE = floatArrayOf(1.6f, 1.4f, 1.25f, 1.1f, 1.05f, 1.0f)
 
@@ -101,17 +100,16 @@ private const val BODY_LINE_HEIGHT = 1.5f
 private const val HEADING_LINE_HEIGHT = 1.25f
 
 /**
- * Builds Material3 markdown typography whose headings are scaled relative to [base] using
- * [HEADING_SCALE], instead of the library's oversized display-style defaults.
+ * Builds Material3 markdown typography whose headings are scaled relative to [base] using [HEADING_SCALE], instead of
+ * the library's oversized display-style defaults.
  *
- * Line breaking is set explicitly to match how a browser (and therefore GitHub) wraps prose:
- * [LineBreak.Paragraph] balances consecutive lines instead of greedily filling each one, which is
- * what removes the one-or-two-word last lines Compose produces by default. Headings use
- * [LineBreak.Heading] so they stay balanced, and code keeps [LineBreak.Simple] because pretty
- * wrapping is meaningless for monospaced blocks.
+ * Line breaking is set explicitly to match how a browser (and therefore GitHub) wraps prose: [LineBreak.Paragraph]
+ * balances consecutive lines instead of greedily filling each one, which is what removes the one-or-two-word last lines
+ * Compose produces by default. Headings use [LineBreak.Heading] so they stay balanced, and code keeps
+ * [LineBreak.Simple] because pretty wrapping is meaningless for monospaced blocks.
  *
- * Deliberately not `@Composable` so callers can hold the result in `remember` and avoid re-allocating
- * ~15 [TextStyle]s on every recomposition (which happens on every streamed token).
+ * Deliberately not `@Composable` so callers can hold the result in `remember` and avoid re-allocating ~15 [TextStyle]s
+ * on every recomposition (which happens on every streamed token).
  */
 private fun appMarkdownTypography(base: TextStyle): MarkdownTypography {
     fun scaledFont(multiplier: Float): TextUnit =
@@ -160,13 +158,13 @@ private fun appMarkdownTypography(base: TextStyle): MarkdownTypography {
 /**
  * The markdown component set used by every renderer in this file.
  *
- * Code fences and indented code blocks are syntax highlighted and rendered with the library's
- * `showHeader` top bar, which puts the language on the left and a copy-to-clipboard button on the
- * right - the same affordance the tool-output panels in the AI chat use.
+ * Code fences and indented code blocks are syntax highlighted and rendered with the library's `showHeader` top bar,
+ * which puts the language on the left and a copy-to-clipboard button on the right - the same affordance the tool-output
+ * panels in the AI chat use.
  *
- * The `checkbox` entry is mandatory: passing a custom `components` value replaces the m3 `Markdown`
- * default, which is what normally installs the Material3 checkbox. Omitting it makes GFM task list
- * items fall back to the core renderer's literal `"[x] "` text.
+ * The `checkbox` entry is mandatory: passing a custom `components` value replaces the m3 `Markdown` default, which is
+ * what normally installs the Material3 checkbox. Omitting it makes GFM task list items fall back to the core renderer's
+ * literal `"[x] "` text.
  */
 private fun appMarkdownComponents(): MarkdownComponents =
     markdownComponents(
@@ -207,10 +205,9 @@ private fun appMarkdownComponents(): MarkdownComponents =
 /**
  * A read-only task-list checkbox sized to the surrounding text.
  *
- * The library's Material3 variant uses a real `Checkbox`, which enforces a 48dp minimum touch
- * target: next to body copy the box ends up visibly larger than the line it belongs to. A GFM task
- * item is document content, not a form control, so the box is drawn at the text size instead and is
- * inset to sit centred on the first line.
+ * The library's Material3 variant uses a real `Checkbox`, which enforces a 48dp minimum touch target: next to body copy
+ * the box ends up visibly larger than the line it belongs to. A GFM task item is document content, not a form control,
+ * so the box is drawn at the text size instead and is inset to sit centred on the first line.
  */
 @Composable
 private fun MarkdownTaskCheckbox(
@@ -276,17 +273,16 @@ private val CHECKBOX_BORDER_WIDTH = 1.5.dp
  * Renders [content] as Markdown using the multiplatform-markdown-renderer library
  * (https://github.com/mikepenz/multiplatform-markdown-renderer).
  *
- * Although the library is a Kotlin Multiplatform project, it publishes Android AAR variants that
- * Gradle resolves automatically for this Android-only app, so it is consumed as a normal dependency
- * (see `gradle/libs.versions.toml`).
+ * Although the library is a Kotlin Multiplatform project, it publishes Android AAR variants that Gradle resolves
+ * automatically for this Android-only app, so it is consumed as a normal dependency (see `gradle/libs.versions.toml`).
  *
  * Code fences and indented code blocks are syntax highlighted by the library's `-code` module.
  *
- * The renderer sizes itself to its content (it does not fill the available height), so it can be used
- * inside chat bubbles and lists. Pass [scrollable] to make it scroll on its own instead.
+ * The renderer sizes itself to its content (it does not fill the available height), so it can be used inside chat
+ * bubbles and lists. Pass [scrollable] to make it scroll on its own instead.
  *
- * [baseTextStyle] is the body text style; headings, quotes, lists and code are derived from it. Pass
- * e.g. `MaterialTheme.typography.bodyMedium` to match a compact surface such as an AI chat bubble.
+ * [baseTextStyle] is the body text style; headings, quotes, lists and code are derived from it. Pass e.g.
+ * `MaterialTheme.typography.bodyMedium` to match a compact surface such as an AI chat bubble.
  */
 @Composable
 fun MarkdownText(
@@ -304,8 +300,7 @@ fun MarkdownText(
     val components = remember { appMarkdownComponents() }
 
     val layoutModifier =
-        if (scrollable) modifier.fillMaxWidth().verticalScroll(rememberScrollState())
-        else modifier.fillMaxWidth()
+        if (scrollable) modifier.fillMaxWidth().verticalScroll(rememberScrollState()) else modifier.fillMaxWidth()
 
     Markdown(
         markdownState = markdownState,

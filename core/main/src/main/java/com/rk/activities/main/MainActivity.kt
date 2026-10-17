@@ -39,13 +39,13 @@ import com.rk.settings.support.handleSupport
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
+import java.lang.ref.WeakReference
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
-import kotlin.time.Duration.Companion.milliseconds
 
 var mainNavController = WeakReference<NavController?>(null)
 
@@ -92,9 +92,7 @@ class MainActivity : AppCompatActivity() {
             if (lspConfigChanges.isNotEmpty()) {
                 val affectedExtensions = lspConfigChanges.flatMap { it.supportedExtensions }
                 viewModel.editorTabs
-                    .filterWithFiles { _, file ->
-                        affectedExtensions.contains(file.getExtension())
-                    }
+                    .filterWithFiles { _, file -> affectedExtensions.contains(file.getExtension()) }
                     .forEach { it.applyHighlightingAndConnectLSP() }
             }
 
@@ -173,9 +171,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 composable(MainRoutes.Main.route) {
                     MainContentHost()
-                    LaunchedEffect(Unit) {
-                        FilePermission.verifyStoragePermission(this@MainActivity)
-                    }
+                    LaunchedEffect(Unit) { FilePermission.verifyStoragePermission(this@MainActivity) }
                 }
                 composable(MainRoutes.Disclaimer.route) { DisclaimerScreen(navController) { finishAffinity() } }
 

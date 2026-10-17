@@ -26,8 +26,8 @@ import com.rk.file.toFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.logError
-import kotlinx.coroutines.launch
 import java.io.File
+import kotlinx.coroutines.launch
 
 private fun validateValue(value: String): String? {
     return when {
@@ -144,10 +144,7 @@ fun GitCloneDialog(
                             },
                         )
                     }
-                }
-                    ?: run {
-                        onDismiss()
-                    }
+                } ?: run { onDismiss() }
             },
         )
 
@@ -170,9 +167,7 @@ fun GitCloneDialog(
             },
             firstErrorMessage = repoURLError,
             secondErrorMessage = repoBranchError,
-            onConfirm = {
-                cloneGitRepo.launch(null)
-            },
+            onConfirm = { cloneGitRepo.launch(null) },
             onDismiss = {
                 onDismiss()
                 repoURL = ""

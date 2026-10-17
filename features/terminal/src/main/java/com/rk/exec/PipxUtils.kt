@@ -13,9 +13,9 @@ object PipxUtils {
         if (result.timedOut || result.exitCode != 0) return null
 
         return runCatching {
-                val obj = JSONObject(result.output)
-                obj.getString("installed_version")
-            }
+            val obj = JSONObject(result.output)
+            obj.getString("installed_version")
+        }
             .getOrNull()
     }
 
@@ -28,9 +28,9 @@ object PipxUtils {
         if (result.timedOut || result.exitCode != 0) return null
 
         return runCatching {
-                val obj = JSONObject(result.output)
-                obj.getString("latest")
-            }
+            val obj = JSONObject(result.output)
+            obj.getString("latest")
+        }
             .getOrNull()
     }
 

@@ -6,15 +6,15 @@ import com.rk.tabs.base.Tab
 import com.rk.utils.application
 import com.rk.utils.logError
 import com.rk.utils.toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 /**
  * Represents the state of a user's session, which can be serialized and saved. This allows for restoring the open tabs

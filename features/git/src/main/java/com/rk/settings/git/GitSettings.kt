@@ -112,11 +112,7 @@ fun GitSettings() {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)) {
                         Text(stringResource(strings.credentials_github), modifier = Modifier.weight(1f))
 
-                        IconButton(
-                            onClick = {
-                                context.openDocs("git/#connecting-to-github-credentials")
-                            }
-                        ) {
+                        IconButton(onClick = { context.openDocs("git/#connecting-to-github-credentials") }) {
                             Icon(
                                 painter = painterResource(drawables.open_in_new),
                                 contentDescription = stringResource(strings.docs),
