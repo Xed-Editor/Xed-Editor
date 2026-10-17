@@ -928,7 +928,7 @@
     <string name="ai_tool_max_results">최대 결과</string>
     <string name="ai_tool_ask_you">사용자에게 묻기</string>
     <string name="ai_system_prompt_hint">모든 대화의 앞에 추가됩니다.</string>
-    <string name="ai_tool_in">In</string>
+    <string name="ai_tool_in">안에</string>
     <string name="playstore_arm64_only">Play Store 빌드는 64비트 ARM (arm64-v8a) 기기만 지원합니다.</string>
     <string name="ai_tool_download">다운로드</string>
     <string name="ai_tool_upload">업로드</string>
