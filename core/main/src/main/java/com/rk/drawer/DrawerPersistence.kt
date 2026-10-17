@@ -22,7 +22,11 @@ object DrawerPersistence {
     private const val CURRENT_DRAWER_TAB = "currentDrawerTab"
     private const val EXPANDED_FILE_TREE_NODES = "expandedFileTree"
 
+    var stateRestored = false
+
     suspend fun saveState(viewModel: DrawerViewModel) {
+        if (!stateRestored) return
+
         saveMutex.withLock {
             val filesDir = application?.filesDir ?: return@withLock
 
@@ -44,6 +48,8 @@ object DrawerPersistence {
     }
 
     suspend fun restoreState(viewModel: DrawerViewModel) {
+        if (stateRestored) return
+
         saveMutex.withLock {
             val filesDir = application?.filesDir ?: return@withLock
 

@@ -64,8 +64,8 @@ fun XedTopBar(
                 }
             },
             actions = {
-                if (viewModel.tabs.isNotEmpty()) {
-                    val tab = viewModel.tabs.getOrNull(viewModel.currentTabIndex)
+                if (viewModel.visibleTabs.isNotEmpty()) {
+                    val tab = viewModel.visibleTabs.getOrNull(viewModel.visibleCurrentTabIndex)
 
                     if (tab != null) {
                         tab.apply { Actions() }

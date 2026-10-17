@@ -75,8 +75,15 @@ object TaskRegistry {
         get() = _tasks.asStateFlow()
 
     fun addTask(task: Task) {
-        if (_tasks.value.any { it.id == task.id && it.isRunning }) return
-        _tasks.update { it + task }
+        _tasks.update { tasks ->
+            val existingTask = tasks.find { it.id == task.id }
+
+            if (existingTask?.isRunning == true) {
+                return@update tasks
+            }
+
+            tasks.filterNot { it.id == task.id } + task
+        }
         TaskOutputState.updateActiveTask()
     }
 

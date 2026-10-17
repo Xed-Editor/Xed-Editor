@@ -106,37 +106,35 @@ class AiChatController {
         markChanged()
 
         isRunning = true
-        runJob =
-            scope.launch {
-                try {
-                    history.add(AiTurn.User(text))
-                    runLoop(
-                        history = history,
-                        transcript = MainTranscript(),
-                        depth = 0,
-                        basePrompt = AiSettings.systemPrompt,
-                    )
-                } catch (e: ToolDeniedException) {
-                    // A denial already stopped the run cleanly; no error banner.
-                    Log.i(TAG, "Run stopped: ${e.message}")
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    val message = e.displayMessage()
-                    Log.e(TAG, "Agent run failed: $message", e)
-                    // A streamed reply failure is already on its bubble; anything else raised by the
-                    // run (tool setup, request rejection) still needs its own error in the chat.
-                    if (messages.lastOrNull()?.error != message) {
-                        reportError(message)
-                    }
-                } finally {
-                    isRunning = false
-                    runJob = null
-                    pendingApproval = null
-                    approvalDeferred = null
-                    pendingQuestion = null
-                    questionDeferred = null
+        runJob = scope.launch {
+            try {
+                history.add(AiTurn.User(text))
+                runLoop(
+                    history = history,
+                    transcript = MainTranscript(),
+                    depth = 0,
+                    basePrompt = AiSettings.systemPrompt,
+                )
+            } catch (e: ToolDeniedException) {
+                // A denial already stopped the run cleanly; no error banner.
+                Log.i(TAG, "Run stopped: ${e.message}")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                val message = e.displayMessage()
+                Log.e(TAG, "Agent run failed: $message", e)
+                // A streamed reply failure is already on its bubble; anything else raised by the
+                // run (tool setup, request rejection) still needs its own error in the chat.
+                if (messages.lastOrNull()?.error != message) {
+                    reportError(message)
                 }
+            } finally {
+                isRunning = false
+                runJob = null
+                pendingApproval = null
+                approvalDeferred = null
+                pendingQuestion = null
+                questionDeferred = null
             }
         }
     }

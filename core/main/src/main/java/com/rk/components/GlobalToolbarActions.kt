@@ -2,7 +2,6 @@ package com.rk.components
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,7 +46,6 @@ object GlobalDialogs {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
-    val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
 
     val commands by ToolbarConfiguration.globalCommands.collectAsStateWithLifecycle()
@@ -60,7 +58,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     val fileSearchDialog by GlobalDialogs.fileSearchDialog.collectAsStateWithLifecycle()
     val codeSearchDialog by GlobalDialogs.codeSearchDialog.collectAsStateWithLifecycle()
 
-    if (viewModel.visibleTabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
+    if (viewModel.visibleTabs.isEmpty() || viewModel.currentVisibleTab?.showGlobalActions == true) {
         for (command in commands) {
             if (command.isSupported()) ToolbarAction(command)
         }

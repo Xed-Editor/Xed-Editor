@@ -88,7 +88,7 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
 
     val isAtBottom by remember {
         derivedStateOf {
-            scrollState.canScrollForward
+            !scrollState.canScrollForward
         }
     }
 

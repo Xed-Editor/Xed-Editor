@@ -29,7 +29,6 @@ import com.rk.settings.editor.DEFAULT_APP_FONT_PATH
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.theme.ThemeManager
-import com.rk.utils.ActivityLifecycleLogger
 import com.rk.utils.application
 import com.rk.utils.getTempDir
 import com.rk.utils.logError

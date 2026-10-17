@@ -17,6 +17,12 @@
         tools:node="remove" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Required for third-party extensions -->
+    <uses-permission
+        android:name="android.permission.REQUEST_INSTALL_PACKAGES"
+        tools:ignore="RequestInstallPackagesPolicy" />
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
+
     <queries>
         <package android:name="com.github.android" />
         <package android:name="com.termux.x11" />
