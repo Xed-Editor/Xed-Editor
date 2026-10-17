@@ -19,6 +19,7 @@ android {
         minSdk = 26
 
         targetSdk = 37
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // versioning
         versionCode = 111
@@ -140,6 +141,10 @@ androidComponents {
 kotlin { jvmToolchain(21) }
 
 dependencies {
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.uiautomator)
+
     implementation(libs.androidx.profileinstaller)
     coreLibraryDesugaring(libs.desugar)
 
