@@ -98,6 +98,7 @@
     <string name="text_size_desc">Set text size</string>
     <string name="tab_size">Tab size</string>
     <string name="tab_size_desc">Number of spaces inserted for a tab character</string>
+    <string name="scroll_to_bottom">Scroll to bottom</string>
     <string name="monet">Dynamic colors</string>
     <string name="monet_desc">Use device theme in app</string>
     <string name="app_desc">General application settings</string>

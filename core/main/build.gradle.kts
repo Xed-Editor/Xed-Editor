@@ -167,13 +167,17 @@ dependencies {
     // Modules
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
+
+    // Required for ANSI to AnnotatedString parsing
+    implementation(project(":terminal-emulator"))
+
     implementation(libs.sorax.editor)
     implementation(libs.sorax.editor.lsp)
     implementation(libs.sorax.language.textmate)
 
-    //api is used so ai feature can access ktor
-    //api(libs.ktor.server.netty)
-    //api(libs.ktor.client.okhttp)
+    // api is used so ai feature can access ktor
+    // api(libs.ktor.server.netty)
+    // api(libs.ktor.client.okhttp)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {
