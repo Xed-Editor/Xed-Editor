@@ -6,12 +6,12 @@ import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -50,8 +50,12 @@ import kotlinx.coroutines.launch
 var mainNavController = WeakReference<NavController?>(null)
 
 class MainActivity : AppCompatActivity() {
-    val viewModel: MainViewModel by viewModels()
-    val drawerViewModel: DrawerViewModel by viewModels()
+    lateinit var viewModel: MainViewModel
+        private set
+
+    lateinit var drawerViewModel: DrawerViewModel
+        private set
+
     val fileManager = FileManager(this)
 
     // suspend (isForeground) -> Unit
@@ -144,6 +148,9 @@ class MainActivity : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(themeManager.calculateEffectiveNightMode())
         super.onCreate(savedInstanceState)
         instance = this
+
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        drawerViewModel = ViewModelProvider(this)[DrawerViewModel::class.java]
 
         lifecycleScope.launch(Dispatchers.IO) {
             val db = DocumentStateDatabase.getDatabase(applicationContext)
