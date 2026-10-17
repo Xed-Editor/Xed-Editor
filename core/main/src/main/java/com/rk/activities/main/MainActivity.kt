@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -151,6 +152,14 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         drawerViewModel = ViewModelProvider(this)[DrawerViewModel::class.java]
+
+        val splash = installSplashScreen()
+        splash.setKeepOnScreenCondition { !themeManager.activeThemeReady }
+
+        lifecycleScope.launch {
+            themeManager.loadActiveTheme()
+            themeManager.indexLocalThemes()
+        }
 
         lifecycleScope.launch(Dispatchers.IO) {
             val db = DocumentStateDatabase.getDatabase(applicationContext)

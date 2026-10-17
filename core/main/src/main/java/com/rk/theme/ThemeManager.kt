@@ -97,6 +97,47 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
 
     val currentTheme by derivedStateOf { loadedThemesState.value.find { it.id == Settings.theme } ?: blueberry }
 
+    private val _activeThemeReady = mutableStateOf(false)
+    val activeThemeReady: Boolean
+        get() = _activeThemeReady.value
+
+    /**
+     * Loads the active theme without loading other custom themes. This is a stripped down version of [indexLocalThemes]
+     * for the splashscreen.
+     *
+     * @see indexLocalThemes
+     */
+    suspend fun loadActiveTheme() {
+        val id = Settings.theme
+
+        val holder =
+            if (builtInThemes.any { it.id == id }) {
+                null
+            } else {
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                        val dir = themeDir().child(id)
+                        val manifest = json.decodeFromString<ThemeManifest>(dir.resolve("manifest.json").readText())
+                        val themeFile =
+                            dir.resolve("theme.json")
+                                .takeIf { it.exists() }
+                                ?.let { json.decodeFromString<ThemeFile>(it.readText()) }
+                        manifest.build(themeFile)
+                    }
+                        .onFailure { logError(it, "Failed to load active theme") }
+                        .getOrNull()
+                }
+            }
+
+        withContext(Dispatchers.Main.immediate) {
+            if (holder != null && _loadedThemesState.value.none { it.id == holder.id }) {
+                _loadedThemesState.value += holder
+            }
+            ensureThemeMode()
+            _activeThemeReady.value = true
+        }
+    }
+
     private fun setLoadedThemes(themes: List<ThemeHolder>) {
         _loadedThemesState.value = themes
         ensureThemeMode()
