@@ -64,7 +64,7 @@ ARGS="$ARGS -L"
 chmod -R +x $LOCAL/bin
 
 if [ $# -gt 0 ]; then
-    $PROOT $ARGS /bin/bash --rcfile $LOCAL/bin/init -i -c 'exec "$@"' -- "$@"
+    $PROOT $ARGS /bin/bash --rcfile $LOCAL/bin/init -i -c "$*"
 else
     $PROOT $ARGS /bin/bash --rcfile $LOCAL/bin/init -i
 fi
