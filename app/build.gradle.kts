@@ -22,7 +22,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // versioning
-        versionCode = 111
+        versionCode = 112
         versionName = "3.4.9"
         vectorDrawables { useSupportLibrary = true }
     }
@@ -42,7 +42,7 @@ android {
         // the `:features:extensions` module.
         create(playStoreFlavor) {
             dimension = distributionDimension
-            //using this id because I don't want to go through 14 day testing again
+            // using this id because I don't want to go through 14 day testing again
             applicationId = "com.rk.axion"
             buildConfigField("String", "FLAVOUR", "\"$playStoreFlavor\"")
         }
@@ -130,7 +130,7 @@ android {
 }
 
 // Play Store releases are minified; community releases stay unminified so extension work
-//play store requires r8 to be enabled
+// play store requires r8 to be enabled
 androidComponents {
     beforeVariants(selector().withFlavor(distributionDimension, playStoreFlavor).withBuildType("release")) {
         it.isMinifyEnabled = true

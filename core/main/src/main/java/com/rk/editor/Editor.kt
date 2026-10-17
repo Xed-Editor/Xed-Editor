@@ -189,9 +189,7 @@ class Editor : CodeEditor {
         scope.cancel()
         super.release()
 
-        DefaultScope.launch {
-            Events.publish(EditorEvent.InstanceDestroyed(this@Editor))
-        }
+        DefaultScope.launch { Events.publish(EditorEvent.InstanceDestroyed(this@Editor)) }
     }
 
     fun applySettings() {
@@ -339,11 +337,11 @@ class Editor : CodeEditor {
     }
 
     suspend fun configureLanguage(textmateScope: String) {
-        val language = LanguageManager.createLanguage(textmateScope)
+        val language = LanguageManager.createLanguage(textmateScope, Settings.suggest_identifiers)
         language.useTab(Settings.actual_tabs)
         language.tabSize = Settings.tab_size
 
-        if (Settings.textmate_suggestions) {
+        if (Settings.suggest_keywords) {
             val keywords = KeywordManager.getKeywords(textmateScope)
             keywords?.let { language.setCompleterKeywords(it.toTypedArray()) }
         }

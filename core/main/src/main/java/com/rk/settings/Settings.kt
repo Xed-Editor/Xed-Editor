@@ -20,8 +20,6 @@ import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.utils.logError
 import com.rk.xededitor.BuildConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
@@ -29,6 +27,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 // NOTE: USE snake_case FOR KEYS!
 object Settings {
@@ -103,7 +103,8 @@ object Settings {
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
     var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
-    var textmate_suggestions by CachedPreference("textmate_suggestions", true)
+    var suggest_keywords by CachedPreference("suggest_keywords", true)
+    var suggest_identifiers by CachedPreference("suggest_identifiers", true)
     var seccomp_mode by CachedPreference("seccomp_mode", "unspecified")
     private var _desktop_mode by CachedPreference("desktop_mode", false)
     var desktop_mode: Boolean
