@@ -799,4 +799,6 @@
     <string name="finished">Beendet</string>
     <string name="package_format_error">Xed-Editor unterstützt nur .zip, .iconpack oder .xed Pakete zur Installation.</string>
     <string name="unknown_package_format">Pakettyp wurde nicht erkannt.</string>
+    <string name="scroll_to_bottom">Nach ganz unten scrollen</string>
+    <string name="suggest_keywords">Schlüsselwörter vorschlagen</string>
 </resources>
