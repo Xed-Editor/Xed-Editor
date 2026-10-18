@@ -937,4 +937,17 @@
     <string name="ai_tool_field">필드</string>
     <string name="ai_tool_max_bytes">최대 바이트</string>
     <string name="ai_tool_save_to">저장 경로</string>
+    <string name="browse_project">프로젝트 탐색</string>
+    <string name="no_suggestions">제안 없음</string>
+    <string name="suggestions">제안</string>
+    <string name="suggestions_autocorrect">제안 + 자동 교정</string>
+    <string name="input_behavior_msg">입력기에 따라 실제 입력 동작이 달라질 수 있습니다. 한중일 언어는 제안 기능에 의존하므로, 해당 언어 사용자는 \'제안 없음\' 설정을 쓰지 않기를 권장합니다.</string>
+    <string name="input_behavior">입력 동작</string>
+    <string name="ai_chat_label">대화</string>
+    <string name="scroll_to_bottom">하단으로 스크롤</string>
+    <string name="suggest_keywords">키워드 제안</string>
+    <string name="suggest_keywords_desc">사전 정의된 키워드를 자동완성 제안에 표시</string>
+    <string name="suggest_identifiers">식별자 제안</string>
+    <string name="suggest_identifiers_desc">식별자를 수집하여 자동완성 제안에 표시</string>
+    <string name="ai_no_tasks">아직 작업이 없습니다.\nAI가 생성한 작업이 여기에 나타납니다.</string>
 </resources>
