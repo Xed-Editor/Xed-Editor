@@ -953,4 +953,17 @@
     <string name="ai_tool_field">Поле</string>
     <string name="ai_tool_max_bytes">Максимум байтів</string>
     <string name="playstore_arm64_only">Версія програми з Play Store підтримує тільки пристрої 64-бітної архітектури ARM (arm64-v8a).</string>
+    <string name="scroll_to_bottom">Гортати вниз</string>
+    <string name="suggest_keywords">Пропонувати ключові слова</string>
+    <string name="suggest_keywords_desc">Показувати попередньо визначені ключові слова в пропозиціях автозаповнення</string>
+    <string name="suggest_identifiers">Пропонувати ідентифікатори</string>
+    <string name="suggest_identifiers_desc">Збирати й показувати ідентифікатори в пропозиціях автозаміни</string>
+    <string name="ai_chat_label">Чат</string>
+    <string name="no_suggestions">Без пропозицій</string>
+    <string name="suggestions">Пропозиції</string>
+    <string name="suggestions_autocorrect">Пропозиції + Автовиправлення</string>
+    <string name="input_behavior">Поведінка введення</string>
+    <string name="input_behavior_msg">Насправді поведінка може залежати від методу вводу. Носіям китайської, японської чи корейської мов слід уникати варіанту \"Без пропозицій\", адже ці мови покладаються на пропозиції.</string>
+    <string name="ai_no_tasks">Ще немає завдань.\nЗавдання, створені ШІ з\'являться тут.</string>
+    <string name="browse_project">Переглядати проєкт</string>
 </resources>
