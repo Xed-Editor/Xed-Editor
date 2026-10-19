@@ -946,4 +946,17 @@
     <string name="ai_tool_method">Método</string>
     <string name="ai_tool_field">Campo</string>
     <string name="ai_tool_max_bytes">Máximo de bytes</string>
+    <string name="scroll_to_bottom">Rolar para o final</string>
+    <string name="suggest_keywords">Sugerir palavras-chave</string>
+    <string name="suggest_keywords_desc">Mostrar palavras-chave predefinidas nas sugestões de preenchimento automático</string>
+    <string name="suggest_identifiers">Sugerir identificadores</string>
+    <string name="suggest_identifiers_desc">Coletar e exibir identificadores nas sugestões de preenchimento automático</string>
+    <string name="ai_chat_label">Conversa</string>
+    <string name="ai_no_tasks">Ainda não há tarefas.\nAs tarefas criadas pela IA aparecerão aqui.</string>
+    <string name="browse_project">Explorar projeto</string>
+    <string name="no_suggestions">Nenhuma sugestão</string>
+    <string name="suggestions">Sugestões</string>
+    <string name="suggestions_autocorrect">Sugestões + Autocorreção</string>
+    <string name="input_behavior">Comportamento de entrada</string>
+    <string name="input_behavior_msg">O comportamento atual da digitação pode variar dependendo do IME. Os usuários de idiomas CJK devem evitar a opção “Sem sugestões”, pois esses idiomas dependem das sugestões.</string>
 </resources>
