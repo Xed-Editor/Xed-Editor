@@ -950,4 +950,15 @@
     <string name="playstore_arm64_only">La versione Play Store supporta solo i dispositivi ARM 64-bit (arm64-v8a).</string>
     <string name="ai_tool_in">In</string>
     <string name="ai_tool_scratchpad">Blocco appunti</string>
+    <string name="scroll_to_bottom">Scorri verso il basso</string>
+    <string name="suggest_keywords">Suggerisci parole chiave</string>
+    <string name="suggest_keywords_desc">Mostra parole chiave predefinite nei suggerimenti di autocompletamento</string>
+    <string name="suggest_identifiers">Suggerisci identificatori</string>
+    <string name="suggest_identifiers_desc">Raccogli e mostra identificatori nei suggerimenti di autocompletamento</string>
+    <string name="ai_chat_label">Chat</string>
+    <string name="ai_no_tasks">Nessuna attività presente\nLe attività create dall\'AI appariranno qui.</string>
+    <string name="browse_project">Esplora progetto</string>
+    <string name="no_suggestions">Nessun suggerimento</string>
+    <string name="suggestions">Suggerimenti</string>
+    <string name="suggestions_autocorrect">Suggerimenti + Autocorrezione</string>
 </resources>
