@@ -945,4 +945,17 @@
     <string name="ai_tool_field">字段</string>
     <string name="ai_tool_max_bytes">最大字节数</string>
     <string name="playstore_arm64_only">Play 商店渠道的构建只支持64位 ARM（arm64-v8a）设备。</string>
+    <string name="scroll_to_bottom">滚动到底部</string>
+    <string name="suggest_keywords">建议关键词</string>
+    <string name="suggest_keywords_desc">在自动完成建议里显示预设关键词</string>
+    <string name="suggest_identifiers">建议标识符</string>
+    <string name="suggest_identifiers_desc">收集标识符并在自动完成建议里显示它们</string>
+    <string name="ai_chat_label">聊天</string>
+    <string name="ai_no_tasks">暂无任务。\n由 AI 创建的任务将在这里展示。</string>
+    <string name="browse_project">浏览项目</string>
+    <string name="no_suggestions">没有建议</string>
+    <string name="suggestions">建议</string>
+    <string name="suggestions_autocorrect">建议 + 自动更正</string>
+    <string name="input_behavior">输入行为</string>
+    <string name="input_behavior_msg">实际输入行为因输入法而异。由于中日韩语依赖建议，这些语言的用户应当避免使用“没有建议”选项。</string>
 </resources>
