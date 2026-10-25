@@ -39,6 +39,8 @@ abstract class Task {
 interface OutputLine {
     fun toAnnotatedString(props: Properties): AnnotatedString
 
+    fun getUnformattedText(): String
+
     val columns: Int
 
     class Ansi(val raw: String) : OutputLine {
@@ -57,6 +59,10 @@ interface OutputLine {
             return parsed
         }
 
+        override fun getUnformattedText(): String {
+            return stripAnsi(raw)
+        }
+
         override fun equals(other: Any?): Boolean = other is Ansi && other.raw == raw
 
         override fun hashCode(): Int = raw.hashCode()
@@ -69,6 +75,8 @@ interface OutputLine {
         private val annotated by lazy { AnnotatedString(text) }
 
         override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
+
+        override fun getUnformattedText() = text
 
         override fun equals(other: Any?): Boolean = other is Plain && other.text == text
 
@@ -84,7 +92,9 @@ interface OutputLine {
             return buildAnnotatedString { withStyle(style = SpanStyle(color = theme.palette[1])) { append(text) } }
         }
 
-        override fun equals(other: Any?): Boolean = other is Plain && other.text == text
+        override fun getUnformattedText() = text
+
+        override fun equals(other: Any?): Boolean = other is Error && other.text == text
 
         override fun hashCode(): Int = text.hashCode()
     }
@@ -100,6 +110,8 @@ interface OutputLine {
         private val annotated by lazy { AnnotatedString(text, spanStyle = style, paragraphStyle = paragraphStyle) }
 
         override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
+
+        override fun getUnformattedText() = text
 
         override fun equals(other: Any?): Boolean =
             other is Styled && other.text == text && other.style == style && other.paragraphStyle == paragraphStyle
@@ -135,22 +147,29 @@ open class BaseTask(
     }
 
     /** Appends a line of text to the output, parsing ANSI color escape sequences if enabled. */
-    fun updateOutput(line: String, parseAnsi: Boolean = true) {
-        if (output.size >= 5500) output.removeRange(0, 500)
+    fun appendOutput(line: String, parseAnsi: Boolean = true) {
         if (parseAnsi) {
-            output.add(OutputLine.Ansi(line))
-            latestLine = stripAnsi(line)
+            appendOutput(OutputLine.Ansi(line))
         } else {
-            output.add(OutputLine.Plain(line))
-            latestLine = line
+            appendOutput(OutputLine.Plain(line))
         }
     }
 
     /** Appends a line of text with a custom [SpanStyle] and [ParagraphStyle] to the output. */
-    fun updateOutput(line: String, style: SpanStyle, paragraphStyle: ParagraphStyle? = null) {
+    fun appendOutput(line: String, style: SpanStyle, paragraphStyle: ParagraphStyle? = null) {
+        appendOutput(OutputLine.Styled(line, style, paragraphStyle))
+    }
+
+    /** Appends an [OutputLine] to the output. */
+    fun appendOutput(outputLine: OutputLine) {
         if (output.size >= 5500) output.removeRange(0, 500)
-        output.add(OutputLine.Styled(line, style, paragraphStyle))
-        latestLine = line
+        output.add(outputLine)
+        latestLine = outputLine.getUnformattedText()
+    }
+
+    /** Appends an error line of text to the output. */
+    fun appendErrorOutput(line: String) {
+        appendOutput(OutputLine.Error(line))
     }
 
     /** Clears output and latest line. */
