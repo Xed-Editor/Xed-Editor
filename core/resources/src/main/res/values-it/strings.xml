@@ -961,4 +961,6 @@
     <string name="no_suggestions">Nessun suggerimento</string>
     <string name="suggestions">Suggerimenti</string>
     <string name="suggestions_autocorrect">Suggerimenti + Autocorrezione</string>
+    <string name="input_behavior">Comportamento input</string>
+    <string name="input_behavior_msg">Il comportamento effettivo dell\'input potrebbe variare a seconda dell\'IME. Gli utenti delle lingue CJK dovrebbero evitare l\'opzione \'Nessun suggerimento\', poiché queste lingue si basano sui suggerimenti.</string>
 </resources>
