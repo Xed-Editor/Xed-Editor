@@ -8,8 +8,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import com.rk.activities.main.ui.TaskOutputState
 import com.rk.utils.parseAnsiToAnnotatedString
+import com.rk.utils.resolveAnsiTheme
 import com.rk.utils.stripAnsi
 import java.util.Properties
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +36,7 @@ abstract class Task {
     abstract fun dismiss()
 }
 
-sealed interface OutputLine {
+interface OutputLine {
     fun toAnnotatedString(props: Properties): AnnotatedString
 
     val columns: Int
@@ -66,6 +69,24 @@ sealed interface OutputLine {
         private val annotated by lazy { AnnotatedString(text) }
 
         override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
+
+        override fun equals(other: Any?): Boolean = other is Plain && other.text == text
+
+        override fun hashCode(): Int = text.hashCode()
+    }
+
+    class Error(val text: String) : OutputLine {
+        override val columns
+            get() = text.length
+
+        override fun toAnnotatedString(props: Properties): AnnotatedString {
+            val theme = resolveAnsiTheme(props)
+            return buildAnnotatedString {
+                withStyle(style = SpanStyle(color = theme.palette[1])) {
+                    append(text)
+                }
+            }
+        }
 
         override fun equals(other: Any?): Boolean = other is Plain && other.text == text
 

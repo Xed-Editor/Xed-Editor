@@ -28,11 +28,11 @@ private data class AnsiState(
     val reverse: Boolean = false,
 )
 
-private class AnsiTheme(val palette: List<Color>, val defaultFg: Color, val defaultBg: Color)
+class AnsiTheme(val palette: List<Color>, val defaultFg: Color, val defaultBg: Color)
 
 @Volatile private var themeCache: Pair<Properties, AnsiTheme>? = null
 
-private fun resolveTheme(props: Properties): AnsiTheme {
+fun resolveAnsiTheme(props: Properties): AnsiTheme {
     themeCache?.let { if (it.first === props) return it.second }
 
     val scheme = TerminalColorScheme()
@@ -131,7 +131,7 @@ fun stripAnsi(text: String): String = if ('\u001B' !in text) text else ANSI_ESCA
 fun parseAnsiToAnnotatedString(text: String, props: Properties): AnnotatedString {
     if ('\u001B' !in text) return AnnotatedString(text)
 
-    val theme = resolveTheme(props)
+    val theme = resolveAnsiTheme(props)
 
     return buildAnnotatedString {
         var state = AnsiState()
