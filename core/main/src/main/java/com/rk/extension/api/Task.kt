@@ -81,11 +81,7 @@ interface OutputLine {
 
         override fun toAnnotatedString(props: Properties): AnnotatedString {
             val theme = resolveAnsiTheme(props)
-            return buildAnnotatedString {
-                withStyle(style = SpanStyle(color = theme.palette[1])) {
-                    append(text)
-                }
-            }
+            return buildAnnotatedString { withStyle(style = SpanStyle(color = theme.palette[1])) { append(text) } }
         }
 
         override fun equals(other: Any?): Boolean = other is Plain && other.text == text
