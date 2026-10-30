@@ -11,12 +11,12 @@ import com.rk.settings.Settings
 import com.rk.utils.isDarkTheme
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
+import java.io.ByteArrayInputStream
+import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
-import java.io.ByteArrayInputStream
-import java.io.InputStreamReader
 
 private var selectionColor: Color? = null
 

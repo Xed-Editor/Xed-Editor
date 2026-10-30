@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import com.rk.commands.ToolbarConfiguration
+import com.rk.editor.EditorInputBehavior
 import com.rk.feature.FeatureRegistry
 import com.rk.filetree.SortMode
 import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_DRAWER
@@ -16,11 +17,9 @@ import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
 import com.rk.theme.blueberry
 import com.rk.utils.application
-import com.rk.utils.logError
 import com.rk.utils.hasHardwareKeyboard
+import com.rk.utils.logError
 import com.rk.xededitor.BuildConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
@@ -28,6 +27,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 // NOTE: USE snake_case FOR KEYS!
 object Settings {
@@ -57,7 +58,6 @@ object Settings {
     var show_color_previews by CachedPreference("show_color_previews", true)
     var quick_deletion by CachedPreference("fast_delete", true)
     var auto_save by CachedPreference("auto_save", false)
-    var show_suggestions by CachedPreference("show_suggestions", false)
     var check_for_update by CachedPreference("check_update", false)
     var is_editor_font_asset by CachedPreference("is_font_asset", false)
     var is_app_font_asset by CachedPreference("is_app_font_asset", false)
@@ -96,12 +96,15 @@ object Settings {
             _verbose_error = value
         }
 
+    var input_behavior by CachedPreference("input_behavior", EditorInputBehavior.getDefault().value)
+
     var project_as_pwd by CachedPreference("project_as_pwd", true)
     var terminate_sessions_on_exit by CachedPreference("terminate_sessions_on_exit", false)
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
     var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
-    var textmate_suggestions by CachedPreference("textmate_suggestions", true)
+    var suggest_keywords by CachedPreference("suggest_keywords", true)
+    var suggest_identifiers by CachedPreference("suggest_identifiers", true)
     var seccomp_mode by CachedPreference("seccomp_mode", "unspecified")
     private var _desktop_mode by CachedPreference("desktop_mode", false)
     var desktop_mode: Boolean

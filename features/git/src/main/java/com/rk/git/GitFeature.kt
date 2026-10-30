@@ -66,13 +66,13 @@ import io.github.rosemoe.sora.lang.styling.line.LineAnchorStyle
 import io.github.rosemoe.sora.lang.styling.line.LineBackground
 import io.github.rosemoe.sora.lang.styling.line.LineGutterBackground
 import io.github.rosemoe.sora.text.batchEdit
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.Duration.Companion.milliseconds
 
 // Global reference for gitViewModel
 val gitViewModel
@@ -110,10 +110,7 @@ class GitFeature : Feature {
 
         // Register Git settings route
         settingsRoute =
-            DynamicRoute(SettingsRoutes.Git.route) { _, _ -> GitSettings() }
-                .also {
-                    SettingsRegistry.registerRoute(it)
-                }
+            DynamicRoute(SettingsRoutes.Git.route) { _, _ -> GitSettings() }.also { SettingsRegistry.registerRoute(it) }
 
         FileDecorationRegistry.register(GitFileDecorationProvider)
         FilePropertiesRegistry.register(GitProperty)
@@ -142,9 +139,7 @@ class GitFeature : Feature {
         )
 
         subscriptions.add(
-            Events.subscribe<EditorTabEvent.Saved> { event ->
-                gitViewModel?.syncChanges(event.file.getAbsolutePath())
-            }
+            Events.subscribe<EditorTabEvent.Saved> { event -> gitViewModel?.syncChanges(event.file.getAbsolutePath()) }
         )
 
         subscriptions.add(
@@ -167,11 +162,7 @@ class GitFeature : Feature {
             }
         )
 
-        subscriptions.add(
-            Events.subscribe<GitEvent.WorkingTreeUpdated> {
-                refreshOpenEditorDiffs()
-            }
-        )
+        subscriptions.add(Events.subscribe<GitEvent.WorkingTreeUpdated> { refreshOpenEditorDiffs() })
 
         // Register Git Clone Overlay and Add Project Sheet action
         var showCloneDialog by mutableStateOf(false)
@@ -214,17 +205,13 @@ class GitFeature : Feature {
                 .also {
                     ProjectTemplateRegistry.registerCategory(it)
                     val templates = listOf(ExtensionTemplate, ThemeTemplate, IconPackTemplate)
-                    templates.forEach { template ->
-                        ProjectTemplateRegistry.registerTemplate(it, template)
-                    }
+                    templates.forEach { template -> ProjectTemplateRegistry.registerTemplate(it, template) }
                 }
     }
 
     /** Recomputes the gutter line-diffs for every currently open editor with [GitDiffGutterProvider]. */
     private fun refreshOpenEditorDiffs() {
-        gitDiffGutterProvider.values.forEach { provider ->
-            provider.requestUpdate()
-        }
+        gitDiffGutterProvider.values.forEach { provider -> provider.requestUpdate() }
     }
 
     override fun dispose(application: Application) {
@@ -380,9 +367,7 @@ class GitConflictStylesProvider(private val editor: Editor) : ExtraStylesProvide
 
     private val inlayHintClickSubscription =
         editor.subscribeAlways(InlayHintClickEvent::class.java) { event ->
-            (event.inlayHint as? ConflictInlayHint)?.let { hint ->
-                handleConflictAction(hint)
-            }
+            (event.inlayHint as? ConflictInlayHint)?.let { hint -> handleConflictAction(hint) }
         }
 
     init {

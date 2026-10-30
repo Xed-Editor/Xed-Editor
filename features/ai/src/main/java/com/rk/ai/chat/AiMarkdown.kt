@@ -4,7 +4,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
@@ -40,6 +39,5 @@ private object AiMarkdownImageTransformer : ImageTransformer {
         )
     }
 
-    @Composable
-    override fun intrinsicSize(painter: Painter): Size = AppMarkdownImageTransformer.intrinsicSize(painter)
+    @Composable override fun intrinsicSize(painter: Painter): Size = AppMarkdownImageTransformer.intrinsicSize(painter)
 }

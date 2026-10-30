@@ -89,8 +89,8 @@ import com.rk.ai.tools.toolCallView
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.greenStatus
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @Composable
@@ -146,27 +146,26 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
         listState.interactionSource.interactions.collect { interaction ->
             when (interaction) {
                 is DragInteraction.Start -> autoFollow = false
-                is DragInteraction.Stop, is DragInteraction.Cancel -> if (atEnd) autoFollow = true
+                is DragInteraction.Stop,
+                is DragInteraction.Cancel -> if (atEnd) autoFollow = true
             }
         }
     }
 
     // Covers a fling that reaches the end after the drag gesture stopped.
-    LaunchedEffect(listState) {
-        snapshotFlow { atEnd }.collect { if (it) autoFollow = true }
-    }
+    LaunchedEffect(listState) { snapshotFlow { atEnd }.collect { if (it) autoFollow = true } }
 
     // Follow the stream: the last text, the turn count and the panels that change the viewport height.
     LaunchedEffect(listState) {
         snapshotFlow {
-                val last = controller.messages.lastOrNull()
-                listOf<Any?>(
-                    last?.text,
-                    controller.messages.size,
-                    controller.pendingApproval,
-                    controller.pendingQuestion,
-                )
-            }
+            val last = controller.messages.lastOrNull()
+            listOf(
+                last?.text,
+                controller.messages.size,
+                controller.pendingApproval,
+                controller.pendingQuestion,
+            )
+        }
             .collect { followEnd() }
     }
 
@@ -174,16 +173,14 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
     // last token. Only the bottom item's measured size is observed, so re-pinning cannot feed back.
     LaunchedEffect(listState) {
         snapshotFlow {
-                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.let { it.index to it.size }
-            }
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.let { it.index to it.size }
+        }
             .collect { followEnd() }
     }
 
     Column(modifier.fillMaxSize()) {
         // Kept out of the scrolling transcript so the goal stays visible.
-        controller.goal?.let { goal ->
-            GoalBanner(goal = goal, onClear = controller::clearGoal)
-        }
+        controller.goal?.let { goal -> GoalBanner(goal = goal, onClear = controller::clearGoal) }
 
         // The button is anchored to the transcript area; a fixed screen offset would be covered by
         // the approval card.
@@ -194,8 +191,7 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding =
-                        PaddingValues(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 18.dp),
+                    contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 18.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     items(messages, key = { it.id }) { message ->
@@ -217,15 +213,16 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
                 SmallFloatingActionButton(
                     onClick = {
                         autoFollow = true
-                        scope.launch {
-                            listState.animateScrollToItem(messages.lastIndex, Int.MAX_VALUE)
-                        }
+                        scope.launch { listState.animateScrollToItem(messages.lastIndex, Int.MAX_VALUE) }
                     },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(18.dp),
                 ) {
-                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = stringResource(strings.ai_scroll_to_latest))
+                    Icon(
+                        Icons.Filled.KeyboardArrowDown,
+                        contentDescription = stringResource(strings.ai_scroll_to_latest),
+                    )
                 }
             }
         }
@@ -252,13 +249,14 @@ fun AiChatScreen(controller: AiChatController, modifier: Modifier = Modifier) {
 private fun EmptyState(onSuggestion: (String) -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier =
-            modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 22.dp, vertical = 26.dp),
+            modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 22.dp, vertical = 26.dp),
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(stringResource(strings.ai_chat_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(
+            stringResource(strings.ai_chat_title),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
         Spacer(Modifier.height(8.dp))
         Text(
             stringResource(strings.ai_empty_state_hint),
@@ -271,10 +269,7 @@ private fun EmptyState(onSuggestion: (String) -> Unit, modifier: Modifier = Modi
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable { onSuggestion(suggestion.prompt) }
-                        .padding(vertical = 12.dp),
+                    Modifier.fillMaxWidth().clickable { onSuggestion(suggestion.prompt) }.padding(vertical = 12.dp),
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -353,12 +348,7 @@ private fun AssistantMessage(
             message.text.isEmpty() && message.reasoning.isNotBlank() -> Unit
             message.text.isEmpty() && message.isStreaming -> TypingDots()
             // Parsed while streaming: `AiMarkdownText` retains the previous result, so it grows in place.
-            message.text.isNotEmpty() ->
-                SelectionContainer {
-                    AiMarkdownText(
-                        markdown = message.text,
-                    )
-                }
+            message.text.isNotEmpty() -> SelectionContainer { AiMarkdownText(markdown = message.text) }
         }
 
         if (message.isStreaming && message.text.isNotEmpty()) {
@@ -414,7 +404,9 @@ private fun ThinkingBlock(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = if (streaming) stringResource(strings.ai_thinking) else stringResource(strings.ai_thought_process),
+                    text =
+                        if (streaming) stringResource(strings.ai_thinking)
+                        else stringResource(strings.ai_thought_process),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
@@ -491,9 +483,8 @@ private fun StreamingCursor() {
 private fun AiToolStep(message: AiChatMessage, nested: Boolean = false) {
     val status = message.toolStatus ?: ToolCallStatus.Running
     // Parsed once per call: the model's raw JSON becomes an action name, a target and labels.
-    val view = remember(message.toolName, message.toolArgs) {
-        toolCallView(message.toolName.orEmpty(), message.toolArgs)
-    }
+    val view =
+        remember(message.toolName, message.toolArgs) { toolCallView(message.toolName.orEmpty(), message.toolArgs) }
     val diff = message.diff?.takeIf { it.isNotBlank() }
     val result = message.text.takeIf { it.isNotBlank() }
     // A sub-agent's final answer is repeated as the result, so only intermediate steps are children.
@@ -534,7 +525,8 @@ private fun AiToolStep(message: AiChatMessage, nested: Boolean = false) {
             ) {
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = if (expanded) stringResource(strings.collapse) else stringResource(strings.expand),
+                    contentDescription =
+                        if (expanded) stringResource(strings.collapse) else stringResource(strings.expand),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp).rotate(rotation),
                 )
@@ -653,7 +645,7 @@ private fun CopyButton(text: String, modifier: Modifier = Modifier) {
 
     LaunchedEffect(copied) {
         if (copied) {
-            delay(COPIED_FEEDBACK_MILLIS)
+            delay(COPIED_FEEDBACK_MILLIS.milliseconds)
             copied = false
         }
     }
@@ -758,8 +750,7 @@ private fun CodePanel(title: String, body: String) {
 private fun GoalBanner(goal: String, onClear: () -> Unit) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier =
-                Modifier.fillMaxWidth().padding(start = 14.dp, end = 4.dp, top = 8.dp, bottom = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 14.dp, end = 4.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.Top,
         ) {
             Text(
@@ -842,13 +833,10 @@ private fun QuestionCard(question: PendingQuestion, onAnswer: (String) -> Unit) 
                         value = custom,
                         onValueChange = { custom = it },
                         textStyle =
-                            MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurface
-                            ),
+                            MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                         maxLines = 4,
-                        modifier =
-                            Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
                         decorationBox = { innerTextField ->
                             Box {
                                 if (custom.isEmpty()) {
@@ -892,8 +880,7 @@ private fun ApprovalCard(approval: PendingApproval, onDecision: (Boolean) -> Uni
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier =
-                Modifier.fillMaxWidth().padding(start = 14.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 14.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
         ) {
             Icon(
                 imageVector = Icons.Filled.Warning,
@@ -964,10 +951,7 @@ private fun Composer(
                 BasicTextField(
                     value = value,
                     onValueChange = onValueChange,
-                    textStyle =
-                        MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurface
-                        ),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     maxLines = 6,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),

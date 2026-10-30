@@ -12,8 +12,7 @@ import com.rk.runner.RunnerFeature
 /**
  * Application entry point for the `community` distribution.
  *
- * Registers every feature, including `ExtensionFeature` provided by the bundled
- * `:features:extensions` module.
+ * Registers every feature, including `ExtensionFeature` provided by the bundled `:features:extensions` module.
  */
 class XedApplication : App() {
     override fun onCreate() {

@@ -12,6 +12,7 @@ import com.rk.search.CodeItem
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.TextRange
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import org.ec4j.core.ResourceProperties
-import java.lang.ref.WeakReference
 
 data class CodeEditorState(val initialContent: Content? = null) {
     var editor: WeakReference<Editor?> = WeakReference(null)

@@ -2,11 +2,9 @@ package com.rk.components
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,18 +19,17 @@ import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.ui.drawerStateRef
 import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.activities.main.ui.searchViewModel
-import com.rk.commands.ActionContext
 import com.rk.commands.ToolbarConfiguration
 import com.rk.drawer.DrawerViewModel
 import com.rk.file.toFileObject
 import com.rk.filetree.FileTreeTab
 import com.rk.icons.CreateNewFile
-import com.rk.icons.XedIcon
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.search.CodeSearchDialog
 import com.rk.search.FileSearchDialog
+import com.rk.tabs.editor.ToolbarAction
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,13 +43,21 @@ object GlobalDialogs {
     val codeSearchDialog = MutableStateFlow(false)
 }
 
+@Composable
+fun GlobalToolbarActions(viewModel: MainViewModel) {
+    val commands by ToolbarConfiguration.globalCommands.collectAsStateWithLifecycle()
+
+    if (viewModel.visibleTabs.isEmpty() || viewModel.currentVisibleTab?.showGlobalActions == true) {
+        for (command in commands) {
+            if (command.isSupported()) ToolbarAction(command)
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
-    val activity = LocalActivity.current
+fun GlobalDialogHost(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
     val scope = rememberCoroutineScope()
-
-    val commands by ToolbarConfiguration.globalCommands.collectAsStateWithLifecycle()
 
     val drawerTabs by drawerViewModel.drawerTabs.collectAsStateWithLifecycle()
     val currentDrawerTabIndex by drawerViewModel.currentDrawerTabIndex.collectAsStateWithLifecycle()
@@ -61,23 +66,6 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     val addDialog by GlobalDialogs.addDialog.collectAsStateWithLifecycle()
     val fileSearchDialog by GlobalDialogs.fileSearchDialog.collectAsStateWithLifecycle()
     val codeSearchDialog by GlobalDialogs.codeSearchDialog.collectAsStateWithLifecycle()
-
-    if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
-        for (command in commands) {
-            if (command.isSupported()) {
-                IconButton(
-                    enabled = command.isEnabled(),
-                    onClick = {
-                        activity?.let {
-                            command.perform(ActionContext(it))
-                        }
-                    },
-                ) {
-                    XedIcon(command.getIcon())
-                }
-            }
-        }
-    }
 
     if (fileSearchDialog && currentDrawerTab is FileTreeTab) {
         FileSearchDialog(
@@ -97,7 +85,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
                         drawerStateRef.get()?.close()
                     } else {
                         fileTreeViewModel.get()?.goToFolder(projectFile, fileObject)
-                        drawerStateRef.get()!!.open()
+                        drawerStateRef.get()?.open()
                     }
                 }
             },

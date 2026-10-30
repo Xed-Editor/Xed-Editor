@@ -57,9 +57,10 @@ fun toolCallView(toolName: String, rawArgs: String?): ToolCallView {
 }
 
 private fun genericView(toolName: String, args: JsonObject): ToolCallView {
-    val entries = args.entries.mapNotNull { (key, element) ->
-        toolDetail(humanize(key), (element as? JsonPrimitive)?.contentOrNull ?: element.toString())
-    }
+    val entries =
+        args.entries.mapNotNull { (key, element) ->
+            toolDetail(humanize(key), (element as? JsonPrimitive)?.contentOrNull ?: element.toString())
+        }
     val target =
         args.entries.firstNotNullOfOrNull { (_, element) ->
             (element as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
@@ -77,8 +78,10 @@ internal fun JsonObject.lineRange(): ToolBodyPart? {
     val end = displayArg("end_line")
     return when {
         start != null && end != null -> ToolBodyPart.Field(strings.ai_tool_lines.getString(), "$start–$end")
-        start != null -> ToolBodyPart.Field(strings.ai_tool_lines.getString(), strings.ai_tool_lines_from.getFilledString(start))
-        end != null -> ToolBodyPart.Field(strings.ai_tool_lines.getString(), strings.ai_tool_lines_up_to.getFilledString(end))
+        start != null ->
+            ToolBodyPart.Field(strings.ai_tool_lines.getString(), strings.ai_tool_lines_from.getFilledString(start))
+        end != null ->
+            ToolBodyPart.Field(strings.ai_tool_lines.getString(), strings.ai_tool_lines_up_to.getFilledString(end))
         else -> null
     }
 }

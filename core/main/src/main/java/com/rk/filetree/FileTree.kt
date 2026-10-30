@@ -55,8 +55,9 @@ import com.rk.icons.XedIcon
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import kotlinx.coroutines.launch
+import com.rk.utils.application
 import kotlin.math.min
+import kotlinx.coroutines.launch
 
 enum class SortMode(val stringRes: Int) {
     SORT_BY_NAME(strings.sort_by_name),
@@ -414,6 +415,8 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
 fun FileObject.getAppropriateName(): String {
     return if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath) {
         strings.storage.getString()
+    } else if (getAbsolutePath() == application?.filesDir?.parentFile?.absolutePath) {
+        strings.private_files.getString()
     } else {
         getName()
     }

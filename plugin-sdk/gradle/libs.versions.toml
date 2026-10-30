@@ -30,7 +30,7 @@ espressoCore = "3.7.0"
 lifecycle = "2.10.0"
 composeBom = "2025.11.01"
 coil = "2.7.0"
-ktfmt = "0.25.0"
+ktfmt = "0.27.0"
 jgit = "6.2.0.202206071550-r"
 
 tsBinding = "4.3.2"

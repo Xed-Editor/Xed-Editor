@@ -29,9 +29,9 @@ import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.logError
 import com.rk.utils.toast
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 
 data class FileActionContext(
     val file: FileObject,
@@ -345,9 +345,7 @@ object UnzipAction : FileAction() {
             val targetDir = File(zipFile.parentFile, zipFile.nameWithoutExtension).apply { mkdirs() }
 
             runCatching {
-                context.viewModel.withFileOperation {
-                    zipFile.unzipTo(targetDir)
-                }
+                context.viewModel.withFileOperation { zipFile.unzipTo(targetDir) }
             }
                 .onSuccess {
                     val parent = context.file.getParentFile()

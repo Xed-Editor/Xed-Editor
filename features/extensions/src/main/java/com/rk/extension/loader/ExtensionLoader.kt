@@ -19,6 +19,7 @@ import com.rk.utils.application
 import com.rk.utils.isMainThread
 import com.rk.utils.logError
 import dalvik.system.PathClassLoader
+import java.lang.reflect.InvocationTargetException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.reflect.InvocationTargetException
 
 enum class LoadScenario {
     INSTALL,
@@ -77,9 +77,7 @@ suspend fun LocalExtension.load(
 
         extensionManager.registerLoadedExtension(this, LoadedExtension(instance, scope))
 
-        DefaultScope.launch {
-            Events.publish(ExtensionEvent.Loaded(this@load))
-        }
+        DefaultScope.launch { Events.publish(ExtensionEvent.Loaded(this@load)) }
 
         instance
     }

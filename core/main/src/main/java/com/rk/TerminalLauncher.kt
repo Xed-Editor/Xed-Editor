@@ -4,16 +4,18 @@ import android.app.Activity
 
 object TerminalLauncher {
     // A delegate function to launch the terminal activity dynamically
-    var handler: ((
-        activity: Activity,
-        sandbox: Boolean,
-        exe: String,
-        args: Array<String>,
-        id: String,
-        terminatePreviousSession: Boolean,
-        workingDir: String?,
-        env: Array<String>
-    ) -> Unit)? = null
+    var handler:
+        ((
+            activity: Activity,
+            sandbox: Boolean,
+            exe: String,
+            args: Array<String>,
+            id: String,
+            terminatePreviousSession: Boolean,
+            workingDir: String?,
+            env: Array<String>,
+        ) -> Unit)? =
+        null
 
     fun launch(
         activity: Activity,
@@ -23,7 +25,7 @@ object TerminalLauncher {
         id: String,
         terminatePreviousSession: Boolean = true,
         workingDir: String? = null,
-        env: Array<String> = arrayOf()
+        env: Array<String> = arrayOf(),
     ) {
         handler?.invoke(activity, sandbox, exe, args, id, terminatePreviousSession, workingDir, env)
     }
@@ -31,9 +33,11 @@ object TerminalLauncher {
 
 object SandboxedProcessRegistry {
     // A delegate function to spawn a sandboxed PRoot process dynamically
-    var provider: (suspend (
-        command: List<String>,
-        workingDir: String?,
-        excludeMounts: List<String>
-    ) -> Process)? = null
+    var provider:
+        (suspend (
+            command: List<String>,
+            workingDir: String?,
+            excludeMounts: List<String>,
+        ) -> Process)? =
+        null
 }

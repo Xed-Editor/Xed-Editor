@@ -70,9 +70,7 @@ object ThemeTemplate : GitTemplate(repoUrl = "https://github.com/Xed-Editor/Them
 
     @Composable
     override fun Configuration() {
-        LaunchedEffect(Unit) {
-            configStates = ConfigStates()
-        }
+        LaunchedEffect(Unit) { configStates = ConfigStates() }
 
         OutlinedTextField(
             value = configStates.id,

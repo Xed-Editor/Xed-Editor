@@ -42,7 +42,8 @@ internal object FileOpsTools {
                     AiToolParameter("from", "Source path relative to the workspace root.", ToolParameterType.String),
                     AiToolParameter("to", "Destination path relative to the workspace root.", ToolParameterType.String),
                 ),
-            presenter = AiToolPresenter { args -> ToolCallView(strings.copy.getString(), args.pairOfPaths(), emptyList()) },
+            presenter =
+                AiToolPresenter { args -> ToolCallView(strings.copy.getString(), args.pairOfPaths(), emptyList()) },
         ) { args ->
             val from = args.requireArg("from")
             val to = args.requireArg("to")
@@ -64,7 +65,10 @@ internal object FileOpsTools {
                     AiToolParameter("from", "Source path relative to the workspace root.", ToolParameterType.String),
                     AiToolParameter("to", "Destination path relative to the workspace root.", ToolParameterType.String),
                 ),
-            presenter = AiToolPresenter { args -> ToolCallView(strings.ai_tool_move.getString(), args.pairOfPaths(), emptyList()) },
+            presenter =
+                AiToolPresenter { args ->
+                    ToolCallView(strings.ai_tool_move.getString(), args.pairOfPaths(), emptyList())
+                },
         ) { args ->
             val from = args.requireArg("from")
             val to = args.requireArg("to")
@@ -82,10 +86,11 @@ internal object FileOpsTools {
             description = "Delete a file or directory (recursively). This cannot be undone.",
             kind = AiToolKind.Write,
             parameters =
-                listOf(
-                    AiToolParameter("path", "Path relative to the workspace root.", ToolParameterType.String)
-                ),
-            presenter = AiToolPresenter { args -> ToolCallView(strings.delete.getString(), args.displayArg("path"), emptyList()) },
+                listOf(AiToolParameter("path", "Path relative to the workspace root.", ToolParameterType.String)),
+            presenter =
+                AiToolPresenter { args ->
+                    ToolCallView(strings.delete.getString(), args.displayArg("path"), emptyList())
+                },
         ) { args ->
             val path = args.requireArg("path")
             val target = AiWorkspace.resolve(path)
@@ -105,7 +110,11 @@ internal object FileOpsTools {
             kind = AiToolKind.Read,
             parameters =
                 listOf(
-                    AiToolParameter("pattern", "Glob pattern to match against the relative path.", ToolParameterType.String),
+                    AiToolParameter(
+                        "pattern",
+                        "Glob pattern to match against the relative path.",
+                        ToolParameterType.String,
+                    ),
                     AiToolParameter(
                         "path",
                         "Directory to search, relative to the workspace root. Defaults to '.'.",
@@ -145,8 +154,7 @@ internal object FileOpsTools {
     private suspend fun createDestination(path: String, isDirectory: Boolean): FileObject {
         val (parent, name) = AiWorkspace.destination(path)
         require(parent.getChild(name) == null) { "Destination already exists: $path" }
-        return parent.createChild(createFile = !isDirectory, name = name)
-            ?: throw IOException("Cannot create $path")
+        return parent.createChild(createFile = !isDirectory, name = name) ?: throw IOException("Cannot create $path")
     }
 
     private suspend fun copyRecursively(source: FileObject, target: FileObject) {
@@ -160,9 +168,7 @@ internal object FileOpsTools {
                 copyRecursively(child, targetChild)
             }
         } else {
-            source.useInputStream { input ->
-                target.getOutputStream(false).use { output -> input.copyTo(output) }
-            }
+            source.useInputStream { input -> target.getOutputStream(false).use { output -> input.copyTo(output) } }
         }
     }
 

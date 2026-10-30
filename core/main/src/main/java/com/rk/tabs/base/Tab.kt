@@ -6,6 +6,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.rk.activities.main.session.TabState
 import com.rk.file.FileObject
 import java.util.UUID
@@ -18,7 +20,10 @@ abstract class Tab {
 
     var refreshKey by mutableIntStateOf(0)
     abstract val name: String
-    abstract val icon: ImageVector
+    abstract val icon: ImageVector?
+
+    open val floatPadding: Dp
+        get() = 0.dp
 
     /** Can be null if tab is not file-related. */
     open val file: FileObject? = null

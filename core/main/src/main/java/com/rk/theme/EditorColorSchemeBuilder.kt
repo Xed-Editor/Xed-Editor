@@ -11,15 +11,14 @@ data class EditorColor(val key: Int, val color: Int)
 // Cache the mapping to avoid repeated reflection
 private val EDITOR_COLOR_MAPPING: Map<String, Int> by lazy { getEditorColorSchemeMapping() }
 
-private fun String.toColorIntSafe(): Int =
-    runCatching {
-            if (this == "0") return 0
-            toColorInt()
-        }
-        .getOrElse { exception ->
-            toast(exception.message)
-            -1 // Invalid color marker
-        }
+private fun String.toColorIntSafe(): Int = runCatching {
+    if (this == "0") return 0
+    toColorInt()
+}
+    .getOrElse { exception ->
+        toast(exception.message)
+        -1 // Invalid color marker
+    }
 
 // Map JSON-like colors to EditorColorScheme keys
 fun mapEditorColorScheme(rawScheme: Map<String, String>?): List<EditorColor> {

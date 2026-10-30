@@ -1,7 +1,6 @@
 package com.rk.activities.main
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +19,7 @@ import com.rk.filetree.FileTreeTab
 import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
+import java.io.File
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.File
 
 fun List<Tab>.filterEditorTabs() = filterIsInstance<EditorTab>()
 
@@ -38,11 +37,7 @@ fun List<EditorTab>.filesByTab(): Map<EditorTab, FileObject> = mapNotNull { tab 
     .toMap()
 
 fun List<EditorTab>.filterWithFiles(predicate: (EditorTab, FileObject) -> Boolean): List<EditorTab> {
-    return filesByTab()
-        .filter { (tab, file) ->
-            predicate(tab, file)
-        }
-        .map { it.key }
+    return filesByTab().filter { (tab, file) -> predicate(tab, file) }.map { it.key }
 }
 
 data class PendingPackageInstall(
@@ -52,7 +47,7 @@ data class PendingPackageInstall(
 )
 
 class MainViewModel : ViewModel() {
-    val tabManager = TabManager()
+    val tabManager = TabManager(this)
     val editorManager = EditorManager(this)
 
     var currentProjectRoot by mutableStateOf<FileObject?>(null)
@@ -63,21 +58,28 @@ class MainViewModel : ViewModel() {
     val tabs
         get() = tabManager.tabs
 
-    val visibleTabs by derivedStateOf {
-        if (Settings.scoped_tabs) {
-            tabs.filter { it.scopeRoot == currentProjectRoot }
-        } else {
-            tabs
+    val visibleTabs: List<Tab>
+        get() {
+            return if (Settings.scoped_tabs) {
+                tabs.filter { it.scopeRoot == currentProjectRoot }
+            } else {
+                tabs
+            }
         }
-    }
 
     val currentTab
         get() = tabManager.currentTab
 
-    val visibleCurrentTabIndex by derivedStateOf {
-        val current = currentTab
-        if (current == null) 0 else visibleTabs.indexOf(current).coerceAtLeast(0)
-    }
+    /** Scoped tab variant of [currentTab] */
+    val currentVisibleTab
+        get() = visibleTabs.getOrNull(visibleCurrentTabIndex)
+
+    /** Scoped tab variant of [currentTabIndex] */
+    val visibleCurrentTabIndex: Int
+        get() {
+            val current = currentTab
+            return current?.let { visibleTabs.indexOf(it).coerceAtLeast(0) } ?: 0
+        }
 
     val currentTabIndex
         get() = tabManager.currentTabIndex

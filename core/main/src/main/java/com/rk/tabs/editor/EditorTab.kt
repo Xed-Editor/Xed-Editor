@@ -28,6 +28,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
@@ -58,6 +60,11 @@ import com.rk.utils.errorDialog
 import com.rk.utils.hasBinaryChars
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
+import java.nio.charset.Charset
+import java.nio.file.Paths
+import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -78,11 +85,6 @@ import org.ec4j.core.ResourcePath
 import org.ec4j.core.ResourceProperties
 import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.PropertyType
-import java.nio.charset.Charset
-import java.nio.file.Paths
-import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(DelicateCoroutinesApi::class)
 open class EditorTab(
@@ -127,6 +129,12 @@ open class EditorTab(
     override val name: String
         get() = strings.editor.getString()
 
+    override val floatPadding: Dp
+        get() {
+            val extraKeysPadding = if (Settings.split_extra_keys) 88.dp else 48.dp
+            return if (Settings.show_extra_keys) extraKeysPadding else 0.dp
+        }
+
     val scope = CoroutineScope(Dispatchers.Default)
 
     override var title by mutableStateOf(customTitle ?: file?.getName() ?: strings.temp_file.getString())
@@ -134,9 +142,7 @@ open class EditorTab(
     val editorState by mutableStateOf(CodeEditorState(initialContent))
 
     override fun onTabAdded() {
-        scope.launch(Dispatchers.Main) {
-            restoreDocumentState()
-        }
+        scope.launch(Dispatchers.Main) { restoreDocumentState() }
     }
 
     override fun onTabRemoved() {
@@ -195,9 +201,7 @@ open class EditorTab(
                 val titleAlreadyExists = viewModel.tabs.any { it.title == title && it != this@EditorTab }
 
                 if (titleAlreadyExists && parent != null) {
-                    withContext(Dispatchers.Main) {
-                        title = "${parent.getName()}/$title"
-                    }
+                    withContext(Dispatchers.Main) { title = "${parent.getName()}/$title" }
                 }
             }
 
@@ -503,9 +507,7 @@ open class EditorTab(
 
             registerTask(FORMAT_DOCUMENT_TASK_ID)
             editor.formatCodeAsync()
-            withTimeoutOrNull(10.seconds) {
-                deferred.await()
-            }
+            withTimeoutOrNull(10.seconds) { deferred.await() }
             unregisterTask(FORMAT_DOCUMENT_TASK_ID)
         }
 
@@ -629,16 +631,12 @@ open class EditorTab(
                                     editorState.jumpToLineError = strings.value_invalid.getString()
                                 }
 
-                                line > lastLine -> {
-                                    editorState.jumpToLineError = strings.value_large.getString()
+                                line < 0 -> {
+                                    editorState.jumpToLineError = strings.value_invalid.getString()
                                 }
 
-                                line < 1 -> {
-                                    editorState.jumpToLineError = strings.value_small.getString()
-                                }
-
-                                column != null && column < 1 -> {
-                                    editorState.jumpToLineError = strings.value_small.getString()
+                                column != null && column < 0 -> {
+                                    editorState.jumpToLineError = strings.value_invalid.getString()
                                 }
                             }
                         },
@@ -646,9 +644,10 @@ open class EditorTab(
                             val editor = editorState.editor.get() ?: return@SingleInputDialog
                             val parts = editorState.jumpToLineValue.split(":")
 
-                            val line = parts[0].toInt() - 1
+                            val line =
+                                parts.getOrNull(0)?.toIntOrNull()?.minus(1)?.coerceIn(0, editor.text.lineCount - 1) ?: 0
                             val maxColumn = editor.text.getLine(line).length
-                            val column = parts.getOrNull(1)?.toInt()?.minus(1)?.coerceIn(0, maxColumn) ?: 0
+                            val column = parts.getOrNull(1)?.toIntOrNull()?.minus(1)?.coerceIn(0, maxColumn) ?: 0
 
                             editor.setSelection(line, column)
                         },

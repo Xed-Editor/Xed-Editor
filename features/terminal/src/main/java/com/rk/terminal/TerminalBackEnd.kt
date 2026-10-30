@@ -8,8 +8,8 @@ import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.activities.terminal.Terminal
 import com.rk.settings.Settings
 import com.rk.settings.terminal.TerminalCursorStyle
-import com.rk.utils.logError
 import com.rk.terminal.virtualkeys.SpecialButton
+import com.rk.utils.logError
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -106,7 +106,6 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
     override fun shouldSupportClipboardKeybindings(): Boolean {
         return Settings.terminal_clipboard_keybindings
     }
-
 
     override fun isTerminalViewSelected(): Boolean {
         return true

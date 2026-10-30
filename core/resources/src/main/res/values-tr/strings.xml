@@ -950,4 +950,17 @@
     <string name="ai_tool_field">Alan</string>
     <string name="ai_tool_max_bytes">Maksimum bayt</string>
     <string name="playstore_arm64_only">Play Store sürümü yalnızca 64-bit ARM (arm64-v8a) cihazları destekler.</string>
+    <string name="scroll_to_bottom">Aşağı kaydır</string>
+    <string name="suggest_keywords">Anahtar kelimeler öner</string>
+    <string name="suggest_keywords_desc">Otomatik tamamlama önerilerinde önceden tanımlanmış anahtar kelimeleri göster</string>
+    <string name="suggest_identifiers">Tanımlayıcıları öner</string>
+    <string name="suggest_identifiers_desc">Otomatik tamamlama önerilerinde tanımlayıcıları toplayın ve gösterin</string>
+    <string name="ai_chat_label">Sohbet</string>
+    <string name="ai_no_tasks">Henüz görev yok.\nYapay zeka tarafından oluşturulan görevler burada görünecektir.</string>
+    <string name="browse_project">Projeye gözat</string>
+    <string name="no_suggestions">Öneri yok</string>
+    <string name="suggestions">Öneriler</string>
+    <string name="suggestions_autocorrect">Öneriler + Otomatik Düzelt</string>
+    <string name="input_behavior">Girdi davranışı</string>
+    <string name="input_behavior_msg">Gerçek giriş davranışı IME\'ye bağlı olarak değişebilir. CJK dilleri kullanıcıları \"Öneri yok\" seçeneğinden kaçınmalıdır, çünkü bu diller önerilere dayanır.</string>
 </resources>

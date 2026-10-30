@@ -41,9 +41,7 @@ class RefreshCommand : EditorCommand() {
     }
 
     private fun publishEvent(currentTab: EditorTab) {
-        DefaultScope.launch {
-            Events.publish(EditorTabEvent.Refreshed(currentTab))
-        }
+        DefaultScope.launch { Events.publish(EditorTabEvent.Refreshed(currentTab)) }
     }
 
     override fun getIcon(): Icon = Icon.ResourceIcon(drawables.refresh)

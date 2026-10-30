@@ -16,21 +16,22 @@ enum class NEXT_STAGE {
     EXTRACTION,
 }
 
-suspend fun CoroutineScope.getNextStage(context: Context): NEXT_STAGE = withContext(Dispatchers.IO) {
-    if (isMainThread()) {
-        throw RuntimeException("IO operation on the main thread")
-    }
+suspend fun CoroutineScope.getNextStage(context: Context): NEXT_STAGE =
+    withContext(Dispatchers.IO) {
+        if (isMainThread()) {
+            throw RuntimeException("IO operation on the main thread")
+        }
 
-    val sandboxFile = File(getTempDir(), "sandbox.tar.gz")
-    val rootfsFiles =
-        sandboxDir().listFiles()?.filter {
-            it.absolutePath != sandboxHomeDir().absolutePath &&
-                it.absolutePath != sandboxDir().child("tmp").absolutePath
-        } ?: emptyList()
+        val sandboxFile = File(getTempDir(), "sandbox.tar.gz")
+        val rootfsFiles =
+            sandboxDir().listFiles()?.filter {
+                it.absolutePath != sandboxHomeDir().absolutePath &&
+                    it.absolutePath != sandboxDir().child("tmp").absolutePath
+            } ?: emptyList()
 
-    return@withContext if (sandboxFile.exists().not() || rootfsFiles.isEmpty().not()) {
-        NEXT_STAGE.NONE
-    } else {
-        NEXT_STAGE.EXTRACTION
+        return@withContext if (sandboxFile.exists().not() || rootfsFiles.isEmpty().not()) {
+            NEXT_STAGE.NONE
+        } else {
+            NEXT_STAGE.EXTRACTION
+        }
     }
-}

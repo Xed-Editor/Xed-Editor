@@ -1,21 +1,23 @@
 package com.rk.activities.main.ui
 
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -26,24 +28,31 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,17 +64,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rk.App.Companion.themeManager
+import com.rk.activities.main.MainActivity
 import com.rk.extension.api.Task
+import com.rk.extension.api.TaskRegistry
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TaskOutputView(modifier: Modifier = Modifier) {
-    val activeTask = TaskOutputState.activeTask ?: return
+    val activeTask = TaskOutputState.focusedTask ?: return
     val expanded = TaskOutputState.expanded
     val imeVisible = WindowInsets.isImeVisible
 
@@ -79,23 +94,33 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
             label = "taskOutputHeight",
         )
 
-    val scrollState = rememberScrollState()
+    val props =
+        if (isSystemInDarkTheme()) {
+            themeManager.currentTheme.darkTerminalColors
+        } else {
+            themeManager.currentTheme.lightTerminalColors
+        }
+
+    val lines = activeTask.output
+    val listState = rememberLazyListState()
     val hScrollState = rememberScrollState()
 
-    val isAtBottom by remember {
-        derivedStateOf {
-            scrollState.canScrollForward
-        }
+    var follow by remember { mutableStateOf(true) }
+
+    // Only the user's own scrolling changes follow mode (at bottom = follow, scrolled up = stop)
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.isScrollInProgress to listState.canScrollForward }
+            .collect { (scrolling, canForward) -> if (scrolling) follow = !canForward }
     }
 
-    LaunchedEffect(activeTask.output, expanded) {
-        if (expanded && isAtBottom) {
-            scrollState.animateScrollTo(scrollState.maxValue)
-        }
-    }
+    // Stick to the bottom while new lines arrive
+    LaunchedEffect(lines.size) { if (follow && lines.isNotEmpty()) listState.scrollToItem(lines.lastIndex) }
 
     val floating = !imeVisible
     val corner = if (floating) 12.dp else 0.dp
+
+    val currentTab = MainActivity.instance?.viewModel?.currentVisibleTab
+    val bottomPadding = currentTab?.floatPadding ?: 0.dp
 
     Surface(
         modifier =
@@ -103,7 +128,7 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(
                     horizontal = if (floating) 8.dp else 0.dp,
-                    vertical = if (floating) 8.dp else 0.dp,
+                    vertical = bottomPadding + (if (floating) 8.dp else 0.dp),
                 ),
         shape =
             RoundedCornerShape(
@@ -113,7 +138,7 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
                 bottomEnd = corner,
             ),
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shadowElevation = 4.dp,
+        shadowElevation = if (floating) 4.dp else 0.dp,
     ) {
         Column(
             modifier =
@@ -167,30 +192,74 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
                             trackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f),
                         )
                     }
-                } else {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f))
                 }
             }
 
             Column(modifier = Modifier.fillMaxWidth().height(contentHeight)) {
                 if (contentHeight > 0.dp) {
-                    SelectionContainer(modifier = Modifier.fillMaxSize()) {
-                        Text(
-                            text = activeTask.output,
-                            modifier =
-                                Modifier.fillMaxSize()
-                                    .verticalScroll(scrollState)
-                                    .horizontalScroll(hScrollState)
-                                    .padding(8.dp),
-                            style =
-                                TextStyle(
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = 12.sp,
-                                    lineHeight = 16.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                ),
-                            softWrap = false,
-                        )
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        val textStyle =
+                            TextStyle(
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+
+                        val textMeasurer = rememberTextMeasurer()
+                        val charWidthPx =
+                            remember(textMeasurer) { textMeasurer.measure("0".repeat(20), textStyle).size.width / 20f }
+
+                        val maxColumns by remember(lines) { derivedStateOf { lines.maxOfOrNull { it.columns } ?: 0 } }
+                        val contentWidth = with(LocalDensity.current) { ((maxColumns + 1) * charWidthPx).toDp() }
+
+                        SelectionContainer(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(
+                                state = listState,
+                                modifier = Modifier.fillMaxSize().horizontalScroll(hScrollState),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                contentPadding = PaddingValues(8.dp),
+                            ) {
+                                items(count = lines.size) { index ->
+                                    val line = lines.getOrNull(index) ?: return@items
+                                    Text(
+                                        text = line.toAnnotatedString(props),
+                                        modifier = Modifier.width(contentWidth),
+                                        minLines = 1, // keeps empty lines at full height
+                                        softWrap = false,
+                                        style = textStyle,
+                                    )
+                                }
+                            }
+                        }
+
+                        Column(modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp)) {
+                            AnimatedVisibility(
+                                visible = !follow,
+                                enter = fadeIn() + scaleIn(initialScale = 0.6f),
+                                exit = fadeOut() + scaleOut(targetScale = 0.6f),
+                            ) {
+                                val coroutineScope = rememberCoroutineScope()
+
+                                SmallFloatingActionButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            follow = true
+                                            listState.scrollToItem(lines.lastIndex)
+                                        }
+                                    },
+                                    modifier = Modifier.size(36.dp),
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                ) {
+                                    Icon(
+                                        painter = painterResource(drawables.chevron_down),
+                                        contentDescription = stringResource(strings.scroll_to_bottom),
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -204,8 +273,25 @@ private fun Header(task: Task, expanded: Boolean) {
         modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val tasks = TaskRegistry.tasks.collectAsStateWithLifecycle().value
+
         Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) {
-            task.icon()
+            if (tasks.size > 1) {
+                BadgedBox(
+                    badge = {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ) {
+                            Text(tasks.size.toString())
+                        }
+                    }
+                ) {
+                    task.icon()
+                }
+            } else {
+                task.icon()
+            }
         }
 
         Spacer(modifier = Modifier.width(12.dp))
@@ -219,8 +305,8 @@ private fun Header(task: Task, expanded: Boolean) {
                 overflow = TextOverflow.Ellipsis,
             )
 
-            AnimatedContent(
-                targetState =
+            Text(
+                text =
                     task.latestLine.ifBlank {
                         if (task.isRunning) {
                             stringResource(strings.running)
@@ -228,19 +314,11 @@ private fun Header(task: Task, expanded: Boolean) {
                             stringResource(strings.finished)
                         }
                     },
-                transitionSpec = {
-                    (slideInVertically { it } + fadeIn()) togetherWith (slideOutVertically { -it } + fadeOut())
-                },
-                label = "latestLine",
-            ) { line ->
-                Text(
-                    text = line,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
 
         if (task.isRunning) {

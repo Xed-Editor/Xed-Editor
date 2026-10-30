@@ -30,6 +30,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
+import kotlinx.coroutines.CancellationException
 
 fun errorDialog(
     activity: Activity? = ActivityProvider.currentActivity,
@@ -43,7 +44,7 @@ fun errorDialog(
             Log.w("ERROR_DIALOG", "Message is blank")
             return@runOnUiThread
         }
-        if (msg.contains("Job was cancelled")) {
+        if (msg.contains("Job was cancelled") || msg.contains("StandaloneCoroutine was cancelled")) {
             Log.w("ERROR_DIALOG", msg)
             return@runOnUiThread
         }
@@ -62,7 +63,11 @@ fun errorDialog(
     title: String = strings.error.getString(),
 ) {
     runOnUiThread {
-        if (throwable.message.toString().contains("Job was cancelled")) {
+        if (
+            throwable is CancellationException ||
+                throwable.message.toString().contains("Job was cancelled") ||
+                throwable.message.toString().contains("StandaloneCoroutine was cancelled")
+        ) {
             Log.w("ERROR_DIALOG", throwable.message.toString())
             return@runOnUiThread
         }
@@ -79,6 +84,14 @@ fun errorDialog(
 }
 
 fun errorDialog(exception: Exception) {
+    if (
+        exception is CancellationException ||
+            exception.message.toString().contains("Job was cancelled") ||
+            exception.message.toString().contains("StandaloneCoroutine was cancelled")
+    ) {
+        Log.w("ERROR_DIALOG", exception.message.toString())
+        return
+    }
     val message = StringBuilder()
     exception.let {
         var msg = it.message

@@ -23,12 +23,12 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.utils.logError
 import com.rk.utils.okHttpClient
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.File
 
 sealed interface MarkdownStatus {
     object Loading : MarkdownStatus

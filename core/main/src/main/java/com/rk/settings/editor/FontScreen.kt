@@ -37,8 +37,6 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.editor.FontCache
-import com.rk.file.child
-import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -76,7 +74,6 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
         }
     }
 }
-
 
 @Composable
 fun AppFontScreen(modifier: Modifier = Modifier) {
@@ -137,37 +134,37 @@ fun FontScreen(
                     contract = ActivityResultContracts.GetContent(),
                     onResult = { uri: Uri? ->
                         runCatching {
-                                var fileName = "unknown-font-error.ttf"
+                            var fileName = "unknown-font-error.ttf"
 
-                                context.contentResolver.query(uri!!, null, null, null, null)?.use { cursor ->
-                                    if (cursor.moveToFirst()) {
-                                        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                                        if (nameIndex != -1) {
-                                            fileName = cursor.getString(nameIndex)
-                                        }
+                            context.contentResolver.query(uri!!, null, null, null, null)?.use { cursor ->
+                                if (cursor.moveToFirst()) {
+                                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                                    if (nameIndex != -1) {
+                                        fileName = cursor.getString(nameIndex)
                                     }
                                 }
-
-                                val destinationFile = File(context.filesDir, "fonts/$fileName")
-                                destinationFile.parentFile?.mkdirs()
-                                if (destinationFile.exists().not()) {
-                                    destinationFile.createNewFile()
-                                }
-                                context.contentResolver.openInputStream(uri).use { inputStream ->
-                                    FileOutputStream(destinationFile).use { outputStream ->
-                                        inputStream?.copyTo(outputStream)
-                                    }
-                                }
-                                FontRegistry.addFont(
-                                    FontRegistry.Font(
-                                        name = fileName.removeSuffix(".ttf"),
-                                        isAsset = false,
-                                        pathOrAsset = destinationFile.absolutePath,
-                                    )
-                                )
-                                FontRegistry.saveFonts()
-                                toast(strings.font_added.getString())
                             }
+
+                            val destinationFile = File(context.filesDir, "fonts/$fileName")
+                            destinationFile.parentFile?.mkdirs()
+                            if (destinationFile.exists().not()) {
+                                destinationFile.createNewFile()
+                            }
+                            context.contentResolver.openInputStream(uri).use { inputStream ->
+                                FileOutputStream(destinationFile).use { outputStream ->
+                                    inputStream?.copyTo(outputStream)
+                                }
+                            }
+                            FontRegistry.addFont(
+                                FontRegistry.Font(
+                                    name = fileName.removeSuffix(".ttf"),
+                                    isAsset = false,
+                                    pathOrAsset = destinationFile.absolutePath,
+                                )
+                            )
+                            FontRegistry.saveFonts()
+                            toast(strings.font_added.getString())
+                        }
                             .onFailure {
                                 if (it.message?.isNotBlank() == true) {
                                     errorDialog(throwable = it)

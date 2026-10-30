@@ -2,7 +2,6 @@ package com.rk.file
 
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.icons.Icon
-import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -126,19 +125,19 @@ enum class BuiltinFileType(
     override val iconOverride: Map<String, Icon>? = null,
     override val title: String,
     override val markdownNames: List<String> = emptyList(),
-    override val lspLanguageId: String?
+    override val lspLanguageId: String?,
 ) : FileType {
     // Web languages
     JAVASCRIPT(
-        extensions = listOf("js", "mjs", "cjs", "jscsrc", "jshintrc","javascript"),
+        extensions = listOf("js", "mjs", "cjs", "jscsrc", "jshintrc", "javascript"),
         textmateScope = "source.js",
         icon = Icon.ResourceIcon(js),
         title = "JavaScript",
         markdownNames = listOf("javascript"),
-        lspLanguageId = "javascript"
+        lspLanguageId = "javascript",
     ),
     TYPESCRIPT(
-        extensions = listOf("ts", "mts", "cts","typescript"),
+        extensions = listOf("ts", "mts", "cts", "typescript"),
         textmateScope = "source.ts",
         icon = Icon.ResourceIcon(ts),
         title = "TypeScript",
@@ -166,8 +165,20 @@ enum class BuiltinFileType(
         title = "HTML",
         lspLanguageId = "html",
     ),
-    HTMX(extensions = listOf("htmx"), textmateScope = "text.html.htmx", icon = Icon.ResourceIcon(html), title = "HTMX", lspLanguageId = "html"),
-    CSS(extensions = listOf("css"), textmateScope = "source.css", icon = Icon.ResourceIcon(css), title = "CSS", lspLanguageId = "css"),
+    HTMX(
+        extensions = listOf("htmx"),
+        textmateScope = "text.html.htmx",
+        icon = Icon.ResourceIcon(html),
+        title = "HTMX",
+        lspLanguageId = "html",
+    ),
+    CSS(
+        extensions = listOf("css"),
+        textmateScope = "source.css",
+        icon = Icon.ResourceIcon(css),
+        title = "CSS",
+        lspLanguageId = "css",
+    ),
     SCSS(
         extensions = listOf("scss", "sass"),
         textmateScope = "source.css.scss",
@@ -235,7 +246,13 @@ enum class BuiltinFileType(
         title = "Groovy",
         lspLanguageId = "groovy",
     ),
-    C(extensions = listOf("c"), textmateScope = "source.c", icon = Icon.ResourceIcon(c), title = "C", lspLanguageId = "c"),
+    C(
+        extensions = listOf("c"),
+        textmateScope = "source.c",
+        icon = Icon.ResourceIcon(c),
+        title = "C",
+        lspLanguageId = "c",
+    ),
     CPP(
         extensions = listOf("cpp", "cxx", "cc", "c++", "h", "hpp", "hh", "hxx", "h++"),
         textmateScope = "source.cpp",
@@ -259,9 +276,27 @@ enum class BuiltinFileType(
         markdownNames = listOf("ruby"),
         lspLanguageId = "ruby",
     ),
-    LUA(extensions = listOf("lua", "luau"), textmateScope = "source.lua", icon = Icon.ResourceIcon(lua), title = "Lua", lspLanguageId = "lua"),
-    GO(extensions = listOf("go"), textmateScope = "source.go", icon = Icon.ResourceIcon(go), title = "Go", lspLanguageId = "go"),
-    PHP(extensions = listOf("php"), textmateScope = "source.php", icon = Icon.ResourceIcon(php), title = "PHP", lspLanguageId = "php"),
+    LUA(
+        extensions = listOf("lua", "luau"),
+        textmateScope = "source.lua",
+        icon = Icon.ResourceIcon(lua),
+        title = "Lua",
+        lspLanguageId = "lua",
+    ),
+    GO(
+        extensions = listOf("go"),
+        textmateScope = "source.go",
+        icon = Icon.ResourceIcon(go),
+        title = "Go",
+        lspLanguageId = "go",
+    ),
+    PHP(
+        extensions = listOf("php"),
+        textmateScope = "source.php",
+        icon = Icon.ResourceIcon(php),
+        title = "PHP",
+        lspLanguageId = "php",
+    ),
     RUST(
         extensions = listOf("rs"),
         textmateScope = "source.rust",
@@ -278,8 +313,20 @@ enum class BuiltinFileType(
         markdownNames = listOf("pascal"),
         lspLanguageId = "pascal",
     ),
-    ZIG(extensions = listOf("zig", "zon"), textmateScope = "source.zig", icon = Icon.ResourceIcon(zig), title = "Zig", lspLanguageId = "zig"),
-    NIM(extensions = listOf("nim"), textmateScope = "source.nim", icon = Icon.ResourceIcon(nim), title = "Nim", lspLanguageId = "nim"),
+    ZIG(
+        extensions = listOf("zig", "zon"),
+        textmateScope = "source.zig",
+        icon = Icon.ResourceIcon(zig),
+        title = "Zig",
+        lspLanguageId = "zig",
+    ),
+    NIM(
+        extensions = listOf("nim"),
+        textmateScope = "source.nim",
+        icon = Icon.ResourceIcon(nim),
+        title = "Nim",
+        lspLanguageId = "nim",
+    ),
     SWIFT(
         extensions = listOf("swift"),
         textmateScope = "source.swift",
@@ -287,8 +334,20 @@ enum class BuiltinFileType(
         title = "Swift",
         lspLanguageId = "swift",
     ),
-    DART(extensions = listOf("dart"), textmateScope = "source.dart", icon = Icon.ResourceIcon(dart), title = "Dart", lspLanguageId = "dart"),
-    ROCQ(extensions = listOf("v", "coq"), textmateScope = "source.coq", icon = null, title = "Rocq (Coq)", lspLanguageId = "coq"),
+    DART(
+        extensions = listOf("dart"),
+        textmateScope = "source.dart",
+        icon = Icon.ResourceIcon(dart),
+        title = "Dart",
+        lspLanguageId = "dart",
+    ),
+    ROCQ(
+        extensions = listOf("v", "coq"),
+        textmateScope = "source.coq",
+        icon = null,
+        title = "Rocq (Coq)",
+        lspLanguageId = "coq",
+    ),
     KOTLIN(
         extensions = listOf("kt", "kts"),
         textmateScope = "source.kotlin",
@@ -346,8 +405,20 @@ enum class BuiltinFileType(
         markdownNames = listOf("powershell", "ps"),
         lspLanguageId = "powershell",
     ),
-    SMALI(extensions = listOf("smali"), textmateScope = "source.smali", icon = null, title = "Smali", lspLanguageId = "smali"),
-    ASSEMBLY(extensions = listOf("asm", "s", "S"), textmateScope = "source.asm", icon = null, title = "Assembly", lspLanguageId = "asm"),
+    SMALI(
+        extensions = listOf("smali"),
+        textmateScope = "source.smali",
+        icon = null,
+        title = "Smali",
+        lspLanguageId = "smali",
+    ),
+    ASSEMBLY(
+        extensions = listOf("asm", "s", "S"),
+        textmateScope = "source.asm",
+        icon = null,
+        title = "Assembly",
+        lspLanguageId = "asm",
+    ),
     CMAKE(
         extensions = emptyList(),
         names = listOf("cmakelists.txt"),
@@ -380,8 +451,20 @@ enum class BuiltinFileType(
         title = "SQL",
         lspLanguageId = "sql",
     ),
-    TOML(extensions = listOf("toml"), textmateScope = "source.toml", icon = Icon.ResourceIcon(toml), title = "TOML", lspLanguageId = "toml"),
-    INI(extensions = listOf("ini"), textmateScope = "source.ini", icon = Icon.ResourceIcon(prop), title = "INI", lspLanguageId = "ini"),
+    TOML(
+        extensions = listOf("toml"),
+        textmateScope = "source.toml",
+        icon = Icon.ResourceIcon(toml),
+        title = "TOML",
+        lspLanguageId = "toml",
+    ),
+    INI(
+        extensions = listOf("ini"),
+        textmateScope = "source.ini",
+        icon = Icon.ResourceIcon(prop),
+        title = "INI",
+        lspLanguageId = "ini",
+    ),
     PROPERTIES(
         extensions =
             listOf("properties", "cfg", "conf", "config", "editorconfig", "gitconfig", "gitmodules", "gitattributes"),
@@ -463,7 +546,13 @@ enum class BuiltinFileType(
         title = "Executable",
         lspLanguageId = null,
     ),
-    APK(extensions = listOf("apk", "xapk", "apks"), textmateScope = null, icon = Icon.ResourceIcon(apk), title = "APK", lspLanguageId = null),
+    APK(
+        extensions = listOf("apk", "xapk", "apks"),
+        textmateScope = null,
+        icon = Icon.ResourceIcon(apk),
+        title = "APK",
+        lspLanguageId = null,
+    ),
     XED_PACKAGE(
         extensions = listOf("xed"),
         textmateScope = null,
@@ -471,5 +560,11 @@ enum class BuiltinFileType(
         title = strings.xed_package.getString(),
         lspLanguageId = null,
     ),
-    UNKNOWN(extensions = emptyList(), textmateScope = null, icon = null, title = strings.unknown.getString(), lspLanguageId = null),
+    UNKNOWN(
+        extensions = emptyList(),
+        textmateScope = null,
+        icon = null,
+        title = strings.unknown.getString(),
+        lspLanguageId = null,
+    ),
 }

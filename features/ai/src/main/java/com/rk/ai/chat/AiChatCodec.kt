@@ -9,8 +9,7 @@ import com.rk.ai.model.TodoStatus
 import com.rk.ai.model.ToolCallStatus
 
 /**
- * Wire format behind [AiChatSnapshot.encode]. Varints are unsigned LEB128, text is UTF-8 and
- * integers are big-endian:
+ * Wire format behind [AiChatSnapshot.encode]. Varints are unsigned LEB128, text is UTF-8 and integers are big-endian:
  * ```
  * version   : uint8   (written by AiChatPayload)
  * magic     : int32   ('XEDA')
@@ -31,8 +30,9 @@ import com.rk.ai.model.ToolCallStatus
  * reasoning : uint8   (0 or 1)
  * string    : varint byte length, then UTF-8 bytes
  * ```
- * Enums use explicit codes so reordering cannot reinterpret an old payload, and the reader ignores
- * trailing bytes so later versions can append fields.
+ *
+ * Enums use explicit codes so reordering cannot reinterpret an old payload, and the reader ignores trailing bytes so
+ * later versions can append fields.
  */
 internal object AiChatCodec {
     private const val MAGIC = 0x58454441 // "XEDA"
@@ -63,8 +63,7 @@ internal object AiChatCodec {
     }
 
     /** Returns null for anything this build cannot read. */
-    fun decode(payload: ByteArray, version: Int): AiChatSnapshot? =
-        runCatching { read(payload, version) }.getOrNull()
+    fun decode(payload: ByteArray, version: Int): AiChatSnapshot? = runCatching { read(payload, version) }.getOrNull()
 
     private fun read(payload: ByteArray, version: Int): AiChatSnapshot {
         val reader = ChatReader(payload)
@@ -217,8 +216,7 @@ internal object AiChatCodec {
                 text.length +
                     ESTIMATED_TURN_OVERHEAD +
                     toolCalls.sumOf { it.id.length + it.name.length + it.args.length + 8 }
-            is AiTurn.ToolOutput ->
-                id.length + name.length + output.length + ESTIMATED_TURN_OVERHEAD
+            is AiTurn.ToolOutput -> id.length + name.length + output.length + ESTIMATED_TURN_OVERHEAD
         }
 
     private fun roleCode(role: AiChatRole): Int =
@@ -431,8 +429,8 @@ private class ChatReader(private val payload: ByteArray) {
 fun decodeChatSnapshot(payload: ByteArray?): AiChatSnapshot? = AiChatPayload.decode(payload)
 
 /**
- * The version byte around one encoded chat: a format this build cannot read is dropped instead of
- * failing the whole session restore.
+ * The version byte around one encoded chat: a format this build cannot read is dropped instead of failing the whole
+ * session restore.
  */
 internal object AiChatPayload {
     private const val PAYLOAD_VERSION = 1

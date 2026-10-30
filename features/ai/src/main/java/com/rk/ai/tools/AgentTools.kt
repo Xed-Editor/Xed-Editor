@@ -155,9 +155,7 @@ internal object AgentTools {
                                         ToolParameterDescriptor(
                                             "status",
                                             "Task state.",
-                                            ToolParameterType.Enum(
-                                                arrayOf("pending", "in_progress", "completed")
-                                            ),
+                                            ToolParameterType.Enum(arrayOf("pending", "in_progress", "completed")),
                                         ),
                                     ),
                                 requiredProperties = listOf("content", "status"),

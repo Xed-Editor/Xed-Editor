@@ -133,9 +133,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                             contentDescription = null,
                         )
                     },
-                    sideEffect = {
-                        navController.navigate("${SettingsRoutes.Extensions.route}?category=themes")
-                    },
+                    sideEffect = { navController.navigate("${SettingsRoutes.Extensions.route}?category=themes") },
                 )
             }
         }
@@ -158,9 +156,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                     currentIconPack.value = null
                     Settings.icon_pack = ""
 
-                    DefaultScope.launch {
-                        Events.publish(AppEvent.IconPackChanged(null, oldIconPack))
-                    }
+                    DefaultScope.launch { Events.publish(AppEvent.IconPackChanged(null, oldIconPack)) }
                 },
             )
 
@@ -184,9 +180,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                         currentIconPack.value = iconPack
                         Settings.icon_pack = id
 
-                        DefaultScope.launch {
-                            Events.publish(AppEvent.IconPackChanged(iconPack, oldIconPack))
-                        }
+                        DefaultScope.launch { Events.publish(AppEvent.IconPackChanged(iconPack, oldIconPack)) }
                     },
                 )
             }
@@ -205,9 +199,7 @@ fun ThemeScreen(navController: NavController, modifier: Modifier = Modifier) {
                             contentDescription = null,
                         )
                     },
-                    sideEffect = {
-                        navController.navigate("${SettingsRoutes.Extensions.route}?category=icon_packs")
-                    },
+                    sideEffect = { navController.navigate("${SettingsRoutes.Extensions.route}?category=icon_packs") },
                 )
             }
         }

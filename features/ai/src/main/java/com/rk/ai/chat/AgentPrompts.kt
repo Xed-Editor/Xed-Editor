@@ -11,19 +11,18 @@ import com.rk.ai.settings.AiMemory
 import kotlinx.coroutines.CancellationException
 
 /** Base prompt plus memory, goal and task list; the scratch pad is read back on demand instead. */
-internal fun buildSystemPrompt(base: String, goal: String?, todos: List<AiTodo>): String =
-    buildString {
-        append(base)
-        AiMemory.promptSection()?.let { append("\n\n").append(it) }
-        goal?.let { append("\n\nThe goal for this chat is: ").append(it) }
-        if (todos.isNotEmpty()) {
-            append("\n\nCurrent task list:")
-            todos.forEach { todo ->
-                val mark = if (todo.status == TodoStatus.Completed) "x" else " "
-                append("\n- [").append(mark).append("] ").append(todo.content)
-            }
+internal fun buildSystemPrompt(base: String, goal: String?, todos: List<AiTodo>): String = buildString {
+    append(base)
+    AiMemory.promptSection()?.let { append("\n\n").append(it) }
+    goal?.let { append("\n\nThe goal for this chat is: ").append(it) }
+    if (todos.isNotEmpty()) {
+        append("\n\nCurrent task list:")
+        todos.forEach { todo ->
+            val mark = if (todo.status == TodoStatus.Completed) "x" else " "
+            append("\n- [").append(mark).append("] ").append(todo.content)
         }
     }
+}
 
 internal fun buildConversationPrompt(systemPrompt: String, history: List<AiTurn>): Prompt =
     prompt("xed-ai-chat") {
@@ -42,9 +41,7 @@ internal fun buildConversationPrompt(systemPrompt: String, history: List<AiTurn>
 
 internal fun AiTurn.Assistant.toResponseParts(): List<MessagePart.ResponsePart> = buildList {
     if (text.isNotBlank()) add(MessagePart.Text(text))
-    toolCalls.forEach { call ->
-        add(MessagePart.Tool.Call(id = call.id, tool = call.name, args = call.args))
-    }
+    toolCalls.forEach { call -> add(MessagePart.Tool.Call(id = call.id, tool = call.name, args = call.args)) }
 }
 
 /** Answers the tool calls from [fromIndex] on, which the API requires once the assistant turn exists. */
@@ -60,7 +57,5 @@ internal fun answerRemainingToolCalls(
             is CancellationException -> "Not run: the user stopped the run."
             else -> "Not run: ${cause.message ?: "the run failed"}"
         }
-    calls.drop(fromIndex).forEach { call ->
-        history.add(AiTurn.ToolOutput(call.id, call.name, reason, true))
-    }
+    calls.drop(fromIndex).forEach { call -> history.add(AiTurn.ToolOutput(call.id, call.name, reason, true)) }
 }

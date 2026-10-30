@@ -98,6 +98,7 @@
     <string name="text_size_desc">Set text size</string>
     <string name="tab_size">Tab size</string>
     <string name="tab_size_desc">Number of spaces inserted for a tab character</string>
+    <string name="scroll_to_bottom">Scroll to bottom</string>
     <string name="monet">Dynamic colors</string>
     <string name="monet_desc">Use device theme in app</string>
     <string name="app_desc">General application settings</string>
@@ -110,7 +111,6 @@
     <string name="auto_mode">Auto</string>
     <string name="theme_mode">Theme mode</string>
     <string name="theme_mode_desc">Change app color theme</string>
-    <string name="show_suggestions">Show keyboard suggestions</string>
     <string name="about">About</string>
     <string name="about_desc">About Xed-Editor</string>
     <string name="version">Version</string>
@@ -223,8 +223,10 @@
     <string name="release_wakelock">Release wakelock</string>
     <string name="native_runner">This runner only works on native files, consider moving it to terminal home directory</string>
     <string name="terminal_virus_notice">On some devices, especially certain models from China, you may see a system security warning when many processes are running in the terminal (for example during \'apt update\' or \'apt upgrade\'). This is a false positive and does not indicate a real virus.</string>
-    <string name="text_mate_suggestion">TextMate auto-completion</string>
-    <string name="text_mate_suggestion_desc">Suggest predefined keywords</string>
+    <string name="suggest_keywords">Suggest keywords</string>
+    <string name="suggest_keywords_desc">Show predefined keywords in autocomplete suggestions</string>
+    <string name="suggest_identifiers">Suggest identifiers</string>
+    <string name="suggest_identifiers_desc">Collect and show identifiers in autocomplete suggestions</string>
     <string name="install">Install</string>
     <string name="ask_lsp_install">Would you like to install \'%s\' language server?</string>
     <string name="ask_lsp_update">Would you like to update \'%s\' language server?</string>
@@ -810,6 +812,7 @@
     <string name="no_reviews">No reviews</string>
     <string name="command_palette_swipe_hint">Tip: You can also open the command palette by swiping down from the toolbar!</string>
     <string name="ai_feature_label">AI</string>
+    <string name="ai_chat_label">Chat</string>
     <string name="ai_settings_description">Chat model, API key and tool permissions</string>
     <string name="ai_chat_command_label">AI chat</string>
     <string name="ai_chat_title">Xed AI</string>
@@ -893,6 +896,7 @@
     <string name="ai_edit_memory_title">Edit memory</string>
     <string name="ai_memory_dialog_hint">The assistant will see this in every future chat.</string>
     <string name="ai_tasks">Tasks</string>
+    <string name="ai_no_tasks">No tasks yet.\nTasks created by the AI will appear here.</string>
     <string name="ai_tasks_count">Tasks (%d)</string>
     <string name="ai_task_completed">Completed</string>
     <string name="ai_diff_more_lines">… %d more line(s)</string>
@@ -950,4 +954,18 @@
     <string name="file_changed_on_disk">File changed on disk</string>
     <string name="file_changed_on_disk_desc">\'%s\' was modified outside Xed since it was opened or last saved. Overwrite will replace those changes with your version. Reload will discard your unsaved edits and load the version on disk.</string>
     <string name="overwrite">Overwrite</string>
+    <string name="browse_project">Browse project</string>
+    <string name="no_suggestions">No suggestions</string>
+    <string name="suggestions">Suggestions</string>
+    <string name="suggestions_autocorrect">Suggestions + Autocorrect</string>
+    <string name="input_behavior">Input behavior</string>
+    <string name="input_behavior_msg">The actual input behavior may vary depending on the IME. Users of CJK languages should avoid the \'No suggestions\' option, as these languages rely on suggestions.</string>
+    <string name="cache">Cache</string>
+    <string name="other_files">Other files</string>
+    <string name="indexing_segment">Indexing</string>
+    <string name="storage_distribution">Storage distribution</string>
+    <string name="storage_distribution_desc">View the app\'s storage usage</string>
+    <string name="total_storage_usage">Total used by app</string>
+    <string name="calculating">Calculating…</string>
+    <string name="ubuntu" translatable="false">Ubuntu</string>
 </resources>

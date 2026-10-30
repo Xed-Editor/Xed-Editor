@@ -12,14 +12,14 @@ import io.github.rosemoe.sora.lsp.editor.LspLanguage
 import io.github.rosemoe.sora.lsp.utils.ColorUtils
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
+import java.util.regex.Pattern
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.regex.Pattern
-import kotlin.time.Duration.Companion.milliseconds
 
 class DefaultColorProvider(private val editor: Editor) : InlayHintProvider {
     private val scope = CoroutineScope(Dispatchers.Default + Job())
@@ -28,10 +28,7 @@ class DefaultColorProvider(private val editor: Editor) : InlayHintProvider {
         Pattern.compile("(?<![A-Za-z0-9_])#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})(?![A-Za-z0-9_])")
     private var cachedInlayHints: InlayHintsContainer? = null
 
-    private val contentChangeSubscription =
-        editor.subscribeAlways(ContentChangeEvent::class.java) {
-            requestUpdate()
-        }
+    private val contentChangeSubscription = editor.subscribeAlways(ContentChangeEvent::class.java) { requestUpdate() }
     private val lspConnectionSubscription =
         Events.subscribe<LSPEvent.ConnectionCompleted> { event ->
             if (event.editor == editor) {

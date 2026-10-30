@@ -87,8 +87,8 @@ object AiExtensions {
     /** Adds (or replaces) a chat backend. */
     @XedExtensionPoint fun registerProvider(provider: AiProvider) = AiProviderRegistry.registerProvider(provider)
 
-    @XedExtensionPoint fun registerProviders(vararg providers: AiProvider) =
-        AiProviderRegistry.registerProviders(*providers)
+    @XedExtensionPoint
+    fun registerProviders(vararg providers: AiProvider) = AiProviderRegistry.registerProviders(*providers)
 
     @XedExtensionPoint fun unregisterProvider(provider: AiProvider) = AiProviderRegistry.unregisterProvider(provider)
 

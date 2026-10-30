@@ -2,8 +2,19 @@ package com.rk.extension.api
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import com.rk.activities.main.ui.TaskOutputState
+import com.rk.utils.parseAnsiToAnnotatedString
+import com.rk.utils.resolveAnsiTheme
+import com.rk.utils.stripAnsi
+import java.util.Properties
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,19 +22,102 @@ import kotlinx.coroutines.flow.update
 
 /** Interface for a task that can be shown in the floating output view. */
 @XedExtensionPoint
-interface Task {
-    val id: String
-    val label: String
-    val icon: @Composable () -> Unit
-    val isRunning: Boolean
-    val output: String
-    val latestLine: String
-    val progress: Float? // null for indeterminate
-    val exitCode: Int?
+abstract class Task {
+    abstract val id: String
+    abstract val label: String
+    abstract val icon: @Composable () -> Unit
+    abstract val isRunning: Boolean
+    abstract val output: List<OutputLine>
+    abstract val latestLine: String
+    abstract val progress: Float? // null for indeterminate
 
-    fun stop()
+    abstract fun stop()
 
-    fun dismiss()
+    abstract fun dismiss()
+}
+
+interface OutputLine {
+    fun toAnnotatedString(props: Properties): AnnotatedString
+
+    fun getUnformattedText(): String
+
+    val columns: Int
+
+    class Ansi(val raw: String) : OutputLine {
+        override val columns by lazy { stripAnsi(raw).length }
+
+        @Volatile private var cachedProps: Properties? = null
+        @Volatile private var cachedAnnotated: AnnotatedString? = null
+
+        override fun toAnnotatedString(props: Properties): AnnotatedString {
+            if (cachedProps === props && cachedAnnotated != null) {
+                return cachedAnnotated!!
+            }
+            val parsed = parseAnsiToAnnotatedString(raw, props)
+            cachedProps = props
+            cachedAnnotated = parsed
+            return parsed
+        }
+
+        override fun getUnformattedText(): String {
+            return stripAnsi(raw)
+        }
+
+        override fun equals(other: Any?): Boolean = other is Ansi && other.raw == raw
+
+        override fun hashCode(): Int = raw.hashCode()
+    }
+
+    class Plain(val text: String) : OutputLine {
+        override val columns
+            get() = text.length
+
+        private val annotated by lazy { AnnotatedString(text) }
+
+        override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
+
+        override fun getUnformattedText() = text
+
+        override fun equals(other: Any?): Boolean = other is Plain && other.text == text
+
+        override fun hashCode(): Int = text.hashCode()
+    }
+
+    class Error(val text: String) : OutputLine {
+        override val columns
+            get() = text.length
+
+        override fun toAnnotatedString(props: Properties): AnnotatedString {
+            val theme = resolveAnsiTheme(props)
+            return buildAnnotatedString { withStyle(style = SpanStyle(color = theme.palette[1])) { append(text) } }
+        }
+
+        override fun getUnformattedText() = text
+
+        override fun equals(other: Any?): Boolean = other is Error && other.text == text
+
+        override fun hashCode(): Int = text.hashCode()
+    }
+
+    class Styled(
+        val text: String,
+        val style: SpanStyle,
+        val paragraphStyle: ParagraphStyle?,
+    ) : OutputLine {
+        override val columns
+            get() = text.length
+
+        private val annotated by lazy { AnnotatedString(text, spanStyle = style, paragraphStyle = paragraphStyle) }
+
+        override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
+
+        override fun getUnformattedText() = text
+
+        override fun equals(other: Any?): Boolean =
+            other is Styled && other.text == text && other.style == style && other.paragraphStyle == paragraphStyle
+
+        override fun hashCode(): Int = 31 * text.hashCode() + style.hashCode()
+    }
 }
 
 /** Base implementation of a Task. */
@@ -32,37 +126,56 @@ open class BaseTask(
     override val id: String,
     override val label: String,
     override val icon: @Composable () -> Unit,
-) : Task {
+) : Task() {
     override var isRunning by mutableStateOf(true)
-    override var output by mutableStateOf("")
+    override var output = mutableStateListOf<OutputLine>()
     override var latestLine by mutableStateOf("")
     override var progress by mutableStateOf<Float?>(null)
-    override var exitCode by mutableStateOf<Int?>(null)
-
-    private var onStop: (() -> Unit)? = null
-    private var onDismiss: (() -> Unit)? = null
 
     override fun stop() {
-        onStop?.invoke()
         isRunning = false
     }
 
+    /** Similar to [stop], but should be called when the task is finished. */
+    fun finish() {
+        isRunning = false
+        latestLine = ""
+    }
+
     override fun dismiss() {
-        onDismiss?.invoke()
         TaskRegistry.removeTask(this)
     }
 
-    fun updateOutput(line: String) {
-        output += line + "\n"
-        latestLine = line
+    /** Appends a line of text to the output, parsing ANSI color escape sequences if enabled. */
+    fun appendOutput(line: String, parseAnsi: Boolean = true) {
+        if (parseAnsi) {
+            appendOutput(OutputLine.Ansi(line))
+        } else {
+            appendOutput(OutputLine.Plain(line))
+        }
     }
 
-    fun setOnStop(block: (() -> Unit)?) {
-        onStop = block
+    /** Appends a line of text with a custom [SpanStyle] and [ParagraphStyle] to the output. */
+    fun appendOutput(line: String, style: SpanStyle, paragraphStyle: ParagraphStyle? = null) {
+        appendOutput(OutputLine.Styled(line, style, paragraphStyle))
     }
 
-    fun setOnDismiss(block: (() -> Unit)?) {
-        onDismiss = block
+    /** Appends an [OutputLine] to the output. */
+    fun appendOutput(outputLine: OutputLine) {
+        if (output.size >= 5500) output.removeRange(0, 500)
+        output.add(outputLine)
+        latestLine = outputLine.getUnformattedText()
+    }
+
+    /** Appends an error line of text to the output. */
+    fun appendErrorOutput(line: String) {
+        appendOutput(OutputLine.Error(line))
+    }
+
+    /** Clears output and latest line. */
+    fun clearOutput() {
+        output.clear()
+        latestLine = ""
     }
 }
 
@@ -74,11 +187,20 @@ object TaskRegistry {
         get() = _tasks.asStateFlow()
 
     fun addTask(task: Task) {
-        if (_tasks.value.any { it.id == task.id }) return
-        _tasks.update { it + task }
+        _tasks.update { tasks ->
+            val existingTask = tasks.find { it.id == task.id }
+
+            if (existingTask?.isRunning == true) {
+                return@update tasks
+            }
+
+            tasks.filterNot { it.id == task.id } + task
+        }
+        TaskOutputState.updateActiveTask()
     }
 
     fun removeTask(task: Task) {
         _tasks.update { it - task }
+        TaskOutputState.updateActiveTask()
     }
 }

@@ -72,13 +72,9 @@ fun FormatterSettings(navController: NavController, modifier: Modifier = Modifie
     val reorderState = rememberReorderState<String>(dragAfterLongPress = true)
     val lazyListState = rememberLazyListState()
 
-    val formatterIds = remember {
-        mutableStateListOf(*Formatters.getFormatterConfiguration().toTypedArray())
-    }
+    val formatterIds = remember { mutableStateListOf(*Formatters.getFormatterConfiguration().toTypedArray()) }
     val formatterSources by remember {
-        derivedStateOf {
-            formatterIds.mapNotNull { id -> Formatters.getSourceForId(id) }
-        }
+        derivedStateOf { formatterIds.mapNotNull { id -> Formatters.getSourceForId(id) } }
     }
 
     PreferenceScaffold(

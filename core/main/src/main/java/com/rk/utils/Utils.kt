@@ -55,12 +55,6 @@ import com.rk.resources.getString
 import com.rk.resources.plurals
 import com.rk.resources.strings
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
 import java.io.ObjectInputStream
@@ -68,6 +62,12 @@ import java.io.ObjectOutputStream
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
@@ -130,7 +130,12 @@ fun toast(message: String?) {
         Log.w("UTILS", "Toast with null or empty message")
         return
     }
-    if (message == "Job was cancelled") {
+    if (
+        message == "Job was cancelled" ||
+            message == "StandaloneCoroutine was cancelled" ||
+            message.contains("was cancelled", ignoreCase = true) ||
+            message.contains("cancelled", ignoreCase = true)
+    ) {
         Log.w("TOAST", message)
         return
     }
@@ -409,12 +414,12 @@ fun isBinaryExtension(fileExt: String): Boolean {
 }
 
 fun formatFileSize(bytes: Long): String {
-    if (bytes < 1024) return "$bytes B"
-    val kb = bytes / 1024.0
-    if (kb < 1024) return String.format(Locale.getDefault(), "%.1f KB", kb)
-    val mb = kb / 1024.0
-    if (mb < 1024) return String.format(Locale.getDefault(), "%.1f MB", mb)
-    val gb = mb / 1024.0
+    if (bytes < 1000) return "$bytes B"
+    val kb = bytes / 1000.0
+    if (kb < 1000) return String.format(Locale.getDefault(), "%.1f KB", kb)
+    val mb = kb / 1000.0
+    if (mb < 1000) return String.format(Locale.getDefault(), "%.1f MB", mb)
+    val gb = mb / 1000.0
     return String.format(Locale.getDefault(), "%.1f GB", gb)
 }
 

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -36,8 +37,8 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
-import com.rk.utils.logError
 import com.rk.utils.application
+import com.rk.utils.logError
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -107,9 +108,8 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         )
 
                     hasManageExternalStorageDeclared =
-                        pkgInfo.requestedPermissions?.any {
-                            it == android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
-                        } ?: false
+                        pkgInfo.requestedPermissions?.any { it == android.Manifest.permission.MANAGE_EXTERNAL_STORAGE }
+                            ?: false
                 }
 
                 SettingsItem(
@@ -133,6 +133,21 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 )
             }
 
+            SettingsItem(
+                label = stringResource(strings.storage_distribution),
+                description = stringResource(strings.storage_distribution_desc),
+                showSwitch = false,
+                default = false,
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null,
+                    )
+                },
+                sideEffect = { navController.navigate(SettingsRoutes.StorageSettings.route) },
+            )
+
             NextScreenCard(
                 label = stringResource(strings.manage_app_font),
                 description = stringResource(strings.manage_app_font),
@@ -141,15 +156,13 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
         }
 
         PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
-            FeatureRegistry.toggles.value.forEach { toggle ->
+            FeatureRegistry.toggles.collectAsStateWithLifecycle().value.forEach { toggle ->
                 BasicToggle(
                     label = toggle.name,
                     checked = toggle.state.value,
                     onSwitch = { checked ->
                         if (toggle.onSwitch != null) {
-                            toggle.onSwitch.invoke(activity, checked) { ok ->
-                                toggle.setEnable(ok)
-                            }
+                            toggle.onSwitch.invoke(activity, checked) { ok -> toggle.setEnable(ok) }
                         } else {
                             toggle.setEnable(checked)
                         }

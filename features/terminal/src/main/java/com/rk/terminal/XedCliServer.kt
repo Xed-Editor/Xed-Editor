@@ -6,12 +6,12 @@ import android.net.LocalSocket
 import com.rk.activities.main.MainActivity
 import com.rk.file.FileWrapper
 import com.rk.utils.logError
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 object XedCliServer {
     private var localServerSocket: LocalServerSocket? = null
@@ -33,9 +33,7 @@ object XedCliServer {
                             } catch (e: Exception) {
                                 break
                             }
-                        launch(Dispatchers.IO) {
-                            handleClientSocket(context, clientSocket)
-                        }
+                        launch(Dispatchers.IO) { handleClientSocket(context, clientSocket) }
                     }
                 } catch (e: Exception) {
                     logError(e)
@@ -45,9 +43,7 @@ object XedCliServer {
 
     fun stop() {
         isRunning = false
-        runCatching {
-            localServerSocket?.close()
-        }
+        runCatching { localServerSocket?.close() }
         localServerSocket = null
         socketJob?.cancel()
         socketJob = null

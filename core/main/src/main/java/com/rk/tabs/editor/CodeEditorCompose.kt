@@ -64,13 +64,13 @@ import io.github.rosemoe.sora.lang.format.FormatterProvider
 import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -154,9 +154,7 @@ fun Editor.registerXedFormatter(editorTab: EditorTab) {
             runCatching {
                 formatter?.provider?.getFormatter(editorTab, editor, editorTab.file)
             }
-                .onFailure { e ->
-                    logError(e, "Error getting formatter")
-                }
+                .onFailure { e -> logError(e, "Error getting formatter") }
                 .getOrNull()
         }
     }
@@ -308,9 +306,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
         val editorConfigProps = editorState.editorConfigLoaded?.await()
         editorConfigProps?.let { withContext(Dispatchers.Main) { editor.applySettings(it) } }
 
-        file?.let {
-            editor.connectLsp(this@applyHighlightingAndConnectLSP, it, this)
-        }
+        file?.let { editor.connectLsp(this@applyHighlightingAndConnectLSP, it, this) }
     }
 }
 

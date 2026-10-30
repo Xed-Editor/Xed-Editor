@@ -18,7 +18,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +31,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.ActionContext
+import com.rk.commands.Command
 import com.rk.commands.KeybindingsManager
 import com.rk.commands.ToggleableCommand
 import com.rk.commands.ToolbarConfiguration
@@ -41,7 +41,6 @@ import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.strings
 import com.rk.theme.Typography
-import com.rk.utils.x
 import kotlin.math.min
 
 @Composable
@@ -49,9 +48,7 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
-    val allActions by remember {
-        derivedStateOf { ToolbarConfiguration.editorCommands }
-    }
+    val allActions by remember { derivedStateOf { ToolbarConfiguration.editorCommands } }
 
     BoxWithConstraints(modifier = modifier) {
         val itemWidth = 64.dp
@@ -73,34 +70,7 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
         val dropdownActions = visibleActions.drop(actualVisibleCount)
 
         Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-            toolbarActions.forEach { command ->
-                IconButton(
-                    onClick = { /* Handled by holdable modifier */ },
-                    modifier =
-                        Modifier.size(48.dp)
-                            .holdable(
-                                enabled = command.isEnabled(),
-                                repeatOnHold = command.repeatOnHold,
-                                onLongClick = { command.onLongClick(ActionContext(activity!!)) },
-                                onClick = { command.perform(ActionContext(activity!!)) },
-                            ),
-                    enabled = command.isEnabled(),
-                    colors =
-                        IconButtonDefaults.iconButtonColors().let {
-                            if (command is ToggleableCommand && command.isOn())
-                                it.copy(
-                                    contentColor = MaterialTheme.colorScheme.primary,
-                                    disabledContentColor = MaterialTheme.colorScheme.primary,
-                                )
-                            else it
-                        },
-                ) {
-                    XedIcon(
-                        icon = if (command.preferText) Icon.TextIcon(command.getLabel()) else command.getIcon(),
-                        contentDescription = command.getLabel(),
-                    )
-                }
-            }
+            toolbarActions.forEach { command -> ToolbarAction(command) }
 
             if (dropdownActions.isNotEmpty()) {
                 Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
@@ -159,5 +129,37 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ToolbarAction(command: Command) {
+    val activity = LocalActivity.current
+
+    IconButton(
+        onClick = { /* Handled by holdable modifier */ },
+        modifier =
+            Modifier.size(48.dp)
+                .holdable(
+                    enabled = command.isEnabled(),
+                    repeatOnHold = command.repeatOnHold,
+                    onLongClick = { activity?.let { command.onLongClick(ActionContext(it)) } ?: false },
+                    onClick = { activity?.let { command.perform(ActionContext(it)) } },
+                ),
+        enabled = command.isEnabled(),
+        colors =
+            IconButtonDefaults.iconButtonColors().let {
+                if (command is ToggleableCommand && command.isOn())
+                    it.copy(
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        disabledContentColor = MaterialTheme.colorScheme.primary,
+                    )
+                else it
+            },
+    ) {
+        XedIcon(
+            icon = if (command.preferText) Icon.TextIcon(command.getLabel()) else command.getIcon(),
+            contentDescription = command.getLabel(),
+        )
     }
 }

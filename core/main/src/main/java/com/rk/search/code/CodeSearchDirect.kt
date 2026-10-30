@@ -8,6 +8,7 @@ import com.rk.search.utils.GlobExcluder
 import com.rk.search.utils.SearchUtils
 import com.rk.settings.Settings
 import com.rk.utils.logError
+import java.nio.charset.Charset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -15,7 +16,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.withContext
-import java.nio.charset.Charset
 
 /** Code search using filesystem traversal. No index required. */
 class CodeSearchDirect(

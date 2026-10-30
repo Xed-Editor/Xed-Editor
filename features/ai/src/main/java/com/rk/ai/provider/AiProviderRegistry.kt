@@ -29,8 +29,7 @@ object AiProviderRegistry {
         }
     }
 
-    @XedExtensionPoint
-    fun registerProviders(vararg providers: AiProvider) = providers.forEach(::registerProvider)
+    @XedExtensionPoint fun registerProviders(vararg providers: AiProvider) = providers.forEach(::registerProvider)
 
     @XedExtensionPoint
     fun unregisterProvider(provider: AiProvider) {
@@ -57,9 +56,7 @@ object AiProviderRegistry {
             }
         synchronized(lock) {
             builtinsById = toInstall
-            toInstall.forEach { (id, provider) ->
-                if (!providersById.containsKey(id)) providersById[id] = provider
-            }
+            toInstall.forEach { (id, provider) -> if (!providersById.containsKey(id)) providersById[id] = provider }
             publishLocked()
         }
     }
