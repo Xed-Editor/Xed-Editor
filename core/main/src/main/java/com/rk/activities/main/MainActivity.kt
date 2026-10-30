@@ -93,6 +93,8 @@ class MainActivity : AppCompatActivity() {
             handleIntent(intent)
             foregroundListener.values.forEach { it.invoke(true) }
 
+            viewModel.editorTabs.forEach { tab -> runCatching { tab.refreshIfChangedOnDisk() } }
+
             val lspConfigChanges = LspRegistry.getConfigurationChanges(this@MainActivity)
             if (lspConfigChanges.isNotEmpty()) {
                 val affectedExtensions = lspConfigChanges.flatMap { it.supportedExtensions }
