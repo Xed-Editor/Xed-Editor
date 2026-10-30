@@ -12,6 +12,8 @@ sealed interface TabState : Serializable {
     suspend fun toTab(): Tab?
 }
 
+data class DiskState(val path: String, val lastModified: Long?, val length: Long) : Serializable
+
 data class EditorTabState(
     val fileObject: FileObject?,
     val projectRoot: FileObject?,
@@ -21,6 +23,7 @@ data class EditorTabState(
     val isReadOnly: Boolean = false,
     val customTitle: String? = null,
     val fallbackExtension: String = "txt",
+    val diskState: DiskState? = null,
 ) : TabState {
     override suspend fun toTab(): Tab? {
         if (fileObject != null && !fileObject.exists() && !fileObject.canRead()) return null
@@ -35,6 +38,7 @@ data class EditorTabState(
                     customTitle = customTitle,
                     fallbackExtension = fallbackExtension,
                     initialContent = content,
+                    diskState = diskState,
                 )
 
             viewModelScope.launch {

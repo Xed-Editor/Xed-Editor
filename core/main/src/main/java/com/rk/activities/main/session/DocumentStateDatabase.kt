@@ -10,8 +10,6 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import java.io.Serializable
 
 @Entity(tableName = "document_state")
@@ -24,10 +22,6 @@ data class DocumentState(
     val scrollX: Int,
     val scrollY: Int,
     val lastOpened: Long,
-    // Disk snapshot (mtime, size) the buffer was based on, so a dirty buffer restored after process death can still
-    // tell whether the file changed in the meantime. Null when unknown.
-    val diskLastModified: Long? = null,
-    val diskLength: Long? = null,
 ) : Serializable
 
 @Dao
@@ -48,19 +42,11 @@ interface DocumentStateDao {
     @Query("DELETE FROM document_state") suspend fun clear()
 }
 
-@Database(entities = [DocumentState::class], version = 2, exportSchema = false)
+@Database(entities = [DocumentState::class], version = 1, exportSchema = false)
 abstract class DocumentStateDatabase : RoomDatabase() {
     abstract fun documentStateDao(): DocumentStateDao
 
     companion object {
-        private val MIGRATION_1_2 =
-            object : Migration(1, 2) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    db.execSQL("ALTER TABLE document_state ADD COLUMN diskLastModified INTEGER")
-                    db.execSQL("ALTER TABLE document_state ADD COLUMN diskLength INTEGER")
-                }
-            }
-
         @Volatile private var INSTANCE: DocumentStateDatabase? = null
 
         fun getDatabase(context: Context): DocumentStateDatabase {
@@ -72,7 +58,6 @@ abstract class DocumentStateDatabase : RoomDatabase() {
                                 DocumentStateDatabase::class.java,
                                 "document_state_database",
                             )
-                            .addMigrations(MIGRATION_1_2)
                             .build()
                     INSTANCE = instance
                     instance

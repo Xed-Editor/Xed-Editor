@@ -93,9 +93,7 @@ class MainActivity : AppCompatActivity() {
             handleIntent(intent)
             foregroundListener.values.forEach { it.invoke(true) }
 
-            // Reload clean tabs whose file was changed outside Xed while we were in the background.
-            // Tabs with unsaved edits are left alone; saving them goes through the conflict dialog instead.
-            viewModel.editorTabs.toList().forEach { tab -> runCatching { tab.refreshIfChangedOnDisk() } }
+            viewModel.editorTabs.forEach { tab -> runCatching { tab.refreshIfChangedOnDisk() } }
 
             val lspConfigChanges = LspRegistry.getConfigurationChanges(this@MainActivity)
             if (lspConfigChanges.isNotEmpty()) {
