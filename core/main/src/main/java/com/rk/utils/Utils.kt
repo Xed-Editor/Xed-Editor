@@ -414,12 +414,12 @@ fun isBinaryExtension(fileExt: String): Boolean {
 }
 
 fun formatFileSize(bytes: Long): String {
-    if (bytes < 1024) return "$bytes B"
-    val kb = bytes / 1024.0
-    if (kb < 1024) return String.format(Locale.getDefault(), "%.1f KB", kb)
-    val mb = kb / 1024.0
-    if (mb < 1024) return String.format(Locale.getDefault(), "%.1f MB", mb)
-    val gb = mb / 1024.0
+    if (bytes < 1000) return "$bytes B"
+    val kb = bytes / 1000.0
+    if (kb < 1000) return String.format(Locale.getDefault(), "%.1f KB", kb)
+    val mb = kb / 1000.0
+    if (mb < 1000) return String.format(Locale.getDefault(), "%.1f MB", mb)
+    val gb = mb / 1000.0
     return String.format(Locale.getDefault(), "%.1f GB", gb)
 }
 
