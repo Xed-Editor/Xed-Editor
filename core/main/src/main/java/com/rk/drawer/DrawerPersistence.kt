@@ -79,6 +79,8 @@ object DrawerPersistence {
                         .get()
                         ?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Set<FileObject>>)
                 }
+
+                stateRestored = true
             }
                 .onFailure {
                     logError(it)

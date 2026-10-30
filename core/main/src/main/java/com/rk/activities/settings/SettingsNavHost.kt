@@ -10,6 +10,7 @@ import com.rk.animations.NavigationAnimationTransitions
 import com.rk.lsp.LspRegistry
 import com.rk.settings.SettingsRegistry
 import com.rk.settings.SettingsScreen
+import com.rk.settings.StorageDistributionScreen
 import com.rk.settings.about.AboutScreen
 import com.rk.settings.app.SettingsAppScreen
 import com.rk.settings.debugOptions.AppLogs
@@ -68,6 +69,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }
         composable(SettingsRoutes.Formatters.route) { FormatterSettings(navController) }
         composable(SettingsRoutes.LspSettings.route) { LspSettings(navController) }
+        composable(SettingsRoutes.StorageSettings.route) { StorageDistributionScreen() }
         composable(
             "${SettingsRoutes.LspServerDetail.route}/{serverId}",
             arguments = listOf(navArgument("serverId", builder = { type = NavType.StringType })),
