@@ -25,12 +25,18 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.resources.getString
 import com.rk.resources.strings
 
+data class PreferenceListItem<T>(
+    val id: T,
+    val label: String,
+    val enabled: Boolean = true,
+)
+
 /** A Preference that shows a list of options in a dialog when clicked. */
 @Composable
 fun <T> PreferenceList(
     label: String,
     description: String?,
-    items: List<Pair<T, String>>,
+    items: List<PreferenceListItem<T>>,
     selectedItem: T,
     onItemSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
@@ -66,18 +72,19 @@ fun <T> PreferenceList(
                         Spacer(Modifier.height(12.dp))
                     }
 
-                    items.forEach { (item, string) ->
+                    items.forEach { (id, label, enabled) ->
                         PreferenceTemplate(
                             modifier =
-                                Modifier.clip(MaterialTheme.shapes.large).clickable {
-                                    tempSelectedItem = item
+                                Modifier.clip(MaterialTheme.shapes.large).clickable(enabled) {
+                                    tempSelectedItem = id
                                     tempCustomValue = ""
                                 },
-                            title = { Text(text = string) },
-                            description = { if (showIds) Text(text = item.toString()) },
+                            enabled = enabled,
+                            title = { Text(text = label) },
+                            description = { if (showIds) Text(text = id.toString()) },
                             startWidget = {
                                 RadioButton(
-                                    selected = (tempSelectedItem == item) && tempCustomValue.isBlank(),
+                                    selected = (tempSelectedItem == id) && tempCustomValue.isBlank(),
                                     onClick = null,
                                 )
                             },

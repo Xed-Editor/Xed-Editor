@@ -213,7 +213,7 @@ class MainViewModel : ViewModel() {
         SessionManager.mutex.withLock {
             val session = SessionManager.preloadedSession ?: return
 
-            val deferredRestoredTabs = session.tabStates.mapNotNull { tabState -> tabState.toTab() }
+            val deferredRestoredTabs = session.tabStates.mapNotNull { tabState -> tabState.toTab(this) }
 
             withContext(Dispatchers.Main) {
                 deferredRestoredTabs.forEach { tabManager.addTab(it, false) }

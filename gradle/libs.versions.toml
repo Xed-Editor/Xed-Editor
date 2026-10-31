@@ -173,6 +173,7 @@ androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstall
 material = { module = "com.google.android.material:material", version.ref = "material" }
 photoview = { module = "com.github.chrisbanes:PhotoView", version.ref = "photoview" }
 jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
+jgit-gpg = { module = "org.eclipse.jgit:org.eclipse.jgit.gpg.bc", version.ref = "jgit" }
 lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = "lsp4j" }
 jcodings = { module = "org.jruby.jcodings:jcodings", version.ref = "jcodings" }
 joni = { module = "org.jruby.joni:joni", version.ref = "joni" }

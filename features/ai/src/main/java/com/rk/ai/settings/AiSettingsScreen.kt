@@ -40,6 +40,7 @@ import com.rk.ai.provider.AiProviderRuntime
 import com.rk.ai.tools.AiTool
 import com.rk.components.NextScreenCard
 import com.rk.components.PreferenceList
+import com.rk.components.PreferenceListItem
 import com.rk.components.SettingsItem
 import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -114,7 +115,7 @@ fun AiSettingsScreen(modifier: Modifier = Modifier, onOpenMemory: () -> Unit = {
                 )
             }
 
-            val modelItems = models.map { it.id to it.displayName }
+            val modelItems = models.map { PreferenceListItem(it.id, it.displayName) }
             PreferenceList(
                 label = stringResource(strings.ai_model),
                 description = AiSettings.modelId,

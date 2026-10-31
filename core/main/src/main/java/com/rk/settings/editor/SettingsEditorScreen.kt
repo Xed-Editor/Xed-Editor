@@ -17,6 +17,7 @@ import com.rk.activities.settings.settingsNavController
 import com.rk.components.EditorSettingsItem
 import com.rk.components.NextScreenCard
 import com.rk.components.PreferenceList
+import com.rk.components.PreferenceListItem
 import com.rk.components.PreferenceSingleInput
 import com.rk.components.SettingsItem
 import com.rk.components.SmoothValueSlider
@@ -214,7 +215,13 @@ fun SettingsEditorScreen(navController: NavController) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 },
-                items = EditorInputBehavior.entries.map { it.value to stringResource(it.stringRes) },
+                items =
+                    EditorInputBehavior.entries.map {
+                        PreferenceListItem(
+                            it.value,
+                            stringResource(it.stringRes),
+                        )
+                    },
                 selectedItem = Settings.input_behavior,
                 onItemSelected = {
                     Settings.input_behavior = it
@@ -398,7 +405,7 @@ fun SettingsEditorScreen(navController: NavController) {
             PreferenceList(
                 label = stringResource(id = strings.sort_mode),
                 description = stringResource(id = strings.sort_mode_desc),
-                items = SortMode.entries.map { it to stringResource(it.stringRes) },
+                items = SortMode.entries.map { PreferenceListItem(it, stringResource(it.stringRes)) },
                 selectedItem = SortMode.entries[Settings.sort_mode],
                 onItemSelected = { sortMode ->
                     Settings.sort_mode = sortMode.ordinal

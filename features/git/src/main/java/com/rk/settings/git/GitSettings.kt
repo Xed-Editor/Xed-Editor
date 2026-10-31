@@ -17,6 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.components.DoubleInputDialog
+import com.rk.components.PreferenceList
+import com.rk.components.PreferenceListItem
 import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -31,11 +33,14 @@ fun GitSettings() {
     PreferenceLayout(label = stringResource(id = strings.git)) {
         var showCredentialsDialog by remember { mutableStateOf(false) }
         var showUserDataDialog by remember { mutableStateOf(false) }
+        var showGpgDialog by remember { mutableStateOf(false) }
 
         var username by remember { mutableStateOf(Settings.git_username) }
         var password by remember { mutableStateOf(Settings.git_password) }
         var name by remember { mutableStateOf(Settings.git_name) }
         var email by remember { mutableStateOf(Settings.git_email) }
+        var gpgKey by remember { mutableStateOf(Settings.git_gpg_key) }
+        var gpgPassphrase by remember { mutableStateOf(Settings.git_gpg_passphrase) }
 
         val context = LocalContext.current
 
@@ -80,6 +85,37 @@ fun GitSettings() {
                 showSwitch = false,
                 default = false,
                 sideEffect = { showUserDataDialog = true },
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.signing)) {
+            SettingsItem(
+                label = stringResource(strings.commit_signing),
+                description = stringResource(strings.commit_signing_desc),
+                default = Settings.git_commit_signing,
+                sideEffect = { Settings.git_commit_signing = it },
+            )
+
+            PreferenceList(
+                label = stringResource(strings.signing_format),
+                description = stringResource(strings.signing_format_desc),
+                items =
+                    listOf(
+                        PreferenceListItem("GPG", "GPG"),
+                        PreferenceListItem("SSH", "SSH", enabled = false),
+                    ),
+                selectedItem = Settings.git_signing_format,
+                onItemSelected = { Settings.git_signing_format = it },
+                enabled = Settings.git_commit_signing,
+            )
+
+            SettingsItem(
+                label = stringResource(strings.gpg_key),
+                description = stringResource(strings.gpg_key_desc),
+                showSwitch = false,
+                default = false,
+                isEnabled = Settings.git_commit_signing,
+                sideEffect = { showGpgDialog = true },
             )
         }
 
@@ -149,6 +185,28 @@ fun GitSettings() {
                     name = Settings.git_name
                     email = Settings.git_email
                     showUserDataDialog = false
+                },
+            )
+        }
+
+        if (showGpgDialog) {
+            DoubleInputDialog(
+                title = stringResource(strings.gpg_key_input_title),
+                firstInputLabel = stringResource(strings.gpg_key_input_label),
+                firstInputValue = gpgKey,
+                onFirstInputValueChange = { gpgKey = it },
+                secondInputLabel = stringResource(strings.gpg_passphrase_input_label),
+                secondInputValue = gpgPassphrase,
+                onSecondInputValueChange = { gpgPassphrase = it },
+                singleLineMode = false,
+                onConfirm = {
+                    Settings.git_gpg_key = gpgKey
+                    Settings.git_gpg_passphrase = gpgPassphrase
+                },
+                onFinish = {
+                    gpgKey = Settings.git_gpg_key
+                    gpgPassphrase = Settings.git_gpg_passphrase
+                    showGpgDialog = false
                 },
             )
         }

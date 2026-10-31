@@ -36,6 +36,7 @@ import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.Edit
 import org.eclipse.jgit.diff.RawText
 import org.eclipse.jgit.diff.RawTextComparator
+import org.eclipse.jgit.gpg.bc.internal.BouncyCastleGpgSigner
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
@@ -526,12 +527,29 @@ class GitViewModel : ViewModel() {
                                 else -> {}
                             }
                         }
-                    git.commit()
-                        .setAuthor(Settings.git_name, Settings.git_email)
-                        .setCommitter(Settings.git_name, Settings.git_email)
-                        .setMessage(message)
-                        .setAmend(amend)
-                        .call()
+                    val commitCmd =
+                        git.commit()
+                            .setAuthor(Settings.git_name, Settings.git_email)
+                            .setCommitter(Settings.git_name, Settings.git_email)
+                            .setMessage(message)
+                            .setAmend(amend)
+
+                    if (Settings.git_commit_signing) {
+                        if (Settings.git_gpg_key.isBlank()) {
+                            toast(strings.gpg_key_missing)
+                            return@launch
+                        }
+                        commitCmd.setSign(true)
+                        commitCmd.setSigningKey(Settings.git_gpg_key)
+                        commitCmd.setGpgSigner(BouncyCastleGpgSigner())
+                        commitCmd.setCredentialsProvider(
+                            UsernamePasswordCredentialsProvider("", Settings.git_gpg_passphrase)
+                        )
+                    } else {
+                        commitCmd.setSign(false)
+                    }
+
+                    commitCmd.call()
                     toast(strings.commit_complete)
                 }
                 if (amend) {

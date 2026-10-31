@@ -46,7 +46,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import com.rk.activities.main.MainActivity
 import com.rk.activities.main.ui.searchViewModel
 import com.rk.components.XedDropdownMenuItem
 import com.rk.drawer.DrawerViewModel
@@ -91,14 +90,6 @@ fun FileTree(
         if (!viewModel.isNodeExpanded(rootNode.file, rootNode.file)) {
             viewModel.toggleNodeExpansion(rootNode.file, rootNode.file)
             viewModel.loadChildrenForNode(rootNode)
-        }
-    }
-
-    LaunchedEffect(MainActivity.instance) {
-        MainActivity.instance?.foregroundListener["fileTreeRefresh"] = { resumed ->
-            if (resumed) {
-                viewModel.refreshEverything()
-            }
         }
     }
 

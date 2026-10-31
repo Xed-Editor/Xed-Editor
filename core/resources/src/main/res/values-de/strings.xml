@@ -474,6 +474,17 @@
     <string name="credentials_desc">Zugangsdaten für den Zugriff auf Remote-Repositories</string>
     <string name="user_data">Benutzerdaten</string>
     <string name="user_data_desc">Benutzerdaten, die in deinen Git-Commits erscheinen werden</string>
+    <string name="signing">Signierung</string>
+    <string name="commit_signing">Commit-Signierung</string>
+    <string name="commit_signing_desc">Git-Commits mit einem GPG- oder SSH-Schlüssel signieren</string>
+    <string name="signing_format">Signierungsformat</string>
+    <string name="signing_format_desc">Wähle das Schlüsselformat für die Commit-Signierung</string>
+    <string name="gpg_key">GPG-Schlüssel</string>
+    <string name="gpg_key_desc">Privater GPG-Schlüssel und optionales Passwort für die Commit-Signierung</string>
+    <string name="gpg_key_input_title">GPG-Zugangsdaten</string>
+    <string name="gpg_key_input_label">Privater GPG-Schlüssel (ASCII-armored)</string>
+    <string name="gpg_passphrase_input_label">Schlüssel-Passwort (optional)</string>
+    <string name="gpg_key_missing">GPG-Signierung ist aktiviert, aber es wurde kein GPG-Schlüssel in den Einstellungen hinterlegt.</string>
     <string name="username">Benutzername</string>
     <string name="password">Passwort</string>
     <string name="email">E-Mail</string>

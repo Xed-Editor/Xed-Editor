@@ -204,6 +204,10 @@ object Settings {
     var git_password by CachedPreference("git_password", "")
     var git_name by CachedPreference("git_name", "")
     var git_email by CachedPreference("git_email", "")
+    var git_commit_signing by CachedPreference("git_commit_signing", false)
+    var git_signing_format by CachedPreference("git_signing_format", "GPG")
+    var git_gpg_key by CachedPreference("git_gpg_key", "")
+    var git_gpg_passphrase by CachedPreference("git_gpg_passphrase", "")
     var git_conflict_detection by CachedPreference("git_conflict_detection", true)
     var excluded_files_search by
         CachedPreference("excluded_files_search", DEFAULT_EXCLUDED_FILES_SEARCH.joinToString("\n"))
