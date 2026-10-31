@@ -63,6 +63,8 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var jumpToLineValue by mutableStateOf("")
     var jumpToLineError by mutableStateOf<String?>(null)
 
+    var showDiskConflictDialog by mutableStateOf(false)
+
     var showRenameDialog by mutableStateOf(false)
     var renameValue by mutableStateOf("")
     var renameError by mutableStateOf<String?>(null)

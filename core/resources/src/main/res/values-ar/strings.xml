@@ -185,7 +185,7 @@
     <string name="no_runners">لا مشغلات</string>
     <string name="new_runner">مشغل جديد</string>
     <string name="runner_name">اسم المشغل</string>
-    <string name="runner_regex">نمط التعبيرات العادية</string>
+    <string name="runner_regex">نمط التعبير النمطي</string>
     <string name="invalid_runner_name">مسموح فقط بالأحرف والأرقام والشرطات السفلية وعلامات الوصل</string>
     <string name="invalid_regex">نمط Regex غير صالح</string>
     <string name="open_as_project">الفتح كمشروع</string>
@@ -414,4 +414,8 @@
     <string name="logs_too_long">السجلات طويلة حداً</string>
     <string name="logs_too_long_desc">ملف السجلات اللذي اردت الابلاغ عنه طويل جداً. الرجاء نسخ الملف يدوياً و لصقه في خانة البلاغ</string>
     <string name="complete_on_enter">اكمل عند الإدخال</string>
+    <string name="scroll_to_bottom">عرض علامات التبويب التابعة للمشروع الحالي فقط</string>
+    <string name="playstore_arm64_only">البناء الخاص بمتجر التطبيقات يدعم فقط أجهزة ARM 64 بت (ARM64-V8A).</string>
+    <string name="suggest_keywords">اقتراح كلمات مفتاحية</string>
+    <string name="suggest_keywords_desc">إظهار الكلمات الرئيسية المحددة مسبقًا في اقتراحات الإكمال التلقائي</string>
 </resources>

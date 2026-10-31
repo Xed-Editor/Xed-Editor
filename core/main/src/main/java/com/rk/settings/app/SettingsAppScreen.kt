@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -132,6 +133,21 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 )
             }
 
+            SettingsItem(
+                label = stringResource(strings.storage_distribution),
+                description = stringResource(strings.storage_distribution_desc),
+                showSwitch = false,
+                default = false,
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null,
+                    )
+                },
+                sideEffect = { navController.navigate(SettingsRoutes.StorageSettings.route) },
+            )
+
             NextScreenCard(
                 label = stringResource(strings.manage_app_font),
                 description = stringResource(strings.manage_app_font),
@@ -140,7 +156,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
         }
 
         PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
-            FeatureRegistry.toggles.value.forEach { toggle ->
+            FeatureRegistry.toggles.collectAsStateWithLifecycle().value.forEach { toggle ->
                 BasicToggle(
                     label = toggle.name,
                     checked = toggle.state.value,

@@ -125,7 +125,7 @@ fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
 
 @Composable
 fun GeneralProperties(file: FileObject) {
-    var size by remember { mutableStateOf(strings.loading.getString()) }
+    var size by remember { mutableStateOf(strings.calculating.getString()) }
     var itemsCount by remember { mutableStateOf("0") }
     val numberFormatter = rememberNumberFormatter()
 

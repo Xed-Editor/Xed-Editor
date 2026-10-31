@@ -110,6 +110,40 @@ object FileOperations {
     }
 
     /**
+     * Recursively calculates the total size and item count (files and directories) for matching files within a given
+     * folder or file.
+     *
+     * @param folder The [FileObject] to start the calculation from.
+     * @return A [ContentProgress] containing total size and total item count.
+     */
+    suspend fun calculateMatchedContent(folder: FileObject, matcher: (FileObject) -> Boolean): ContentProgress {
+        var totalSize = 0L
+        var totalItems = 0L
+
+        val stack = ArrayDeque<FileObject>()
+        stack.add(folder)
+
+        loop@ while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            runCatching {
+                if (!matcher(current)) {
+                    continue@loop
+                }
+
+                if (current.isDirectory()) {
+                    stack.addAll(current.listFiles())
+                    totalItems++
+                } else {
+                    totalSize += current.length()
+                    totalItems++
+                }
+            }
+        }
+
+        return ContentProgress(totalSize, totalItems)
+    }
+
+    /**
      * Deletes the specified file or directory.
      *
      * @param file The [FileObject] to be deleted.

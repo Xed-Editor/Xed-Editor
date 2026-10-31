@@ -963,4 +963,14 @@
     <string name="suggestions_autocorrect">Suggerimenti + Autocorrezione</string>
     <string name="input_behavior">Comportamento input</string>
     <string name="input_behavior_msg">Il comportamento effettivo dell\'input potrebbe variare a seconda dell\'IME. Gli utenti delle lingue CJK dovrebbero evitare l\'opzione \'Nessun suggerimento\', poiché queste lingue si basano sui suggerimenti.</string>
+    <string name="file_changed_on_disk">File modificato sul disco</string>
+    <string name="file_changed_on_disk_desc">\'%s\' è stato modificato al di fuori di Xed-Editor da quanto l\'hai aperto o dall\'ultimo salvataggio.\n\nPuoi sovrascrivere il file con la tua versione attuale, sostituendo le modifiche effettuate sul disco, oppure ricaricarlo per scartare le tue modifiche non salvate e caricare l\'ultima versione dal disco.</string>
+    <string name="overwrite">Sovrascrivi</string>
+    <string name="cache">Cache</string>
+    <string name="other_files">Altri file</string>
+    <string name="indexing_segment">Indicizzazione</string>
+    <string name="storage_distribution">Distribuzione dell\'archiviazione</string>
+    <string name="storage_distribution_desc">Visualizza l\'utilizzo della memoria dell\'app</string>
+    <string name="total_storage_usage">Totale usato dall\'app</string>
+    <string name="calculating">Calcolo…</string>
 </resources>
