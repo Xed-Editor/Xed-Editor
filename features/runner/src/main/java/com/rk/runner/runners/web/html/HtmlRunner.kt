@@ -32,7 +32,11 @@ object HtmlRunner : FileRunner() {
         return Regex(".*\\.($htmlExtensions|svg)$").matches(fileObject.getName())
     }
 
-    override val onConfigure: () -> Unit = { settingsNavController.get()?.navigate(SettingsRoutes.HtmlRunner.route) }
+    override val hasSettings = true
+
+    override fun launchSettings(context: Context) {
+        settingsNavController.get()?.navigate(SettingsRoutes.HtmlRunner.route)
+    }
 
     override suspend fun run(activity: Activity, fileObject: FileObject) {
         stop()

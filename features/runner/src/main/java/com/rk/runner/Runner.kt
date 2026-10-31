@@ -10,7 +10,10 @@ abstract class Runner {
     abstract val id: String
     abstract val label: String
     open val description: String? = null
-    open val onConfigure: (() -> Unit)? = null
+
+    open val hasSettings: Boolean = false
+
+    open fun launchSettings(context: Context) {}
 
     abstract fun getIcon(context: Context): Icon?
 

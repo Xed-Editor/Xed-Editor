@@ -2,10 +2,12 @@ package com.rk.extension.loader
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.DefaultScope
 import com.rk.crashhandler.CrashActivity
 import com.rk.events.Events
+import com.rk.extension.Extension
 import com.rk.extension.ExtensionAPI
 import com.rk.extension.ExtensionContext
 import com.rk.extension.ExtensionEvent
@@ -17,7 +19,6 @@ import com.rk.extension.manager.ExtensionManager
 import com.rk.extension.manager.LoadedExtension
 import com.rk.utils.application
 import com.rk.utils.isMainThread
-import com.rk.utils.logError
 import dalvik.system.PathClassLoader
 import java.lang.reflect.InvocationTargetException
 import kotlinx.coroutines.CoroutineName
@@ -86,19 +87,32 @@ suspend fun LocalExtension.load(
 suspend fun LocalExtension.loadAfterInstall(result: InstallResult.Success, activity: Activity?): Result<ExtensionAPI> {
     extensionManager.setExtensionCrashed(this, false)
     val loadScenario = if (result.performedUpdate) LoadScenario.UPDATE else LoadScenario.INSTALL
-    return load(activity?.application ?: application!!, loadScenario).onFailure { error ->
-        extensionManager.setExtensionCrashed(this, true)
+    return load(activity?.application ?: application!!, loadScenario)
+        .onExtensionFailure(
+            this,
+            activity,
+        )
+}
+
+suspend inline fun <T> Result<T>.onExtensionFailure(
+    extension: Extension,
+    context: Context?,
+    crossinline action: (Throwable) -> Unit = {},
+): Result<T> {
+    return onFailure { throwable ->
+        extensionManager.setExtensionCrashed(extension, true)
         withContext(Dispatchers.Main) {
-            logError(error, "Failed to load extension '$name'")
-            activity?.let {
+            action(throwable)
+
+            context?.let {
                 CrashActivity.start(
                     context = it,
-                    extensionId = id,
-                    extensionName = name,
-                    extensionVersion = version,
-                    extensionAuthor = author.toString(),
-                    repository = repository,
-                    error = error,
+                    extensionId = extension.id,
+                    extensionName = extension.name,
+                    extensionVersion = extension.version,
+                    extensionAuthor = extension.author.toString(),
+                    repository = extension.repository,
+                    error = throwable,
                 )
             }
         }
@@ -188,20 +202,7 @@ suspend fun ExtensionManager.loadAllExtensions() =
                 continue
             }
             launch(Dispatchers.IO) {
-                extension.load(application!!, LoadScenario.NONE).onFailure { error ->
-                    setExtensionCrashed(extension, true)
-                    withContext(Dispatchers.Main) {
-                        CrashActivity.start(
-                            context = application!!,
-                            extensionId = extension.id,
-                            extensionName = extension.name,
-                            extensionVersion = extension.version,
-                            extensionAuthor = extension.author.toString(),
-                            repository = extension.repository,
-                            error = error,
-                        )
-                    }
-                }
+                extension.load(application!!, LoadScenario.NONE).onExtensionFailure(extension, application)
             }
         }
     }
