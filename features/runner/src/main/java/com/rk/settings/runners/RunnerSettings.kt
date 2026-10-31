@@ -52,6 +52,7 @@ import com.rk.resources.strings
 import com.rk.runner.RunnerManager
 import com.rk.runner.ShellBasedRunner
 import com.rk.runner.ShellBasedRunners
+import com.rk.utils.logError
 import com.rk.utils.openDocs
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
@@ -147,8 +148,11 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                     label = runner.label,
                     description = runner.description,
                     default = runner.isEnabled(),
-                    sideEffect = { runner.setEnabled(it) },
-                    onClick = runner.onConfigure,
+                    sideEffect = runner::setEnabled,
+                    onClick = {
+                            runner.launchSettings(context)
+                        }
+                            .takeIf { runner.hasSettings },
                 )
             }
         }
@@ -167,8 +171,18 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                             )
                         },
                         default = runner.isEnabled(),
-                        sideEffect = { runner.setEnabled(it) },
-                        onClick = runner.onConfigure,
+                        sideEffect = runner::setEnabled,
+                        onClick = {
+                                runCatching {
+                                    runner.launchSettings(context)
+                                }
+                                    .onFailure {
+                                        logError("Can't launch settings of runner '${runner.id}'")
+                                        toast(strings.unknown_err.getString(context))
+                                    }
+                                Unit
+                            }
+                                .takeIf { runner.hasSettings },
                     )
                 }
             }
