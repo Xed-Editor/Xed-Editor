@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.jgit)
+    implementation(libs.jgit.gpg)
     implementation(libs.coil.compose)
     implementation(libs.utilcode)
 

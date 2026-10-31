@@ -8,7 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -25,6 +24,7 @@ import com.rk.activities.main.session.DocumentStateDatabase
 import com.rk.activities.main.session.SessionManager
 import com.rk.activities.main.ui.DisclaimerScreen
 import com.rk.activities.main.ui.MainContentHost
+import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.commands.KeybindingsManager
 import com.rk.drawer.DrawerPersistence
 import com.rk.drawer.DrawerViewModel
@@ -59,9 +59,6 @@ class MainActivity : AppCompatActivity() {
 
     val fileManager = FileManager(this)
 
-    // suspend (isForeground) -> Unit
-    val foregroundListener = hashMapOf<Any, suspend (Boolean) -> Unit>()
-
     companion object {
         var isPaused = false
         private var activityRef = WeakReference<MainActivity?>(null)
@@ -78,7 +75,6 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             SessionManager.saveSession(viewModel.tabs, viewModel.currentTabIndex)
             DrawerPersistence.saveState(drawerViewModel)
-            foregroundListener.values.forEach { it.invoke(false) }
 
             LspRegistry.updateConfiguration(this@MainActivity)
         }
@@ -91,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         instance = this
         lifecycleScope.launch(Dispatchers.IO) {
             handleIntent(intent)
-            foregroundListener.values.forEach { it.invoke(true) }
+            fileTreeViewModel.get()?.refreshEverything()
 
             viewModel.editorTabs.forEach { tab -> runCatching { tab.refreshIfChangedOnDisk() } }
 
@@ -146,7 +142,6 @@ class MainActivity : AppCompatActivity() {
         return super.dispatchKeyEvent(event)
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(themeManager.calculateEffectiveNightMode())
         super.onCreate(savedInstanceState)

@@ -64,7 +64,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    packaging { jniLibs { useLegacyPackaging = true } }
+    packaging {
+        jniLibs { useLegacyPackaging = true }
+        resources.excludes += "plugin.properties"
+    }
 
     signingConfigs {
         create("release") {

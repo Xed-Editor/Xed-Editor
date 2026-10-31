@@ -1,7 +1,7 @@
 package com.rk.activities.main.session
 
 import androidx.lifecycle.viewModelScope
-import com.rk.activities.main.MainActivity
+import com.rk.activities.main.MainViewModel
 import com.rk.file.FileObject
 import com.rk.tabs.base.Tab
 import com.rk.tabs.base.TabRegistry
@@ -9,7 +9,7 @@ import java.io.Serializable
 import kotlinx.coroutines.launch
 
 sealed interface TabState : Serializable {
-    suspend fun toTab(): Tab?
+    suspend fun toTab(viewModel: MainViewModel): Tab?
 }
 
 data class DiskState(val path: String, val lastModified: Long?, val length: Long) : Serializable
@@ -25,40 +25,38 @@ data class EditorTabState(
     val fallbackExtension: String = "txt",
     val diskState: DiskState? = null,
 ) : TabState {
-    override suspend fun toTab(): Tab? {
+    override suspend fun toTab(viewModel: MainViewModel): Tab? {
         if (fileObject != null && !fileObject.exists() && !fileObject.canRead()) return null
 
-        return MainActivity.instance?.viewModel?.run {
-            val editorTab =
-                editorManager.createEditorTab(
-                    file = fileObject,
-                    projectRoot = projectRoot,
-                    scopeRoot = scopeRoot,
-                    isReadOnly = isReadOnly,
-                    customTitle = customTitle,
-                    fallbackExtension = fallbackExtension,
-                    initialContent = content,
-                    diskState = diskState,
-                )
+        val editorTab =
+            viewModel.editorManager.createEditorTab(
+                file = fileObject,
+                projectRoot = projectRoot,
+                scopeRoot = scopeRoot,
+                isReadOnly = isReadOnly,
+                customTitle = customTitle,
+                fallbackExtension = fallbackExtension,
+                initialContent = content,
+                diskState = diskState,
+            )
 
-            viewModelScope.launch {
-                editorTab.editorState.contentRendered.await()
-                editorTab.editorState.isDirty = isDirty
-            }
-
-            editorTab
+        viewModel.viewModelScope.launch {
+            editorTab.editorState.contentRendered.await()
+            editorTab.editorState.isDirty = isDirty
         }
+
+        return editorTab
     }
 }
 
 data class FileTabState(val fileObject: FileObject, val projectRoot: FileObject?, val scopeRoot: FileObject?) :
     TabState {
-    override suspend fun toTab() =
+    override suspend fun toTab(viewModel: MainViewModel): Tab =
         TabRegistry.getTab(
             file = fileObject,
             projectRoot = projectRoot,
             scopeRoot = scopeRoot,
-            viewModel = MainActivity.instance!!.viewModel,
+            viewModel = viewModel,
             readOnly = false,
             customTitle = null,
         )
@@ -97,7 +95,7 @@ data class PayloadTabState(
         return result
     }
 
-    override suspend fun toTab(): Tab? =
+    override suspend fun toTab(viewModel: MainViewModel): Tab? =
         PayloadTabRegistry.restore(type, payload)?.also {
             it.projectRoot = projectRoot
             it.scopeRoot = scopeRoot
