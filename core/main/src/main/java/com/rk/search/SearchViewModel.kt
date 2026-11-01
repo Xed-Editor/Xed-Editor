@@ -25,6 +25,7 @@ import com.rk.utils.logDebug
 import com.rk.utils.logError
 import com.rk.utils.parseExtensions
 import com.rk.utils.toast
+import java.nio.charset.Charset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -35,7 +36,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.nio.charset.Charset
 
 class SearchViewModel : ViewModel() {
     private val projectIndexers = mutableMapOf<FileObject, ProjectIndexer>()
@@ -213,7 +213,7 @@ class SearchViewModel : ViewModel() {
                         Settings.always_index_projects,
                     )
 
-                val openedEditorTabs = mainViewModel.tabs.filterIsInstance<EditorTab>()
+                val openedEditorTabs = mainViewModel.visibleTabs.filterIsInstance<EditorTab>()
                 val openPaths = openedEditorTabs.mapNotNull { it.file?.getAbsolutePath() }.toSet()
 
                 // Emit results from open editor tabs first
@@ -326,12 +326,13 @@ class SearchViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 if (codeItem.isOpen) {
                     val tab =
-                        mainViewModel.tabs.filterIsInstance<EditorTab>().find { tab -> tab.file == codeItem.file }
-                            ?: return@withContext
+                        mainViewModel.visibleTabs.filterIsInstance<EditorTab>().find { tab ->
+                            tab.file == codeItem.file
+                        } ?: return@withContext
                     val editor = tab.editorState.editor.get() ?: return@withContext
                     replaceInEditor(codeItem, editor)
                 } else {
-                    val content = codeItem.file.readText() ?: return@withContext
+                    val content = codeItem.file.readText()
                     val lines = content.lines().toMutableList()
 
                     replaceInRawList(codeItem, lines)
@@ -367,7 +368,8 @@ class SearchViewModel : ViewModel() {
                         items.sortedWith(compareByDescending<CodeItem> { it.line }.thenByDescending { it.column })
                     val firstItem = itemsSorted.first()
                     if (firstItem.isOpen) {
-                        val tab = mainViewModel.tabs.filterIsInstance<EditorTab>().find { tab -> tab.file == file }
+                        val tab =
+                            mainViewModel.visibleTabs.filterIsInstance<EditorTab>().find { tab -> tab.file == file }
                         val editor = tab?.editorState?.editor?.get()
                         if (editor != null) {
                             for (codeItem in itemsSorted) {
@@ -501,9 +503,7 @@ class SearchViewModel : ViewModel() {
             ProjectIndexer(
                 context = context,
                 projectRoot = projectRoot,
-                onIndexingStateChanged = { isIndexing ->
-                    _isIndexing.update { it + (projectRoot to isIndexing) }
-                },
+                onIndexingStateChanged = { isIndexing -> _isIndexing.update { it + (projectRoot to isIndexing) } },
                 onError = { errorMessage ->
                     logError("Indexer error: $errorMessage")
                     toast("Indexer error: $errorMessage")

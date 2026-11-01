@@ -80,9 +80,8 @@ fun FileActionDialogs(
                     val oldPath = file.getAbsolutePath()
                     val mainViewModel = MainActivity.instance?.viewModel
                     val tabsToRename =
-                        mainViewModel?.editorTabs?.filterWithFiles { _, file ->
-                            file.getAbsolutePath() == oldPath
-                        } ?: emptyList()
+                        mainViewModel?.editorTabs?.filterWithFiles { _, file -> file.getAbsolutePath() == oldPath }
+                            ?: emptyList()
 
                     val success = file.renameTo(newName)
                     if (!success) {

@@ -93,9 +93,7 @@ object KeybindingsManager {
                     old,
                 )
 
-            val migrated = oldActions.associate {
-                it.commandId to it.keyCombination
-            }
+            val migrated = oldActions.associate { it.commandId to it.keyCombination }
 
             keybindingsFile.writeText(json.encodeToString(serializer, migrated))
 
@@ -143,16 +141,12 @@ object KeybindingsManager {
     private fun buildKeybindMap(): MutableMap<KeyCombination, String> {
         val map = mutableMapOf<KeyCombination, String>()
 
-        customKeybinds.forEach { (commandId, keyCombination) ->
-            map[keyCombination] = commandId
-        }
+        customKeybinds.forEach { (commandId, keyCombination) -> map[keyCombination] = commandId }
 
         for (command in CommandProvider.commandList.value) {
             if (command.id in customKeybinds) continue
 
-            command.defaultKeybinds?.let {
-                map[it] = command.id
-            }
+            command.defaultKeybinds?.let { map[it] = command.id }
         }
 
         return map

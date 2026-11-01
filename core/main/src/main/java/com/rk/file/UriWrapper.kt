@@ -5,11 +5,8 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.rk.utils.application
-import com.rk.utils.logError
 import com.rk.utils.errorDialog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import com.rk.utils.logError
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileNotFoundException
@@ -20,6 +17,9 @@ import java.io.OutputStream
 import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class UriWrapper : FileObject {
     private val uri: String

@@ -30,7 +30,6 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
@@ -259,9 +259,7 @@ private fun AboutSection(
                 }
 
                 if (pkg.type == PackageType.EXTENSION) {
-                    var isCrashed by remember {
-                        mutableStateOf(extensionManager.isExtensionCrashed(pkg as Extension))
-                    }
+                    var isCrashed by remember { mutableStateOf(extensionManager.isExtensionCrashed(pkg as Extension)) }
                     if (isCrashed) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
@@ -299,18 +297,12 @@ private fun AboutSection(
         }
     }
 
-    val size =
-        remember(pkg.size) {
-            pkg.size?.let { formatFileSize(it) } ?: "---"
-        }
+    val size = remember(pkg.size) { pkg.size?.let { formatFileSize(it) } ?: "---" }
 
     val rating = pkg.rating?.toString() ?: "---"
     val showStar = pkg.rating != null
 
-    val downloadCount =
-        remember(pkg.downloads) {
-            pkg.downloads?.let { formatNumberCompact(it) } ?: "---"
-        }
+    val downloadCount = remember(pkg.downloads) { pkg.downloads?.let { formatNumberCompact(it) } ?: "---" }
 
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         PackageStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), downloadCount)
@@ -336,15 +328,9 @@ private fun AboutSection(
         installState = installState,
         scope = scope,
         progress = StoreManager.downloadProgress.collectAsStateWithLifecycle().value[pkg.id] ?: 0f,
-        onInstallClick = {
-            runPackageInstallAction(pkg, updateInstallState, context, activity, dialogManager)
-        },
-        onUninstallClick = {
-            runPackageUninstallAction(pkg, updateInstallState, scope, activity)
-        },
-        onUpdateClick = {
-            runPackageUpdateAction(pkg, updateInstallState, context, activity, dialogManager)
-        },
+        onInstallClick = { runPackageInstallAction(pkg, updateInstallState, context, activity, dialogManager) },
+        onUninstallClick = { runPackageUninstallAction(pkg, updateInstallState, scope, activity) },
+        onUpdateClick = { runPackageUpdateAction(pkg, updateInstallState, context, activity, dialogManager) },
         showRecommendedButton = pkg.type == PackageType.EXTENSION && getRecommendations(pkg as Extension).isNotEmpty(),
         onRecommendedClick = {
             if (pkg is Extension) {

@@ -7,12 +7,12 @@ import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -26,6 +26,7 @@ import com.rk.activities.main.session.DocumentStateDatabase
 import com.rk.activities.main.session.SessionManager
 import com.rk.activities.main.ui.DisclaimerScreen
 import com.rk.activities.main.ui.MainContentHost
+import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.commands.KeybindingsManager
@@ -45,23 +46,24 @@ import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.utils.LoadingPopup
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
+import java.lang.ref.WeakReference
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
-import kotlin.time.Duration.Companion.milliseconds
 
 var mainNavController = WeakReference<NavController?>(null)
 
 class MainActivity : AppCompatActivity() {
-    val viewModel: MainViewModel by viewModels()
-    val drawerViewModel: DrawerViewModel by viewModels()
-    val fileManager = FileManager(this)
+    lateinit var viewModel: MainViewModel
+        private set
 
-    // suspend (isForeground) -> Unit
-    val foregroundListener = hashMapOf<Any, suspend (Boolean) -> Unit>()
+    lateinit var drawerViewModel: DrawerViewModel
+        private set
+
+    val fileManager = FileManager(this)
 
     companion object {
         var isPaused = false
@@ -79,7 +81,6 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             SessionManager.saveSession(viewModel.tabs, viewModel.currentTabIndex)
             DrawerPersistence.saveState(drawerViewModel)
-            foregroundListener.values.forEach { it.invoke(false) }
 
             LspRegistry.updateConfiguration(this@MainActivity)
         }
@@ -92,15 +93,15 @@ class MainActivity : AppCompatActivity() {
         instance = this
         lifecycleScope.launch(Dispatchers.IO) {
             handleIntent(intent)
-            foregroundListener.values.forEach { it.invoke(true) }
+            fileTreeViewModel.get()?.refreshEverything()
+
+            viewModel.editorTabs.forEach { tab -> runCatching { tab.refreshIfChangedOnDisk() } }
 
             val lspConfigChanges = LspRegistry.getConfigurationChanges(this@MainActivity)
             if (lspConfigChanges.isNotEmpty()) {
                 val affectedExtensions = lspConfigChanges.flatMap { it.supportedExtensions }
                 viewModel.editorTabs
-                    .filterWithFiles { _, file ->
-                        affectedExtensions.contains(file.getExtension())
-                    }
+                    .filterWithFiles { _, file -> affectedExtensions.contains(file.getExtension()) }
                     .forEach { it.applyHighlightingAndConnectLSP() }
             }
 
@@ -185,11 +186,21 @@ class MainActivity : AppCompatActivity() {
         return super.dispatchKeyEvent(event)
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(themeManager.calculateEffectiveNightMode())
         super.onCreate(savedInstanceState)
         instance = this
+
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        drawerViewModel = ViewModelProvider(this)[DrawerViewModel::class.java]
+
+        val splash = installSplashScreen()
+        splash.setKeepOnScreenCondition { !themeManager.activeThemeReady }
+
+        lifecycleScope.launch {
+            themeManager.loadActiveTheme()
+            themeManager.indexLocalThemes()
+        }
 
         lifecycleScope.launch(Dispatchers.IO) {
             val db = DocumentStateDatabase.getDatabase(applicationContext)
@@ -217,9 +228,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 composable(MainRoutes.Main.route) {
                     MainContentHost()
-                    LaunchedEffect(Unit) {
-                        FilePermission.verifyStoragePermission(this@MainActivity)
-                    }
+                    LaunchedEffect(Unit) { FilePermission.verifyStoragePermission(this@MainActivity) }
                 }
                 composable(MainRoutes.Disclaimer.route) { DisclaimerScreen(navController) { finishAffinity() } }
 

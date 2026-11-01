@@ -13,9 +13,9 @@ object NpmUtils {
         if (result.timedOut || result.exitCode != 0) return null
 
         return runCatching {
-                val obj = JSONObject(result.output)
-                obj.getJSONObject("dependencies").getJSONObject(packageName).getString("version")
-            }
+            val obj = JSONObject(result.output)
+            obj.getJSONObject("dependencies").getJSONObject(packageName).getString("version")
+        }
             .getOrNull()
     }
 

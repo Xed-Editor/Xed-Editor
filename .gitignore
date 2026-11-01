@@ -37,3 +37,4 @@ __pycache__/
 .DS_Store
 *~
 /rbuilder_setup
+.crashtmp/

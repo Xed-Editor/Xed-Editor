@@ -23,6 +23,7 @@ import com.rk.utils.application
 import com.rk.utils.dialogRes
 import com.rk.utils.logError
 import com.rk.utils.toast
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -31,7 +32,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.Duration.Companion.milliseconds
 
 private var flipperJob: Job? = null
 

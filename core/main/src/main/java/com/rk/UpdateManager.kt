@@ -240,9 +240,7 @@ object UpdateManager {
                             val updatedJson = json.map { obj ->
                                 if ("name" in obj) {
                                     buildJsonObject {
-                                        obj.forEach { (key, value) ->
-                                            put(key, value)
-                                        }
+                                        obj.forEach { (key, value) -> put(key, value) }
                                         put("label", obj["name"]!!)
                                     }
                                 } else {
@@ -256,6 +254,16 @@ object UpdateManager {
                 }
 
                 deleteCommonFiles()
+            }
+
+            if (lastVersionCode <= 111) {
+                runCatching {
+                    val oldTextMateSuggestion = Preference.getBoolean("textmate_suggestions", true)
+                    Preference.removeKey("textmate_suggestions")
+                    if (!oldTextMateSuggestion) {
+                        Preference.setBoolean("suggest_keywords", true)
+                    }
+                }
             }
 
             Settings.last_version_code = currentVersionCode

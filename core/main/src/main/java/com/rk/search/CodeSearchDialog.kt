@@ -38,7 +38,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,6 +59,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainViewModel
 import com.rk.components.SingleInputDialog
@@ -107,10 +107,10 @@ fun CodeSearchDialog(
 
     val editorTab = mainViewModel.currentTab as? EditorTab
     val textFieldSearchState =
-        rememberTextFieldState(
-            editorTab?.editorState?.editor?.get()?.getSelectedText() ?: codeSearchQuery
-        )
-    LaunchedEffect(textFieldSearchState.text) { searchViewModel.setCodeSearchQuery(textFieldSearchState.text.toString()) }
+        rememberTextFieldState(editorTab?.editorState?.editor?.get()?.getSelectedText() ?: codeSearchQuery)
+    LaunchedEffect(textFieldSearchState.text) {
+        searchViewModel.setCodeSearchQuery(textFieldSearchState.text.toString())
+    }
 
     val textFieldReplaceState = rememberTextFieldState(codeReplaceQuery)
     LaunchedEffect(textFieldReplaceState.text) {

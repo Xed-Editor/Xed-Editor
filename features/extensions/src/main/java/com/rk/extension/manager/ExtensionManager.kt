@@ -28,6 +28,7 @@ import com.rk.resources.strings
 import com.rk.utils.errorDialog
 import com.rk.utils.logError
 import com.rk.utils.logInfo
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -41,7 +42,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import java.io.File
 
 private val Context.localDir: File
     get() = filesDir.parentFile!!.resolve("local").apply { if (!exists()) mkdirs() }
@@ -67,9 +67,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     private val _loadedExtensions = MutableStateFlow<Map<LocalExtension, LoadedExtension?>>(emptyMap())
     val loadedExtensions: StateFlow<Map<LocalExtension, LoadedExtension?>> = _loadedExtensions.asStateFlow()
 
-    private val disabledPrefs by lazy {
-        context.getSharedPreferences("disabled_extensions", Context.MODE_PRIVATE)
-    }
+    private val disabledPrefs by lazy { context.getSharedPreferences("disabled_extensions", Context.MODE_PRIVATE) }
 
     fun isExtensionCrashed(extension: Extension): Boolean {
         return disabledPrefs.getBoolean(extension.id, false)
@@ -78,9 +76,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     fun setExtensionCrashed(extension: Extension, disabled: Boolean) {
         disabledPrefs.edit { putBoolean(extension.id, disabled) }
         if (disabled) {
-            launch {
-                Events.publish(ExtensionEvent.Crashed(extension))
-            }
+            launch { Events.publish(ExtensionEvent.Crashed(extension)) }
         }
     }
 
@@ -138,9 +134,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         return runCatching {
             json.decodeFromString<PackageCache>(cacheFile.readText())
         }
-            .getOrElse {
-                PackageCache()
-            }
+            .getOrElse { PackageCache() }
     }
 
     private fun writeCache(dir: File, cache: PackageCache) {
@@ -157,9 +151,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val newSize = calcSize(dir)
             writeCache(dir, cache.copy(size = newSize))
 
-            withContext(Dispatchers.Main) {
-                installedExtensions.value[extension.id]?.size = newSize
-            }
+            withContext(Dispatchers.Main) { installedExtensions.value[extension.id]?.size = newSize }
         }
     }
 
@@ -178,9 +170,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                             val extensionCache = resolveCache(dir)
                             val size =
                                 extensionCache.size
-                                    ?: calcSize(dir).also {
-                                        writeCache(dir, extensionCache.copy(size = it))
-                                    }
+                                    ?: calcSize(dir).also { writeCache(dir, extensionCache.copy(size = it)) }
                             val extension =
                                 LocalExtension(
                                     manifest = extensionManifest,
@@ -191,9 +181,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                                 )
                             map[extensionManifest.id] = extension
                         }
-                            .onFailure {
-                                logError(it)
-                            }
+                            .onFailure { logError(it) }
                     }
                 }
                 map
@@ -321,9 +309,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                         updatedAt = System.currentTimeMillis(),
                         size = size,
                     )
-                    .also {
-                        writeCache(targetDir, it)
-                    }
+                    .also { writeCache(targetDir, it) }
 
             val extension =
                 LocalExtension(

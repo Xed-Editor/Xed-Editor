@@ -1,7 +1,6 @@
 package com.rk.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -27,7 +26,6 @@ import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.settingsNavController
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NextScreenCard(
     modifier: Modifier = Modifier,
@@ -52,7 +50,6 @@ fun NextScreenCard(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NextScreenCard(
     modifier: Modifier = Modifier,

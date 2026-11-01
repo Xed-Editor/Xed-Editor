@@ -26,8 +26,8 @@ import com.rk.file.toFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.logError
-import kotlinx.coroutines.launch
 import java.io.File
+import kotlinx.coroutines.launch
 
 private fun validateValue(value: String): String? {
     return when {
@@ -127,29 +127,24 @@ fun GitCloneDialog(
                                     false,
                                     repoURL.substringAfterLast("/").substringBeforeLast("."),
                                 )
-                        gitViewModel
-                            .get()
-                            ?.cloneRepository(
-                                repoURL = normalizeRepoUrl(repoURL),
-                                repoBranch = repoBranch,
-                                targetDir = File(fileObject!!.getAbsolutePath()),
-                                progressCoordinator = monitor,
-                                onComplete = { success ->
-                                    repoURL = ""
-                                    repoBranch = "main"
-                                    repoURLError = null
-                                    repoBranchError = null
-                                    onDismiss()
-                                    if (success) {
-                                        onCloneComplete(fileObject)
-                                    }
-                                },
-                            )
+                        gitViewModel?.cloneRepository(
+                            repoURL = normalizeRepoUrl(repoURL),
+                            repoBranch = repoBranch,
+                            targetDir = File(fileObject!!.getAbsolutePath()),
+                            progressCoordinator = monitor,
+                            onComplete = { success ->
+                                repoURL = ""
+                                repoBranch = "main"
+                                repoURLError = null
+                                repoBranchError = null
+                                onDismiss()
+                                if (success) {
+                                    onCloneComplete(fileObject)
+                                }
+                            },
+                        )
                     }
-                }
-                    ?: run {
-                        onDismiss()
-                    }
+                } ?: run { onDismiss() }
             },
         )
 
@@ -172,9 +167,7 @@ fun GitCloneDialog(
             },
             firstErrorMessage = repoURLError,
             secondErrorMessage = repoBranchError,
-            onConfirm = {
-                cloneGitRepo.launch(null)
-            },
+            onConfirm = { cloneGitRepo.launch(null) },
             onDismiss = {
                 onDismiss()
                 repoURL = ""

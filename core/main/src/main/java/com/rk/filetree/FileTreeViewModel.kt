@@ -1,18 +1,16 @@
 package com.rk.filetree
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.ui.searchViewModel
 import com.rk.events.Events
 import com.rk.events.FileTreeEvent
-import com.rk.extension.ActivityProvider
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.file.ZipFileObject
 import com.rk.search.utils.GlobExcluder
 import com.rk.settings.Settings
-import com.rk.utils.LoadingPopup
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +18,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.Duration.Companion.milliseconds
 
 fun FileObject.toFileTreeNode(): FileTreeNode {
     return FileTreeNode(
@@ -222,9 +219,7 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun selectFile(projectRoot: FileObject, fileObject: FileObject) {
-        _selectedFiles.update { map ->
-            map + (projectRoot to ((map[projectRoot] ?: emptyList()) + fileObject))
-        }
+        _selectedFiles.update { map -> map + (projectRoot to ((map[projectRoot] ?: emptyList()) + fileObject)) }
     }
 
     fun unselectFile(projectRoot: FileObject, fileObject: FileObject) {
@@ -236,9 +231,7 @@ class FileTreeViewModel : ViewModel() {
 
     fun unselectAllFiles(projectRoot: FileObject) {
         _selectedFiles.update { it - projectRoot }
-        viewModelScope.launch {
-            Events.publish(FileTreeEvent.SelectionChanged(projectRoot, emptyList()))
-        }
+        viewModelScope.launch { Events.publish(FileTreeEvent.SelectionChanged(projectRoot, emptyList())) }
     }
 
     fun isFileSelected(projectRoot: FileObject, fileObject: FileObject): Boolean {
@@ -335,9 +328,7 @@ class FileTreeViewModel : ViewModel() {
     }
 
     private fun expandFile(projectRoot: FileObject, fileObject: FileObject) {
-        _expandedNodes.update { map ->
-            map + (projectRoot to ((map[projectRoot] ?: emptySet()) + fileObject))
-        }
+        _expandedNodes.update { map -> map + (projectRoot to ((map[projectRoot] ?: emptySet()) + fileObject)) }
 
         // If we're expanding and haven't loaded yet, trigger a load
         if (!_fileListCache.value.containsKey(fileObject)) {
@@ -377,15 +368,11 @@ class FileTreeViewModel : ViewModel() {
         }
         searchViewModel.get()?.syncIndex(parent)
 
-        viewModelScope.launch {
-            Events.publish(FileTreeEvent.TreeSynchronized(parent))
-        }
+        viewModelScope.launch { Events.publish(FileTreeEvent.TreeSynchronized(parent)) }
 
         _collapsedNameCache.update { it - parent }
         _loadingStates.update { it + (parent to true) } // Mark as loading
-        viewModelScope.launch(Dispatchers.IO) {
-            loadAndCacheChildren(parent)
-        }
+        viewModelScope.launch(Dispatchers.IO) { loadAndCacheChildren(parent) }
     }
 
     fun isFileFocused(projectFile: FileObject, fileObject: FileObject) = _focusedFile.value[projectFile] == fileObject
@@ -435,9 +422,7 @@ class FileTreeViewModel : ViewModel() {
         // Set loading state
         _loadingStates.update { it + (file to true) }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            loadAndCacheChildren(file)
-        }
+        viewModelScope.launch(Dispatchers.IO) { loadAndCacheChildren(file) }
     }
 
     suspend fun loadChildrenForNodeSynchronous(node: FileTreeNode) {

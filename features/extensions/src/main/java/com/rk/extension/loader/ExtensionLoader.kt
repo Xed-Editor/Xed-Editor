@@ -2,10 +2,12 @@ package com.rk.extension.loader
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.DefaultScope
 import com.rk.crashhandler.CrashActivity
 import com.rk.events.Events
+import com.rk.extension.Extension
 import com.rk.extension.ExtensionAPI
 import com.rk.extension.ExtensionContext
 import com.rk.extension.ExtensionEvent
@@ -20,7 +22,7 @@ import com.rk.extension.scanner.ExtensionScanner
 import com.rk.extension.scanner.RestrictedApiIndex
 import com.rk.utils.application
 import com.rk.utils.isMainThread
-import com.rk.utils.logError
+import java.lang.reflect.InvocationTargetException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +31,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.lang.reflect.InvocationTargetException
 
 enum class LoadScenario {
     INSTALL,
@@ -37,6 +38,17 @@ enum class LoadScenario {
     NONE,
 }
 
+/**
+ * Loads a locally installed extension.
+ *
+ * This function performs compatibility checks, instantiates the extension's main class, initializes the extension
+ * lifecycle, and caches the result.
+ *
+ * @param application The main Android [Application] instance.
+ * @param loadScenario The reason why the extension is being loaded. Determines whether installation or update lifecycle
+ *   callbacks are invoked before the extension is marked as loaded.
+ * @return A [Result] enclosing the loaded [com.rk.extension.ExtensionAPI] instance, or a failure exception.
+ */
 suspend fun LocalExtension.load(
     application: Application,
     loadScenario: LoadScenario,
@@ -70,9 +82,7 @@ suspend fun LocalExtension.load(
 
         extensionManager.registerLoadedExtension(this, LoadedExtension(instance, scope))
 
-        DefaultScope.launch {
-            Events.publish(ExtensionEvent.Loaded(this@load))
-        }
+        DefaultScope.launch { Events.publish(ExtensionEvent.Loaded(this@load)) }
 
         instance
     }
@@ -81,19 +91,32 @@ suspend fun LocalExtension.load(
 suspend fun LocalExtension.loadAfterInstall(result: InstallResult.Success, activity: Activity?): Result<ExtensionAPI> {
     extensionManager.setExtensionCrashed(this, false)
     val loadScenario = if (result.performedUpdate) LoadScenario.UPDATE else LoadScenario.INSTALL
-    return load(activity?.application ?: application!!, loadScenario).onFailure { error ->
-        extensionManager.setExtensionCrashed(this, true)
+    return load(activity?.application ?: application!!, loadScenario)
+        .onExtensionFailure(
+            this,
+            activity,
+        )
+}
+
+suspend inline fun <T> Result<T>.onExtensionFailure(
+    extension: Extension,
+    context: Context?,
+    crossinline action: (Throwable) -> Unit = {},
+): Result<T> {
+    return onFailure { throwable ->
+        extensionManager.setExtensionCrashed(extension, true)
         withContext(Dispatchers.Main) {
-            logError(error, "Failed to load extension '$name'")
-            activity?.let {
+            action(throwable)
+
+            context?.let {
                 CrashActivity.start(
                     context = it,
-                    extensionId = id,
-                    extensionName = name,
-                    extensionVersion = version,
-                    extensionAuthor = author.toString(),
-                    repository = repository,
-                    error = error,
+                    extensionId = extension.id,
+                    extensionName = extension.name,
+                    extensionVersion = extension.version,
+                    extensionAuthor = extension.author.toString(),
+                    repository = extension.repository,
+                    error = throwable,
                 )
             }
         }
@@ -130,6 +153,10 @@ private suspend fun LocalExtension.scanForRestrictedApis(application: Applicatio
 }
 
 
+/**
+ * Verifies if the extension is compatible with the running version of the editor. Throws an [IllegalStateException] if
+ * the app version does not satisfy the extension's requirements.
+ */
 private fun LocalExtension.verifyCompatibility(application: Application) {
     val xedVersionCode =
         PackageInfoCompat.getLongVersionCode(application.packageManager.getPackageInfo(application.packageName, 0))
@@ -143,6 +170,10 @@ private fun LocalExtension.verifyCompatibility(application: Application) {
 }
 
 
+/**
+ * Creates a class loader specifically configured for this extension's APK/package file. Uses a child-first delegation
+ * strategy so extension-specific libraries take precedence.
+ */
 private fun LocalExtension.createClassLoader(application: Application): ClassLoader {
     return try {
         ExtensionClassLoader(extension = this, parent = application.classLoader)
@@ -154,6 +185,7 @@ private fun LocalExtension.createClassLoader(application: Application): ClassLoa
     }
 }
 
+/** Loads the main entry point class of the extension and asserts that it implements [ExtensionAPI]. */
 private fun LocalExtension.loadMainClass(classLoader: ClassLoader): Class<*> {
     val mainClass =
         try {
@@ -172,6 +204,10 @@ private fun LocalExtension.loadMainClass(classLoader: ClassLoader): Class<*> {
 }
 
 
+/**
+ * Instantiates the extension's main [ExtensionAPI] class by calling its public constructor that accepts an
+ * [com.rk.extension.ExtensionContext].
+ */
 private fun LocalExtension.instantiateAPI(
     mainClassInstance: Class<*>,
     application: Application,
@@ -192,6 +228,10 @@ private fun LocalExtension.instantiateAPI(
 }
 
 
+/**
+ * Scans all local extensions and loads any that are not disabled. If an extension fails to load, it is marked as
+ * disabled and a crash screen is shown.
+ */
 suspend fun ExtensionManager.loadAllExtensions() =
     withContext(Dispatchers.IO) {
         for ((_, extension) in installedExtensions.value) {
@@ -206,30 +246,18 @@ suspend fun ExtensionManager.loadAllExtensions() =
                 continue
             }
             launch(Dispatchers.IO) {
-                extension.load(application!!, LoadScenario.NONE).onFailure { error ->
-                    if (!File(extension.installPath).isDirectory) {
-                        extension.id.logWarn("Extension directory not found, removing stale entry: ${extension.installPath}")
-                        forgetExtension(extension.id)
-                        return@onFailure
-                    }
-                    setExtensionCrashed(extension, true)
-                    withContext(Dispatchers.Main) {
-                        CrashActivity.start(
-                            context = application!!,
-                            extensionId = extension.id,
-                            extensionName = extension.name,
-                            extensionVersion = extension.version,
-                            extensionAuthor = extension.author.toString(),
-                            repository = extension.repository,
-                            error = error,
-                        )
-                    }
-                }
+                extension.load(application!!, LoadScenario.NONE).onExtensionFailure(extension, application)
             }
         }
     }
 
 
+/**
+ * Unloads all currently active extensions.
+ *
+ * This function iterates through all loaded extensions, invokes their respective shutdown lifecycle callbacks, cancels
+ * their associated coroutine scopes, and clears them from the [extensionManager].
+ */
 fun ExtensionManager.unloadAllExtensions() {
     loadedExtensions.value.values.forEach { loaded ->
         runCatching {

@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.rk.extension.Extension
-import com.rk.extension.model.ExtensionId
 import com.rk.extension.extensionManager
+import com.rk.extension.model.ExtensionId
 import com.rk.extension.scanner.ScanApproval
 import com.rk.resources.drawables
 import com.rk.resources.strings
@@ -49,9 +49,7 @@ fun RecommendationsDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(stringResource(strings.recommendations))
-        },
+        title = { Text(stringResource(strings.recommendations)) },
         text = {
             Column {
                 Text(
@@ -79,11 +77,7 @@ fun RecommendationsDialog(
                 }
             }
         },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(strings.close))
-            }
-        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.close)) } },
     )
 }
 
@@ -101,9 +95,7 @@ fun DependenciesDialog(
 
     AlertDialog(
         onDismissRequest = { if (!isInstalling) onDismiss() },
-        title = {
-            Text(stringResource(strings.missing_dependencies))
-        },
+        title = { Text(stringResource(strings.missing_dependencies)) },
         text = {
             Column {
                 Text(
@@ -142,9 +134,7 @@ fun DependenciesDialog(
             }
         },
         dismissButton = {
-            TextButton(enabled = !isInstalling, onClick = onDismiss) {
-                Text(stringResource(strings.cancel))
-            }
+            TextButton(enabled = !isInstalling, onClick = onDismiss) { Text(stringResource(strings.cancel)) }
         },
     )
 }
@@ -202,15 +192,9 @@ private fun DependencyItem(
                 SmallExtensionActionButton(
                     installState = installState,
                     scope = rememberCoroutineScope(),
-                    onInstallClick = {
-                        onInstallClick(it)
-                    },
-                    onUninstallClick = {
-                        onUninstallClick(it)
-                    },
-                    onUpdateClick = {
-                        onUpdateClick(it)
-                    },
+                    onInstallClick = { onInstallClick(it) },
+                    onUninstallClick = { onUninstallClick(it) },
+                    onUpdateClick = { onUpdateClick(it) },
                 )
             }
         }

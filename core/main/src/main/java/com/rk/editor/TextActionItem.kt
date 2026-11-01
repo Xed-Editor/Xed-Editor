@@ -2,8 +2,6 @@ package com.rk.editor
 
 import android.graphics.drawable.Drawable
 import android.widget.ImageButton
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import io.github.rosemoe.sora.widget.CodeEditor
 
 /**
@@ -12,7 +10,7 @@ import io.github.rosemoe.sora.widget.CodeEditor
  * @see XedTextActionWindow
  */
 class TextActionItem(
-    val title:String,
+    val title: String,
     val icon: Drawable,
     val shouldShow: (editor: CodeEditor) -> Boolean = { true },
     val onClick: (editor: CodeEditor) -> Unit,

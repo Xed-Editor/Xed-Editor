@@ -11,6 +11,7 @@ import com.rk.icons.pack.IconPackEntry
 import com.rk.theme.ThemeEntry
 import com.rk.utils.logError
 import com.rk.utils.okHttpClient
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.File
 
 @Serializable private data class ExtensionListResponse(val extensions: List<ExtensionEntry>)
 
@@ -110,9 +110,7 @@ object StoreManager {
                 }
                 true
             }
-                .onFailure {
-                    logError(it)
-                }
+                .onFailure { logError(it) }
                 .getOrElse { false }
         }
 
@@ -165,9 +163,7 @@ object StoreManager {
                 val response = json.decodeFromString<ThemeListResponse>(jsonString)
                 response.themes
             }
-                .onFailure {
-                    logError(it)
-                }
+                .onFailure { logError(it) }
                 .getOrElse { emptyList() }
         }
 
@@ -178,9 +174,7 @@ object StoreManager {
                 val response = json.decodeFromString<IconPackListResponse>(jsonString)
                 response.iconPacks
             }
-                .onFailure {
-                    logError(it)
-                }
+                .onFailure { logError(it) }
                 .getOrElse { emptyList() }
         }
 }

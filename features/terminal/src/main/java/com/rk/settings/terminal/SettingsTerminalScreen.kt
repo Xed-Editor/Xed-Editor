@@ -19,6 +19,7 @@ import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.settingsNavController
 import com.rk.components.NextScreenCard
 import com.rk.components.PreferenceList
+import com.rk.components.PreferenceListItem
 import com.rk.components.RoundedValueSlider
 import com.rk.components.SettingsItem
 import com.rk.components.SteppedValueSlider
@@ -43,14 +44,14 @@ import com.rk.utils.dpToPx
 import com.rk.utils.getTempDir
 import com.rk.utils.toast
 import com.termux.terminal.TerminalEmulator
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Runtime.getRuntime
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
-import java.lang.Runtime.getRuntime
 
 enum class TerminalCursorStyle(val value: String, val stringRes: Int) {
     BLOCK("block", strings.block),
@@ -86,9 +87,9 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 description = stringResource(strings.seccomp_desc),
                 items =
                     listOf(
-                        "unspecified" to stringResource(strings.seccomp_unspecified),
-                        "no" to stringResource(strings.seccomp_no_seccomp),
-                        "yes" to stringResource(strings.seccomp_seccomp),
+                        PreferenceListItem("unspecified", stringResource(strings.seccomp_unspecified)),
+                        PreferenceListItem("no", stringResource(strings.seccomp_no_seccomp)),
+                        PreferenceListItem("yes", stringResource(strings.seccomp_seccomp)),
                     ),
                 selectedItem = Settings.seccomp_mode,
                 onItemSelected = { Settings.seccomp_mode = it },
@@ -124,7 +125,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
             PreferenceList(
                 label = stringResource(strings.cursor_style),
                 description = stringResource(strings.cursor_style_desc),
-                items = TerminalCursorStyle.entries.map { it to stringResource(it.stringRes) },
+                items = TerminalCursorStyle.entries.map { PreferenceListItem(it, stringResource(it.stringRes)) },
                 selectedItem = TerminalCursorStyle.fromString(Settings.terminal_cursor_style),
                 onItemSelected = { Settings.terminal_cursor_style = it.value },
             )
@@ -147,9 +148,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
 
                         try {
                             fileObject.getInputStream().use { inputStream ->
-                                FileOutputStream(tempFile).use { outputStream ->
-                                    inputStream.copyTo(outputStream)
-                                }
+                                FileOutputStream(tempFile).use { outputStream -> inputStream.copyTo(outputStream) }
                             }
 
                             sandboxDir().deleteRecursively()

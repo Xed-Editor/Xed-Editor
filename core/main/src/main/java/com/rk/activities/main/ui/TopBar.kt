@@ -14,17 +14,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainViewModel
 import com.rk.components.GlobalToolbarActions
 import com.rk.components.isPermanentDrawer
 import com.rk.drawer.DrawerViewModel
 import com.rk.resources.strings
-import com.rk.utils.isV
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
@@ -65,15 +64,8 @@ fun XedTopBar(
                 }
             },
             actions = {
-                GlobalToolbarActions(viewModel, drawerViewModel)
-
-                if (viewModel.tabs.isNotEmpty()) {
-                    val tab =
-                        if (isV) {
-                            viewModel.tabs[viewModel.currentTabIndex]
-                        } else {
-                            viewModel.tabs.getOrNull(viewModel.currentTabIndex)
-                        }
+                if (viewModel.visibleTabs.isNotEmpty()) {
+                    val tab = viewModel.visibleTabs.getOrNull(viewModel.visibleCurrentTabIndex)
 
                     if (tab != null) {
                         tab.apply { Actions() }
@@ -81,6 +73,8 @@ fun XedTopBar(
                         toast(strings.unknown_error)
                     }
                 }
+
+                GlobalToolbarActions(viewModel)
             },
         )
     }

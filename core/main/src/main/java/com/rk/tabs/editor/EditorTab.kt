@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,9 +27,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
+import com.rk.activities.main.session.DiskState
 import com.rk.activities.main.session.DocumentState
 import com.rk.activities.main.session.DocumentStateDatabase
 import com.rk.activities.main.session.EditorTabState
@@ -58,6 +60,11 @@ import com.rk.utils.errorDialog
 import com.rk.utils.hasBinaryChars
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
+import java.nio.charset.Charset
+import java.nio.file.Paths
+import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -78,11 +85,6 @@ import org.ec4j.core.ResourcePath
 import org.ec4j.core.ResourceProperties
 import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.PropertyType
-import java.nio.charset.Charset
-import java.nio.file.Paths
-import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(DelicateCoroutinesApi::class)
 open class EditorTab(
@@ -94,6 +96,7 @@ open class EditorTab(
     private val customTitle: String? = null,
     val fallbackExtension: String = "txt",
     initialContent: Content? = null,
+    @Volatile private var diskState: DiskState? = null,
 ) : Tab() {
 
     var isReadOnly: Boolean = isReadOnly
@@ -114,6 +117,12 @@ open class EditorTab(
     override val name: String
         get() = strings.editor.getString()
 
+    override val floatPadding: Dp
+        get() {
+            val extraKeysPadding = if (Settings.split_extra_keys) 88.dp else 48.dp
+            return if (Settings.show_extra_keys) extraKeysPadding else 0.dp
+        }
+
     val scope = CoroutineScope(Dispatchers.Default)
 
     override var title by mutableStateOf(customTitle ?: file?.getName() ?: strings.temp_file.getString())
@@ -121,9 +130,7 @@ open class EditorTab(
     val editorState by mutableStateOf(CodeEditorState(initialContent))
 
     override fun onTabAdded() {
-        scope.launch(Dispatchers.Main) {
-            restoreDocumentState()
-        }
+        scope.launch(Dispatchers.Main) { restoreDocumentState() }
     }
 
     override fun onTabRemoved() {
@@ -182,9 +189,7 @@ open class EditorTab(
                 val titleAlreadyExists = viewModel.tabs.any { it.title == title && it != this@EditorTab }
 
                 if (titleAlreadyExists && parent != null) {
-                    withContext(Dispatchers.Main) {
-                        title = "${parent.getName()}/$title"
-                    }
+                    withContext(Dispatchers.Main) { title = "${parent.getName()}/$title" }
                 }
             }
 
@@ -201,6 +206,10 @@ open class EditorTab(
             }
 
             loadEditorConfig()
+
+            if (diskState == null) {
+                diskState = readDiskState(file)
+            }
 
             if (editorState.content == null) {
                 withContext(Dispatchers.IO) {
@@ -332,6 +341,7 @@ open class EditorTab(
         scope.launch(Dispatchers.IO) {
             if (!file.exists() || !file.canRead()) return@launch
 
+            val newDiskState = readDiskState(file)
             val newContent = file.getInputStream().use { ContentIO.createFrom(it, charset) }
 
             withContext(Dispatchers.Main) {
@@ -341,30 +351,102 @@ open class EditorTab(
                     editorState.updateUndoRedo()
                     editorState.isDirty = false
                 }
+                diskState = newDiskState
+            }
+        }
+    }
+
+    private suspend fun readDiskState(file: FileObject): DiskState? {
+        return runCatching {
+            DiskState(file.getAbsolutePath(), file.lastModified(), file.length())
+        }
+            .getOrNull()
+    }
+
+    /**
+     * Whether the file on disk no longer matches the recorded [diskState]. Returns `false` whenever the check can't be
+     * made reliably (no record, no mtime available, file was moved or renamed), so saving is never blocked by it.
+     */
+    private suspend fun hasChangedOnDisk(file: FileObject): Boolean {
+        val recorded = diskState ?: return false
+        if (recorded.path != file.getAbsolutePath()) return false
+        val current = readDiskState(file) ?: return false
+        return current != recorded
+    }
+
+    /**
+     * Reloads this tab from disk if the file was changed externally and the buffer has no unsaved edits. Dirty tabs,
+     * tabs with a pending auto-save and tabs with an open conflict dialog are never touched.
+     */
+    suspend fun refreshIfChangedOnDisk() {
+        val file = file ?: return
+        editorState.contentRendered.await()
+
+        if (isTemp || editorState.isDirty || editorState.showDiskConflictDialog) return
+        if (autoSaveJob?.isActive == true) return
+        if (!hasChangedOnDisk(file)) return
+        if (!file.exists() || !file.canRead()) return
+
+        refresh()
+        Events.publish(EditorTabEvent.Refreshed(this))
+    }
+
+    private fun reloadFromDisk() {
+        editorState.showDiskConflictDialog = false
+        autoSaveJob?.cancel()
+        refresh()
+        scope.launch { Events.publish(EditorTabEvent.Refreshed(this@EditorTab)) }
+    }
+
+    private fun overwriteDisk() {
+        editorState.showDiskConflictDialog = false
+        val file = file ?: return
+        scope.launch(Dispatchers.IO) {
+            saveMutex.withLock {
+                if (!write(checkConflict = false)) return@withLock
+                searchViewModel.get()?.syncIndex(file)
+                Events.publish(EditorTabEvent.Saved(this@EditorTab, file, false))
             }
         }
     }
 
     private val saveMutex = Mutex()
 
-    private suspend fun write() {
-        val file = file ?: return
-        withContext(Dispatchers.IO) {
+    /**
+     * Writes the buffer to [file].
+     *
+     * When [checkConflict] is true and the file was changed on disk since it was loaded or last saved, nothing is
+     * written: the buffer is marked dirty and the user is asked whether to reload, overwrite or cancel.
+     *
+     * @return `true` if the buffer was written.
+     */
+    private suspend fun write(checkConflict: Boolean = true): Boolean {
+        val file = file ?: return false
+        return withContext(Dispatchers.IO) {
             runCatching {
-                if (!file.canWrite()) {
-                    errorDialog(strings.cant_write)
-                    return@withContext
+                    if (!file.canWrite()) {
+                        errorDialog(strings.cant_write)
+                        return@withContext false
+                    }
+
+                    if (checkConflict && hasChangedOnDisk(file)) {
+                        editorState.isDirty = true
+                        editorState.showDiskConflictDialog = true
+                        return@withContext false
+                    }
+
+                    val editor = editorState.editor.get() ?: return@runCatching false
+                    val content = editor.text.toString()
+                    val normalizedContent = editor.lineEnding.applyOn(content)
+                    file.writeText(normalizedContent, charset)
+
+                    editorState.isDirty = false
+                    diskState = readDiskState(file)
+                    lspConnector?.notifySave()
+                    true
                 }
-
-                val editor = editorState.editor.get() ?: return@runCatching
-                val content = editor.text.toString()
-                val normalizedContent = editor.lineEnding.applyOn(content)
-                file.writeText(normalizedContent, charset)
-
-                editorState.isDirty = false
-                lspConnector?.notifySave()
-            }
                 .onFailure { errorDialog(throwable = it) }
+                .getOrDefault(false)
         }
     }
 
@@ -373,7 +455,7 @@ open class EditorTab(
         if (isTemp) return@withLock
         val file = file ?: return@withLock
 
-        write()
+        if (!write()) return@withLock
 
         searchViewModel.get()?.syncIndex(file)
         Events.publish(EditorTabEvent.Saved(this, file, true))
@@ -392,7 +474,8 @@ open class EditorTab(
                     editorState.textmateScope = FileTypeManager.fromFileName(it.getName()).textmateScope
 
                     scope.launch {
-                        write()
+                        // The user explicitly picked this destination, so there is nothing to protect on it
+                        if (!write(checkConflict = false)) return@launch
                         searchViewModel.get()?.syncIndex(it)
                         Events.publish(EditorTabEvent.Saved(this@EditorTab, it, false))
                     }
@@ -410,9 +493,7 @@ open class EditorTab(
 
             registerTask(FORMAT_DOCUMENT_TASK_ID)
             editor.formatCodeAsync()
-            withTimeoutOrNull(10.seconds) {
-                deferred.await()
-            }
+            withTimeoutOrNull(10.seconds) { deferred.await() }
             unregisterTask(FORMAT_DOCUMENT_TASK_ID)
         }
 
@@ -422,7 +503,7 @@ open class EditorTab(
         }
         val file = file ?: return@withLock
 
-        write()
+        if (!write()) return@withLock
 
         searchViewModel.get()?.syncIndex(file)
         Events.publish(EditorTabEvent.Saved(this, file, false))
@@ -455,13 +536,21 @@ open class EditorTab(
 
     fun isTaskInProcess() = activeTasks.isNotEmpty()
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         key(refreshKey) {
             LaunchedEffect(editorState.editable) { editorState.editor.get()?.editable = editorState.editable }
 
             Column {
+                if (editorState.showDiskConflictDialog) {
+                    DiskConflictDialog(
+                        fileName = file?.getName() ?: title,
+                        onReload = ::reloadFromDisk,
+                        onOverwrite = ::overwriteDisk,
+                        onCancel = { editorState.showDiskConflictDialog = false },
+                    )
+                }
+
                 if (editorState.showFindingsDialog) {
                     FindingsDialog(
                         title = editorState.findingsTitle,
@@ -527,16 +616,12 @@ open class EditorTab(
                                     editorState.jumpToLineError = strings.value_invalid.getString()
                                 }
 
-                                line > lastLine -> {
-                                    editorState.jumpToLineError = strings.value_large.getString()
+                                line < 0 -> {
+                                    editorState.jumpToLineError = strings.value_invalid.getString()
                                 }
 
-                                line < 1 -> {
-                                    editorState.jumpToLineError = strings.value_small.getString()
-                                }
-
-                                column != null && column < 1 -> {
-                                    editorState.jumpToLineError = strings.value_small.getString()
+                                column != null && column < 0 -> {
+                                    editorState.jumpToLineError = strings.value_invalid.getString()
                                 }
                             }
                         },
@@ -544,9 +629,10 @@ open class EditorTab(
                             val editor = editorState.editor.get() ?: return@SingleInputDialog
                             val parts = editorState.jumpToLineValue.split(":")
 
-                            val line = parts[0].toInt() - 1
+                            val line =
+                                parts.getOrNull(0)?.toIntOrNull()?.minus(1)?.coerceIn(0, editor.text.lineCount - 1) ?: 0
                             val maxColumn = editor.text.getLine(line).length
-                            val column = parts.getOrNull(1)?.toInt()?.minus(1)?.coerceIn(0, maxColumn) ?: 0
+                            val column = parts.getOrNull(1)?.toIntOrNull()?.minus(1)?.coerceIn(0, maxColumn) ?: 0
 
                             editor.setSelection(line, column)
                         },
@@ -653,6 +739,7 @@ open class EditorTab(
             isReadOnly = isReadOnly,
             customTitle = customTitle,
             fallbackExtension = fallbackExtension,
+            diskState = diskState,
         )
     }
 

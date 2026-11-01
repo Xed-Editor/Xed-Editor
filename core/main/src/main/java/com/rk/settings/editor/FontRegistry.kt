@@ -17,7 +17,9 @@ object FontRegistry {
     init {
         application!!.assets.list("fonts")?.forEach { asset ->
             if (asset.endsWith(".ttf")) {
-                _fonts.update { it + Font(name = asset.removeSuffix(".ttf"), isAsset = true, pathOrAsset = "fonts/$asset") }
+                _fonts.update {
+                    it + Font(name = asset.removeSuffix(".ttf"), isAsset = true, pathOrAsset = "fonts/$asset")
+                }
             }
         }
         restoreFonts()

@@ -34,7 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
@@ -53,6 +52,7 @@ import com.rk.resources.strings
 import com.rk.runner.RunnerManager
 import com.rk.runner.ShellBasedRunner
 import com.rk.runner.ShellBasedRunners
+import com.rk.utils.logError
 import com.rk.utils.openDocs
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
@@ -74,9 +74,9 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
 
     var regexFieldValue by remember { mutableStateOf(TextFieldValue("", selection = TextRange(runnerName.length))) }
 
-    val builtinRunners by RunnerManager.builtinRunners.collectAsStateWithLifecycle()
-    val extensionRunners by RunnerManager.extensionRunners.collectAsStateWithLifecycle()
-    val shellBasedRunners by ShellBasedRunners.runners.collectAsStateWithLifecycle()
+    val builtinRunners = RunnerManager.builtinRunners
+    val extensionRunners = RunnerManager.extensionRunners
+    val shellBasedRunners = ShellBasedRunners.runners
 
     // Validation functions
     fun validateName() {
@@ -148,8 +148,11 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                     label = runner.label,
                     description = runner.description,
                     default = runner.isEnabled(),
-                    sideEffect = { runner.setEnabled(it) },
-                    onClick = runner.onConfigure,
+                    sideEffect = runner::setEnabled,
+                    onClick = {
+                            runner.launchSettings(context)
+                        }
+                            .takeIf { runner.hasSettings },
                 )
             }
         }
@@ -168,8 +171,18 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                             )
                         },
                         default = runner.isEnabled(),
-                        sideEffect = { runner.setEnabled(it) },
-                        onClick = runner.onConfigure,
+                        sideEffect = runner::setEnabled,
+                        onClick = {
+                                runCatching {
+                                    runner.launchSettings(context)
+                                }
+                                    .onFailure {
+                                        logError("Can't launch settings of runner '${runner.id}'")
+                                        toast(strings.unknown_err.getString(context))
+                                    }
+                                Unit
+                            }
+                                .takeIf { runner.hasSettings },
                     )
                 }
             }

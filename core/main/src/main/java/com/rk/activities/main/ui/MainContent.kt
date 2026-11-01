@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -54,7 +53,6 @@ import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.utils.addIf
 import com.rk.drawer.DrawerViewModel
 import com.rk.editor.preloadSelectionColor
-import com.rk.extension.api.TaskRegistry
 import com.rk.filetree.BaseFileAction
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext
@@ -83,7 +81,6 @@ fun MainContent(
     mainViewModel: MainViewModel,
     drawerViewModel: DrawerViewModel,
     fileTreeViewModel: FileTreeViewModel,
-    drawerState: DrawerState,
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -111,15 +108,10 @@ fun MainContent(
         )
     }
 
-    val tasks = TaskRegistry.tasks.collectAsStateWithLifecycle().value
-    LaunchedEffect(tasks.size) {
-        TaskOutputState.updateActiveTask()
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().padding(innerPadding)) {
             if (mainViewModel.visibleTabs.isEmpty()) {
-                WelcomeScreen(drawerViewModel, drawerState, scope)
+                WelcomeScreen(drawerViewModel)
             } else {
                 val pagerState = rememberPagerState(pageCount = { mainViewModel.visibleTabs.size })
 
@@ -180,10 +172,9 @@ fun MainContent(
                                         mainViewModel.tabManager.setCurrentTab(tabIndex)
 
                                         val visibleTabs = mainViewModel.visibleTabs
-                                        val unsavedOtherTabs =
-                                            visibleTabs.filter { tab ->
-                                                tab != tabState && (tab as? EditorTab)?.editorState?.isDirty == true
-                                            }
+                                        val unsavedOtherTabs = visibleTabs.filter { tab ->
+                                            tab != tabState && (tab as? EditorTab)?.editorState?.isDirty == true
+                                        }
                                         if (unsavedOtherTabs.isNotEmpty()) {
                                             dialogRes(
                                                 title = strings.files_unsaved.getString(),
@@ -200,10 +191,9 @@ fun MainContent(
                                     },
                                     onCloseAll = {
                                         val visibleTabs = mainViewModel.visibleTabs
-                                        val unsavedTabs =
-                                            visibleTabs.filter { tab ->
-                                                (tab as? EditorTab)?.editorState?.isDirty == true
-                                            }
+                                        val unsavedTabs = visibleTabs.filter { tab ->
+                                            (tab as? EditorTab)?.editorState?.isDirty == true
+                                        }
                                         if (unsavedTabs.isNotEmpty()) {
                                             dialogRes(
                                                 title = strings.files_unsaved.getString(),
@@ -481,12 +471,24 @@ private fun TabItemContent(
     val inactiveColor = fileColor ?: MaterialTheme.colorScheme.onSurfaceVariant
 
     val file = tab.file
+    val icon = tab.icon
+
     if (showIcon && file != null) {
         LeadingIconTab(
             modifier = tabModifier,
             selected = isSelected,
             onClick = onClick,
             icon = { FileIcon(file = file, iconTint = LocalContentColor.current) },
+            text = tabText,
+            selectedContentColor = activeColor,
+            unselectedContentColor = inactiveColor,
+        )
+    } else if (showIcon && icon != null) {
+        LeadingIconTab(
+            modifier = tabModifier,
+            selected = isSelected,
+            onClick = onClick,
+            icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp)) },
             text = tabText,
             selectedContentColor = activeColor,
             unselectedContentColor = inactiveColor,

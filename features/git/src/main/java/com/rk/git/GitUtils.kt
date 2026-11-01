@@ -7,10 +7,10 @@ import com.rk.theme.gitAdded
 import com.rk.theme.gitConflicted
 import com.rk.theme.gitDeleted
 import com.rk.theme.gitModified
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import java.io.File
 
 suspend fun findGitRoot(path: String): String? =
     withContext(Dispatchers.IO) {

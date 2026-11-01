@@ -216,9 +216,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                                 viewModel.selectServiceTab(tab)
                                             }
                                         },
-                                        label = {
-                                            Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        },
+                                        label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                                         enabled = tab.isEnabled(),
                                     )
                                 }

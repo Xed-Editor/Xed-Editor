@@ -48,11 +48,11 @@ import com.rk.settings.extension.applyThemeAfterInstall
 import com.rk.settings.extension.handleInstallResult
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
+import java.io.File
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 @Composable
 fun XedInstallDialog(manifest: PackageManifest, icon: File?, packageFile: File, onDismiss: () -> Unit) {
@@ -138,9 +138,7 @@ fun XedInstallDialog(manifest: PackageManifest, icon: File?, packageFile: File, 
                 Spacer(Modifier.height(16.dp))
 
                 val description = manifest.description?.ifBlank { null }
-                description?.let {
-                    Text(text = it, style = MaterialTheme.typography.bodyMedium)
-                }
+                description?.let { Text(text = it, style = MaterialTheme.typography.bodyMedium) }
             }
         },
         confirmButton = {
@@ -198,10 +196,6 @@ fun XedInstallDialog(manifest: PackageManifest, icon: File?, packageFile: File, 
                 Text(stringResource(strings.install))
             }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(strings.cancel))
-            }
-        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) } },
     )
 }

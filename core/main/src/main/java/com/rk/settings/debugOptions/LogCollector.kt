@@ -65,16 +65,12 @@ object LogCollector {
     }
 
     private fun buildMessage(message: String, extensionId: String? = null): String {
-        return extensionId?.let {
-            "[${extensionId}] $message"
-        } ?: message
+        return extensionId?.let { "[${extensionId}] $message" } ?: message
     }
 
     private fun appendEntry(logEntry: LogEntry, extensionId: String? = null) {
         _logs.update { (it + logEntry).takeLast(Settings.app_log_limit) }
-        DefaultScope.launch {
-            Events.publish(AppEvent.LogEntryWritten(logEntry, extensionId))
-        }
+        DefaultScope.launch { Events.publish(AppEvent.LogEntryWritten(logEntry, extensionId)) }
     }
 
     fun clearLogs() {

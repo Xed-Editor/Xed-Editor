@@ -1,7 +1,6 @@
 package com.rk.project
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -80,7 +79,6 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
-import com.rk.utils.errorDialog
 import com.rk.utils.formatFileSize
 import com.rk.utils.logError
 import com.rk.utils.toast
@@ -106,17 +104,13 @@ class ProjectCreatorActivity : ComponentActivity() {
                     intent.getParcelableExtra("root")
                 }
 
-            setContent {
-                XedTheme {
-                    ProjectCreatorContent(root)
-                }
-            }
-        }.onFailure {
-            logError(it)
-            toast(it.message)
-            finish()
+            setContent { XedTheme { ProjectCreatorContent(root) } }
         }
-
+            .onFailure {
+                logError(it)
+                toast(it.message)
+                finish()
+            }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -212,9 +206,8 @@ class ProjectCreatorActivity : ComponentActivity() {
                             style = MaterialTheme.typography.bodyMedium,
                         )
 
-                        creationProgress?.let {
-                            LinearProgressIndicator(progress = { it })
-                        } ?: LinearProgressIndicator()
+                        creationProgress?.let { LinearProgressIndicator(progress = { it }) }
+                            ?: LinearProgressIndicator()
                     }
                 },
                 confirmButton = {},
@@ -310,9 +303,7 @@ class ProjectCreatorActivity : ComponentActivity() {
                         )
                     }
                     ProjectCreatorPage.CONFIGURATION -> {
-                        selectedTemplate?.let {
-                            TemplateConfigurationPage(template = it)
-                        }
+                        selectedTemplate?.let { TemplateConfigurationPage(template = it) }
                     }
                 }
             }
@@ -340,11 +331,7 @@ fun TemplateSelectionPage(
                         selected = categoryPagerState.currentPage == index,
                         onClick = { scope.launch { categoryPagerState.animateScrollToPage(index) } },
                         text = { Text(category.label) },
-                        icon = {
-                            category.icon?.let {
-                                XedIcon(it, modifier = Modifier.size(20.dp))
-                            }
-                        },
+                        icon = { category.icon?.let { XedIcon(it, modifier = Modifier.size(20.dp)) } },
                         selectedContentColor = MaterialTheme.colorScheme.primary,
                         unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

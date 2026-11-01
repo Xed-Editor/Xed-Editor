@@ -172,7 +172,7 @@
     <string name="manage_storage_desc">Administrar los permisos al almacenamiento</string>
     <string name="lang">Idioma</string>
     <string name="lang_desc">Ajustes de idioma</string>
-    <string name="runner_regex">Patrón regex</string>
+    <string name="runner_regex">Patrón regex (e.g. .*\\.py)</string>
     <string name="redo">Rehacer</string>
     <string name="read_mode">Modo de lectura</string>
     <string name="edit_mode">Modo de edición</string>
@@ -223,7 +223,7 @@
     <string name="runner_name_exists">Nombre del corredor ya existente</string>
     <string name="edit_runner">Editar corredor</string>
     <string name="info_runners">Los corredores son guiones de bash pequeños que son utilizados para ejecutar un archivo/proyecto. Crear un corredor y pulsarlo para abrirlo en el editor.</string>
-    <string name="timeout">Descarga cancelada debido a espera agotada. Asegúrese que su conexión de Internet es estable</string>
+    <string name="timeout">Descarga cancelada por tiempo de espera agotado. Asegúrese de que su conexión a Internet sea estable</string>
     <string name="tab_memory_warning">No hay suficiente memoria disponible para abrir esta lengüeta. Abriéndola puede causar que Xed-Editor se cuelgue. ¿Desea continuar a pesar de todo?</string>
     <string name="acquire_wakelock">Adquirir bloqueo</string>
     <string name="release_wakelock">Soltar bloqueo</string>
@@ -712,4 +712,7 @@
     <string name="recommendations">Recomendaciones</string>
     <string name="dependencies_description">Las siguientes extensiones son requeridas para que esta extensión funcione.</string>
     <string name="recommendations_description">Las extensiones a continuación están recomendadas para instalar a lo largo de esta extensión.</string>
+    <string name="theme_migrated">Se migraron correctamente %d temas</string>
+    <string name="scoped_tabs">Pestañas delimitadas</string>
+    <string name="scoped_tabs_desc">Mostrar solo las pestañas del proyecto actual</string>
 </resources>

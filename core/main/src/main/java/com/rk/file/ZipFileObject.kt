@@ -5,14 +5,14 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 import com.rk.resources.getString
 import com.rk.resources.strings
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.zip.ZipFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 data class ZipEntryMetadata(
     val size: Long,
@@ -80,10 +80,7 @@ class ZipFileObject(
 
     override suspend fun getParentFile(): FileObject? {
         if (entryPath.isEmpty()) return zipFileObject.getParentFile()
-        val parentPath =
-            entryPath.trimEnd('/').substringBeforeLast('/', "").let {
-                if (it.isEmpty()) "" else "$it/"
-            }
+        val parentPath = entryPath.trimEnd('/').substringBeforeLast('/', "").let { if (it.isEmpty()) "" else "$it/" }
         return ZipFileObject(zipFileObject, parentPath)
     }
 

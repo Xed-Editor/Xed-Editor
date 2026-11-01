@@ -16,7 +16,7 @@ import com.rk.editor.CodeHighlighter
 import com.rk.editor.FontCache
 import com.rk.editor.KeywordManager
 import com.rk.editor.LanguageManager
-import com.rk.extension.api.RestrictedAPI
+import com.rk.extension.ActivityProvider
 import com.rk.icons.pack.IconPackManager
 import com.rk.lsp.FileIconProvider
 import com.rk.lsp.LspPersistence
@@ -30,17 +30,16 @@ import com.rk.settings.editor.DEFAULT_APP_FONT_PATH
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.theme.ThemeManager
-import com.rk.utils.ActivityLifecycleLogger
 import com.rk.utils.application
 import com.rk.utils.getTempDir
 import com.rk.utils.logError
 import com.rk.utils.logInfo
+import java.util.Locale
+import java.util.concurrent.Executors
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.Locale
-import java.util.concurrent.Executors
 
 @OptIn(DelicateCoroutinesApi::class)
 open class App : Application() {
@@ -82,7 +81,7 @@ open class App : Application() {
         Res.application = this
 
         logInfo("App.onCreate")
-        registerActivityLifecycleCallbacks(ActivityLifecycleLogger)
+        registerActivityLifecycleCallbacks(ActivityProvider)
 
         LspPersistence.restoreServers()
 

@@ -70,4 +70,6 @@ sealed class SettingsRoutes(val route: String) {
     data object Git : SettingsRoutes("git")
 
     data object Account : SettingsRoutes("account")
+
+    data object StorageSettings : SettingsRoutes("storage_settings")
 }

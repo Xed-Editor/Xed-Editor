@@ -7,6 +7,8 @@ import com.rk.activities.main.MainActivity
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.utils.logError
+import com.rk.utils.okHttpClient
 import com.rk.xededitor.BuildConfig
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -15,9 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.rk.utils.okHttpClient
-import com.rk.utils.logError
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
 

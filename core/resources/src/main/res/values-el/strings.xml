@@ -44,7 +44,7 @@
     <string name="replace_all">Αντικατάσταση όλων</string>
     <string name="download">Λήψη</string>
     <string name="apply">Εφαρμογή</string>
-    <string name="open_in_terminal">Άνοιγμα στο Τερματικό</string>
+    <string name="open_in_terminal">Άνοιγμα στο τερματικό</string>
     <string name="file_open_denied">Δεν επιτρέπεται το άνοιγμα αυτού του αρχείου με άλλες εφαρμογές</string>
     <string name="close_current_project">Είστε σίγουροι ότι θέλετε να κλείσετε το πρότζεκτ \'%s\';</string>
     <string name="file_name">Όνομα αρχείου</string>
@@ -282,4 +282,11 @@
     <string name="regex">Regex</string>
     <string name="whole_word">Ολόκληρη λέξη</string>
     <string name="branch">Κλάδος</string>
+    <string name="ask_deletion_many">Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά %d αρχεία;</string>
+    <string name="theme_migrated">Επιτυχής μεταφορά %d θεμάτων</string>
+    <string name="scoped_tabs">Καρτέλες περιορισμένου εύρους</string>
+    <string name="scoped_tabs_desc">Εμφάνιση μόνο καρτελών που ανήκουν στο τρέχον έργο</string>
+    <string name="files_unsaved">Μη αποθηκευμένα αρχεία</string>
+    <string name="ask_multiple_unsaved">Είστε βέβαιοι ότι θέλετε να απορρίψετε αυτά τα μη αποθηκευμένα έγγραφα;</string>
+    <string name="store_desc">Λήψη επεκτάσεων, θεμάτων και πακέτων εικονιδίων</string>
 </resources>

@@ -142,9 +142,7 @@ fun KeybindingsScreen() {
 
         items(filteredCommands, key = { it.id }) { command ->
             val keyCombination by
-                remember(refreshTrigger) {
-                    derivedStateOf { KeybindingsManager.getKeyCombinationForCommand(command) }
-                }
+                remember(refreshTrigger) { derivedStateOf { KeybindingsManager.getKeyCombinationForCommand(command) } }
             Box(modifier = Modifier.animateItem()) {
                 KeybindItem(
                     command = command,

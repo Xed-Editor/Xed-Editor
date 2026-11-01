@@ -11,10 +11,12 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.utils.logDebug
 import com.rk.utils.logError
 import com.rk.utils.logInfo
 import com.rk.utils.toast
+import java.io.ByteArrayOutputStream
+import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -34,6 +36,7 @@ import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.Edit
 import org.eclipse.jgit.diff.RawText
 import org.eclipse.jgit.diff.RawTextComparator
+import org.eclipse.jgit.gpg.bc.internal.BouncyCastleGpgSigner
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
@@ -50,9 +53,6 @@ import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.treewalk.filter.PathFilter
-import java.io.ByteArrayOutputStream
-import java.io.File
-import kotlin.time.Duration.Companion.milliseconds
 
 data class GitCommit(
     val hash: String,
@@ -208,9 +208,7 @@ class GitViewModel : ViewModel() {
     }
 
     private fun getChangeForPath(path: String): GitChange? {
-        return _changes.value.values.flatten().find { change ->
-            change.absolutePath == path
-        }
+        return _changes.value.values.flatten().find { change -> change.absolutePath == path }
     }
 
     private fun getChangeAndRootForPath(path: String): Pair<String, GitChange>? {
@@ -499,9 +497,7 @@ class GitViewModel : ViewModel() {
                 _changes.update { map -> map + (gitRoot to mergedChanges) }
 
                 updateAheadBehindCounts()
-                viewModelScope.launch {
-                    Events.publish(GitEvent.WorkingTreeUpdated(FileWrapper(root), mergedChanges))
-                }
+                viewModelScope.launch { Events.publish(GitEvent.WorkingTreeUpdated(FileWrapper(root), mergedChanges)) }
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
@@ -531,12 +527,29 @@ class GitViewModel : ViewModel() {
                                 else -> {}
                             }
                         }
-                    git.commit()
-                        .setAuthor(Settings.git_name, Settings.git_email)
-                        .setCommitter(Settings.git_name, Settings.git_email)
-                        .setMessage(message)
-                        .setAmend(amend)
-                        .call()
+                    val commitCmd =
+                        git.commit()
+                            .setAuthor(Settings.git_name, Settings.git_email)
+                            .setCommitter(Settings.git_name, Settings.git_email)
+                            .setMessage(message)
+                            .setAmend(amend)
+
+                    if (Settings.git_commit_signing) {
+                        if (Settings.git_gpg_key.isBlank()) {
+                            toast(strings.gpg_key_missing)
+                            return@launch
+                        }
+                        commitCmd.setSign(true)
+                        commitCmd.setSigningKey(Settings.git_gpg_key)
+                        commitCmd.setGpgSigner(BouncyCastleGpgSigner())
+                        commitCmd.setCredentialsProvider(
+                            UsernamePasswordCredentialsProvider("", Settings.git_gpg_passphrase)
+                        )
+                    } else {
+                        commitCmd.setSign(false)
+                    }
+
+                    commitCmd.call()
                     toast(strings.commit_complete)
                 }
                 if (amend) {
@@ -699,9 +712,7 @@ class GitViewModel : ViewModel() {
 
         val oldTree =
             if (headId != null) {
-                CanonicalTreeParser().apply {
-                    reset(repo.newObjectReader(), headId)
-                }
+                CanonicalTreeParser().apply { reset(repo.newObjectReader(), headId) }
             } else {
                 EmptyTreeIterator()
             }
@@ -721,17 +732,12 @@ class GitViewModel : ViewModel() {
             val old =
                 if (childCommit.parentCount > 0) {
                     val parentCommit = revWalk.parseCommit(childCommit.getParent(0).id)
-                    CanonicalTreeParser().apply {
-                        reset(repo.newObjectReader(), parentCommit.tree.id)
-                    }
+                    CanonicalTreeParser().apply { reset(repo.newObjectReader(), parentCommit.tree.id) }
                 } else {
                     EmptyTreeIterator()
                 }
 
-            val new =
-                CanonicalTreeParser().apply {
-                    reset(repo.newObjectReader(), childCommit.tree.id)
-                }
+            val new = CanonicalTreeParser().apply { reset(repo.newObjectReader(), childCommit.tree.id) }
 
             old to new
         }
@@ -857,7 +863,9 @@ class GitViewModel : ViewModel() {
                     val result = git.merge().include(git.repository.resolve(branchName)).call()
                     if (result.mergeStatus.isSuccessful) {
                         toast(strings.merge_complete)
-                        Events.publish(GitEvent.Merged(FileWrapper(currentRoot.value!!), currentBranch.value, branchName))
+                        Events.publish(
+                            GitEvent.Merged(FileWrapper(currentRoot.value!!), currentBranch.value, branchName)
+                        )
                     } else {
                         toast("Merge failed: ${result.mergeStatus}")
                     }
@@ -882,7 +890,9 @@ class GitViewModel : ViewModel() {
                     val result = git.rebase().setUpstream(branchName).call()
                     if (result.status.isSuccessful) {
                         toast(strings.rebase_complete)
-                        Events.publish(GitEvent.Rebased(FileWrapper(currentRoot.value!!), currentBranch.value, branchName))
+                        Events.publish(
+                            GitEvent.Rebased(FileWrapper(currentRoot.value!!), currentBranch.value, branchName)
+                        )
                     } else {
                         toast("Rebase failed: ${result.status}")
                     }

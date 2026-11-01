@@ -7,13 +7,13 @@ import io.github.rosemoe.sora.lsp.events.EventContext
 import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.documentSave
 import io.github.rosemoe.sora.lsp.utils.FileUri
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.Assert.fail
 import org.junit.Test
-import kotlin.time.Duration.Companion.milliseconds
 
 class CoroutineReproTest {
 

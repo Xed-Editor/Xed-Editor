@@ -64,7 +64,6 @@ fun Support(modifier: Modifier = Modifier) {
         PreferenceGroup {
             SettingsItem(
                 label = "GitHub Sponsors",
-                
                 isEnabled = true,
                 showSwitch = false,
                 default = false,
@@ -91,7 +90,6 @@ fun Support(modifier: Modifier = Modifier) {
             )
             SettingsItem(
                 label = "Buy Me a Coffee",
-                
                 isEnabled = true,
                 showSwitch = false,
                 default = false,
@@ -120,7 +118,6 @@ fun Support(modifier: Modifier = Modifier) {
             if (upiAvailable) {
                 SettingsItem(
                     label = "UPI",
-                    
                     isEnabled = true,
                     showSwitch = false,
                     default = false,

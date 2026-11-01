@@ -16,11 +16,11 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.dialogRes
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 
 object FilePermission {
     private const val REQUEST_CODE_STORAGE_PERMISSIONS = 1259
@@ -45,90 +45,91 @@ object FilePermission {
 
     private var dialogRef = WeakReference<AlertDialog?>(null)
 
-    suspend fun verifyStoragePermission(activity: Activity) = withContext(Dispatchers.Main) {
-        if (isRequesting && activeActivity.get() == activity) {
-            return@withContext
-        }
-        activeActivity = WeakReference(activity)
+    suspend fun verifyStoragePermission(activity: Activity) =
+        withContext(Dispatchers.Main) {
+            if (isRequesting && activeActivity.get() == activity) {
+                return@withContext
+            }
+            activeActivity = WeakReference(activity)
 
-        dialogRef.get()?.apply {
-            if (isShowing) {
-                dismiss()
+            dialogRef.get()?.apply {
+                if (isShowing) {
+                    dismiss()
+                }
             }
-        }
-        dialogRef = WeakReference(null)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager()) {
-                Settings.ignore_storage_permission = false
+            dialogRef = WeakReference(null)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    Settings.ignore_storage_permission = false
+                }
             }
-        }
-        if (Settings.ignore_storage_permission) {
-            return@withContext
-        }
-        var shouldAsk = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                shouldAsk = true
+            if (Settings.ignore_storage_permission) {
+                return@withContext
             }
-        } else {
-            if (
-                ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) !=
-                    PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-                        PackageManager.PERMISSION_GRANTED
-            ) {
-                shouldAsk = true
+            var shouldAsk = false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    shouldAsk = true
+                }
+            } else {
+                if (
+                    ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) !=
+                        PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                            PackageManager.PERMISSION_GRANTED
+                ) {
+                    shouldAsk = true
+                }
             }
-        }
 
-        if (shouldAsk && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
-            withContext(Dispatchers.Default){
-                val app = application ?: return@withContext
-                val pm = app.packageManager
+            if (shouldAsk && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                withContext(Dispatchers.Default) {
+                    val app = application ?: return@withContext
+                    val pm = app.packageManager
 
-                val pkgInfo = pm.getPackageInfo(
-                    app.packageName,
-                    PackageManager.GET_PERMISSIONS
+                    val pkgInfo =
+                        pm.getPackageInfo(
+                            app.packageName,
+                            PackageManager.GET_PERMISSIONS,
+                        )
+
+                    shouldAsk =
+                        pkgInfo.requestedPermissions?.any { it == android.Manifest.permission.MANAGE_EXTERNAL_STORAGE }
+                            ?: false
+                }
+            }
+
+            if (shouldAsk) {
+                isRequesting = true
+                dialogRes(
+                    activity = activity,
+                    title = strings.manage_storage.getString(),
+                    msg = strings.manage_storage_reason.getString(),
+                    cancelRes = strings.ignore,
+                    okRes = strings.ok,
+                    onOk = {
+                        isRequesting = false
+                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                            val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                            intent.data = "package:${activity.packageName}".toUri()
+                            activity.startActivity(intent)
+                        } else {
+                            // below 11
+                            // Request permissions
+                            val perms =
+                                arrayOf(
+                                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                )
+                            ActivityCompat.requestPermissions(activity, perms, REQUEST_CODE_STORAGE_PERMISSIONS)
+                        }
+                    },
+                    onCancel = {
+                        Settings.ignore_storage_permission = true
+                        isRequesting = false
+                    },
+                    cancelable = false,
                 )
-
-                shouldAsk =
-                    pkgInfo.requestedPermissions?.any {
-                        it == android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
-                    } ?: false
             }
         }
-
-        if (shouldAsk) {
-            isRequesting = true
-            dialogRes(
-                activity = activity,
-                title = strings.manage_storage.getString(),
-                msg = strings.manage_storage_reason.getString(),
-                cancelRes = strings.ignore,
-                okRes = strings.ok,
-                onOk = {
-                    isRequesting = false
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                        val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                        intent.data = "package:${activity.packageName}".toUri()
-                        activity.startActivity(intent)
-                    } else {
-                        // below 11
-                        // Request permissions
-                        val perms =
-                            arrayOf(
-                                Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            )
-                        ActivityCompat.requestPermissions(activity, perms, REQUEST_CODE_STORAGE_PERMISSIONS)
-                    }
-                },
-                onCancel = {
-                    Settings.ignore_storage_permission = true
-                    isRequesting = false
-                },
-                cancelable = false,
-            )
-        }
-    }
 }

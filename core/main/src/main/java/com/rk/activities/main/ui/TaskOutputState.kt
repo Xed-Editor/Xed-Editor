@@ -8,14 +8,15 @@ import com.rk.extension.api.TaskRegistry
 
 object TaskOutputState {
     var expanded by mutableStateOf(false)
-    var activeTask by mutableStateOf<Task?>(null)
+    var focusedTask by mutableStateOf<Task?>(null)
 
     val isActive: Boolean
         get() = TaskRegistry.tasks.value.isNotEmpty()
 
     fun updateActiveTask() {
-        if (activeTask == null || activeTask !in TaskRegistry.tasks.value) {
-            activeTask = TaskRegistry.tasks.value.lastOrNull()
+        val task = focusedTask
+        if (task == null || task !in TaskRegistry.tasks.value || !task.isRunning) {
+            focusedTask = TaskRegistry.tasks.value.lastOrNull { it.isRunning } ?: TaskRegistry.tasks.value.lastOrNull()
         }
     }
 }

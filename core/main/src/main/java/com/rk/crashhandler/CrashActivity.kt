@@ -38,8 +38,8 @@ import com.rk.resources.strings
 import com.rk.theme.GitColorScheme
 import com.rk.theme.XedTheme
 import com.rk.utils.SourceCodeProvider
-import com.rk.utils.logError
 import com.rk.utils.copyToClipboard
+import com.rk.utils.logError
 import com.rk.utils.openUrl
 import com.rk.utils.origin
 import com.rk.xededitor.BuildConfig
@@ -187,9 +187,7 @@ class CrashActivity : ComponentActivity() {
                                             Text(stringResource(strings.copy))
                                         }
 
-                                        val showReport = remember {
-                                            intent.getBooleanExtra("force_crash", false).not()
-                                        }
+                                        val showReport = remember { intent.getBooleanExtra("force_crash", false).not() }
 
                                         if (showReport) {
                                             TextButton(

@@ -2,6 +2,7 @@ package com.rk.runner
 
 import android.app.Activity
 import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rk.DefaultScope
@@ -12,18 +13,14 @@ import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import com.rk.icons.Icon
 import com.rk.resources.drawables
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.random.Random
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object ShellBasedRunners {
-    private val _runners = MutableStateFlow<List<ShellBasedRunner>>(emptyList())
-    val runners = _runners.asStateFlow()
+    val runners = mutableStateListOf<ShellBasedRunner>()
 
     init {
         DefaultScope.launch { indexRunners() }
@@ -31,8 +28,8 @@ object ShellBasedRunners {
 
     suspend fun newRunner(runner: ShellBasedRunner): Boolean {
         return withContext(Dispatchers.IO) {
-            if (_runners.value.find { it.label == runner.label } == null) {
-                _runners.update { it + runner }
+            if (runners.find { it.label == runner.label } == null) {
+                withContext(Dispatchers.Main) { runners.add(runner) }
                 runnerDir()
                     .child("${runner.label}.sh")
                     .createFileIfNot()
@@ -45,13 +42,13 @@ object ShellBasedRunners {
         }
     }
 
-    suspend fun saveRunners() {
-        val json = Gson().toJson(_runners.value)
+    fun saveRunners() {
+        val json = Gson().toJson(runners)
         localDir().child("runners.json").writeText(json)
     }
 
-    suspend fun deleteRunner(runner: ShellBasedRunner) {
-        _runners.update { it - runner }
+    fun deleteRunner(runner: ShellBasedRunner) {
+        runners.remove(runner)
         saveRunners()
         runnerDir().child("${runner.label}.sh").createFileIfNot().delete()
     }
@@ -62,7 +59,8 @@ object ShellBasedRunners {
             if (file.exists()) {
                 val content = file.readText()
                 val type = object : TypeToken<List<ShellBasedRunner>>() {}.type
-                _runners.value = Gson().fromJson(content, type)
+                runners.clear()
+                runners.addAll(Gson().fromJson(content, type))
             }
         }
     }

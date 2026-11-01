@@ -102,9 +102,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
         val prefKey = "lsp_${server.id}_startup_timeout"
         val timeout = Preference.getInt(prefKey, server.customTimeouts[Timeouts.INIT] ?: Timeouts.INIT.defaultTimeout)
         var timeoutValue by remember { mutableStateOf(timeout.toString()) }
-        var timeoutError by remember {
-            mutableStateOf<String?>(null)
-        }
+        var timeoutError by remember { mutableStateOf<String?>(null) }
 
         SingleInputDialog(
             title = stringResource(strings.startup_timeout),
@@ -233,9 +231,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
 
         val status by rememberLspInstallStatus(context, server, refreshKey)
         val hasRunningInstances by remember {
-            derivedStateOf {
-                instances.any { it.status.value == LspConnectionStatus.RUNNING }
-            }
+            derivedStateOf { instances.any { it.status.value == LspConnectionStatus.RUNNING } }
         }
 
         Row(
@@ -287,9 +283,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
             NextScreenCard(
                 label = stringResource(strings.initialization_options),
                 description = stringResource(strings.initialization_options_desc),
-                onClick = {
-                    navController.navigate("${SettingsRoutes.LspInitializationOptions.route}/${server.id}")
-                },
+                onClick = { navController.navigate("${SettingsRoutes.LspInitializationOptions.route}/${server.id}") },
             )
 
             SettingsItem(

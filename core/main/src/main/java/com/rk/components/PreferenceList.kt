@@ -2,8 +2,14 @@ package com.rk.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -19,18 +25,28 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.resources.getString
 import com.rk.resources.strings
 
+data class PreferenceListItem<T>(
+    val id: T,
+    val label: String,
+    val enabled: Boolean = true,
+)
+
 /** A Preference that shows a list of options in a dialog when clicked. */
 @Composable
 fun <T> PreferenceList(
     label: String,
     description: String?,
-    items: List<Pair<T, String>>, // T to String Resource ID
+    items: List<PreferenceListItem<T>>,
     selectedItem: T,
     onItemSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    showIds: Boolean = false,
+    message: @Composable (() -> Unit)? = null,
+    customInputLabel: String? = null,
+    customInputValue: String = "",
 ) {
-    var showDialog by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(value = false) }
 
     SettingsItem(
         modifier = modifier,
@@ -44,23 +60,46 @@ fun <T> PreferenceList(
 
     if (showDialog) {
         var tempSelectedItem by remember { mutableStateOf(selectedItem) }
+        var tempCustomValue by remember { mutableStateOf(customInputValue) }
 
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text(text = label) },
             text = {
-                Column {
-                    items.forEach { (item, string) ->
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    message?.invoke()
+                    if (message != null) {
+                        Spacer(Modifier.height(12.dp))
+                    }
+
+                    items.forEach { (id, label, enabled) ->
                         PreferenceTemplate(
                             modifier =
-                                Modifier.clip(MaterialTheme.shapes.large).clickable {
-                                    tempSelectedItem = item
+                                Modifier.clip(MaterialTheme.shapes.large).clickable(enabled) {
+                                    tempSelectedItem = id
+                                    tempCustomValue = ""
                                 },
-                            title = { Text(text = string) },
+                            enabled = enabled,
+                            title = { Text(text = label) },
+                            description = { if (showIds) Text(text = id.toString()) },
                             startWidget = {
-                                RadioButton(selected = tempSelectedItem == item, onClick = null)
+                                RadioButton(
+                                    selected = (tempSelectedItem == id) && tempCustomValue.isBlank(),
+                                    onClick = null,
+                                )
                             },
                             verticalPadding = 12.dp,
+                        )
+                    }
+
+                    if (customInputLabel != null) {
+                        Spacer(Modifier.height(12.dp))
+                        OutlinedTextField(
+                            value = tempCustomValue,
+                            onValueChange = { tempCustomValue = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            label = { Text(customInputLabel) },
                         )
                     }
                 }
@@ -69,16 +108,18 @@ fun <T> PreferenceList(
                 TextButton(
                     onClick = {
                         showDialog = false
-                        onItemSelected(tempSelectedItem)
+                        if (tempCustomValue.isNotBlank()) {
+                            @Suppress("UNCHECKED_CAST") onItemSelected(tempCustomValue.trim() as T)
+                        } else {
+                            onItemSelected(tempSelectedItem)
+                        }
                     }
                 ) {
                     Text(text = strings.apply.getString())
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(text = strings.cancel.getString())
-                }
+                TextButton(onClick = { showDialog = false }) { Text(text = strings.cancel.getString()) }
             },
         )
     }

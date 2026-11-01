@@ -21,6 +21,13 @@ sealed class ExtensionDialog {
 }
 
 
+/**
+ * Manages the currently opened dialogs related to extensions.
+ *
+ * An ExtensionDialogManager instance should be constructed per UI screen.
+ *
+ * @see ExtensionDialogRenderer
+ */
 class ExtensionDialogManager {
     var activeDialog by mutableStateOf<ExtensionDialog?>(null)
         private set

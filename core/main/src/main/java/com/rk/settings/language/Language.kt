@@ -36,10 +36,10 @@ import com.rk.events.Events
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.application
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Locale
 
 // Data class to hold locale with its availability status
 data class LocaleInfo(val locale: Locale, val isInstalled: Boolean, val displayName: String)
@@ -153,7 +153,5 @@ fun setAppLanguage(locale: Locale, oldLocale: Locale) {
     AppCompatDelegate.setApplicationLocales(appLocale)
     Settings.current_lang = locale.toLanguageTag()
 
-    DefaultScope.launch {
-        Events.publish(AppEvent.LanguageChanged(locale, oldLocale))
-    }
+    DefaultScope.launch { Events.publish(AppEvent.LanguageChanged(locale, oldLocale)) }
 }

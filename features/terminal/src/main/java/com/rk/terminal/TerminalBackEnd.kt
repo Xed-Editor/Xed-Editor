@@ -8,8 +8,8 @@ import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.activities.terminal.Terminal
 import com.rk.settings.Settings
 import com.rk.settings.terminal.TerminalCursorStyle
-import com.rk.utils.logError
 import com.rk.terminal.virtualkeys.SpecialButton
+import com.rk.utils.logError
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -42,7 +42,7 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
 
     override fun onTerminalCursorStateChange(state: Boolean) {}
 
-    //override fun setTerminalShellPid(session: TerminalSession, pid: Int) {}
+    override fun setTerminalShellPid(session: TerminalSession, pid: Int) {}
 
     override fun getTerminalCursorStyle(): Int {
         return when (Settings.terminal_cursor_style) {
@@ -103,12 +103,9 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
         return true
     }
 
-    //TODO
-
-//    override fun shouldSupportClipboardKeybindings(): Boolean {
-//        return Settings.terminal_clipboard_keybindings
-//    }
-
+    override fun shouldSupportClipboardKeybindings(): Boolean {
+        return Settings.terminal_clipboard_keybindings
+    }
 
     override fun isTerminalViewSelected(): Boolean {
         return true

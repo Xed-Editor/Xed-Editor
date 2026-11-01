@@ -30,6 +30,7 @@ class EditorManager(private val viewModel: MainViewModel) {
         customTitle: String? = null,
         fallbackExtension: String = "txt",
         initialContent: String? = null,
+        diskState: DiskState? = null,
     ): EditorTab {
         return EditorTab(
             file = file,
@@ -40,6 +41,7 @@ class EditorManager(private val viewModel: MainViewModel) {
             customTitle = customTitle,
             fallbackExtension = fallbackExtension,
             initialContent = initialContent?.let { Content(it) },
+            diskState = diskState,
         )
     }
 
@@ -53,9 +55,19 @@ class EditorManager(private val viewModel: MainViewModel) {
         customTitle: String? = null,
         fallbackExtension: String = "txt",
         initialContent: String? = null,
+        diskState: DiskState? = null,
     ) {
         val editorTab =
-            createEditorTab(file, projectRoot, scopeRoot, isReadOnly, customTitle, fallbackExtension, initialContent)
+            createEditorTab(
+                file,
+                projectRoot,
+                scopeRoot,
+                isReadOnly,
+                customTitle,
+                fallbackExtension,
+                initialContent,
+                diskState,
+            )
         viewModel.tabManager.addTab(editorTab, switchToTab, checkDuplicate)
     }
 
@@ -79,7 +91,7 @@ class EditorManager(private val viewModel: MainViewModel) {
             )
         }
 
-        val targetTab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file == file } ?: return
+        val targetTab = viewModel.editorTabs.find { it.file == file } ?: return
 
         // Wait until editor content is loaded
         targetTab.editorState.contentRendered.await()

@@ -96,20 +96,11 @@ fun GitGraphView(commits: List<GitCommit>?, modifier: Modifier = Modifier, onCom
             Color(harmonize(0xFF8BC34A)),
         )
 
-    val laneByHash =
-        remember(commits) {
-            commits.associate { it.hash to it.lane }
-        }
+    val laneByHash = remember(commits) { commits.associate { it.hash to it.lane } }
 
-    val indexByHash =
-        remember(commits) {
-            commits.mapIndexed { index, commit -> commit.hash to index }.toMap()
-        }
+    val indexByHash = remember(commits) { commits.mapIndexed { index, commit -> commit.hash to index }.toMap() }
 
-    val maxLane =
-        remember(commits) {
-            commits.maxOfOrNull { it.lane } ?: 0
-        }
+    val maxLane = remember(commits) { commits.maxOfOrNull { it.lane } ?: 0 }
 
     // Pre-compute all child -> parent connections
     val edges =
@@ -151,9 +142,7 @@ fun GitGraphView(commits: List<GitCommit>?, modifier: Modifier = Modifier, onCom
             map
         }
 
-    val dateFormatter = remember {
-        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    }
+    val dateFormatter = remember { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()) }
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
         itemsIndexed(

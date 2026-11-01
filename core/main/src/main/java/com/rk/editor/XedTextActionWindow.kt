@@ -7,18 +7,17 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import com.rk.utils.logWarn
+import io.github.rosemoe.sora.R as SoraR
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorTextActionWindow
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlin.math.min
-import io.github.rosemoe.sora.R as SoraR
 
 /**
  * Replaces the default [EditorTextActionWindow] via [CodeEditor.replaceComponent].
  *
- * Shows the built-in text actions plus any extra actions registered through
- * [registerTextAction]. The popup is widened to fit all visible buttons instead
- * of sora's fixed 230dp cap.
+ * Shows the built-in text actions plus any extra actions registered through [registerTextAction]. The popup is widened
+ * to fit all visible buttons instead of sora's fixed 230dp cap.
  */
 class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
 
@@ -44,24 +43,25 @@ class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
     fun registerTextAction(item: TextActionItem) {
         if (items.any { it.first === item }) return
         val editor = getEditor()
-        val btn = ImageButton(editor.context).apply {
-            //setImageResource(item.iconRes)
-            setImageDrawable(item.icon)
-            contentDescription = item.title
-            val btnSize = (editor.dpUnit * 45).toInt()
-            layoutParams = LinearLayout.LayoutParams(btnSize, btnSize)
-            val value = TypedValue()
-            context.theme.resolveAttribute(android.R.attr.selectableItemBackground, value, true)
-            setBackgroundResource(value.resourceId)
-            setOnClickListener {
-                try {
-                    item.onClick(editor)
-                } catch (t: Throwable) {
-                    logWarn("Text action failed: \n ${t.stackTrace}")
+        val btn =
+            ImageButton(editor.context).apply {
+                // setImageResource(item.iconRes)
+                setImageDrawable(item.icon)
+                contentDescription = item.title
+                val btnSize = (editor.dpUnit * 45).toInt()
+                layoutParams = LinearLayout.LayoutParams(btnSize, btnSize)
+                val value = TypedValue()
+                context.theme.resolveAttribute(android.R.attr.selectableItemBackground, value, true)
+                setBackgroundResource(value.resourceId)
+                setOnClickListener {
+                    try {
+                        item.onClick(editor)
+                    } catch (t: Throwable) {
+                        logWarn("Text action failed: \n ${t.stackTrace}")
+                    }
+                    dismiss()
                 }
-                dismiss()
             }
-        }
         item.actionButton = btn
         rootRow.addView(btn)
         items += item to btn
@@ -97,8 +97,7 @@ class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
         val handleLeftX = editor.getOffset(cursor.leftLine, cursor.leftColumn)
         val handleRightX = editor.getOffset(cursor.rightLine, cursor.rightColumn)
         val centerX = (handleLeftX + handleRightX) / 2f
-        val panelX = (centerX - width / 2f).toInt()
-            .coerceIn(0, (editor.width - width).coerceAtLeast(0))
+        val panelX = (centerX - width / 2f).toInt().coerceIn(0, (editor.width - width).coerceAtLeast(0))
 
         setLocationAbsolutely(panelX, top)
         show()
@@ -134,13 +133,14 @@ class XedTextActionWindow(editor: CodeEditor) : EditorTextActionWindow(editor) {
     }
 
     private fun computeTop(editor: CodeEditor, height: Int): Int {
-        val top = if (editor.cursor.isSelected) {
-            val top1 = selectTop(editor.leftHandleDescriptor.position, height)
-            val top2 = selectTop(editor.rightHandleDescriptor.position, height)
-            min(top1, top2)
-        } else {
-            selectTop(editor.insertHandleDescriptor.position, height)
-        }
+        val top =
+            if (editor.cursor.isSelected) {
+                val top1 = selectTop(editor.leftHandleDescriptor.position, height)
+                val top2 = selectTop(editor.rightHandleDescriptor.position, height)
+                min(top1, top2)
+            } else {
+                selectTop(editor.insertHandleDescriptor.position, height)
+            }
         return top.coerceIn(0, (editor.height - height - 5).coerceAtLeast(0))
     }
 

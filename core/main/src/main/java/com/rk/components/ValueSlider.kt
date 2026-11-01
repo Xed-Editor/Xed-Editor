@@ -16,10 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SmoothValueSlider(
@@ -98,9 +98,7 @@ fun RoundedValueSlider(
         max = max,
         default = default.coerceAtLeast(min),
         steps = ((max - sliderMin) / stepSize).coerceAtLeast(1) - 1,
-        valueMapper = { value ->
-            value.toInt().coerceAtLeast(min)
-        },
+        valueMapper = { value -> value.toInt().coerceAtLeast(min) },
         debounce = debounce,
         onValueChanged = onValueChanged,
     )

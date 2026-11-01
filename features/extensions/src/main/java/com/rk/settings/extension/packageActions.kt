@@ -53,13 +53,13 @@ import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.logError
 import com.rk.utils.toast
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
-import java.io.File
 
 fun getMissingDependencies(extension: Extension): List<ExtensionId> {
     val missing = linkedSetOf<ExtensionId>()
@@ -99,14 +99,10 @@ fun runExtensionUninstallAction(
         onOk = {
             scope.launch(Dispatchers.IO) {
                 extensionManager.uninstallExtension(extension.id).onFailure { error ->
-                    withContext(Dispatchers.Main) {
-                        errorDialog(activity, error)
-                    }
+                    withContext(Dispatchers.Main) { errorDialog(activity, error) }
                     return@launch
                 }
-                withContext(Dispatchers.Main) {
-                    updateInstallState(InstallState.Idle)
-                }
+                withContext(Dispatchers.Main) { updateInstallState(InstallState.Idle) }
             }
         },
         onCancel = {},
@@ -130,9 +126,7 @@ private fun showDownloadNotification(
                 "Store Downloads",
                 NotificationManager.IMPORTANCE_LOW,
             )
-            .apply {
-                description = "Notifications for store downloads and installations"
-            }
+            .apply { description = "Notifications for store downloads and installations" }
     notificationManager.createNotificationChannel(channel)
 
     val builder =
@@ -162,9 +156,7 @@ private fun showDownloadNotification(
         }
     }
 
-    runCatching {
-        notificationManager.notify(id.hashCode(), builder.build())
-    }
+    runCatching { notificationManager.notify(id.hashCode(), builder.build()) }
 }
 
 suspend fun installExtensionSequentially(
@@ -197,9 +189,7 @@ suspend fun installExtensionSequentially(
                     url = "$EXTENSION_API_BASE/$id/plugin.zip",
                     destFile = tempFile,
                     onProgress = { progress ->
-                        DefaultScope.launch(Dispatchers.Main) {
-                            StoreManager.setDownloadProgress(id, progress)
-                        }
+                        DefaultScope.launch(Dispatchers.Main) { StoreManager.setDownloadProgress(id, progress) }
                         val now = System.currentTimeMillis()
                         if (now - lastNotificationTime > 300) {
                             lastNotificationTime = now
@@ -339,9 +329,7 @@ fun runExtensionUpdateAction(
                     url = "$EXTENSION_API_BASE/$id/plugin.zip",
                     destFile = tempFile,
                     onProgress = { progress ->
-                        DefaultScope.launch(Dispatchers.Main) {
-                            StoreManager.setDownloadProgress(id, progress)
-                        }
+                        DefaultScope.launch(Dispatchers.Main) { StoreManager.setDownloadProgress(id, progress) }
                         val now = System.currentTimeMillis()
                         if (now - lastNotificationTime > 300) {
                             lastNotificationTime = now
@@ -444,9 +432,7 @@ fun runThemeInstallAction(
                     url = "$THEMES_API_BASE/$id/theme.xed",
                     destFile = tempFile,
                     onProgress = { progress ->
-                        DefaultScope.launch(Dispatchers.Main) {
-                            StoreManager.setDownloadProgress(id, progress)
-                        }
+                        DefaultScope.launch(Dispatchers.Main) { StoreManager.setDownloadProgress(id, progress) }
                         val now = System.currentTimeMillis()
                         if (now - lastNotificationTime > 300) {
                             lastNotificationTime = now
@@ -460,12 +446,8 @@ fun runThemeInstallAction(
                 runCatching {
                     themeManager.installTheme(tempFile)
                 }
-                    .onSuccess {
-                        success = true
-                    }
-                    .onFailure {
-                        errorMsg = it.message ?: "Failed to install theme"
-                    }
+                    .onSuccess { success = true }
+                    .onFailure { errorMsg = it.message ?: "Failed to install theme" }
             } else {
                 errorMsg = "Download failed"
             }
@@ -524,9 +506,7 @@ fun runIconPackInstallAction(
                     url = "$ICONPACKS_API_BASE/$id/iconpack.zip",
                     destFile = tempFile,
                     onProgress = { progress ->
-                        DefaultScope.launch(Dispatchers.Main) {
-                            StoreManager.setDownloadProgress(id, progress)
-                        }
+                        DefaultScope.launch(Dispatchers.Main) { StoreManager.setDownloadProgress(id, progress) }
                         val now = System.currentTimeMillis()
                         if (now - lastNotificationTime > 300) {
                             lastNotificationTime = now
@@ -540,12 +520,8 @@ fun runIconPackInstallAction(
                 runCatching {
                     iconPackManager.installIconPack(tempFile)
                 }
-                    .onSuccess {
-                        success = true
-                    }
-                    .onFailure {
-                        errorMsg = it.message ?: "Failed to install icon pack"
-                    }
+                    .onSuccess { success = true }
+                    .onFailure { errorMsg = it.message ?: "Failed to install icon pack" }
             } else {
                 errorMsg = "Download failed"
             }
@@ -577,9 +553,7 @@ fun applyIconPackAfterInstall(id: String) {
     val newIconPack = iconPackManager.localIconPacks.value[id]
     currentIconPack.value = newIconPack
     Settings.icon_pack = id
-    DefaultScope.launch {
-        Events.publish(AppEvent.IconPackChanged(newIconPack, oldIconPack))
-    }
+    DefaultScope.launch { Events.publish(AppEvent.IconPackChanged(newIconPack, oldIconPack)) }
 }
 
 fun runPackageInstallAction(

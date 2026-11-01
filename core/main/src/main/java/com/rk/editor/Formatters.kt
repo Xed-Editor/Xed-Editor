@@ -49,12 +49,8 @@ object Formatters {
         Settings.formatters
             .split("|")
             .toSet()
-            .let { formatters ->
-                formatters + providers.map { it.id }
-            }
-            .let { formatters ->
-                formatters + LSP_FORMATTER_ID
-            }
+            .let { formatters -> formatters + providers.map { it.id } }
+            .let { formatters -> formatters + LSP_FORMATTER_ID }
 
     @XedExtensionPoint
     fun registerFormatter(provider: FormatterProvider) {

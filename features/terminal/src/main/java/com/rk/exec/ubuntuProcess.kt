@@ -12,14 +12,15 @@ import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
-import com.rk.utils.logError
 import com.rk.utils.getTempDir
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.rk.utils.logError
 import java.io.File
 import java.io.IOException
 import java.io.OutputStreamWriter
+import java.util.concurrent.TimeUnit
 import kotlin.random.Random
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 data class Binding(val outside: String, val inside: String? = null)
 
@@ -49,6 +50,7 @@ fun getDefaultBindings(): List<Binding> {
 
     with(list) {
         bind(sandboxHomeDir().absolutePath, "/home")
+        bind(sandboxHomeDir().absolutePath, "/root")
         bind("/sdcard")
         bind("/storage")
         bind("/data")
@@ -233,10 +235,24 @@ suspend fun Process.writeInput(input: String, flush: Boolean = true) =
 /** Extension to wait for process to finish and return exit code */
 suspend fun Process.awaitExit(): Int = withContext(Dispatchers.IO) { waitFor() }
 
-/** Extension to destroy process safely */
+/**
+ * Asks the process to stop, then force-kills it if it is still alive shortly after.
+ *
+ * SIGTERM first matters for [ubuntuProcess]: proot runs with `--kill-on-exit`, so it needs the chance to tear the
+ * sandboxed command down itself before it is SIGKILLed.
+ */
 fun Process.terminate() {
-    if (isAlive) destroy()
+    if (!isAlive) return
+    destroy()
+    Thread {
+        runCatching { if (!waitFor(TERMINATE_GRACE_MS, TimeUnit.MILLISECONDS)) destroyForcibly() }
+    }
+        .apply { isDaemon = true }
+        .start()
 }
+
+/** How long [terminate] waits after SIGTERM before falling back to SIGKILL. */
+private const val TERMINATE_GRACE_MS = 500L
 
 /** Extension to check if process is alive */
 fun Process.isRunning(): Boolean = isAlive

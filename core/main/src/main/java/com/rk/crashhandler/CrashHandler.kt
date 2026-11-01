@@ -14,46 +14,46 @@ import kotlin.system.exitProcess
 object CrashHandler : Thread.UncaughtExceptionHandler {
     override fun uncaughtException(thread: Thread, ex: Throwable) {
         runCatching {
-                if (
-                    ex.message.toString().contains("android.view.View${"$"}BaseSavedState") ||
-                        ex.message.toString().contains("android.widget.HorizontalScrollView${"$"}SavedState")
-                ) {
-                    Log.w("CrashHandler", "Ignoring crash")
-                    // return@runCatching
-                }
-
-                if (
-                    ex.stackTrace.contentToString().contains($$"android.view.View$BaseSavedState") ||
-                        ex.stackTrace.contentToString().contains($$"android.widget.HorizontalScrollView$SavedState")
-                ) {
-                    Log.w("CrashHandler", "Ignoring crash")
-                    ex.printStackTrace()
-                    // return@runCatching
-                }
-
-                val intent = Intent(application!!, CrashActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-
-                var cause = ex.cause.toString()
-                val prefix = "java.lang.Throwable:"
-                if (cause.startsWith(prefix)) {
-                    cause = cause.removePrefix(prefix)
-                }
-
-                intent.putExtra("force_crash", ex is HarmlessException)
-                intent.putExtra("error_cause", cause)
-                intent.putExtra("msg", ex.message)
-
-                val stringWriter = StringWriter()
-                val printWriter = PrintWriter(stringWriter)
-                ex.printStackTrace(printWriter)
-                val stackTraceString = stringWriter.toString()
-
-                intent.putExtra("stacktrace", stackTraceString)
-                intent.putExtra("thread", thread.name)
-
-                application!!.startActivity(intent)
+            if (
+                ex.message.toString().contains("android.view.View${"$"}BaseSavedState") ||
+                    ex.message.toString().contains("android.widget.HorizontalScrollView${"$"}SavedState")
+            ) {
+                Log.w("CrashHandler", "Ignoring crash")
+                // return@runCatching
             }
+
+            if (
+                ex.stackTrace.contentToString().contains($$"android.view.View$BaseSavedState") ||
+                    ex.stackTrace.contentToString().contains($$"android.widget.HorizontalScrollView$SavedState")
+            ) {
+                Log.w("CrashHandler", "Ignoring crash")
+                ex.printStackTrace()
+                // return@runCatching
+            }
+
+            val intent = Intent(application!!, CrashActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+            var cause = ex.cause.toString()
+            val prefix = "java.lang.Throwable:"
+            if (cause.startsWith(prefix)) {
+                cause = cause.removePrefix(prefix)
+            }
+
+            intent.putExtra("force_crash", ex is HarmlessException)
+            intent.putExtra("error_cause", cause)
+            intent.putExtra("msg", ex.message)
+
+            val stringWriter = StringWriter()
+            val printWriter = PrintWriter(stringWriter)
+            ex.printStackTrace(printWriter)
+            val stackTraceString = stringWriter.toString()
+
+            intent.putExtra("stacktrace", stackTraceString)
+            intent.putExtra("thread", thread.name)
+
+            application!!.startActivity(intent)
+        }
             .onFailure {
                 it.printStackTrace()
                 exitProcess(1)
@@ -67,9 +67,9 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
                     return
                 } catch (t: Throwable) {
                     Thread {
-                            t.printStackTrace()
-                            logErrorOrExit(t)
-                        }
+                        t.printStackTrace()
+                        logErrorOrExit(t)
+                    }
                         .start()
                 }
             }

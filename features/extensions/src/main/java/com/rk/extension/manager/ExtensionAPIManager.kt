@@ -3,7 +3,6 @@ package com.rk.extension.manager
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import com.rk.App
 import com.rk.DefaultScope
 import com.rk.extension.ExtensionAPI
 import com.rk.extension.extensionManager

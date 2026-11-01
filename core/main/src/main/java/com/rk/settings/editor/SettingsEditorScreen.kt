@@ -1,5 +1,7 @@
 package com.rk.settings.editor
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,12 +17,14 @@ import com.rk.activities.settings.settingsNavController
 import com.rk.components.EditorSettingsItem
 import com.rk.components.NextScreenCard
 import com.rk.components.PreferenceList
+import com.rk.components.PreferenceListItem
 import com.rk.components.PreferenceSingleInput
 import com.rk.components.SettingsItem
 import com.rk.components.SmoothValueSlider
 import com.rk.components.SteppedValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.editor.EditorInputBehavior
 import com.rk.editor.KeywordManager
 import com.rk.filetree.SortMode
 import com.rk.resources.strings
@@ -202,11 +206,27 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { Settings.render_whitespace = it },
             )
 
-            EditorSettingsItem(
-                label = stringResource(id = strings.show_suggestions),
-                description = stringResource(id = strings.show_suggestions),
-                default = Settings.show_suggestions,
-                sideEffect = { Settings.show_suggestions = it },
+            PreferenceList(
+                label = stringResource(id = strings.input_behavior),
+                description = stringResource(id = EditorInputBehavior.fromValue(Settings.input_behavior).stringRes),
+                message = {
+                    Text(
+                        text = stringResource(id = strings.input_behavior_msg),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+                items =
+                    EditorInputBehavior.entries.map {
+                        PreferenceListItem(
+                            it.value,
+                            stringResource(it.stringRes),
+                        )
+                    },
+                selectedItem = Settings.input_behavior,
+                onItemSelected = {
+                    Settings.input_behavior = it
+                    scope.launch { refreshEditorSettings() }
+                },
             )
 
             EditorSettingsItem(
@@ -255,15 +275,34 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             SettingsItem(
-                label = stringResource(strings.text_mate_suggestion),
-                description = stringResource(strings.text_mate_suggestion_desc),
-                default = Settings.textmate_suggestions,
-                sideEffect = { newValue ->
-                    Settings.textmate_suggestions = newValue
+                label = stringResource(strings.suggest_identifiers),
+                description = stringResource(strings.suggest_identifiers_desc),
+                default = Settings.suggest_identifiers,
+                sideEffect = {
+                    Settings.suggest_identifiers = it
 
                     scope.launch {
                         MainActivity.instance?.apply {
-                            viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                            viewModel.editorTabs.forEach { tab ->
+                                val scope = tab.editorState.textmateScope ?: return@forEach
+                                val editor = tab.editorState.editor.get() ?: return@forEach
+                                editor.configureLanguage(scope)
+                            }
+                        }
+                    }
+                },
+            )
+
+            SettingsItem(
+                label = stringResource(strings.suggest_keywords),
+                description = stringResource(strings.suggest_keywords_desc),
+                default = Settings.suggest_keywords,
+                sideEffect = { newValue ->
+                    Settings.suggest_keywords = newValue
+
+                    scope.launch {
+                        MainActivity.instance?.apply {
+                            viewModel.editorTabs.forEach { tab ->
                                 val scope = tab.editorState.textmateScope ?: return@forEach
                                 val textMateLanguage = tab.editorState.editor.get()?.getTextMateLanguage()
 
@@ -289,7 +328,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 Settings.tab_size = it
 
                 MainActivity.instance?.apply {
-                    viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                    viewModel.editorTabs.forEach { tab ->
                         val textMateLanguage = tab.editorState.editor.get()?.getTextMateLanguage()
                         textMateLanguage?.tabSize = it
                     }
@@ -306,7 +345,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     Settings.actual_tabs = it
 
                     MainActivity.instance?.apply {
-                        viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                        viewModel.editorTabs.forEach { tab ->
                             val textMateLanguage = tab.editorState.editor.get()?.getTextMateLanguage()
                             textMateLanguage?.useTab(it)
                         }
@@ -366,7 +405,7 @@ fun SettingsEditorScreen(navController: NavController) {
             PreferenceList(
                 label = stringResource(id = strings.sort_mode),
                 description = stringResource(id = strings.sort_mode_desc),
-                items = SortMode.entries.map { it to stringResource(it.stringRes) },
+                items = SortMode.entries.map { PreferenceListItem(it, stringResource(it.stringRes)) },
                 selectedItem = SortMode.entries[Settings.sort_mode],
                 onItemSelected = { sortMode ->
                     Settings.sort_mode = sortMode.ordinal

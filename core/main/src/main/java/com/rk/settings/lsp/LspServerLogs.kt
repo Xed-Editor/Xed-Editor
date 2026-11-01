@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import com.rk.components.XedDropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -27,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.components.StyledTextField
+import com.rk.components.XedDropdownMenuItem
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.LspServer
 import com.rk.lsp.LspServerInstance
@@ -107,8 +107,7 @@ fun LspServerLogs(server: LspServer, id: String) {
             ) {
                 MessageSource.entries.forEach { source ->
                     XedDropdownMenuItem(
-                        enabled =
-                            source != MessageSource.RPC || Settings.record_rpc,
+                        enabled = source != MessageSource.RPC || Settings.record_rpc,
                         text = { Text(text = source.name) },
                         leadingIcon = {
                             Checkbox(
