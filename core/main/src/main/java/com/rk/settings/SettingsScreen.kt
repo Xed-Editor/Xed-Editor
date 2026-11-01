@@ -7,12 +7,10 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -53,21 +51,17 @@ fun SettingsScreen(navController: NavController) {
 
 @Composable
 private fun Categories(navController: NavController) {
-    if (FeatureRegistry.isEnabled("account")){
+    if (FeatureRegistry.isEnabled("account")) {
         val account by AccountManager.session.collectAsState()
         PreferenceCategory(
             label = stringResource(strings.account),
             description =
-                account?.user?.let { user ->
-                    user.name?.takeIf { it.isNotBlank() } ?: user.email.ifBlank { null }
-                } ?: stringResource(strings.account_desc),
-            startWidget = {
-                ProfileIcon(user = account?.user, avatarSize = 24.dp)
-            },
+                account?.user?.let { user -> user.name?.takeIf { it.isNotBlank() } ?: user.email.ifBlank { null } }
+                    ?: stringResource(strings.account_desc),
+            startWidget = { ProfileIcon(user = account?.user, avatarSize = 24.dp) },
             onNavigate = { navController.navigate(SettingsRoutes.Account.route) },
         )
     }
-
 
     PreferenceCategory(
         label = stringResource(id = strings.app),

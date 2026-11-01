@@ -123,7 +123,6 @@ fun errorDialog(exception: Exception) {
     errorDialog(msg = message.toString())
 }
 
-
 var isDialogShowing = false
     private set
 

@@ -51,13 +51,15 @@ object FeatureRegistry {
     val toggles: StateFlow<List<FeatureToggle>> = _toggles.asStateFlow()
 
     init {
-        registerToggle(FeatureToggle(
-            name = "Account",
-            key = "account",
-            //disabled by default for now
-            default = BuildConfig.DEBUG,
-            icon = Icon.VectorIcon(Icons.Outlined.Person)
-        ))
+        registerToggle(
+            FeatureToggle(
+                name = "Account",
+                key = "account",
+                // disabled by default for now
+                default = BuildConfig.DEBUG,
+                icon = Icon.VectorIcon(Icons.Outlined.Person),
+            )
+        )
         registerToggle(
             FeatureToggle(
                 name = strings.debug_options.getString(),

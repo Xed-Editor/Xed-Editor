@@ -14,7 +14,6 @@ import com.rk.extension.ExtensionEvent
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.api.logWarn
-import com.rk.extension.apkFile
 import com.rk.extension.extensionManager
 import com.rk.extension.manager.ExtensionManager
 import com.rk.extension.manager.LoadedExtension
@@ -22,6 +21,7 @@ import com.rk.extension.scanner.ExtensionScanner
 import com.rk.extension.scanner.RestrictedApiIndex
 import com.rk.utils.application
 import com.rk.utils.isMainThread
+import java.io.File
 import java.lang.reflect.InvocationTargetException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +30,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 enum class LoadScenario {
     INSTALL,
@@ -125,17 +124,18 @@ suspend inline fun <T> Result<T>.onExtensionFailure(
 
 private const val MAX_REPORTED_FINDINGS = 10
 
-
 private suspend fun LocalExtension.scanForRestrictedApis(application: Application) {
     val findings = ExtensionScanner().scan(this, RestrictedApiIndex.load(application))
     if (findings.isEmpty()) {
         return
     }
 
-    findings.filterNot { it.isBlocking }.forEach { finding ->
-        val location = "${finding.className}${finding.methodName?.let { "#$it" } ?: ""}"
-        id.logWarn("[scanner] ${finding.severity} ${finding.category}: ${finding.message} at $location")
-    }
+    findings
+        .filterNot { it.isBlocking }
+        .forEach { finding ->
+            val location = "${finding.className}${finding.methodName?.let { "#$it" } ?: ""}"
+            id.logWarn("[scanner] ${finding.severity} ${finding.category}: ${finding.message} at $location")
+        }
 
     val blocking = findings.filter { it.isBlocking }
     if (blocking.isNotEmpty()) {
@@ -152,7 +152,6 @@ private suspend fun LocalExtension.scanForRestrictedApis(application: Applicatio
     }
 }
 
-
 /**
  * Verifies if the extension is compatible with the running version of the editor. Throws an [IllegalStateException] if
  * the app version does not satisfy the extension's requirements.
@@ -168,7 +167,6 @@ private fun LocalExtension.verifyCompatibility(application: Application) {
         )
     }
 }
-
 
 /**
  * Creates a class loader specifically configured for this extension's APK/package file. Uses a child-first delegation
@@ -203,7 +201,6 @@ private fun LocalExtension.loadMainClass(classLoader: ClassLoader): Class<*> {
     return mainClass
 }
 
-
 /**
  * Instantiates the extension's main [ExtensionAPI] class by calling its public constructor that accepts an
  * [com.rk.extension.ExtensionContext].
@@ -227,7 +224,6 @@ private fun LocalExtension.instantiateAPI(
     }
 }
 
-
 /**
  * Scans all local extensions and loads any that are not disabled. If an extension fails to load, it is marked as
  * disabled and a crash screen is shown.
@@ -250,7 +246,6 @@ suspend fun ExtensionManager.loadAllExtensions() =
             }
         }
     }
-
 
 /**
  * Unloads all currently active extensions.

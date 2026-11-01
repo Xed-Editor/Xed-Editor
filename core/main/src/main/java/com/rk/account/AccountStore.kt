@@ -36,8 +36,7 @@ internal object AccountStore {
         val sessionId = prefs.getString(KEY_SESSION_ID, null) ?: return null
         val userJson = prefs.getString(KEY_USER, null) ?: return null
 
-        val user =
-            runCatching { accountJson.decodeFromString<AccountUser>(userJson) }.getOrNull() ?: return null
+        val user = runCatching { accountJson.decodeFromString<AccountUser>(userJson) }.getOrNull() ?: return null
 
         return AccountSession(
             user = user,

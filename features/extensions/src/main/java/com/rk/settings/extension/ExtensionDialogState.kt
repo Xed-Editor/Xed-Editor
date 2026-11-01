@@ -20,7 +20,6 @@ sealed class ExtensionDialog {
     data class ScanReport(val extensionName: String, val findings: List<Finding>) : ExtensionDialog()
 }
 
-
 /**
  * Manages the currently opened dialogs related to extensions.
  *

@@ -132,15 +132,10 @@ class MainActivity : AppCompatActivity() {
         loadingPopup.show()
         AccountManager.completeSignIn(uri)
             .onSuccess { user ->
-                toast(
-                    strings.account_signed_in_as.getFilledString(
-                        user.name?.takeIf { it.isNotBlank() } ?: user.email
-                    )
-                )
+                toast(strings.account_signed_in_as.getFilledString(user.name?.takeIf { it.isNotBlank() } ?: user.email))
                 runOnUiThread {
                     startActivity(
-                        Intent(this, SettingsActivity::class.java)
-                            .putExtra("route", SettingsRoutes.Account.route)
+                        Intent(this, SettingsActivity::class.java).putExtra("route", SettingsRoutes.Account.route)
                     )
                 }
             }

@@ -32,8 +32,7 @@ data class SuspiciousApiRule(
     fun matchesMethod(owner: String, name: String): Boolean =
         target == ApiTarget.METHOD && descriptor == "$owner->$name"
 
-    fun matchesField(owner: String, name: String): Boolean =
-        target == ApiTarget.FIELD && descriptor == "$owner->$name"
+    fun matchesField(owner: String, name: String): Boolean = target == ApiTarget.FIELD && descriptor == "$owner->$name"
 
     fun matches(reference: Reference): Boolean =
         when (reference) {
@@ -409,11 +408,13 @@ internal object SuspiciousApiRules {
 
     fun matchClass(type: String): List<SuspiciousApiRule> = DEFAULT.filter { it.matchesClass(type) }
 
-    fun matchMethod(owner: String, name: String): List<SuspiciousApiRule> =
-        DEFAULT.filter { it.matchesMethod(owner, name) }
+    fun matchMethod(owner: String, name: String): List<SuspiciousApiRule> = DEFAULT.filter {
+        it.matchesMethod(owner, name)
+    }
 
-    fun matchField(owner: String, name: String): List<SuspiciousApiRule> =
-        DEFAULT.filter { it.matchesField(owner, name) }
+    fun matchField(owner: String, name: String): List<SuspiciousApiRule> = DEFAULT.filter {
+        it.matchesField(owner, name)
+    }
 
     fun match(reference: Reference): List<SuspiciousApiRule> = DEFAULT.filter { it.matches(reference) }
 }

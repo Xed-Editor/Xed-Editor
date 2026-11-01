@@ -8,11 +8,12 @@ import com.android.tools.smali.dexlib2.iface.Annotatable
 import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 
-class RestrictedApiIndex private constructor(
+class RestrictedApiIndex
+private constructor(
     val classes: Set<String>,
     val methods: Set<String>,
     val fields: Set<String>,
@@ -34,11 +35,11 @@ class RestrictedApiIndex private constructor(
         @Volatile private var cached: RestrictedApiIndex? = null
 
         suspend fun load(application: Application): RestrictedApiIndex {
-            cached?.let { return it }
+            cached?.let {
+                return it
+            }
             return withContext(Dispatchers.IO) {
-                synchronized(this@Companion) {
-                    cached ?: build(application).also { cached = it }
-                }
+                synchronized(this@Companion) { cached ?: build(application).also { cached = it } }
             }
         }
 
@@ -90,8 +91,7 @@ class RestrictedApiIndex private constructor(
             }
         }
 
-        private fun Annotatable.isRestricted(): Boolean =
-            annotations.any { it.type == RESTRICTED_API_DESCRIPTOR }
+        private fun Annotatable.isRestricted(): Boolean = annotations.any { it.type == RESTRICTED_API_DESCRIPTOR }
 
         private fun Application.apkFiles(): List<File> {
             val info = applicationInfo
@@ -104,16 +104,15 @@ class RestrictedApiIndex private constructor(
 }
 
 /** Formats a method reference the same way the index stores it: `Lowner;->name(params)return`. */
-internal fun methodSignature(reference: MethodReference): String =
-    buildString {
-        append(reference.definingClass)
-        append("->")
-        append(reference.name)
-        append('(')
-        reference.parameterTypes.forEach { append(it) }
-        append(')')
-        append(reference.returnType)
-    }
+internal fun methodSignature(reference: MethodReference): String = buildString {
+    append(reference.definingClass)
+    append("->")
+    append(reference.name)
+    append('(')
+    reference.parameterTypes.forEach { append(it) }
+    append(')')
+    append(reference.returnType)
+}
 
 /** Formats a field reference the same way the index stores it: `Lowner;->name:type`. */
 internal fun fieldSignature(reference: FieldReference): String =

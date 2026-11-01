@@ -14,8 +14,7 @@ data class AccountUser(
     val isAdmin: Boolean = false,
 )
 
-@Serializable
-data class AuthState(val state: String, val expiresAt: String = "")
+@Serializable data class AuthState(val state: String, val expiresAt: String = "")
 
 @Serializable
 data class TokenResponse(

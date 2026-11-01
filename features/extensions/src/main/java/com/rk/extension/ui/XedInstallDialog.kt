@@ -64,15 +64,14 @@ fun XedInstallDialog(manifest: PackageManifest, icon: File?, packageFile: File, 
     var scanDecision by remember { mutableStateOf<CompletableDeferred<Boolean>?>(null) }
     val loading = remember { InstallLoadingPopup(activity as? AppCompatActivity) }
 
-    val scanApproval: ScanApproval =
-        loading.around { _, findings ->
-            val decision = CompletableDeferred<Boolean>()
-            withContext(Dispatchers.Main) {
-                scanDecision = decision
-                pendingFindings = findings
-            }
-            decision.await()
+    val scanApproval: ScanApproval = loading.around { _, findings ->
+        val decision = CompletableDeferred<Boolean>()
+        withContext(Dispatchers.Main) {
+            scanDecision = decision
+            pendingFindings = findings
         }
+        decision.await()
+    }
 
     val findings = pendingFindings
     if (findings != null) {

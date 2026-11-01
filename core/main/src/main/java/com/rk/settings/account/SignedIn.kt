@@ -18,29 +18,24 @@ fun SignedInSection(session: AccountSession) {
     val context = LocalContext.current
     val user = session.user
 
-    PreferenceGroup() {
-        ProfileCard(user)
-    }
+    PreferenceGroup() { ProfileCard(user) }
 
-
-
-    //todo
-
+    // todo
 
 }
 
 @Composable
-fun ProfileCard(user: AccountUser?){
+fun ProfileCard(user: AccountUser?) {
     val avatarSize = 36.dp
 
-    if (user != null){
-        SettingsItem(startWidget = {
-            Box(modifier = Modifier.padding(start = 16.dp)) {
-                ProfileIcon(user = user, avatarSize = avatarSize)
-            }
-        }, label = user.name?.takeIf { it.isNotBlank() } ?: stringResource(strings.unknown),
+    if (user != null) {
+        SettingsItem(
+            startWidget = {
+                Box(modifier = Modifier.padding(start = 16.dp)) { ProfileIcon(user = user, avatarSize = avatarSize) }
+            },
+            label = user.name?.takeIf { it.isNotBlank() } ?: stringResource(strings.unknown),
             description = user.id,
-            showSwitch = false)
-
+            showSwitch = false,
+        )
     }
 }

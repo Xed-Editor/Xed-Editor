@@ -31,7 +31,6 @@ import com.rk.extension.scanner.FindingCategory
 import com.rk.extension.scanner.FindingSeverity
 import com.rk.resources.strings
 
-
 @Composable
 fun ExtensionScanReportDialog(
     extensionName: String,
@@ -80,20 +79,14 @@ fun ExtensionScanReportDialog(
         },
         confirmButton = {
             if (blocking.isEmpty()) {
-                TextButton(onClick = onInstall) {
-                    Text(stringResource(strings.install))
-                }
+                TextButton(onClick = onInstall) { Text(stringResource(strings.install)) }
             } else {
-                TextButton(onClick = onCancel) {
-                    Text(stringResource(strings.close))
-                }
+                TextButton(onClick = onCancel) { Text(stringResource(strings.close)) }
             }
         },
         dismissButton = {
             if (blocking.isEmpty()) {
-                TextButton(onClick = onCancel) {
-                    Text(stringResource(strings.cancel))
-                }
+                TextButton(onClick = onCancel) { Text(stringResource(strings.cancel)) }
             }
         },
     )
@@ -118,11 +111,10 @@ private fun FindingRow(finding: Finding) {
             FindingSeverity.INFO -> MaterialTheme.colorScheme.onSurfaceVariant
         }
 
-    val location =
-        buildString {
-            append(finding.className.trimStart('L').trimEnd(';').replace('/', '.'))
-            finding.methodName?.let { append('#').append(it) }
-        }
+    val location = buildString {
+        append(finding.className.trimStart('L').trimEnd(';').replace('/', '.'))
+        finding.methodName?.let { append('#').append(it) }
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),

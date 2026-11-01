@@ -82,14 +82,24 @@ class ExtensionClassLoader(
             return clazz.name
         }
 
-        val methods = try { clazz.declaredMethods } catch (_: Throwable) { emptyArray<Method>() }
+        val methods =
+            try {
+                clazz.declaredMethods
+            } catch (_: Throwable) {
+                emptyArray<Method>()
+            }
         for (method in methods) {
             if (method.isAnnotationPresent(RestrictedAPI::class.java)) {
                 return "${clazz.name}#${method.name}"
             }
         }
 
-        val fields = try { clazz.declaredFields } catch (_: Throwable) { emptyArray<Field>() }
+        val fields =
+            try {
+                clazz.declaredFields
+            } catch (_: Throwable) {
+                emptyArray<Field>()
+            }
         for (field in fields) {
             if (field.isAnnotationPresent(RestrictedAPI::class.java)) {
                 return "${clazz.name}#${field.name}"

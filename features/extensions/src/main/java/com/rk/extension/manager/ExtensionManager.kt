@@ -265,11 +265,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             val extensionInfo = validation.getOrThrow()
 
-            val findings =
-                runCatching {
-                    dir.findExtensionApk()?.let { ExtensionScanner().scan(it, extensionInfo.name) } ?: emptyList()
-                }
-                    .getOrDefault(emptyList())
+            val findings = runCatching {
+                dir.findExtensionApk()?.let { ExtensionScanner().scan(it, extensionInfo.name) } ?: emptyList()
+            }
+                .getOrDefault(emptyList())
 
             // Let the user review the report first (when a UI is attached), then enforce blocking findings regardless
             // of the decision so a restricted extension can never be installed.

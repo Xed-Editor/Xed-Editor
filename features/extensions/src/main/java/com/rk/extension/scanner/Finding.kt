@@ -29,7 +29,6 @@ enum class FindingCategory {
     OBFUSCATION,
 }
 
-
 data class Finding(
     val category: FindingCategory,
     val severity: FindingSeverity,
@@ -50,6 +49,7 @@ data class Finding(
     val referencedClass: String?
         get() = reference?.substringBefore("->")?.takeIf { it.isNotBlank() }
 }
+
 /**
  * Asks the user whether an extension that produced [findings] should still be installed.
  *

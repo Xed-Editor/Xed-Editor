@@ -16,29 +16,29 @@ internal object XedAccountClient {
 
     suspend fun begin(codeChallenge: String): AuthState =
         execute(
-            Request.Builder()
-                .url("${AccountConfig.API_BASE}/auth/android/begin")
-                .post(jsonBody("codeChallenge" to codeChallenge))
-                .build()
-        )
+                Request.Builder()
+                    .url("${AccountConfig.API_BASE}/auth/android/begin")
+                    .post(jsonBody("codeChallenge" to codeChallenge))
+                    .build()
+            )
             .let { accountJson.decodeFromString<AuthState>(it) }
 
     suspend fun exchange(code: String, codeVerifier: String): TokenResponse =
         execute(
-            Request.Builder()
-                .url("${AccountConfig.API_BASE}/auth/android/token")
-                .post(jsonBody("code" to code, "codeVerifier" to codeVerifier))
-                .build()
-        )
+                Request.Builder()
+                    .url("${AccountConfig.API_BASE}/auth/android/token")
+                    .post(jsonBody("code" to code, "codeVerifier" to codeVerifier))
+                    .build()
+            )
             .let { accountJson.decodeFromString<TokenResponse>(it) }
 
     suspend fun refresh(refreshToken: String): TokenResponse =
         execute(
-            Request.Builder()
-                .url("${AccountConfig.API_BASE}/auth/android/refresh")
-                .post(jsonBody("refreshToken" to refreshToken))
-                .build()
-        )
+                Request.Builder()
+                    .url("${AccountConfig.API_BASE}/auth/android/refresh")
+                    .post(jsonBody("refreshToken" to refreshToken))
+                    .build()
+            )
             .let { accountJson.decodeFromString<TokenResponse>(it) }
 
     suspend fun logout(accessToken: String) {
@@ -51,10 +51,9 @@ internal object XedAccountClient {
         )
     }
 
-    private fun jsonBody(vararg pairs: Pair<String, String>) =
-        buildJsonObject { pairs.forEach { (key, value) -> put(key, value) } }
-            .toString()
-            .toRequestBody(JSON)
+    private fun jsonBody(vararg pairs: Pair<String, String>) = buildJsonObject {
+        pairs.forEach { (key, value) -> put(key, value) }
+    }.toString().toRequestBody(JSON)
 
     private suspend fun execute(request: Request): String =
         withContext(Dispatchers.IO) {

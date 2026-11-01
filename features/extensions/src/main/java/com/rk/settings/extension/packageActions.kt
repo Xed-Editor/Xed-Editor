@@ -220,9 +220,7 @@ suspend fun installExtensionSequentially(
                                     success = false
                                     errorMsg = it.message ?: "Failed to load extension"
                                 }
-                                .onSuccess {
-                                    success = true
-                                }
+                                .onSuccess { success = true }
                         }
 
                         is InstallResult.Cancelled -> {}
@@ -360,9 +358,7 @@ fun runExtensionUpdateAction(
                                     success = false
                                     errorMsg = it.message ?: "Failed to load extension"
                                 }
-                                .onSuccess {
-                                    success = true
-                                }
+                                .onSuccess { success = true }
                         }
 
                         is InstallResult.Cancelled -> {
@@ -716,9 +712,7 @@ fun installAutoDetect(
                         val scanApproval = onScanFindings?.let { loading.around(it) }
                         val result = extensionManager.installExtensionFromDir(tempDir, scanApproval)
                         loading.hide()
-                        withContext(Dispatchers.Main) {
-                            handleInstallResult(result, activity)
-                        }
+                        withContext(Dispatchers.Main) { handleInstallResult(result, activity) }
                         if (result is InstallResult.Success) {
                             result.extension.loadAfterInstall(result, activity)
                         }

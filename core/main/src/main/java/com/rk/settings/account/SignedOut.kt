@@ -32,7 +32,6 @@ import com.rk.account.AccountManager
 import com.rk.resources.drawables
 import com.rk.resources.strings
 
-
 private val ContentMaxWidth = 420.dp
 
 private val ActionMaxWidth = 320.dp
@@ -44,10 +43,7 @@ fun SignedOutSection(
     onCancel: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .widthIn(max = ContentMaxWidth)
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+        modifier = Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         when (state) {
@@ -98,9 +94,7 @@ fun SignedOutSection(
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = onSignIn,
-                    modifier = Modifier
-                        .widthIn(max = ActionMaxWidth)
-                        .fillMaxWidth(),
+                    modifier = Modifier.widthIn(max = ActionMaxWidth).fillMaxWidth(),
                 ) {
                     Text(stringResource(strings.retry))
                 }
@@ -141,9 +135,7 @@ fun SignedOutSection(
                 Spacer(modifier = Modifier.height(28.dp))
                 Button(
                     onClick = onSignIn,
-                    modifier = Modifier
-                        .widthIn(max = ActionMaxWidth)
-                        .fillMaxWidth(),
+                    modifier = Modifier.widthIn(max = ActionMaxWidth).fillMaxWidth(),
                 ) {
                     Text(stringResource(strings.account_sign_in_button))
                 }

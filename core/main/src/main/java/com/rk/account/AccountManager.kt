@@ -41,7 +41,8 @@ object AccountManager {
     fun isSignInRedirect(uri: Uri?): Boolean {
         if (uri == null) return false
         return when (uri.scheme?.lowercase()) {
-            "https", "http" ->
+            "https",
+            "http" ->
                 uri.host.equals(AccountConfig.WEB_HOST, ignoreCase = true) &&
                     uri.path?.startsWith(AccountConfig.WEB_CALLBACK_PATH) == true
 
@@ -57,11 +58,11 @@ object AccountManager {
         _signInState.value = SignInState.AwaitingBrowser
         return withContext(Dispatchers.IO) {
             runCatching {
-                    val verifier = Pkce.createVerifier()
-                    val state = XedAccountClient.begin(Pkce.createChallenge(verifier))
-                    AccountStore.savePending(state = state.state, verifier = verifier)
-                    "${AccountConfig.WEB_CALLBACK_URL}?state=${Uri.encode(state.state)}"
-                }
+                val verifier = Pkce.createVerifier()
+                val state = XedAccountClient.begin(Pkce.createChallenge(verifier))
+                AccountStore.savePending(state = state.state, verifier = verifier)
+                "${AccountConfig.WEB_CALLBACK_URL}?state=${Uri.encode(state.state)}"
+            }
                 .onFailure {
                     logError(it)
                     _signInState.value = SignInState.Failed(it.message ?: "Could not start sign-in")
@@ -82,9 +83,7 @@ object AccountManager {
             if (state.isNullOrEmpty() || state != pending.state) {
                 AccountStore.clearPending()
                 _signInState.value = SignInState.Idle
-                return@withContext Result.failure(
-                    AccountApiException("Sign-in response did not match this request.")
-                )
+                return@withContext Result.failure(AccountApiException("Sign-in response did not match this request."))
             }
 
             val code = uri.getQueryParameter("code")
@@ -96,14 +95,14 @@ object AccountManager {
             }
 
             runCatching {
-                    val tokens = XedAccountClient.exchange(code, pending.verifier)
-                    val session = tokens.toSession(signedInAt = System.currentTimeMillis())
-                    AccountStore.saveSession(session)
-                    AccountStore.clearPending()
-                    _session.value = session
-                    _signInState.value = SignInState.Idle
-                    session.user
-                }
+                val tokens = XedAccountClient.exchange(code, pending.verifier)
+                val session = tokens.toSession(signedInAt = System.currentTimeMillis())
+                AccountStore.saveSession(session)
+                AccountStore.clearPending()
+                _session.value = session
+                _signInState.value = SignInState.Idle
+                session.user
+            }
                 .onFailure {
                     logError(it)
                     _signInState.value = SignInState.Failed(it.message ?: "Sign-in failed")
@@ -132,24 +131,23 @@ object AccountManager {
         return if (refresh()) _session.value?.accessToken else null
     }
 
-    private suspend fun refresh(): Boolean =
-        refreshMutex.withLock {
-            withContext(Dispatchers.IO) {
-                val current = _session.value ?: return@withContext false
-                try {
-                    val session = XedAccountClient.refresh(current.refreshToken).toSession(current.signedInAt)
-                    AccountStore.saveSession(session)
-                    _session.value = session
-                    true
-                } catch (e: AccountApiException) {
-                    if (e.status == 401 || e.status == 403) clearSession() else logError(e)
-                    false
-                } catch (e: Exception) {
-                    logError(e)
-                    false
-                }
+    private suspend fun refresh(): Boolean = refreshMutex.withLock {
+        withContext(Dispatchers.IO) {
+            val current = _session.value ?: return@withContext false
+            try {
+                val session = XedAccountClient.refresh(current.refreshToken).toSession(current.signedInAt)
+                AccountStore.saveSession(session)
+                _session.value = session
+                true
+            } catch (e: AccountApiException) {
+                if (e.status == 401 || e.status == 403) clearSession() else logError(e)
+                false
+            } catch (e: Exception) {
+                logError(e)
+                false
             }
         }
+    }
 
     private fun clearSession() {
         AccountStore.clearSession()

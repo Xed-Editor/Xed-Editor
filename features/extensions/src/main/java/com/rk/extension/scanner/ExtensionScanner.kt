@@ -14,10 +14,9 @@ import com.android.tools.smali.dexlib2.iface.reference.TypeReference
 import com.rk.extension.LocalExtension
 import com.rk.extension.apkFile
 import com.rk.utils.application
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
-
 
 class ExtensionScanner {
 
@@ -29,10 +28,7 @@ class ExtensionScanner {
         extensionName: String? = null,
         restrictedApis: RestrictedApiIndex? = null,
     ): List<Finding> {
-        val index =
-            restrictedApis
-                ?: application?.let { RestrictedApiIndex.load(it) }
-                ?: RestrictedApiIndex.EMPTY
+        val index = restrictedApis ?: application?.let { RestrictedApiIndex.load(it) } ?: RestrictedApiIndex.EMPTY
 
         return withContext(Dispatchers.IO) {
             val findings = LinkedHashSet<Finding>()
