@@ -167,4 +167,14 @@
     <string name="seccomp_unspecified">অনির্দিষ্ট</string>
     <string name="seccomp_no_seccomp">কোনো seccomp নেই</string>
     <string name="non_native_filetype">এ জায়গা থেকে কোড রান করা সমর্থিত নয়। রান করার জন্য আপনার ফাইলটি টার্মিনালের হোম ফোল্ডারে স্থানান্তর করার চিন্তা করুন।</string>
+    <string name="manage_storage">স্টোরেজ ম্যানেজ</string>
+    <string name="manage_storage_reason">আপনার স্টোরেজে ফাইল এডিট করতে Xed Editor এর অনুমতির প্রয়োজন। অনুগ্রহ করে আসন্ন সেটিংসে অনুমতি প্রদান করুন।</string>
+    <string name="clone_repo">রেপোজিটরি ক্লোন করুন</string>
+    <string name="repo_url">রেপোজিটরির লিংক</string>
+    <string name="private_files_desc">Xed Editor এর গোপন ফাইলসমূহ</string>
+    <string name="cloning">রেপোজিটরি ক্লোন করা হচ্ছে…</string>
+    <string name="error">ত্রুটি</string>
+    <string name="open_internal_storage">অভ্যন্তরীণ স্টোরেজ ওপেন করুন</string>
+    <string name="open_removable_storage">অপসারণযোগ্য স্টোরেজ ওপেন করুন</string>
+    <string name="app">এপ্লিকেশন</string>
 </resources>
