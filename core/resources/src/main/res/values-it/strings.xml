@@ -973,4 +973,14 @@
     <string name="storage_distribution_desc">Visualizza l\'utilizzo della memoria dell\'app</string>
     <string name="total_storage_usage">Totale usato dall\'app</string>
     <string name="calculating">Calcolo…</string>
+    <string name="signing">Firma</string>
+    <string name="commit_signing_desc">Firma i commit Git utilizzando una chiave GPG o SSH</string>
+    <string name="signing_format">Formato di firma</string>
+    <string name="signing_format_desc">Seleziona il formato della chiave utilizzata per la firma di commit</string>
+    <string name="gpg_key">Chiave GPG</string>
+    <string name="gpg_key_desc">Chiave GPG privata e passphrase facoltativa per la firma del commit</string>
+    <string name="gpg_key_input_title">Credenziali GPG</string>
+    <string name="gpg_key_input_label">Chiave privata GPG (ASCII-armored)</string>
+    <string name="gpg_passphrase_input_label">Passphrase della chiave (facoltativa)</string>
+    <string name="gpg_key_missing">La firma GPG è abilitata, ma nelle impostazioni non è configurata alcuna chiave GPG.</string>
 </resources>
