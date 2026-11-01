@@ -71,7 +71,7 @@ fun FileSearchDialog(
     val isIndexingMap by searchViewModel.isIndexing.collectAsStateWithLifecycle()
     val isIndexingProject = isIndexingMap[projectFile] == true
 
-    val editorTab = mainViewModel.currentTab as? EditorTab
+    val editorTab = mainViewModel.currentVisibleTab as? EditorTab
     val textFieldState =
         rememberTextFieldState(editorTab?.editorState?.editor?.get()?.getSelectedText() ?: fileSearchQuery)
 

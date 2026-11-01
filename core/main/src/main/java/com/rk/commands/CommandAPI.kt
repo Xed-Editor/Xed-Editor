@@ -172,7 +172,7 @@ abstract class GlobalCommand : Command()
 
 abstract class EditorCommand : Command() {
     final override fun execute(context: ActionContext) {
-        val currentTab = commandContext.mainViewModel.currentTab
+        val currentTab = commandContext.mainViewModel.currentVisibleTab
         val editor = (currentTab as? EditorTab)?.editorState?.editor?.get() ?: return
         execute(EditorActionContext(context.currentActivity, currentTab, editor))
     }
@@ -180,7 +180,7 @@ abstract class EditorCommand : Command() {
     abstract fun execute(context: EditorActionContext)
 
     final override fun onLongClick(context: ActionContext): Boolean {
-        val currentTab = commandContext.mainViewModel.currentTab
+        val currentTab = commandContext.mainViewModel.currentVisibleTab
         val editor = (currentTab as? EditorTab)?.editorState?.editor?.get() ?: return false
         return onLongClick(EditorActionContext(context.currentActivity, currentTab, editor))
     }
@@ -188,13 +188,13 @@ abstract class EditorCommand : Command() {
     open fun onLongClick(context: EditorActionContext): Boolean = false
 
     final override fun isSupported(): Boolean {
-        val currentTab = commandContext.mainViewModel.currentTab
+        val currentTab = commandContext.mainViewModel.currentVisibleTab
         if (currentTab !is EditorTab) return false
         return isSupported(EditorNonActionContext(currentTab))
     }
 
     final override fun isEnabled(): Boolean {
-        val currentTab = commandContext.mainViewModel.currentTab
+        val currentTab = commandContext.mainViewModel.currentVisibleTab
         if (currentTab !is EditorTab) return false
         return isEnabled(EditorNonActionContext(currentTab))
     }

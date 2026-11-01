@@ -246,7 +246,17 @@ fun ProjectCloseConfirmationDialog(projectName: String, onConfirm: () -> Unit, o
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(strings.close)) },
-        text = { Column { Text(text = stringResource(strings.close_current_project).fillPlaceholders(projectName)) } },
+        text = {
+            Column {
+                val message =
+                    if (Settings.scoped_tabs) {
+                        strings.scoped_tabs_close_current_project
+                    } else {
+                        strings.close_current_project
+                    }
+                Text(text = stringResource(message).fillPlaceholders(projectName))
+            }
+        },
         confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(strings.close)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) } },
     )

@@ -34,7 +34,7 @@ object RunCommand : Command() {
         val mainViewModel = commandContext.mainViewModel
         val drawerViewModel = commandContext.drawerViewModel
 
-        val currentTab = mainViewModel.currentTab as? EditorTab
+        val currentTab = mainViewModel.currentVisibleTab as? EditorTab
         val currentDrawerTab = drawerViewModel.currentDrawerTab as? FileTreeTab
         val projectRoot = currentTab?.projectRoot ?: currentDrawerTab?.root
         val fileObject = currentTab?.file
@@ -60,7 +60,7 @@ object RunCommand : Command() {
         val mainViewModel = commandContext.mainViewModel
         val drawerViewModel = commandContext.drawerViewModel
 
-        val currentTab = mainViewModel.currentTab as? EditorTab
+        val currentTab = mainViewModel.currentVisibleTab as? EditorTab
         val currentDrawerTab = drawerViewModel.currentDrawerTab as? FileTreeTab
         val projectRoot = currentTab?.projectRoot ?: currentDrawerTab?.root
         val fileObject = currentTab?.file
