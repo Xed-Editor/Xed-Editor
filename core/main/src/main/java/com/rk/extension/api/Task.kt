@@ -99,6 +99,22 @@ interface OutputLine {
         override fun hashCode(): Int = text.hashCode()
     }
 
+    class Warning(val text: String) : OutputLine {
+        override val columns
+            get() = text.length
+
+        override fun toAnnotatedString(props: Properties): AnnotatedString {
+            val theme = resolveAnsiTheme(props)
+            return buildAnnotatedString { withStyle(style = SpanStyle(color = theme.palette[3])) { append(text) } }
+        }
+
+        override fun getUnformattedText() = text
+
+        override fun equals(other: Any?): Boolean = other is Error && other.text == text
+
+        override fun hashCode(): Int = text.hashCode()
+    }
+
     class Styled(
         val text: String,
         val style: SpanStyle,
@@ -170,6 +186,11 @@ open class BaseTask(
     /** Appends an error line of text to the output. */
     fun appendErrorOutput(line: String) {
         appendOutput(OutputLine.Error(line))
+    }
+
+    /** Appends a warning line of text to the output. */
+    fun appendWarningOutput(line: String) {
+        appendOutput(OutputLine.Warning(line))
     }
 
     /** Clears output and latest line. */

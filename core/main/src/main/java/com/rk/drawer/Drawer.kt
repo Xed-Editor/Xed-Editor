@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,6 +33,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -281,6 +283,31 @@ fun DrawerContent(fullscreen: Boolean) {
                             viewModel.removeDrawerTab(currentDrawerTab)
                         },
                         onDismiss = { closeProjectDialog = false },
+                    )
+                }
+
+                val showFirstDrawerTabWarning by viewModel.showFirstDrawerTabWarning.collectAsStateWithLifecycle()
+                if (showFirstDrawerTabWarning != null) {
+                    AlertDialog(
+                        onDismissRequest = { viewModel.dismissFirstDrawerTabWarning() },
+                        title = { Text(stringResource(strings.warning)) },
+                        text = { Text(stringResource(strings.scoped_tabs_open_project_warning)) },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    val action = showFirstDrawerTabWarning
+                                    viewModel.dismissFirstDrawerTabWarning()
+                                    action?.invoke()
+                                }
+                            ) {
+                                Text(stringResource(strings.close))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { viewModel.dismissFirstDrawerTabWarning() }) {
+                                Text(stringResource(strings.cancel))
+                            }
+                        },
                     )
                 }
             }
