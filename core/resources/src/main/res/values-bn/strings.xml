@@ -64,7 +64,7 @@
     <string name="themes">থিম সমূহ</string>
     <string name="editor">সম্পাদক</string>
     <string name="show_line_number">লাইনের সংখ্যা দেখুন</string>
-    <string name="pin_line_number">লাইন নম্বর পিন করুন</string>
+    <string name="pin_line_number">লাইন নাম্বর পিন করুন</string>
     <string name="installed">Installed</string>
     <string name="monet_desc">ডিভাইস থিম ব্যবহার করুন</string>
     <string name="app_desc">সাধারণ এপ্লিকেশন সেটিংস</string>
@@ -177,4 +177,28 @@
     <string name="open_internal_storage">অভ্যন্তরীণ স্টোরেজ ওপেন করুন</string>
     <string name="open_removable_storage">অপসারণযোগ্য স্টোরেজ ওপেন করুন</string>
     <string name="app">এপ্লিকেশন</string>
+    <string name="theme_migrated">%d থিমটি সফলভাবে স্থানান্থরিত হয়েছে</string>
+    <string name="scoped_tabs">স্কোপড ট্যাব</string>
+    <string name="scoped_tabs_desc">শুধুমাত্র বর্তমান প্রজেক্টের সাথে সম্পর্কিত ট্যাবগুলো দেখান</string>
+    <string name="drawer_lock_desc">ফাইল খোলার সময় ড্রয়ার লক করে রাখুন</string>
+    <string name="cursor_anim">কার্সার অ্যানিমেশন</string>
+    <string name="cursor_anim_desc">মসৃণ কার্সার অ্যানিমেশন চালু করুন</string>
+    <string name="extra_keys">অতিরিক্ত কী</string>
+    <string name="extra_keys_desc">কীবোর্ডের উপরে অতিরিক্ত কী দেখান</string>
+    <string name="auto_save">স্বয়ংক্রিয় সংরক্ষণ</string>
+    <string name="auto_save_desc">স্বয়ংক্রিয়ভাবে ফাইল সংরক্ষণ করুন</string>
+    <string name="value_invalid">অবৈধ মান</string>
+    <string name="value_small">মান খুবই ছোট</string>
+    <string name="value_large">মান খুবই বড়</string>
+    <string name="text_size">টেক্সটের আকার</string>
+    <string name="text_size_desc">টেক্সটের সাইজ নির্ধারণ করুন</string>
+    <string name="tab_size">ট্যাবের সাইজ</string>
+    <string name="about">সম্পর্কে</string>
+    <string name="run">চালান</string>
+    <string name="content">বিষয়বস্তু</string>
+    <string name="file_type">ফাইলের ধরন</string>
+    <string name="file_already_exists">\'%s\' নামের একটি ফাইল ইতিমধ্যেই আছে</string>
+    <string name="folder_already_exists">\'%s\' নামের একটি ফোল্ডার ইতিমধ্যেই আছে</string>
+    <string name="file_creation_failed">ফাইল তৈরি করতে সক্ষম নয়</string>
+    <string name="folder_creation_failed">ফোল্ডার তৈরি করতে সক্ষম নয়</string>
 </resources>
