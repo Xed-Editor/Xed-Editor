@@ -201,4 +201,23 @@
     <string name="folder_already_exists">\'%s\' নামের একটি ফোল্ডার ইতিমধ্যেই আছে</string>
     <string name="file_creation_failed">ফাইল তৈরি করতে সক্ষম নয়</string>
     <string name="folder_creation_failed">ফোল্ডার তৈরি করতে সক্ষম নয়</string>
+    <string name="oled_desc">পুরো কালো থিম অ্যাপ্লাই করুন</string>
+    <string name="smooth_tabs">স্মুথ ট্যাব</string>
+    <string name="smooth_tab_desc">স্মুথভাবে ট্যাবগুলির মধ্যে স্যুইচ করুন</string>
+    <string name="scroll_to_bottom">নীচে স্ক্রোল করুন</string>
+    <string name="monet">ডাইনামিক রং</string>
+    <string name="light_mode">সাদা</string>
+    <string name="dark_mode">কালো</string>
+    <string name="auto_mode">স্বয়ংক্রিয়</string>
+    <string name="theme_mode">থিম মোড</string>
+    <string name="theme_mode_desc">অ্যাপের রঙের থিম পরিবর্তন করুন</string>
+    <string name="version">ভার্সন</string>
+    <string name="version_code">ভার্সন কোড</string>
+    <string name="telegram_desc">সমস্যা, নতুন ফিচারের অনুরোধ ইত্যাদি রিপোর্ট করুন</string>
+    <string name="git_commit">গিট কমিট হ্যাশ</string>
+    <string name="check_for_updates">আপডেট চেক করুন</string>
+    <string name="discard">বাতিল</string>
+    <string name="warning">সতর্কতা</string>
+    <string name="disable_virtual_kbd">ভার্চুয়াল কিবোর্ড ডিসেবল করুন</string>
+    <string name="highlighting">সিনট্যাক্স হাইলাইটিং</string>
 </resources>
