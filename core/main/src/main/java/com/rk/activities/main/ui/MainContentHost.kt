@@ -73,13 +73,13 @@ fun MainActivity.MainContentHost(
             LaunchedEffect(drawerState.isOpen) {
                 val viewModel = MainActivity.instance?.viewModel ?: return@LaunchedEffect
                 if (drawerState.isOpen) {
-                    viewModel.tabManager.currentTab?.let {
+                    viewModel.currentVisibleTab?.let {
                         if (it is EditorTab) {
                             it.editorState.editor.get()?.clearFocus()
                         }
                     }
                 } else if (drawerState.isClosed) {
-                    viewModel.tabManager.currentTab?.let {
+                    viewModel.currentVisibleTab?.let {
                         if (it is EditorTab) {
                             it.editorState.editor.get()?.apply {
                                 requestFocus()

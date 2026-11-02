@@ -49,6 +49,7 @@
     <string name="open_in_terminal">Open in terminal</string>
     <string name="file_open_denied">Opening this file with other apps is not permitted</string>
     <string name="close_current_project">Are you sure you want to close the project \'%s\'?</string>
+    <string name="scoped_tabs_close_current_project">Are you sure you want to close the project \'%s\'? This will also close all tabs from this workspace, including unsaved work.</string>
     <string name="file_name">File name</string>
     <string name="path">Path</string>
     <string name="open">Open</string>
@@ -1012,4 +1013,5 @@
     <string name="total_storage_usage">Total used by app</string>
     <string name="calculating">Calculating…</string>
     <string name="ubuntu" translatable="false">Ubuntu</string>
+    <string name="scoped_tabs_open_project_warning">Opening your first project will close all tabs that are currently open. Do you want to continue?</string>
 </resources>
