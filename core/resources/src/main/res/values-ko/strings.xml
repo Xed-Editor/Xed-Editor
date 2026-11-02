@@ -971,4 +971,6 @@
     <string name="gpg_key_input_label">GPG 비밀 키 (ASCII-armored)</string>
     <string name="gpg_passphrase_input_label">키 비밀구절 (선택)</string>
     <string name="gpg_key_missing">GPG 서명이 켜져 있으나, 설정에서 GPG 키가 설정되지 않았습니다.</string>
+    <string name="scoped_tabs_close_current_project">정말 \'%s\' 프로젝트를 닫으실 건가요? 저장하지 않은 작업을 포함한 이 작업공간의 모든 탭을 닫게 됩니다.</string>
+    <string name="scoped_tabs_open_project_warning">프로젝트를 열면 현재 열린 모든 탭이 닫힙니다. 진행할까요?</string>
 </resources>
