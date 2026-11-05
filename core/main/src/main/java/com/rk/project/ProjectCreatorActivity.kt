@@ -40,8 +40,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,8 +50,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,6 +67,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.components.LeadingIconXedTab
+import com.rk.components.XedCard
 import com.rk.file.FileObject
 import com.rk.file.toFileObject
 import com.rk.icons.XedIcon
@@ -381,13 +378,9 @@ fun TemplateConfigurationPage(template: ProjectTemplate) {
 
 @Composable
 fun ProjectTemplateItem(template: ProjectTemplate, onClick: () -> Unit) {
-    val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-
-    Card(
+    XedCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().height(144.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(

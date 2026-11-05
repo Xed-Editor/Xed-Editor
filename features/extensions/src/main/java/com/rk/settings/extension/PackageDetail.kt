@@ -18,15 +18,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,6 +52,7 @@ import com.rk.App.Companion.themeManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.common.PackageType
 import com.rk.components.LeadingIconXedTab
+import com.rk.components.XedCard
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension
 import com.rk.extension.InstallState
@@ -356,12 +353,7 @@ private fun AboutSection(
 
 @Composable
 fun PackageStats(modifier: Modifier = Modifier, title: String, value: String, trailingVector: ImageVector? = null) {
-    val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-
-    Card(
-        colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor)),
-        modifier = modifier,
-    ) {
+    XedCard(modifier = modifier) {
         Column(Modifier.padding(16.dp)) {
             Text(title, style = Typography.labelSmall, color = MaterialTheme.colorScheme.primary)
             Row(verticalAlignment = Alignment.CenterVertically) {

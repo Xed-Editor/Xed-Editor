@@ -17,14 +17,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.rk.components.XedCard
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
@@ -115,9 +112,8 @@ fun StorageDistributionScreen() {
 @Composable
 private fun SummaryCard(state: StorageUiState) {
     val loaded = state as? StorageUiState.Loaded
-    val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
 
-    Card(colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor))) {
+    XedCard {
         Column(Modifier.padding(16.dp)) {
             Text(
                 text = stringResource(strings.total_storage_usage),
@@ -153,9 +149,7 @@ private fun BreakdownCard(state: StorageUiState) {
 
     val rows = remember(loaded) { loaded?.components ?: StorageCategory.entries.map { it.toComponent() } }
 
-    val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-
-    Card(colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor))) {
+    XedCard {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             rows.forEachIndexed { index, comp ->
                 if (index > 0) {
@@ -256,7 +250,7 @@ private fun StorageBarGraph(
 
 private suspend fun calculateStorageDistribution(context: Context): Pair<List<StorageComponent>, Long> =
     withContext(Dispatchers.IO) {
-        data class StorageLocationFilter(val file: File, val matcher: (FileObject) -> Boolean = { true }) {
+        data class StorageQuery(val file: File, val matcher: (FileObject) -> Boolean = { true }) {
             suspend fun sizeOrZero(): Long = runCatching {
                 FileOperations.calculateMatchedContent(FileWrapper(file), matcher).totalSize
             }
@@ -269,19 +263,17 @@ private suspend fun calculateStorageDistribution(context: Context): Pair<List<St
         val dirs =
             linkedMapOf(
                 StorageCategory.TERMINAL to
-                    StorageLocationFilter(sandboxDir(context)) {
-                        it.getAbsolutePath() != sandboxHomeDir(context).absolutePath
-                    },
-                StorageCategory.TERMINAL_HOME to StorageLocationFilter(sandboxHomeDir(context)),
+                    StorageQuery(sandboxDir(context)) { it.getAbsolutePath() != sandboxHomeDir(context).absolutePath },
+                StorageCategory.TERMINAL_HOME to StorageQuery(sandboxHomeDir(context)),
                 StorageCategory.INDEX to
-                    StorageLocationFilter(appRoot.child("databases")) {
+                    StorageQuery(appRoot.child("databases")) {
                         it.isDirectory() || it.getName().startsWith("index_database")
                     },
-                StorageCategory.EXTENSIONS to StorageLocationFilter(localDir(context).child("extensions")),
-                StorageCategory.THEMES to StorageLocationFilter(themeDir(context)),
-                StorageCategory.ICON_PACKS to StorageLocationFilter(localDir(context).child("icon_pack")),
-                StorageCategory.RUNNERS to StorageLocationFilter(localDir(context).child("runners")),
-                StorageCategory.CACHE to StorageLocationFilter(cacheDir),
+                StorageCategory.EXTENSIONS to StorageQuery(localDir(context).child("extensions")),
+                StorageCategory.THEMES to StorageQuery(themeDir(context)),
+                StorageCategory.ICON_PACKS to StorageQuery(localDir(context).child("icon_pack")),
+                StorageCategory.RUNNERS to StorageQuery(localDir(context).child("runners")),
+                StorageCategory.CACHE to StorageQuery(cacheDir),
             )
 
         // Measure all dirs in parallel
