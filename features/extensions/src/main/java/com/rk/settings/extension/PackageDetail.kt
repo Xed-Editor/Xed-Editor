@@ -22,7 +22,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Text
@@ -56,6 +55,7 @@ import com.rk.App
 import com.rk.App.Companion.themeManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.common.PackageType
+import com.rk.components.LeadingIconXedTab
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension
 import com.rk.extension.InstallState
@@ -391,13 +391,11 @@ private fun TabSection(pkg: Package, scope: CoroutineScope, refreshKey: Int, onL
 
     PrimaryScrollableTabRow(edgePadding = 16.dp, selectedTabIndex = pagerState.currentPage) {
         PackageRoutes.entries.forEachIndexed { index, destination ->
-            LeadingIconTab(
+            LeadingIconXedTab(
                 icon = { XedIcon(destination.icon) },
                 selected = pagerState.currentPage == index,
                 onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                 text = { Text(text = destination.label, maxLines = 2, overflow = TextOverflow.Ellipsis) },
-                selectedContentColor = MaterialTheme.colorScheme.primary,
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

@@ -45,7 +45,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
@@ -71,6 +70,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.activities.main.MainActivity
 import com.rk.animations.NavigationAnimationTransitions
+import com.rk.components.LeadingIconXedTab
 import com.rk.file.FileObject
 import com.rk.file.toFileObject
 import com.rk.icons.XedIcon
@@ -327,13 +327,11 @@ fun TemplateSelectionPage(
                 edgePadding = 0.dp,
             ) {
                 categories.forEachIndexed { index, category ->
-                    LeadingIconTab(
+                    LeadingIconXedTab(
                         selected = categoryPagerState.currentPage == index,
                         onClick = { scope.launch { categoryPagerState.animateScrollToPage(index) } },
                         text = { Text(category.label) },
                         icon = { category.icon?.let { XedIcon(it, modifier = Modifier.size(20.dp)) } },
-                        selectedContentColor = MaterialTheme.colorScheme.primary,
-                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

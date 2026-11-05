@@ -8,6 +8,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -46,10 +48,23 @@ object GlobalDialogs {
 @Composable
 fun GlobalToolbarActions(viewModel: MainViewModel) {
     val commands by ToolbarConfiguration.globalCommands.collectAsStateWithLifecycle()
+    val currentTab = viewModel.currentTab
+    val drawerViewModel = MainActivity.instance?.drawerViewModel
+    val currentDrawerTabIndex by
+        drawerViewModel?.currentDrawerTabIndex?.collectAsStateWithLifecycle() ?: remember { mutableIntStateOf(0) }
+
+    val visibleCommands =
+        remember(
+            commands,
+            currentTab,
+            currentDrawerTabIndex,
+        ) {
+            commands.filter { it.isSupported() }
+        }
 
     if (viewModel.visibleTabs.isEmpty() || viewModel.currentVisibleTab?.showGlobalActions == true) {
-        for (command in commands) {
-            if (command.isSupported()) ToolbarAction(command)
+        for (command in visibleCommands) {
+            ToolbarAction(command)
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.rk.events
 
 import com.rk.drawer.DrawerTab
+import com.rk.drawer.ServiceTab
 import com.rk.editor.Editor
 import com.rk.extension.api.XedExtensionPoint
 import com.rk.file.FileObject
@@ -34,7 +35,7 @@ sealed interface DrawerEvent : Event {
     data class TabSelected(val tab: DrawerTab?) : DrawerEvent
 
     /** Event triggered when the active service tab changes. */
-    data class ServiceTabSelected(val tab: DrawerTab?) : DrawerEvent
+    data class ServiceTabSelected(val tab: ServiceTab?) : DrawerEvent
 }
 
 /** Events related to the file tree and its nodes. */

@@ -205,7 +205,7 @@ fun DrawerContent(fullscreen: Boolean) {
 
                             Column(modifier = Modifier.wrapContentHeight().padding(vertical = 8.dp)) {
                                 serviceTabs.forEach { tab ->
-                                    if (!tab.isSupported()) return@forEach
+                                    if (!tab.isSupported(currentDrawerTab)) return@forEach
                                     NavigationRailItem(
                                         selected = currentServiceTab == tab,
                                         icon = { XedIcon(icon = tab.getIcon()) },
@@ -217,7 +217,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                             }
                                         },
                                         label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                                        enabled = tab.isEnabled(),
+                                        enabled = tab.isEnabled(currentDrawerTab),
                                     )
                                 }
                             }
@@ -231,7 +231,7 @@ fun DrawerContent(fullscreen: Boolean) {
                     Crossfade(targetState = currentDrawerTab, label = "file tree") { tab ->
                         if (currentServiceTab == null) {
                             if (tab != null) {
-                                tab.Content(modifier = Modifier.fillMaxSize())
+                                tab.Content()
                             } else {
                                 Column(
                                     modifier = Modifier.fillMaxSize(),
@@ -253,9 +253,7 @@ fun DrawerContent(fullscreen: Boolean) {
                         }
                     }
 
-                    Crossfade(targetState = currentServiceTab) { tab ->
-                        tab?.Content(modifier = Modifier.fillMaxSize())
-                    }
+                    Crossfade(targetState = currentServiceTab) { tab -> tab?.Content(currentDrawerTab) }
                 }
 
                 if (showAddDialog) {

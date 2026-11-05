@@ -31,7 +31,7 @@ class DrawerViewModel : ViewModel() {
     private val _currentServiceTabIndex = MutableStateFlow(-1)
     val currentServiceTabIndex = _currentServiceTabIndex.asStateFlow()
 
-    val currentServiceTab: DrawerTab?
+    val currentServiceTab: ServiceTab?
         get() = _serviceTabs.value.getOrNull(_currentServiceTabIndex.value)
 
     fun setLoading(value: Boolean) {
@@ -82,6 +82,7 @@ class DrawerViewModel : ViewModel() {
         val isActive = _currentDrawerTabIndex.value == index
 
         val tab = tabs[index]
+        tab.onUnselect()
         tab.onRemoved()
         _drawerTabs.update { it.filterIndexed { i, _ -> i != index } }
 
@@ -116,6 +117,7 @@ class DrawerViewModel : ViewModel() {
 
         _currentDrawerTabIndex.value = index
         _currentServiceTabIndex.value = -1
+        currentDrawerTab?.onSelect()
 
         viewModelScope.launch { Events.publish(DrawerEvent.TabSelected(currentDrawerTab)) }
     }
@@ -138,13 +140,15 @@ class DrawerViewModel : ViewModel() {
     }
 
     fun unselectDrawerTab() {
+        currentServiceTab?.onUnselect(currentDrawerTab)
+        currentDrawerTab?.onUnselect()
         _currentDrawerTabIndex.value = -1
         _currentServiceTabIndex.value = -1
 
         viewModelScope.launch { Events.publish(DrawerEvent.TabSelected(null)) }
     }
 
-    fun selectServiceTab(serviceTab: DrawerTab) {
+    fun selectServiceTab(serviceTab: ServiceTab) {
         val index = _serviceTabs.value.indexOf(serviceTab)
         if (index != -1) selectServiceTab(index)
     }
@@ -153,11 +157,13 @@ class DrawerViewModel : ViewModel() {
         if (index !in _serviceTabs.value.indices) return
 
         _currentServiceTabIndex.value = index
+        currentServiceTab?.onSelect(currentDrawerTab)
 
         viewModelScope.launch { Events.publish(DrawerEvent.ServiceTabSelected(currentServiceTab)) }
     }
 
     fun unselectServiceTab() {
+        currentServiceTab?.onUnselect(currentDrawerTab)
         _currentServiceTabIndex.value = -1
 
         viewModelScope.launch { Events.publish(DrawerEvent.ServiceTabSelected(null)) }
@@ -165,6 +171,7 @@ class DrawerViewModel : ViewModel() {
 
     fun forcePushDrawerTabs(drawerTabs: List<DrawerTab>) {
         _drawerTabs.value = drawerTabs
+        drawerTabs.forEach { it.onAdded() }
     }
 
     private fun persistAsync() {

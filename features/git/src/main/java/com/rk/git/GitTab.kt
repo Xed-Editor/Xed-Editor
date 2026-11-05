@@ -40,7 +40,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedButton
@@ -48,7 +47,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipAnchorPosition
@@ -80,10 +78,13 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.filesByTab
 import com.rk.activities.main.ui.drawerStateRef
 import com.rk.activities.main.ui.fileTreeViewModel
+import com.rk.components.DrawerToolbar
 import com.rk.components.SingleInputDialog
 import com.rk.components.XedDropdownMenuItem
+import com.rk.components.XedTab
 import com.rk.components.getDrawerWidth
 import com.rk.drawer.DrawerTab
+import com.rk.drawer.ServiceTab
 import com.rk.feature.FeatureRegistry
 import com.rk.feature.FeatureViewModel
 import com.rk.file.toFileWrapper
@@ -98,10 +99,10 @@ import java.io.File
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
-class GitTab : DrawerTab() {
+class GitTab : ServiceTab() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    override fun Content(modifier: Modifier) {
+    override fun Content(drawerTab: DrawerTab?) {
         val viewModel = FeatureViewModel.get<GitViewModel>() ?: return
 
         var showBranchesMenu by remember { mutableStateOf(false) }
@@ -167,12 +168,9 @@ class GitTab : DrawerTab() {
 
         var selectedCommit by remember { mutableStateOf<GitCommit?>(null) }
 
-        Column(modifier = modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            DrawerToolbar(
+                left = {
                     TextButton(onClick = { showBranchesMenu = true }, enabled = !isLoading) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.wrapContentWidth()) {
                             Row(
@@ -322,82 +320,97 @@ class GitTab : DrawerTab() {
                             },
                         )
                     }
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TooltipBox(
-                        positionProvider =
-                            TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Below),
-                        tooltip = { PlainTooltip { Text(stringResource(strings.pull)) } },
-                        state = rememberTooltipState(),
-                    ) {
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    viewModel.pull().join()
-
-                                    val mainViewModel = MainActivity.instance?.viewModel ?: return@launch
-                                    mainViewModel.editorTabs.filesByTab().forEach { (tab, file) ->
-                                        findGitRoot(file.getAbsolutePath())?.let { tab.refresh() }
-                                    }
-                                }
-                            },
-                            enabled = !isLoading,
+                },
+                right = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    positioning = TooltipAnchorPosition.Below
+                                ),
+                            tooltip = { PlainTooltip { Text(stringResource(strings.pull)) } },
+                            state = rememberTooltipState(),
                         ) {
-                            BadgedBox(
-                                badge = {
-                                    if (behindCount > 0) {
-                                        Badge(containerColor = MaterialTheme.colorScheme.primary)
+                            IconButton(
+                                onClick = {
+                                    scope.launch {
+                                        viewModel.pull().join()
+
+                                        val mainViewModel = MainActivity.instance?.viewModel ?: return@launch
+                                        mainViewModel.editorTabs.filesByTab().forEach { (tab, file) ->
+                                            findGitRoot(file.getAbsolutePath())?.let { tab.refresh() }
+                                        }
                                     }
-                                }
+                                },
+                                enabled = !isLoading,
                             ) {
-                                Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
+                                BadgedBox(
+                                    badge = {
+                                        if (behindCount > 0) {
+                                            Badge(containerColor = MaterialTheme.colorScheme.primary)
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        painterResource(drawables.pull),
+                                        contentDescription = stringResource(strings.pull),
+                                    )
+                                }
+                            }
+                        }
+
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    positioning = TooltipAnchorPosition.Below
+                                ),
+                            tooltip = { PlainTooltip { Text(stringResource(strings.fetch)) } },
+                            state = rememberTooltipState(),
+                        ) {
+                            IconButton(onClick = { viewModel.fetch() }, enabled = !isLoading) {
+                                Icon(
+                                    painterResource(drawables.fetch),
+                                    contentDescription = stringResource(strings.fetch),
+                                )
+                            }
+                        }
+
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    positioning = TooltipAnchorPosition.Below
+                                ),
+                            tooltip = { PlainTooltip { Text(stringResource(strings.push)) } },
+                            state = rememberTooltipState(),
+                        ) {
+                            IconButton(onClick = { showPushConfirmDialog = true }, enabled = !isLoading) {
+                                BadgedBox(
+                                    badge = {
+                                        if (aheadCount > 0) {
+                                            Badge(containerColor = MaterialTheme.colorScheme.greenStatus)
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        painterResource(drawables.push),
+                                        contentDescription = stringResource(strings.push),
+                                    )
+                                }
                             }
                         }
                     }
-
-                    TooltipBox(
-                        positionProvider =
-                            TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Below),
-                        tooltip = { PlainTooltip { Text(stringResource(strings.fetch)) } },
-                        state = rememberTooltipState(),
-                    ) {
-                        IconButton(onClick = { viewModel.fetch() }, enabled = !isLoading) {
-                            Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
-                        }
-                    }
-
-                    TooltipBox(
-                        positionProvider =
-                            TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Below),
-                        tooltip = { PlainTooltip { Text(stringResource(strings.push)) } },
-                        state = rememberTooltipState(),
-                    ) {
-                        IconButton(onClick = { showPushConfirmDialog = true }, enabled = !isLoading) {
-                            BadgedBox(
-                                badge = {
-                                    if (aheadCount > 0) {
-                                        Badge(containerColor = MaterialTheme.colorScheme.greenStatus)
-                                    }
-                                }
-                            ) {
-                                Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
-                            }
-                        }
-                    }
-                }
-            }
+                },
+                showDivider = false,
+            )
 
             SecondaryTabRow(
                 selectedTabIndex = selectedTabIndex,
                 modifier = Modifier.fillMaxWidth(),
                 divider = {},
             ) {
-                Tab(
+                XedTab(
                     selected = selectedTabIndex == 0,
                     onClick = { selectedTabIndex = 0 },
-                    selectedContentColor = MaterialTheme.colorScheme.primary,
-                    unselectedContentColor = LocalContentColor.current,
                     text = {
                         Text(
                             stringResource(strings.changes),
@@ -405,14 +418,12 @@ class GitTab : DrawerTab() {
                         )
                     },
                 )
-                Tab(
+                XedTab(
                     selected = selectedTabIndex == 1,
                     onClick = {
                         selectedTabIndex = 1
                         viewModel.loadHistory()
                     },
-                    selectedContentColor = MaterialTheme.colorScheme.primary,
-                    unselectedContentColor = LocalContentColor.current,
                     text = {
                         Text(
                             stringResource(strings.history),
@@ -965,13 +976,16 @@ class GitTab : DrawerTab() {
         return Icon.ResourceIcon(drawables.git)
     }
 
-    override fun isSupported(): Boolean {
-        if (!FeatureRegistry.isEnabled("enable_git")) return false
-        val drawerViewModel = MainActivity.instance?.drawerViewModel ?: return false
-        val tab = drawerViewModel.currentDrawerTab ?: return false
-        if (tab !is FileTreeTab) return false
+    override fun isSupported(drawerTab: DrawerTab?): Boolean {
+        if (!FeatureRegistry.isEnabled("enable_git")) {
+            return false
+        }
 
-        val rootDir = File(tab.root.getAbsolutePath())
+        if (drawerTab !is FileTreeTab) {
+            return false
+        }
+        val rootDir = File(drawerTab.root.getAbsolutePath())
+
         return FileRepositoryBuilder().findGitDir(rootDir).gitDir != null
     }
 }

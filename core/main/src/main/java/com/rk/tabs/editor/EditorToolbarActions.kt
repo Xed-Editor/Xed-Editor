@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.ActionContext
 import com.rk.commands.Command
@@ -48,6 +50,11 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
+    val currentTab = viewModel.currentTab
+    val drawerViewModel = MainActivity.instance?.drawerViewModel
+    val currentDrawerTabIndex by
+        drawerViewModel?.currentDrawerTabIndex?.collectAsStateWithLifecycle() ?: remember { mutableStateOf(0) }
+
     val allActions by remember { derivedStateOf { ToolbarConfiguration.editorCommands } }
 
     BoxWithConstraints(modifier = modifier) {
@@ -56,7 +63,8 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
         val maxVisibleCount = (availableWidth / itemWidth).toInt().coerceAtLeast(0)
 
         // Filter visible actions first
-        val visibleActions = allActions.filter { it.isSupported() }
+        val visibleActions =
+            remember(allActions, currentTab, currentDrawerTabIndex) { allActions.filter { it.isSupported() } }
 
         // Calculate actual number of actions to show in toolbar
         var actualVisibleCount = min(visibleActions.size, maxVisibleCount)
