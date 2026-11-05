@@ -67,15 +67,15 @@ object FileOperations {
         while (stack.isNotEmpty()) {
             val current = stack.removeLast()
             runCatching {
-                if (current.isDirectory()) {
+                if (current.isSymlink()) {
+                    totalSize += current.length()
+                } else if (current.isDirectory()) {
                     stack.addAll(current.listFiles())
-                    totalItems++
-                    onProgress(ContentProgress(totalSize, totalItems))
                 } else {
                     totalSize += current.length()
-                    totalItems++
-                    onProgress(ContentProgress(totalSize, totalItems))
                 }
+                totalItems++
+                onProgress(ContentProgress(totalSize, totalItems))
             }
         }
     }
@@ -96,13 +96,14 @@ object FileOperations {
         while (stack.isNotEmpty()) {
             val current = stack.removeLast()
             runCatching {
-                if (current.isDirectory()) {
+                if (current.isSymlink()) {
+                    totalSize += current.length()
+                } else if (current.isDirectory()) {
                     stack.addAll(current.listFiles())
-                    totalItems++
                 } else {
                     totalSize += current.length()
-                    totalItems++
                 }
+                totalItems++
             }
         }
 
@@ -130,13 +131,14 @@ object FileOperations {
                     continue@loop
                 }
 
-                if (current.isDirectory()) {
+                if (current.isSymlink()) {
+                    totalSize += current.length()
+                } else if (current.isDirectory()) {
                     stack.addAll(current.listFiles())
-                    totalItems++
                 } else {
                     totalSize += current.length()
-                    totalItems++
                 }
+                totalItems++
             }
         }
 
