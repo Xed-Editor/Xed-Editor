@@ -83,6 +83,22 @@ fun errorDialog(
     }
 }
 
+fun errorDialog(throwable: Throwable) {
+    val message = StringBuilder()
+    throwable.let {
+        var msg = it.message
+        if (msg.isNullOrBlank()) {
+            msg = it.javaClass.simpleName.replace("Exception", "")
+        }
+        message.append(msg).append("\n")
+        if (Settings.verbose_error) {
+            message.append(it.stackTraceToString()).append("\n")
+        }
+    }
+
+    errorDialog(msg = message.toString())
+}
+
 fun errorDialog(exception: Exception) {
     if (
         exception is CancellationException ||

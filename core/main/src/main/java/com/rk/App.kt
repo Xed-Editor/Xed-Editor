@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.os.LocaleListCompat
 import com.github.anrwatchdog.ANRWatchDog
+import com.rk.account.AccountManager
 import com.rk.activities.main.session.SessionManager
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
@@ -128,6 +129,8 @@ open class App : Application() {
             }
 
             launch(Dispatchers.IO) { Preference.preloadAllSettings() }
+
+            launch(Dispatchers.IO) { AccountManager.initialize() }
 
             launch { DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir) }
 

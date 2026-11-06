@@ -10,6 +10,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.rk.extension.UpdatableExtension
+import com.rk.extension.ui.ExtensionScanReportDialog
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import kotlinx.coroutines.launch
@@ -54,9 +55,19 @@ fun ExtensionDialogRenderer(dialogManager: ExtensionDialogManager) {
                 scope = scope,
                 activity = activity,
                 onDismiss = { dialogManager.onDismiss() },
+                onScanFindings = dialogManager.asScanApproval(),
             ) {
                 dialogManager.onApproved()
             }
+        }
+
+        is ExtensionDialog.ScanReport -> {
+            ExtensionScanReportDialog(
+                extensionName = dialog.extensionName,
+                findings = dialog.findings,
+                onInstall = { dialogManager.onApproved() },
+                onCancel = { dialogManager.onDismiss() },
+            )
         }
 
         is ExtensionDialog.Recommendations -> {
@@ -65,10 +76,11 @@ fun ExtensionDialogRenderer(dialogManager: ExtensionDialogManager) {
                 scope = scope,
                 activity = activity,
                 onInstallClick = { dependency ->
+                    val scanApproval = dialogManager.asScanApproval()
                     val missing = getMissingDependencies(dependency)
                     if (missing.isNotEmpty()) {
                         dialogManager.showDependencies(dependency, missing) {
-                            runExtensionInstallAction(dependency, {}, context, activity)
+                            runExtensionInstallAction(dependency, {}, context, activity, scanApproval)
                         }
                     } else {
                         scope.launch {
@@ -77,16 +89,18 @@ fun ExtensionDialogRenderer(dialogManager: ExtensionDialogManager) {
                                 updateInstallState = {},
                                 context = context,
                                 activity = activity,
+                                onScanFindings = scanApproval,
                             )
                         }
                     }
                 },
                 onUpdateClick = { dependency ->
                     if (dependency !is UpdatableExtension) return@RecommendationsDialog
+                    val scanApproval = dialogManager.asScanApproval()
                     val missing = getMissingDependencies(dependency)
                     if (missing.isNotEmpty()) {
                         dialogManager.showDependencies(dependency, missing) {
-                            runExtensionUpdateAction(dependency, {}, context, activity)
+                            runExtensionUpdateAction(dependency, {}, context, activity, scanApproval)
                         }
                     } else {
                         scope.launch {
@@ -95,6 +109,7 @@ fun ExtensionDialogRenderer(dialogManager: ExtensionDialogManager) {
                                 updateInstallState = {},
                                 context = context,
                                 activity = activity,
+                                onScanFindings = scanApproval,
                             )
                         }
                     }
