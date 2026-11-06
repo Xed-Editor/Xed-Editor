@@ -17,8 +17,11 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.logError
+import com.rk.utils.terminalToHostFile
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +32,7 @@ class SessionService : Service() {
     private val sessionWorkDirs = mutableMapOf<SessionId, SessionPwd>()
     private val _sessionList = MutableStateFlow<List<SessionId>>(emptyList())
     val sessionList = _sessionList.asStateFlow()
-    val currentSession = MutableStateFlow<SessionId>("main")
+    val currentSession = MutableStateFlow("main")
     private var deamonRunning = false
 
     inner class SessionBinder : Binder() {
@@ -62,6 +65,22 @@ class SessionService : Service() {
             return sessionWorkDirs.keys
                 .find { sessionWorkDirs[it] == pwd }
                 ?.let { SessionInfo(it, sessionWorkDirs[it]!!, sessions[it]!!) }
+        }
+
+        private val guestCwds = ConcurrentHashMap<SessionId, String>()
+
+        fun setGuestCwd(session: TerminalSession, path: String) {
+            val id = sessions.entries.firstOrNull { it.value === session }?.key ?: return
+            guestCwds[id] = path
+        }
+
+        /** Returns guest CWD as a [File] instance for the host. */
+        fun getCwdAsHostFile(id: SessionId): File? {
+            guestCwds[id]?.let { guest ->
+                val host = terminalToHostFile(guest)
+                if (host.exists()) return host
+            }
+            return sessionWorkDirs[id]?.let { File(it) }
         }
 
         fun terminateSession(id: SessionId) {

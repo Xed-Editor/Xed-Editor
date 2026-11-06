@@ -10,6 +10,7 @@ import com.termux.terminal.TerminalEmulator;
 import com.termux.terminal.TerminalRow;
 import com.termux.terminal.TextStyle;
 import com.termux.terminal.WcWidth;
+import java.util.List;
 
 /**
  * Renderer of a {@link TerminalEmulator} into a {@link Canvas}.
@@ -64,7 +65,7 @@ public final class TerminalRenderer {
     /**
      * Render the terminal to a canvas with at a specified row scroll, and an optional rectangular selection.
      */
-    public void render(TerminalEmulator mEmulator, Canvas canvas, int topRow,
+    public void render(TerminalEmulator mEmulator, TerminalViewClient client, Canvas canvas, int topRow,
                        int selectionY1, int selectionY2, int selectionX1, int selectionX2) {
         final boolean reverseVideo = mEmulator.isReverseVideo();
         final int endRow = topRow + mEmulator.mRows;
@@ -94,10 +95,15 @@ public final class TerminalRenderer {
             final char[] line = lineObject.mText;
             final int charsUsedInLine = lineObject.getSpaceUsed();
 
-            long lastRunStyle = 0;
-            boolean lastRunInsideCursor = false;
-            boolean lastRunInsideSelection = false;
-            int lastRunStartColumn = -1;
+            List<int[]> filePathRanges = (client != null && charsUsedInLine > 0)
+                    ? client.getFilePathRanges(new String(line, 0, charsUsedInLine), row)
+                    : null;
+
+            long lastRunStyle = charsUsedInLine > 0 ? lineObject.getStyle(0) : 0;
+            boolean lastRunInsideCursor = (cursorX == 0);
+            boolean lastRunInsideSelection = (0 >= selx1 && 0 <= selx2);
+            boolean lastRunInsideFilePath = isInsideRanges(0, filePathRanges);
+            int lastRunStartColumn = 0;
             int lastRunStartIndex = 0;
             boolean lastRunFontWidthMismatch = false;
             int currentCharIndex = 0;
@@ -111,6 +117,7 @@ public final class TerminalRenderer {
                 final int codePointWcWidth = WcWidth.width(codePoint);
                 final boolean insideCursor = (cursorX == column || (codePointWcWidth == 2 && cursorX == column + 1));
                 final boolean insideSelection = column >= selx1 && column <= selx2;
+                final boolean insideFilePath = isInsideRanges(currentCharIndex, filePathRanges);
                 final long style = lineObject.getStyle(column);
 
                 // Check if the measured text width for this code point is not the same as that expected by wcwidth().
@@ -121,22 +128,21 @@ public final class TerminalRenderer {
                         currentCharIndex, charsForCodePoint);
                 final boolean fontWidthMismatch = Math.abs(measuredCodePointWidth / mFontWidth - codePointWcWidth) > 0.01;
 
-                if (style != lastRunStyle || insideCursor != lastRunInsideCursor || insideSelection != lastRunInsideSelection || fontWidthMismatch || lastRunFontWidthMismatch) {
-                    if (column == 0) {
-                        // Skip first column as there is nothing to draw, just record the current style.
-                    } else {
-                        final int columnWidthSinceLastRun = column - lastRunStartColumn;
-                        final int charsSinceLastRun = currentCharIndex - lastRunStartIndex;
+                if (style != lastRunStyle || insideCursor != lastRunInsideCursor || insideSelection != lastRunInsideSelection || fontWidthMismatch || lastRunFontWidthMismatch || insideFilePath != lastRunInsideFilePath) {
+                    final int columnWidthSinceLastRun = column - lastRunStartColumn;
+                    final int charsSinceLastRun = currentCharIndex - lastRunStartIndex;
+                    if (columnWidthSinceLastRun > 0) {
                         int cursorColor = lastRunInsideCursor ? mEmulator.mColors.mCurrentColors[TextStyle.COLOR_INDEX_CURSOR] : 0;
                         boolean invertCursorTextColor = lastRunInsideCursor && cursorShape == TerminalEmulator.TERMINAL_CURSOR_STYLE_BLOCK;
                         drawTextRun(canvas, line, palette, heightOffset, lastRunStartColumn, columnWidthSinceLastRun,
                                 lastRunStartIndex, charsSinceLastRun, measuredWidthForRun,
-                                cursorColor, cursorShape, lastRunStyle, reverseVideo || invertCursorTextColor || lastRunInsideSelection);
+                                cursorColor, cursorShape, lastRunStyle, reverseVideo || invertCursorTextColor || lastRunInsideSelection, lastRunInsideFilePath);
                     }
                     measuredWidthForRun = 0.f;
                     lastRunStyle = style;
                     lastRunInsideCursor = insideCursor;
                     lastRunInsideSelection = insideSelection;
+                    lastRunInsideFilePath = insideFilePath;
                     lastRunStartColumn = column;
                     lastRunStartIndex = currentCharIndex;
                     lastRunFontWidthMismatch = fontWidthMismatch;
@@ -156,13 +162,24 @@ public final class TerminalRenderer {
             int cursorColor = lastRunInsideCursor ? mEmulator.mColors.mCurrentColors[TextStyle.COLOR_INDEX_CURSOR] : 0;
             boolean invertCursorTextColor = lastRunInsideCursor && cursorShape == TerminalEmulator.TERMINAL_CURSOR_STYLE_BLOCK;
             drawTextRun(canvas, line, palette, heightOffset, lastRunStartColumn, columnWidthSinceLastRun, lastRunStartIndex, charsSinceLastRun,
-                    measuredWidthForRun, cursorColor, cursorShape, lastRunStyle, reverseVideo || invertCursorTextColor || lastRunInsideSelection);
+                    measuredWidthForRun, cursorColor, cursorShape, lastRunStyle, reverseVideo || invertCursorTextColor || lastRunInsideSelection, lastRunInsideFilePath);
         }
+    }
+
+    private static boolean isInsideRanges(int index, List<int[]> ranges) {
+        if (ranges == null || ranges.isEmpty()) return false;
+        for (int i = 0; i < ranges.size(); i++) {
+            int[] r = ranges.get(i);
+            if (r != null && r.length >= 2 && index >= r[0] && index < r[1]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void drawTextRun(Canvas canvas, char[] text, int[] palette, float y, int startColumn, int runWidthColumns,
                              int startCharIndex, int runWidthChars, float mes, int cursor, int cursorStyle,
-                             long textStyle, boolean reverseVideo) {
+                             long textStyle, boolean reverseVideo, boolean isFilePath) {
         int foreColor = TextStyle.decodeForeColor(textStyle);
         final int effect = TextStyle.decodeEffect(textStyle);
         int backColor = TextStyle.decodeBackColor(textStyle);
@@ -171,6 +188,10 @@ public final class TerminalRenderer {
         final boolean italic = (effect & TextStyle.CHARACTER_ATTRIBUTE_ITALIC) != 0;
         final boolean strikeThrough = (effect & TextStyle.CHARACTER_ATTRIBUTE_STRIKETHROUGH) != 0;
         final boolean dim = (effect & TextStyle.CHARACTER_ATTRIBUTE_DIM) != 0;
+
+        if (isFilePath && foreColor == TextStyle.COLOR_INDEX_FOREGROUND) {
+            foreColor = 4;
+        }
 
         if ((foreColor & 0xff000000) != 0xff000000) {
             // Let bold have bright colors if applicable (one of the first 8):
@@ -232,7 +253,7 @@ public final class TerminalRenderer {
             }
 
             mTextPaint.setFakeBoldText(bold);
-            mTextPaint.setUnderlineText(underline);
+            mTextPaint.setUnderlineText(underline || isFilePath);
             mTextPaint.setTextSkewX(italic ? -0.35f : 0.f);
             mTextPaint.setStrikeThruText(strikeThrough);
             mTextPaint.setColor(foreColor);

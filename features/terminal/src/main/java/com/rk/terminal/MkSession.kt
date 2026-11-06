@@ -41,6 +41,10 @@ object MkSession {
                 "DEX2OATBOOTCLASSPATH" to System.getenv("DEX2OATBOOTCLASSPATH"),
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE"),
                 "PATH" to "${System.getenv("PATH")}:${localBinDir(context).absolutePath}",
+
+                // Emits OSC 7 before every prompt -> Report CWD for absolute links in terminal
+                "PROMPT_COMMAND" to
+                    "__p=\${PWD//\\%/%25}; printf '\\e]7;file://%s%s\\a' \"\$HOSTNAME\" \"\${__p// /%20}\"",
             )
 
         val workingDir = runBlocking { getPwd(context) }

@@ -29,4 +29,5 @@ public abstract class TerminalOutput {
 
     public abstract void onColorsChanged();
 
+    public void onCwdChanged(String path) {}
 }

@@ -11,10 +11,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import com.rk.activities.main.ui.TaskOutputState
+import com.rk.utils.AnsiTheme
 import com.rk.utils.parseAnsiToAnnotatedString
-import com.rk.utils.resolveAnsiTheme
 import com.rk.utils.stripAnsi
-import java.util.Properties
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,7 +36,7 @@ abstract class Task {
 }
 
 interface OutputLine {
-    fun toAnnotatedString(props: Properties): AnnotatedString
+    fun toAnnotatedString(ansiTheme: AnsiTheme): AnnotatedString
 
     fun getUnformattedText(): String
 
@@ -46,15 +45,15 @@ interface OutputLine {
     class Ansi(val raw: String) : OutputLine {
         override val columns by lazy { stripAnsi(raw).length }
 
-        @Volatile private var cachedProps: Properties? = null
+        @Volatile private var cachedTheme: AnsiTheme? = null
         @Volatile private var cachedAnnotated: AnnotatedString? = null
 
-        override fun toAnnotatedString(props: Properties): AnnotatedString {
-            if (cachedProps === props && cachedAnnotated != null) {
+        override fun toAnnotatedString(ansiTheme: AnsiTheme): AnnotatedString {
+            if (cachedTheme === ansiTheme && cachedAnnotated != null) {
                 return cachedAnnotated!!
             }
-            val parsed = parseAnsiToAnnotatedString(raw, props)
-            cachedProps = props
+            val parsed = parseAnsiToAnnotatedString(raw, ansiTheme)
+            cachedTheme = ansiTheme
             cachedAnnotated = parsed
             return parsed
         }
@@ -74,7 +73,7 @@ interface OutputLine {
 
         private val annotated by lazy { AnnotatedString(text) }
 
-        override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
+        override fun toAnnotatedString(ansiTheme: AnsiTheme): AnnotatedString = annotated
 
         override fun getUnformattedText() = text
 
@@ -87,9 +86,8 @@ interface OutputLine {
         override val columns
             get() = text.length
 
-        override fun toAnnotatedString(props: Properties): AnnotatedString {
-            val theme = resolveAnsiTheme(props)
-            return buildAnnotatedString { withStyle(style = SpanStyle(color = theme.palette[1])) { append(text) } }
+        override fun toAnnotatedString(ansiTheme: AnsiTheme): AnnotatedString {
+            return buildAnnotatedString { withStyle(style = SpanStyle(color = ansiTheme.palette[1])) { append(text) } }
         }
 
         override fun getUnformattedText() = text
@@ -109,7 +107,7 @@ interface OutputLine {
 
         private val annotated by lazy { AnnotatedString(text, spanStyle = style, paragraphStyle = paragraphStyle) }
 
-        override fun toAnnotatedString(props: Properties): AnnotatedString = annotated
+        override fun toAnnotatedString(ansiTheme: AnsiTheme): AnnotatedString = annotated
 
         override fun getUnformattedText() = text
 

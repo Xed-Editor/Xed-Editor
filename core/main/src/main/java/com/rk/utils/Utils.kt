@@ -49,6 +49,8 @@ import com.rk.extension.ActivityProvider
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileDecorationRegistry
 import com.rk.file.FileObject
+import com.rk.file.sandboxDir
+import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileTreeViewModel
 import com.rk.resources.getQuantityString
 import com.rk.resources.getString
@@ -59,6 +61,7 @@ import java.io.File
 import java.io.InputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.net.URI
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -479,4 +482,29 @@ fun loadSvg(inputStream: InputStream): Drawable? {
 
     val picture = svg.renderToPicture()
     return PictureDrawable(picture)
+}
+
+private val identityMounts = listOf("/sdcard", "/storage", "/data", "/system", "/vendor", "/product", "/apex")
+
+/**
+ * Translate a path seen inside the proot sandbox to the real host path.
+ *
+ * Also supports URIs with the `file:///` protocol.
+ */
+fun terminalToHostFile(path: String): File {
+    val normalized =
+        if (path.startsWith("file:")) {
+            File(URI(path)).path
+        } else {
+            path
+        }
+
+    fun under(prefix: String) = normalized == prefix || normalized.startsWith("$prefix/")
+
+    return when {
+        under("/root") -> File(sandboxHomeDir(), normalized.removePrefix("/root"))
+        under("/home") -> File(sandboxHomeDir(), normalized.removePrefix("/home"))
+        identityMounts.any(::under) -> File(normalized)
+        else -> File(sandboxDir(), normalized.removePrefix("/"))
+    }
 }
