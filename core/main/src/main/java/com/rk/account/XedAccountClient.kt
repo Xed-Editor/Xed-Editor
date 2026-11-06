@@ -53,7 +53,9 @@ internal object XedAccountClient {
 
     private fun jsonBody(vararg pairs: Pair<String, String>) = buildJsonObject {
         pairs.forEach { (key, value) -> put(key, value) }
-    }.toString().toRequestBody(JSON)
+    }
+        .toString()
+        .toRequestBody(JSON)
 
     private suspend fun execute(request: Request): String =
         withContext(Dispatchers.IO) {
