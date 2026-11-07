@@ -33,7 +33,7 @@ class DrawerViewModel : ViewModel() {
     private val _currentServiceTabIndex = MutableStateFlow(-1)
     val currentServiceTabIndex = _currentServiceTabIndex.asStateFlow()
 
-    val currentServiceTab: DrawerTab?
+    val currentServiceTab: ServiceTab?
         get() = _serviceTabs.value.getOrNull(_currentServiceTabIndex.value)
 
     fun setLoading(value: Boolean) {
@@ -52,24 +52,19 @@ class DrawerViewModel : ViewModel() {
         addDrawerTab(tab, save)
     }
 
-    private val _showFirstDrawerTabWarning = MutableStateFlow<(() -> Unit)?>(null)
-    val showFirstDrawerTabWarning = _showFirstDrawerTabWarning.asStateFlow()
-
     fun addDrawerTab(tab: DrawerTab, save: Boolean = false) {
         val mainViewModel = MainActivity.instance?.viewModel
         val nonScopedTabs = mainViewModel?.tabs?.filter { it.scopeRoot == null }
 
-        if (_drawerTabs.value.isEmpty() && Settings.scoped_tabs && nonScopedTabs?.isNotEmpty() == true) {
-            _showFirstDrawerTabWarning.value = {
-                nonScopedTabs.forEach { mainViewModel.tabManager.removeTab(it) }
-                proceedAddDrawerTab(tab, save)
-            }
-        } else {
-            proceedAddDrawerTab(tab, save)
+        if (
+            _drawerTabs.value.isEmpty() &&
+                Settings.scoped_tabs &&
+                nonScopedTabs?.isNotEmpty() == true &&
+                tab is FileTreeTab
+        ) {
+            nonScopedTabs.forEach { it.scopeRoot = tab.root }
         }
-    }
 
-    private fun proceedAddDrawerTab(tab: DrawerTab, save: Boolean = false) {
         tab.onAdded()
 
         _drawerTabs.update { it + tab }
@@ -78,10 +73,6 @@ class DrawerViewModel : ViewModel() {
         viewModelScope.launch { Events.publish(DrawerEvent.TabAdded(tab)) }
 
         if (save) persistAsync()
-    }
-
-    fun dismissFirstDrawerTabWarning() {
-        _showFirstDrawerTabWarning.value = null
     }
 
     fun removeFileTreeTab(fileObject: FileObject, save: Boolean = false) {
@@ -105,6 +96,7 @@ class DrawerViewModel : ViewModel() {
         val isActive = _currentDrawerTabIndex.value == index
 
         val tab = tabs[index]
+        tab.onUnselect()
 
         if (Settings.scoped_tabs && tab is FileTreeTab) {
             val mainViewModel = MainActivity.instance?.viewModel
@@ -145,6 +137,7 @@ class DrawerViewModel : ViewModel() {
 
         _currentDrawerTabIndex.value = index
         _currentServiceTabIndex.value = -1
+        currentDrawerTab?.onSelect()
 
         viewModelScope.launch { Events.publish(DrawerEvent.TabSelected(currentDrawerTab)) }
     }
@@ -167,13 +160,15 @@ class DrawerViewModel : ViewModel() {
     }
 
     fun unselectDrawerTab() {
+        currentServiceTab?.onUnselect(currentDrawerTab)
+        currentDrawerTab?.onUnselect()
         _currentDrawerTabIndex.value = -1
         _currentServiceTabIndex.value = -1
 
         viewModelScope.launch { Events.publish(DrawerEvent.TabSelected(null)) }
     }
 
-    fun selectServiceTab(serviceTab: DrawerTab) {
+    fun selectServiceTab(serviceTab: ServiceTab) {
         val index = _serviceTabs.value.indexOf(serviceTab)
         if (index != -1) selectServiceTab(index)
     }
@@ -182,11 +177,13 @@ class DrawerViewModel : ViewModel() {
         if (index !in _serviceTabs.value.indices) return
 
         _currentServiceTabIndex.value = index
+        currentServiceTab?.onSelect(currentDrawerTab)
 
         viewModelScope.launch { Events.publish(DrawerEvent.ServiceTabSelected(currentServiceTab)) }
     }
 
     fun unselectServiceTab() {
+        currentServiceTab?.onUnselect(currentDrawerTab)
         _currentServiceTabIndex.value = -1
 
         viewModelScope.launch { Events.publish(DrawerEvent.ServiceTabSelected(null)) }
@@ -194,6 +191,7 @@ class DrawerViewModel : ViewModel() {
 
     fun forcePushDrawerTabs(drawerTabs: List<DrawerTab>) {
         _drawerTabs.value = drawerTabs
+        drawerTabs.forEach { it.onAdded() }
     }
 
     private fun persistAsync() {

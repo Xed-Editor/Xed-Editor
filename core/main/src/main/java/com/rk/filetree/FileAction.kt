@@ -210,7 +210,7 @@ object CopyAction : MultiFileAction() {
     }
 
     override val type = FileActionType.All
-    override val importance = 1
+    override val importance = 2
 }
 
 object CutAction : MultiFileAction() {
@@ -223,6 +223,7 @@ object CutAction : MultiFileAction() {
     }
 
     override val type = FileActionType.All
+    override val importance = 1
 }
 
 object PasteAction : FileAction() {

@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.os.PowerManager
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.app.NotificationCompat
 import com.rk.activities.terminal.Terminal
 import com.rk.resources.drawables
@@ -17,9 +18,10 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.logError
+import com.rk.utils.terminalToHostFile
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
-import kotlinx.coroutines.DelicateCoroutinesApi
+import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -29,7 +31,7 @@ class SessionService : Service() {
     private val sessionWorkDirs = mutableMapOf<SessionId, SessionPwd>()
     private val _sessionList = MutableStateFlow<List<SessionId>>(emptyList())
     val sessionList = _sessionList.asStateFlow()
-    val currentSession = MutableStateFlow<SessionId>("main")
+    val currentSession = MutableStateFlow("main")
     private var deamonRunning = false
 
     inner class SessionBinder : Binder() {
@@ -60,10 +62,35 @@ class SessionService : Service() {
 
         fun getSessionInfoByPwd(pwd: SessionPwd): SessionInfo? {
             return sessionWorkDirs.keys
-                .find { sessionWorkDirs[it] == pwd }
+                .find { getCwdAsHostFile(it) == File(pwd) }
                 ?.let { SessionInfo(it, sessionWorkDirs[it]!!, sessions[it]!!) }
         }
 
+        private val guestCwds = mutableStateMapOf<SessionId, String>()
+
+        @Synchronized
+        fun setGuestCwd(session: TerminalSession, path: String) {
+            val id = sessions.entries.firstOrNull { it.value === session }?.key ?: return
+            guestCwds[id] = path
+        }
+
+        /** Returns guest CWD as a [File] instance for the host. */
+        @Synchronized
+        fun getCwdAsHostFile(id: SessionId): File? {
+            guestCwds[id]?.let { guest ->
+                val host = terminalToHostFile(guest)
+                if (host.exists()) return host
+            }
+            return sessionWorkDirs[id]?.let { File(it) }
+        }
+
+        /** Returns guest CWD */
+        @Synchronized
+        fun getCwd(id: SessionId): String? {
+            return guestCwds[id] ?: sessionWorkDirs[id]
+        }
+
+        @Synchronized
         fun terminateSession(id: SessionId) {
             sessions[id]?.apply {
                 if (emulator != null) {
@@ -73,6 +100,7 @@ class SessionService : Service() {
             sessions.remove(id)
             _sessionList.update { list -> list - id }
             sessionWorkDirs.remove(id)
+            guestCwds.remove(id)
 
             if (sessions.isEmpty()) {
                 stopSelf()
@@ -84,6 +112,7 @@ class SessionService : Service() {
             }
         }
 
+        @Synchronized
         fun renameSession(oldId: String, newId: String) {
             if (oldId == newId || newId.isEmpty() || newId in _sessionList.value) return
 
@@ -92,6 +121,8 @@ class SessionService : Service() {
 
             sessions[newId] = session
             sessionWorkDirs[newId] = pwd
+
+            guestCwds.remove(oldId)?.let { guestCwds[newId] = it }
 
             _sessionList.update { list -> list.map { if (it == oldId) newId else it } }
 
@@ -127,7 +158,6 @@ class SessionService : Service() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -142,9 +172,9 @@ class SessionService : Service() {
             startForeground(1, notification)
         }
 
-        if (deamonRunning.not()) {
+        if (!deamonRunning) {
             deamonRunning = true
-            XedCliServer.start(this)
+            XedCliServer.start()
         }
 
         if (wakeLock == null) {

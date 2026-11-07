@@ -61,20 +61,29 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rk.App.Companion.themeManager
 import com.rk.activities.main.MainActivity
+import com.rk.extension.api.OutputLine
 import com.rk.extension.api.Task
 import com.rk.extension.api.TaskRegistry
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.utils.AnsiTheme
+import com.rk.utils.FilePathUtils
+import com.rk.utils.resolveAnsiTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -213,6 +222,8 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
                         val maxColumns by remember(lines) { derivedStateOf { lines.maxOfOrNull { it.columns } ?: 0 } }
                         val contentWidth = with(LocalDensity.current) { ((maxColumns + 1) * charWidthPx).toDp() }
 
+                        val ansiTheme = remember(props) { resolveAnsiTheme(props) }
+
                         SelectionContainer(modifier = Modifier.fillMaxSize()) {
                             LazyColumn(
                                 state = listState,
@@ -222,8 +233,10 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
                             ) {
                                 items(count = lines.size) { index ->
                                     val line = lines.getOrNull(index) ?: return@items
+                                    val annotatedString = rememberParsedAnnotatedString(line, ansiTheme)
+
                                     Text(
-                                        text = line.toAnnotatedString(props),
+                                        text = annotatedString,
                                         modifier = Modifier.width(contentWidth),
                                         minLines = 1, // keeps empty lines at full height
                                         softWrap = false,
@@ -266,6 +279,44 @@ fun TaskOutputView(modifier: Modifier = Modifier) {
         }
     }
 }
+
+@Composable
+private fun rememberParsedAnnotatedString(line: OutputLine, ansiTheme: AnsiTheme): AnnotatedString =
+    remember(line, ansiTheme) {
+        val base = line.toAnnotatedString(ansiTheme)
+
+        val matches = FilePathUtils.detectFilePaths(line.getUnformattedText())
+        if (matches.isEmpty()) {
+            return@remember base
+        }
+
+        val linkColor = ansiTheme.palette[4]
+
+        return@remember buildAnnotatedString {
+            append(base)
+            for (match in matches) {
+                if (match.start >= 0 && match.end <= length) {
+                    addStyle(
+                        SpanStyle(
+                            color = linkColor,
+                            textDecoration = TextDecoration.Underline,
+                        ),
+                        match.start,
+                        match.end,
+                    )
+
+                    addLink(
+                        LinkAnnotation.Clickable(
+                            tag = "FILE_PATH",
+                            linkInteractionListener = { FilePathUtils.openPathMatch(match) },
+                        ),
+                        match.start,
+                        match.end,
+                    )
+                }
+            }
+        }
+    }
 
 @Composable
 private fun Header(task: Task, expanded: Boolean) {

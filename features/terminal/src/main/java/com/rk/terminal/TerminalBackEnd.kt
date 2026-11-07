@@ -6,14 +6,18 @@ import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.activities.terminal.Terminal
+import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
 import com.rk.settings.terminal.TerminalCursorStyle
 import com.rk.terminal.virtualkeys.SpecialButton
+import com.rk.utils.FilePathUtils
 import com.rk.utils.logError
+import com.rk.utils.terminalToHostFile
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
+import java.io.File
 
 class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {
@@ -87,7 +91,54 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
         return fontScale
     }
 
+    override fun onCwdChanged(session: TerminalSession, guestPath: String) {
+        Terminal.instance?.sessionBinder?.get()?.setGuestCwd(session, guestPath)
+    }
+
+    private fun getCwdForRow(row: Int): File {
+        val guest = terminalView.get()?.mEmulator?.getCwdForRow(row) ?: return getCwd()
+        return terminalToHostFile(guest)
+    }
+
+    private fun getCwd(): File {
+        val binder = Terminal.instance?.sessionBinder?.get()
+        val sessionId = binder?.getService()?.currentSession?.value
+        return sessionId?.let { binder.getCwdAsHostFile(it) } ?: sandboxHomeDir()
+    }
+
+    override fun getFilePathRanges(text: String, row: Int): List<IntArray> {
+        return FilePathUtils.detectFilePaths(text, getCwdForRow(row)).map { intArrayOf(it.start, it.end) }
+    }
+
     override fun onSingleTapUp(e: MotionEvent) {
+        val tv = terminalView.get()
+        if (tv == null) {
+            showSoftInput()
+            return
+        }
+
+        val colAndRow = tv.getColumnAndRow(e, true)
+        val col = colAndRow[0]
+        val row = colAndRow[1]
+        val emulator = tv.mEmulator
+
+        if (emulator == null) {
+            showSoftInput()
+            return
+        }
+
+        val screen = emulator.screen
+        runCatching {
+            val internalRow = screen.externalToInternalRow(row)
+            val lineObj = screen.allocateFullLineIfNecessary(internalRow)
+            val rowText = String(lineObj.mText, 0, lineObj.spaceUsed)
+            val matches = FilePathUtils.detectFilePaths(rowText, getCwdForRow(row))
+            val clickedMatch = matches.find { col >= it.start && col < it.end }
+            if (clickedMatch != null) {
+                FilePathUtils.openPathMatch(clickedMatch)
+                return
+            }
+        }
         showSoftInput()
     }
 

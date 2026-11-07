@@ -1013,5 +1013,4 @@
     <string name="total_storage_usage">Total used by app</string>
     <string name="calculating">Calculating…</string>
     <string name="ubuntu" translatable="false">Ubuntu</string>
-    <string name="scoped_tabs_open_project_warning">Opening your first project will close all tabs that are currently open. Do you want to continue?</string>
 </resources>

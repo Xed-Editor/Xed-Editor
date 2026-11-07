@@ -17,14 +17,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +40,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.rk.components.XedCard
+import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
@@ -66,9 +64,11 @@ import kotlinx.coroutines.withContext
 
 @Immutable
 data class StorageComponent(
-    val labelRes: Int,
+    val labelRes: Int = 0,
+    val labelText: String? = null,
     val color: Color,
     val size: Long = 0L,
+    val isClaimed: Boolean = false,
 )
 
 private sealed interface StorageUiState {
@@ -77,7 +77,7 @@ private sealed interface StorageUiState {
     data class Loaded(val components: List<StorageComponent>, val total: Long) : StorageUiState
 }
 
-private enum class StorageCategory(val labelRes: Int, val color: Color) {
+enum class StorageCategory(val labelRes: Int, val color: Color) {
     TERMINAL(strings.ubuntu, Color(0xFFFF9800)),
     TERMINAL_HOME(strings.terminal_home, Color(0xFF4CAF50)),
     INDEX(strings.indexing_segment, Color(0xFF009688)),
@@ -88,7 +88,8 @@ private enum class StorageCategory(val labelRes: Int, val color: Color) {
     CACHE(strings.cache, Color(0xFFFFC107)),
     OTHER(strings.other_files, Color(0xFF9E9E9E));
 
-    fun toComponent(size: Long = 0L) = StorageComponent(labelRes, color, size)
+    fun toComponent(size: Long = 0L) =
+        StorageComponent(labelRes = labelRes, labelText = null, color = color, size = size)
 }
 
 @Composable
@@ -103,7 +104,7 @@ fun StorageDistributionScreen() {
 
     PreferenceLayout(label = stringResource(strings.storage_distribution), backArrowVisible = true) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             SummaryCard(state)
@@ -115,9 +116,8 @@ fun StorageDistributionScreen() {
 @Composable
 private fun SummaryCard(state: StorageUiState) {
     val loaded = state as? StorageUiState.Loaded
-    val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
 
-    Card(colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor))) {
+    XedCard(Modifier.padding(horizontal = 16.dp)) {
         Column(Modifier.padding(16.dp)) {
             Text(
                 text = stringResource(strings.total_storage_usage),
@@ -151,17 +151,34 @@ private fun SummaryCard(state: StorageUiState) {
 private fun BreakdownCard(state: StorageUiState) {
     val loaded = state as? StorageUiState.Loaded
 
-    val rows = remember(loaded) { loaded?.components ?: StorageCategory.entries.map { it.toComponent() } }
+    val standardRows =
+        remember(loaded) {
+            loaded?.components?.filter { !it.isClaimed } ?: StorageCategory.entries.map { it.toComponent() }
+        }
+    val claimedRows = remember(loaded) { loaded?.components?.filter { it.isClaimed }.orEmpty() }
 
-    val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-
-    Card(colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor))) {
+    XedCard(Modifier.padding(horizontal = 16.dp)) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-            rows.forEachIndexed { index, comp ->
+            standardRows.forEachIndexed { index, comp ->
                 if (index > 0) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                 }
                 StorageRow(comp = comp, isLoading = loaded == null)
+            }
+        }
+    }
+
+    if (claimedRows.isNotEmpty()) {
+        PreferenceGroup(heading = stringResource(strings.ext)) {
+            XedCard {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    claimedRows.forEachIndexed { index, comp ->
+                        if (index > 0) {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        }
+                        StorageRow(comp = comp, isLoading = loaded == null)
+                    }
+                }
             }
         }
     }
@@ -176,7 +193,7 @@ private fun StorageRow(comp: StorageComponent, isLoading: Boolean) {
             Spacer(Modifier.width(12.dp))
 
             Text(
-                text = stringResource(comp.labelRes),
+                text = comp.labelText ?: stringResource(comp.labelRes),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f),
             )
@@ -256,7 +273,7 @@ private fun StorageBarGraph(
 
 private suspend fun calculateStorageDistribution(context: Context): Pair<List<StorageComponent>, Long> =
     withContext(Dispatchers.IO) {
-        data class StorageLocationFilter(val file: File, val matcher: (FileObject) -> Boolean = { true }) {
+        data class StorageQuery(val file: File, val matcher: (FileObject) -> Boolean = { true }) {
             suspend fun sizeOrZero(): Long = runCatching {
                 FileOperations.calculateMatchedContent(FileWrapper(file), matcher).totalSize
             }
@@ -269,19 +286,17 @@ private suspend fun calculateStorageDistribution(context: Context): Pair<List<St
         val dirs =
             linkedMapOf(
                 StorageCategory.TERMINAL to
-                    StorageLocationFilter(sandboxDir(context)) {
-                        it.getAbsolutePath() != sandboxHomeDir(context).absolutePath
-                    },
-                StorageCategory.TERMINAL_HOME to StorageLocationFilter(sandboxHomeDir(context)),
+                    StorageQuery(sandboxDir(context)) { it.getAbsolutePath() != sandboxHomeDir(context).absolutePath },
+                StorageCategory.TERMINAL_HOME to StorageQuery(sandboxHomeDir(context)),
                 StorageCategory.INDEX to
-                    StorageLocationFilter(appRoot.child("databases")) {
+                    StorageQuery(appRoot.child("databases")) {
                         it.isDirectory() || it.getName().startsWith("index_database")
                     },
-                StorageCategory.EXTENSIONS to StorageLocationFilter(localDir(context).child("extensions")),
-                StorageCategory.THEMES to StorageLocationFilter(themeDir(context)),
-                StorageCategory.ICON_PACKS to StorageLocationFilter(localDir(context).child("icon_pack")),
-                StorageCategory.RUNNERS to StorageLocationFilter(localDir(context).child("runners")),
-                StorageCategory.CACHE to StorageLocationFilter(cacheDir),
+                StorageCategory.EXTENSIONS to StorageQuery(localDir(context).child("extensions")),
+                StorageCategory.THEMES to StorageQuery(themeDir(context)),
+                StorageCategory.ICON_PACKS to StorageQuery(localDir(context).child("icon_pack")),
+                StorageCategory.RUNNERS to StorageQuery(localDir(context).child("runners")),
+                StorageCategory.CACHE to StorageQuery(cacheDir),
             )
 
         // Measure all dirs in parallel
@@ -293,17 +308,46 @@ private suspend fun calculateStorageDistribution(context: Context): Pair<List<St
             }
 
         // The cache dir is normally a child of the app root. Only add it if it lives elsewhere
-        val total =
+        val measuredTotal =
             if (appRoot.child("cache").canonicalPath == cacheDir.canonicalPath) appRootSize
             else appRootSize + rawSizes.getValue(StorageCategory.CACHE)
-        val other = (total - rawSizes.values.sum()).coerceAtLeast(0L)
 
-        val components =
-            StorageCategory.entries.map { cat ->
-                cat.toComponent(if (cat == StorageCategory.OTHER) other else rawSizes.getValue(cat))
-            }
+        val calculatedSizes =
+            StorageCategory.entries
+                .associateWith { cat ->
+                    if (cat == StorageCategory.OTHER) {
+                        (measuredTotal - rawSizes.values.sum()).coerceAtLeast(0L)
+                    } else {
+                        rawSizes[cat] ?: 0L
+                    }
+                }
+                .toMutableMap()
 
-        components to total
+        val claims = StorageClaimManager.getClaims(calculatedSizes, measuredTotal)
+
+        val categorySizes = calculatedSizes.toMutableMap()
+        val claimComponents = mutableListOf<StorageComponent>()
+
+        claims.forEach { claim ->
+            val currentCatSize = categorySizes[claim.category] ?: 0L
+            val actualClaimSize = claim.size.coerceAtMost(currentCatSize)
+            categorySizes[claim.category] = currentCatSize - actualClaimSize
+
+            claimComponents.add(
+                StorageComponent(
+                    labelRes = 0,
+                    labelText = claim.name,
+                    color = claim.color,
+                    size = actualClaimSize,
+                    isClaimed = true,
+                )
+            )
+        }
+
+        val standardComponents = StorageCategory.entries.map { cat -> cat.toComponent(categorySizes.getValue(cat)) }
+
+        val components = standardComponents + claimComponents
+        components to measuredTotal
     }
 
 private suspend fun File.sizeOrZero(): Long = runCatching {

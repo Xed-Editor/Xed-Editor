@@ -321,27 +321,9 @@ public final class TerminalSession extends TerminalOutput {
         return mShellPid;
     }
 
-    /**
-     * Returns the shell's working directory or null if it was unavailable.
-     */
-    public String getCwd() {
-        if (mShellPid < 1) {
-            return null;
-        }
-        try {
-            final String cwdSymlink = String.format("/proc/%s/cwd/", mShellPid);
-            String outputPath = new File(cwdSymlink).getCanonicalPath();
-            String outputPathWithTrailingSlash = outputPath;
-            if (!outputPath.endsWith("/")) {
-                outputPathWithTrailingSlash += '/';
-            }
-            if (!cwdSymlink.equals(outputPathWithTrailingSlash)) {
-                return outputPath;
-            }
-        } catch (IOException | SecurityException e) {
-            Logger.logStackTraceWithMessage(mClient, LOG_TAG, "Error getting current directory", e);
-        }
-        return null;
+    @Override
+    public void onCwdChanged(String path) {
+        mClient.onCwdChanged(this, path);
     }
 
     private static FileDescriptor wrapFileDescriptor(int fileDescriptor, TerminalSessionClient client) {

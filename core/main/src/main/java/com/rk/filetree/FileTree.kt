@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,10 +23,8 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -47,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.ui.searchViewModel
+import com.rk.components.DrawerToolbar
 import com.rk.components.XedDropdownMenuItem
 import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileObject
@@ -96,40 +94,37 @@ fun FileTree(
     LaunchedEffect(sortMode) { viewModel.refreshEverything() }
 
     Column(modifier = modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (isAnyFileSelected) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { viewModel.unselectAllFiles(rootNode.file) }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(strings.go_prev))
-                    }
-
-                    Text(selectionCount.toString())
-                }
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.weight(1f),
-            ) {
+        DrawerToolbar(
+            left = {
                 if (isAnyFileSelected) {
-                    SelectionActions(viewModel, drawerViewModel, rootNode, selectedFiles[rootNode.file] ?: emptyList())
-                } else {
-                    FileTreeActions(viewModel, onSearchClick)
-                }
-            }
-        }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = { viewModel.unselectAllFiles(rootNode.file) }) {
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(strings.go_prev))
+                        }
 
-        Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
-            if (isFileOperationInProgress || isIndexingRoot) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxSize())
-            } else {
-                HorizontalDivider()
-            }
-        }
+                        Text(selectionCount.toString())
+                    }
+                }
+            },
+            right = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    if (isAnyFileSelected) {
+                        SelectionActions(
+                            viewModel,
+                            drawerViewModel,
+                            rootNode,
+                            selectedFiles[rootNode.file] ?: emptyList(),
+                        )
+                    } else {
+                        FileTreeActions(viewModel, onSearchClick)
+                    }
+                }
+            },
+            isLoading = isFileOperationInProgress || isIndexingRoot,
+        )
 
         PullToRefreshBox(
             isRefreshing = isRefreshing,

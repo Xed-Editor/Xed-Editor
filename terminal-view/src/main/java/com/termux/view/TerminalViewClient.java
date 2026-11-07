@@ -5,7 +5,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import com.termux.terminal.TerminalSession;
+import com.termux.terminal.TerminalSession;import java.util.List;
 
 /**
  * The interface for communication between {@link TerminalView} and its client. It allows for getting
@@ -82,4 +82,7 @@ public interface TerminalViewClient {
 
     void logStackTrace(String tag, Exception e);
 
+    default List<int[]> getFilePathRanges(String text, int row) {
+        return null;
+    }
 }

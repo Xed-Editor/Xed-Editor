@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -77,7 +78,7 @@ fun MarkdownViewer(url: String?, refreshKey: Int, onLoaded: () -> Unit, modifier
             }
 
             is MarkdownStatus.Success -> {
-                MarkdownText(content = state.markdown, modifier = Modifier.fillMaxWidth())
+                SelectionContainer { MarkdownText(content = state.markdown, modifier = Modifier.fillMaxWidth()) }
             }
         }
     }

@@ -69,9 +69,8 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     val indexingPreferenceKey
         get() = "enable_indexing_${root.hashCode()}"
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    override fun Content(modifier: Modifier) {
+    override fun Content() {
         var searchDialog by remember { mutableStateOf(false) }
         var enableIndexing by remember {
             mutableStateOf(Preference.getBoolean(indexingPreferenceKey, Settings.always_index_projects))

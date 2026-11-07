@@ -28,8 +28,6 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LeadingIconTab
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SearchBarDefaults
@@ -60,6 +58,7 @@ import com.rk.App.Companion.iconPackManager
 import com.rk.App.Companion.themeManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.common.PackageType
+import com.rk.components.LeadingIconXedTab
 import com.rk.components.XedDropdownMenuItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayoutLazyColumn
@@ -279,7 +278,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
                 edgePadding = 16.dp,
             ) {
                 StoreCategory.entries.forEach { category ->
-                    LeadingIconTab(
+                    LeadingIconXedTab(
                         selected = selectedCategory == category,
                         onClick = { selectedCategory = category },
                         text = { Text(stringResource(category.stringRes)) },
@@ -289,8 +288,6 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
                                 contentDescription = null,
                             )
                         },
-                        selectedContentColor = MaterialTheme.colorScheme.primary,
-                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

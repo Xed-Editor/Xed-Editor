@@ -28,7 +28,7 @@ public interface TerminalSessionClient {
 
     void setTerminalShellPid(@NonNull TerminalSession session, int pid);
 
-
+    default void onCwdChanged(TerminalSession session, String guestPath) {}
 
     Integer getTerminalCursorStyle();
 
