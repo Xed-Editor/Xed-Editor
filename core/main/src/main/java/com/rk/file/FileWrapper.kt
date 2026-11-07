@@ -211,4 +211,8 @@ class FileWrapper(var file: File) : FileObject {
         }
         return other.getAbsolutePath() == getAbsolutePath()
     }
+
+    private companion object {
+        private const val serialVersionUID = 1L
+    }
 }

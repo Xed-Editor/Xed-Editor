@@ -229,4 +229,8 @@ class ZipFileObject(
     }
 
     override fun hashCode(): Int = zipFileObject.hashCode() * 31 + entryPath.hashCode()
+
+    private companion object {
+        private const val serialVersionUID = 1L
+    }
 }

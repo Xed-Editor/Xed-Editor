@@ -57,7 +57,6 @@ import com.rk.resources.strings
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.InputStream
-import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.text.NumberFormat
 import java.util.Locale
@@ -118,9 +117,13 @@ inline fun toast(@StringRes resId: Int) {
 suspend fun FileObject.writeObject(obj: Any) =
     withContext(Dispatchers.IO) { ObjectOutputStream(getOutputStream(false)).use { oos -> oos.writeObject(obj) } }
 
+/**
+ * Reads an object written by [writeObject], also if the `serialVersionUID` of one of the app's classes in it changed
+ * since, as long as its fields did not (see [SerialVersionTolerantObjectInputStream]).
+ */
 suspend fun FileObject.readObject(): Any? =
     withContext(Dispatchers.IO) {
-        ObjectInputStream(getInputStream()).use { ois ->
+        SerialVersionTolerantObjectInputStream(getInputStream()).use { ois ->
             return@withContext ois.readObject()
         }
     }

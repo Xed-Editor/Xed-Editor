@@ -3,12 +3,12 @@ package com.rk.activities.main.session
 import com.rk.file.child
 import com.rk.resources.strings
 import com.rk.tabs.base.Tab
+import com.rk.utils.SerialVersionTolerantObjectInputStream
 import com.rk.utils.application
 import com.rk.utils.logError
 import com.rk.utils.toast
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +44,8 @@ object SessionManager {
     suspend fun preloadSession() = mutex.withLock {
         runCatching {
             if (tabCacheFile.exists() && tabCacheFile.canRead()) {
-                ObjectInputStream(FileInputStream(tabCacheFile)).use { ois ->
+                // Also reads sessions saved before the file objects in them declared their serialVersionUID.
+                SerialVersionTolerantObjectInputStream(FileInputStream(tabCacheFile)).use { ois ->
                     preloadedSession = ois.readObject() as? SessionState
                 }
             }
