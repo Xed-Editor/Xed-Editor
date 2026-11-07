@@ -28,7 +28,7 @@ object FilePathUtils {
             val rawCandidate = quoted?.value ?: match.value
             val matchStart = quoted?.range?.first ?: match.range.first
             val lineCol = lineColRegex.find(rawCandidate)
-            val cleaned = rawCandidate.replace(lineColRegex, "").trimEnd('.')
+            val cleaned = rawCandidate.replace(lineColRegex, "")
 
             if (cleaned.length < 2) continue
 
@@ -72,7 +72,7 @@ object FilePathUtils {
 
     fun parseFilePath(path: String, projectRoot: File? = null): PathMatch? {
         val lineCol = lineColRegex.find(path)
-        val cleaned = path.replace(lineColRegex, "").trimEnd('.')
+        val cleaned = path.replace(lineColRegex, "")
 
         if (cleaned.isBlank()) return null
 
@@ -89,10 +89,12 @@ object FilePathUtils {
                 terminalToHostFile(normalized)
             }
 
+        val canonicalFile = runCatching { file.canonicalFile }.getOrDefault(file)
+
         return PathMatch(
             start = 0,
             end = path.length,
-            file = file,
+            file = canonicalFile,
             line = line,
             column = column,
         )
