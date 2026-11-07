@@ -1,15 +1,11 @@
 package com.rk.lsp
 
 import android.content.Context
-import android.net.Uri
 import androidx.core.net.toUri
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.session.EditorManager
 import com.rk.editor.TextActionItem
 import com.rk.file.FileObject
-import com.rk.file.child
-import com.rk.file.sandboxDir
-import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.file.toFileWrapper
 import com.rk.resources.drawables
@@ -20,6 +16,7 @@ import com.rk.search.CodeItem
 import com.rk.search.utils.SnippetBuilder
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.logError
+import com.rk.utils.terminalToHostFile
 import com.rk.utils.toast
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.getOption
@@ -34,29 +31,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.FormattingOptions
 import org.eclipse.lsp4j.Range
-
-/**
- * Workaround helper that fixes the URI path coming from LSP if they point to `/home`.
- *
- * Example: The LSP may return `file:///home/...` but Xed-Editor has to resolve the path to
- * `file:///data/user/0/com.rk.xededitor/local/sandbox/home/...`
- */
-fun fixHomeLocation(context: Context, uri: String): String {
-    val path = uri.toUri().path ?: return uri
-
-    val fixedPath =
-        when {
-            path.startsWith("/home") -> {
-                File(sandboxHomeDir(context), uri.toUri().path!!.removePrefix("/home/"))
-            }
-            path.startsWith("/usr") -> {
-                File(sandboxDir(context).child("usr"), uri.toUri().path!!.removePrefix("/usr/"))
-            }
-            else -> null
-        }
-
-    return fixedPath?.let { Uri.fromFile(it).toString() } ?: uri
-}
 
 suspend fun EditorManager.jumpToPosition(file: FileObject, projectRoot: FileObject?, range: Range) {
     jumpToPosition(
@@ -91,7 +65,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                 var uriString =
                     if (eitherDefinitions.isLeft) eitherDefinitions.left[0].uri
                     else eitherDefinitions.right[0].targetUri
-                uriString = fixHomeLocation(context, uriString)
+                uriString = terminalToHostFile(uriString).path
 
                 val uri = uriString.toUri()
                 val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
@@ -111,7 +85,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                         var uriString =
                             if (eitherDefinitions.isLeft) eitherDefinitions.left[index].uri
                             else eitherDefinitions.right[index].targetUri
-                        uriString = fixHomeLocation(context, uriString)
+                        uriString = terminalToHostFile(uriString).path
 
                         val uri = uriString.toUri()
                         val targetFile =
@@ -159,7 +133,7 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
             if (references.size == 1) {
                 val range = references[0]!!.range
                 var uriString = references[0]!!.uri
-                uriString = fixHomeLocation(context, uriString)
+                uriString = terminalToHostFile(uriString).path
 
                 val uri = uriString.toUri()
                 val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
@@ -174,7 +148,7 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
                 editorState.findingsItems = references.mapNotNull { reference ->
                     val range = reference?.range ?: return@mapNotNull null
                     var uriString = reference.uri
-                    uriString = fixHomeLocation(context, uriString)
+                    uriString = terminalToHostFile(uriString).path
 
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)

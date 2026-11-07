@@ -128,10 +128,8 @@ private fun AnsiState.toSpanStyle(defaultFg: Color, defaultBg: Color): SpanStyle
 fun stripAnsi(text: String): String = if ('\u001B' !in text) text else ANSI_ESCAPE.replace(text, "")
 
 /** Parses ANSI SGR escape sequences into an AnnotatedString using the given terminal theme. */
-fun parseAnsiToAnnotatedString(text: String, props: Properties): AnnotatedString {
+fun parseAnsiToAnnotatedString(text: String, ansiTheme: AnsiTheme): AnnotatedString {
     if ('\u001B' !in text) return AnnotatedString(text)
-
-    val theme = resolveAnsiTheme(props)
 
     return buildAnnotatedString {
         var state = AnsiState()
@@ -139,7 +137,7 @@ fun parseAnsiToAnnotatedString(text: String, props: Properties): AnnotatedString
 
         fun appendChunk(chunk: String) {
             if (chunk.isEmpty()) return
-            val style = state.toSpanStyle(theme.defaultFg, theme.defaultBg)
+            val style = state.toSpanStyle(ansiTheme.defaultFg, ansiTheme.defaultBg)
             if (style != null) withStyle(style) { append(chunk) } else append(chunk)
         }
 
@@ -151,7 +149,7 @@ fun parseAnsiToAnnotatedString(text: String, props: Properties): AnnotatedString
             val params = match.groupValues[1]
             if (match.groupValues[2] == "m" && params.all { it in '0'..'9' || it == ';' }) {
                 // "" splits to [""] -> [0], so "ESC[m" is a reset and empty params count as 0
-                state = state.applySgr(params.split(';').map { it.toIntOrNull() ?: 0 }, theme.palette)
+                state = state.applySgr(params.split(';').map { it.toIntOrNull() ?: 0 }, ansiTheme.palette)
             }
         }
         appendChunk(text.substring(last))

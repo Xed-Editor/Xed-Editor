@@ -17,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -87,12 +86,10 @@ fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
                 containerColor = MaterialTheme.colorScheme.surfaceContainer,
             ) {
                 PropertyRoutes.entries.forEachIndexed { index, destination ->
-                    Tab(
+                    XedTab(
                         selected = pagerState.currentPage == index,
                         onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                         text = { Text(text = destination.label, maxLines = 2, overflow = TextOverflow.Ellipsis) },
-                        selectedContentColor = MaterialTheme.colorScheme.primary,
-                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

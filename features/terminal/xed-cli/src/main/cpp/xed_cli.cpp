@@ -7,7 +7,28 @@
 #include <climits>
 #include <cstring>
 
+void print_help(std::ostream& os) {
+    os << "Usage: xed [options] <file|directory...>" << std::endl << std::endl;
+    os << "Open files or directories in Xed Editor." << std::endl << std::endl;
+    os << "Options:" << std::endl;
+    os << "  -h, --help    Show this help message" << std::endl << std::endl;
+    os << "Examples:" << std::endl;
+    os << "  xed .               Open current directory" << std::endl;
+    os << "  xed main.kt         Open main.kt" << std::endl;
+    os << "  xed main.kt:10:5    Open main.kt at line 10, column 5" << std::endl;
+}
+
 int main(int argc, char** argv) {
+    if (argc == 1) {
+        std::cerr << "xed: Error: No file or directory specified." << std::endl << std::endl;
+        print_help(std::cerr);
+        return 1;
+    }
+
+    if (argc == 2 && (std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help")) {
+        print_help(std::cout);
+        return 0;
+    }
     // Get current working directory
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) == nullptr) {

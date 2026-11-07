@@ -7,17 +7,17 @@ import kotlinx.coroutines.flow.update
 
 object ServiceTabRegistry {
 
-    private val _tabs = MutableStateFlow<List<DrawerTab>>(emptyList())
+    private val _tabs = MutableStateFlow<List<ServiceTab>>(emptyList())
     val tabs = _tabs.asStateFlow()
 
-    fun register(tab: DrawerTab) {
+    fun register(tab: ServiceTab) {
         _tabs.update { it + tab }
-        tab.onAdded()
+        tab.onRegister()
     }
 
-    fun unregister(tab: DrawerTab) {
+    fun unregister(tab: ServiceTab) {
         _tabs.update { it - tab }
-        tab.onRemoved()
+        tab.onUnregister()
     }
 }
 

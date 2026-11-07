@@ -11,6 +11,7 @@ import com.rk.tabs.base.TabRegistry
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialogRes
 import com.rk.utils.expectOOM
+import com.rk.utils.logError
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.Dispatchers
@@ -77,8 +78,8 @@ class EditorManager(private val viewModel: MainViewModel) {
         scopeRoot: FileObject? = null, // If null, it will be automatically determined
         lineStart: Int,
         charStart: Int,
-        lineEnd: Int,
-        charEnd: Int,
+        lineEnd: Int = lineStart,
+        charEnd: Int = charStart,
         isReadOnly: Boolean = false,
     ) {
         withContext(Dispatchers.Main) {
@@ -97,11 +98,29 @@ class EditorManager(private val viewModel: MainViewModel) {
         targetTab.editorState.contentRendered.await()
 
         withContext(Dispatchers.Main) {
-            targetTab.editorState.editor
-                .get()
-                ?.setSelectionRegion(lineStart, charStart, lineEnd, charEnd, SelectionChangeEvent.CAUSE_SEARCH)
+            val editor = targetTab.editorState.editor.get() ?: return@withContext
 
-            targetTab.editorState.editor.get()?.ensureSelectionVisible()
+            runCatching {
+                val maxLine = editor.text.lineCount - 1
+                val validLineStart = lineStart.coerceIn(0, maxLine.coerceAtLeast(0))
+                val validLineEnd = lineEnd.coerceIn(0, maxLine.coerceAtLeast(0))
+
+                val maxColStart = editor.text.getColumnCount(validLineStart)
+                val maxColEnd = editor.text.getColumnCount(validLineEnd)
+
+                val validCharStart = charStart.coerceIn(0, maxColStart)
+                val validCharEnd = charEnd.coerceIn(0, maxColEnd)
+
+                editor.setSelectionRegion(
+                    validLineStart,
+                    validCharStart,
+                    validLineEnd,
+                    validCharEnd,
+                    SelectionChangeEvent.CAUSE_SEARCH,
+                )
+                editor.ensureSelectionVisible()
+            }
+                .onFailure { logError(it) }
         }
     }
 

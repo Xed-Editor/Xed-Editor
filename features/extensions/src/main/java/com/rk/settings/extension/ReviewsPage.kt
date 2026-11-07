@@ -13,15 +13,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,6 +37,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.common.PackageType
 import com.rk.components.StateScreen
+import com.rk.components.XedCard
 import com.rk.extension.REVIEWS_API_BASE
 import com.rk.extension.model.Package
 import com.rk.extension.model.Review
@@ -132,12 +129,8 @@ fun ReviewList(reviews: List<Review>) {
 @Composable
 fun ReviewItem(review: Review) {
     val context = LocalContext.current
-    val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor)),
-    ) {
+    XedCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),

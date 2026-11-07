@@ -2,8 +2,10 @@ package com.termux.terminal;
 
 import android.util.Base64;
 
-import java.nio.charset.StandardCharsets;
+import java.net.URI;import java.net.URISyntaxException;import java.net.URLDecoder;import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Stack;
@@ -2214,6 +2216,9 @@ public final class TerminalEmulator {
                     if (endOfInput) break;
                 }
                 break;
+            case 7: // OSC 7 Xed-Editor integration
+                handleOsc7(textParameter);
+                break;
             case 10: // Set foreground color.
             case 11: // Set background color.
             case 12: // Set cursor color.
@@ -2297,6 +2302,63 @@ public final class TerminalEmulator {
         finishSequence();
     }
 
+    /** Lines scrolled into the main-screen history so far. */
+    private long mTotalScrolledLines = 0;
+
+    /** OSC 7 markers: from absolute row X on, the shell's cwd is Y. Sorted by row. */
+    private final ArrayList<Long> mCwdRows = new ArrayList<>();
+    private final ArrayList<String> mCwdPaths = new ArrayList<>();
+
+    private void handleOsc7(String uri) {
+        String path = parseOsc7Path(uri);
+        if (path == null) return;
+
+        if (mScreen == mMainBuffer) recordCwd(mTotalScrolledLines + mCursorRow, path);
+        mSession.onCwdChanged(path);
+    }
+
+    private String parseOsc7Path(String uri) {
+        if (uri == null || !uri.startsWith("file://")) return null;
+        try {
+            String path = new URI(uri).getPath();
+            return (path != null && path.startsWith("/")) ? path : null;
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
+
+    private void recordCwd(long absRow, String path) {
+        // Drop markers at or below this row (stale after a clear or a redrawn prompt).
+        int n = mCwdRows.size();
+        while (n > 0 && mCwdRows.get(n - 1) >= absRow) {
+            mCwdRows.remove(n - 1);
+            mCwdPaths.remove(n - 1);
+            n--;
+        }
+        mCwdRows.add(absRow);
+        mCwdPaths.add(path);
+
+        // Prune markers that are fully scrolled out of the transcript.
+        long oldest = mTotalScrolledLines - mMainBuffer.getActiveTranscriptRows();
+        while (mCwdRows.size() > 1 && mCwdRows.get(1) <= oldest) {
+            mCwdRows.remove(0);
+            mCwdPaths.remove(0);
+        }
+    }
+
+    /**
+     * Guest CWD that was active when the given row was printed, or null if the shell hadn't
+     * reported one yet. externalRow is the same row index the renderer uses (negative = history).
+     */
+    public String getCwdForRow(int externalRow) {
+        if (mCwdRows.isEmpty()) return null;
+        if (mScreen != mMainBuffer) return mCwdPaths.get(mCwdPaths.size() - 1);
+        long abs = mTotalScrolledLines + externalRow;
+        int i = Collections.binarySearch(mCwdRows, abs);
+        int idx = i >= 0 ? i : -i - 2; // last marker with row <= abs
+        return idx < 0 ? null : mCwdPaths.get(idx);
+    }
+
     private void blockClear(int sx, int sy, int w) {
         blockClear(sx, sy, w, 1);
     }
@@ -2356,6 +2418,8 @@ public final class TerminalEmulator {
             // .. and blank bottom row between margins:
             mScreen.blockSet(mLeftMargin, mBottomMargin - 1, mRightMargin - mLeftMargin, 1, ' ', currentStyle);
         } else {
+            // Only a full-screen scroll of the main buffer pushes a line into history.
+            if (mScreen == mMainBuffer && mTopMargin == 0 && mBottomMargin == mRows) mTotalScrolledLines++;
             mScreen.scrollDownOneLine(mTopMargin, mBottomMargin, currentStyle);
         }
     }

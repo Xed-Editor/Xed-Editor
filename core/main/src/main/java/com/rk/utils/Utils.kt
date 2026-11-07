@@ -49,6 +49,8 @@ import com.rk.extension.ActivityProvider
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileDecorationRegistry
 import com.rk.file.FileObject
+import com.rk.file.sandboxDir
+import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileTreeViewModel
 import com.rk.resources.getQuantityString
 import com.rk.resources.getString
@@ -58,6 +60,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.InputStream
 import java.io.ObjectOutputStream
+import java.net.URI
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -402,7 +405,7 @@ fun hasBinaryChars(text: String): Boolean {
     return unusualCharCount.toDouble() / checkText.length > threshold
 }
 
-private val binaryExtensions: Set<String> =
+private val binaryExtensions: Set<String> by lazy {
     (BuiltinFileType.IMAGE.extensions +
             BuiltinFileType.AUDIO.extensions +
             BuiltinFileType.VIDEO.extensions +
@@ -411,6 +414,7 @@ private val binaryExtensions: Set<String> =
             BuiltinFileType.EXECUTABLE.extensions)
         .map { it.lowercase() }
         .toSet()
+}
 
 fun isBinaryExtension(fileExt: String): Boolean {
     return fileExt.lowercase() in binaryExtensions
@@ -483,3 +487,31 @@ fun loadSvg(inputStream: InputStream): Drawable? {
     val picture = svg.renderToPicture()
     return PictureDrawable(picture)
 }
+
+private val identityMounts = listOf("/sdcard", "/storage", "/data", "/system", "/vendor", "/product", "/apex")
+
+/**
+ * Translate a path seen inside the proot sandbox to the real host path.
+ *
+ * Also supports URIs with the `file:///` protocol.
+ */
+fun terminalToHostFile(path: String): File {
+    val normalized = normalizeUriToPath(path)
+
+    fun under(prefix: String) = normalized == prefix || normalized.startsWith("$prefix/")
+
+    return when {
+        under("~") -> File(sandboxHomeDir(), normalized.removePrefix("~"))
+        under("/root") -> File(sandboxHomeDir(), normalized.removePrefix("/root"))
+        under("/home") -> File(sandboxHomeDir(), normalized.removePrefix("/home"))
+        identityMounts.any(::under) -> File(normalized)
+        else -> File(sandboxDir(), normalized.removePrefix("/"))
+    }
+}
+
+fun normalizeUriToPath(path: String): String =
+    if (path.startsWith("file:")) {
+        runCatching { File(URI(path)).path }.getOrDefault(path)
+    } else {
+        path
+    }

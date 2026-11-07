@@ -13,9 +13,7 @@ import com.rk.resources.strings
 import com.rk.runner.RunnerManager
 import com.rk.runner.RunnerUI
 import com.rk.tabs.editor.EditorTab
-import kotlinx.coroutines.DelicateCoroutinesApi
 
-@OptIn(DelicateCoroutinesApi::class)
 object RunCommand : Command() {
     override val id: String = "editor.run"
 

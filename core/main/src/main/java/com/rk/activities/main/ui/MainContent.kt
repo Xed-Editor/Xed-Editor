@@ -15,11 +15,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,7 +47,9 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
+import com.rk.components.LeadingIconXedTab
 import com.rk.components.XedDropdownMenuItem
+import com.rk.components.XedTab
 import com.rk.components.compose.utils.addIf
 import com.rk.drawer.DrawerViewModel
 import com.rk.editor.preloadSelectionColor
@@ -467,40 +467,37 @@ private fun TabItemContent(
     }
 
     val fileColor = getFileColor(tab.file)
-    val activeColor = fileColor ?: MaterialTheme.colorScheme.primary
-    val inactiveColor = fileColor ?: MaterialTheme.colorScheme.onSurfaceVariant
-
     val file = tab.file
     val icon = tab.icon
 
     if (showIcon && file != null) {
-        LeadingIconTab(
+        LeadingIconXedTab(
             modifier = tabModifier,
             selected = isSelected,
             onClick = onClick,
             icon = { FileIcon(file = file, iconTint = LocalContentColor.current) },
             text = tabText,
-            selectedContentColor = activeColor,
-            unselectedContentColor = inactiveColor,
+            selectedContentColor = fileColor,
+            unselectedContentColor = fileColor,
         )
     } else if (showIcon && icon != null) {
-        LeadingIconTab(
+        LeadingIconXedTab(
             modifier = tabModifier,
             selected = isSelected,
             onClick = onClick,
             icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp)) },
             text = tabText,
-            selectedContentColor = activeColor,
-            unselectedContentColor = inactiveColor,
+            selectedContentColor = fileColor,
+            unselectedContentColor = fileColor,
         )
     } else {
-        Tab(
+        XedTab(
             modifier = tabModifier,
             selected = isSelected,
             onClick = onClick,
             text = tabText,
-            selectedContentColor = activeColor,
-            unselectedContentColor = inactiveColor,
+            selectedContentColor = fileColor,
+            unselectedContentColor = fileColor,
         )
     }
 }

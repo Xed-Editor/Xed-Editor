@@ -32,6 +32,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -60,6 +61,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -449,7 +451,22 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                     items(sessionList) { sessionId ->
                         val isSelected = sessionId == currentSession
                         NavigationDrawerItem(
-                            label = { Text(text = sessionId) },
+                            label = {
+                                Column {
+                                    Text(text = sessionId)
+
+                                    val cwd = terminalActivity.sessionBinder?.get()?.getCwd(sessionId)
+                                    cwd?.let {
+                                        Text(
+                                            text = cwd,
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = LocalContentColor.current.copy(alpha = 0.6f),
+                                            overflow = TextOverflow.Ellipsis,
+                                            maxLines = 1,
+                                        )
+                                    }
+                                }
+                            },
                             selected = isSelected,
                             onClick = { terminalActivity.changeSession(sessionId) },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
