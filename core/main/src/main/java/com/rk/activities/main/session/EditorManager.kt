@@ -77,8 +77,8 @@ class EditorManager(private val viewModel: MainViewModel) {
         scopeRoot: FileObject? = null, // If null, it will be automatically determined
         lineStart: Int,
         charStart: Int,
-        lineEnd: Int,
-        charEnd: Int,
+        lineEnd: Int = lineStart,
+        charEnd: Int = charStart,
         isReadOnly: Boolean = false,
     ) {
         withContext(Dispatchers.Main) {

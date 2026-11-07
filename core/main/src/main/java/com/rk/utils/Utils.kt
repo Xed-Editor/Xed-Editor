@@ -402,7 +402,7 @@ fun hasBinaryChars(text: String): Boolean {
     return unusualCharCount.toDouble() / checkText.length > threshold
 }
 
-private val binaryExtensions: Set<String> =
+private val binaryExtensions: Set<String> by lazy {
     (BuiltinFileType.IMAGE.extensions +
             BuiltinFileType.AUDIO.extensions +
             BuiltinFileType.VIDEO.extensions +
@@ -411,6 +411,7 @@ private val binaryExtensions: Set<String> =
             BuiltinFileType.EXECUTABLE.extensions)
         .map { it.lowercase() }
         .toSet()
+}
 
 fun isBinaryExtension(fileExt: String): Boolean {
     return fileExt.lowercase() in binaryExtensions
@@ -492,19 +493,22 @@ private val identityMounts = listOf("/sdcard", "/storage", "/data", "/system", "
  * Also supports URIs with the `file:///` protocol.
  */
 fun terminalToHostFile(path: String): File {
-    val normalized =
-        if (path.startsWith("file:")) {
-            File(URI(path)).path
-        } else {
-            path
-        }
+    val normalized = normalizeUriToPath(path)
 
     fun under(prefix: String) = normalized == prefix || normalized.startsWith("$prefix/")
 
     return when {
+        under("~") -> File(sandboxHomeDir(), normalized.removePrefix("~"))
         under("/root") -> File(sandboxHomeDir(), normalized.removePrefix("/root"))
         under("/home") -> File(sandboxHomeDir(), normalized.removePrefix("/home"))
         identityMounts.any(::under) -> File(normalized)
         else -> File(sandboxDir(), normalized.removePrefix("/"))
     }
 }
+
+fun normalizeUriToPath(path: String): String =
+    if (path.startsWith("file:")) {
+        runCatching { File(URI(path)).path }.getOrDefault(path)
+    } else {
+        path
+    }

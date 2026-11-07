@@ -177,6 +177,17 @@ public final class TerminalRenderer {
         return false;
     }
 
+    private static int blendColors(int foreground, int accent, float ratio) {
+        float inverse = 1.0f - ratio;
+
+        int a = (int) (((foreground >>> 24) * inverse) + ((accent >>> 24) * ratio));
+        int r = (int) ((((foreground >> 16) & 0xff) * inverse) + (((accent >> 16) & 0xff) * ratio));
+        int g = (int) ((((foreground >> 8) & 0xff) * inverse) + (((accent >> 8) & 0xff) * ratio));
+        int b = (int) (((foreground & 0xff) * inverse) + ((accent & 0xff) * ratio));
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
     private void drawTextRun(Canvas canvas, char[] text, int[] palette, float y, int startColumn, int runWidthColumns,
                              int startCharIndex, int runWidthChars, float mes, int cursor, int cursorStyle,
                              long textStyle, boolean reverseVideo, boolean isFilePath) {
@@ -190,10 +201,12 @@ public final class TerminalRenderer {
         final boolean dim = (effect & TextStyle.CHARACTER_ATTRIBUTE_DIM) != 0;
 
         if (isFilePath && foreColor == TextStyle.COLOR_INDEX_FOREGROUND) {
-            foreColor = 4;
-        }
-
-        if ((foreColor & 0xff000000) != 0xff000000) {
+            foreColor = blendColors(
+                palette[TextStyle.COLOR_INDEX_FOREGROUND],
+                palette[4],
+                0.2f
+            );
+        } else if ((foreColor & 0xff000000) != 0xff000000) {
             // Let bold have bright colors if applicable (one of the first 8):
             if (bold && foreColor >= 0 && foreColor < 8) foreColor += 8;
             foreColor = palette[foreColor];

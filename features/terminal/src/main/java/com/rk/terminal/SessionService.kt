@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.os.PowerManager
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.app.NotificationCompat
 import com.rk.activities.terminal.Terminal
 import com.rk.resources.drawables
@@ -21,7 +22,6 @@ import com.rk.utils.terminalToHostFile
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,18 +63,20 @@ class SessionService : Service() {
 
         fun getSessionInfoByPwd(pwd: SessionPwd): SessionInfo? {
             return sessionWorkDirs.keys
-                .find { sessionWorkDirs[it] == pwd }
+                .find { getCwdAsHostFile(it) == File(pwd) }
                 ?.let { SessionInfo(it, sessionWorkDirs[it]!!, sessions[it]!!) }
         }
 
-        private val guestCwds = ConcurrentHashMap<SessionId, String>()
+        private val guestCwds = mutableStateMapOf<SessionId, String>()
 
+        @Synchronized
         fun setGuestCwd(session: TerminalSession, path: String) {
             val id = sessions.entries.firstOrNull { it.value === session }?.key ?: return
             guestCwds[id] = path
         }
 
         /** Returns guest CWD as a [File] instance for the host. */
+        @Synchronized
         fun getCwdAsHostFile(id: SessionId): File? {
             guestCwds[id]?.let { guest ->
                 val host = terminalToHostFile(guest)
@@ -83,6 +85,13 @@ class SessionService : Service() {
             return sessionWorkDirs[id]?.let { File(it) }
         }
 
+        /** Returns guest CWD */
+        @Synchronized
+        fun getCwd(id: SessionId): String? {
+            return guestCwds[id] ?: sessionWorkDirs[id]
+        }
+
+        @Synchronized
         fun terminateSession(id: SessionId) {
             sessions[id]?.apply {
                 if (emulator != null) {
@@ -92,6 +101,7 @@ class SessionService : Service() {
             sessions.remove(id)
             _sessionList.update { list -> list - id }
             sessionWorkDirs.remove(id)
+            guestCwds.remove(id)
 
             if (sessions.isEmpty()) {
                 stopSelf()
@@ -103,6 +113,7 @@ class SessionService : Service() {
             }
         }
 
+        @Synchronized
         fun renameSession(oldId: String, newId: String) {
             if (oldId == newId || newId.isEmpty() || newId in _sessionList.value) return
 
@@ -111,6 +122,8 @@ class SessionService : Service() {
 
             sessions[newId] = session
             sessionWorkDirs[newId] = pwd
+
+            guestCwds.remove(oldId)?.let { guestCwds[newId] = it }
 
             _sessionList.update { list -> list.map { if (it == oldId) newId else it } }
 

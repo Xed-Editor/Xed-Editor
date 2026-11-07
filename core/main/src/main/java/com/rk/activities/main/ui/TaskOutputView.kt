@@ -294,24 +294,24 @@ private fun rememberParsedAnnotatedString(line: OutputLine, ansiTheme: AnsiTheme
 
         return@remember buildAnnotatedString {
             append(base)
-            for ((start, end, file) in matches) {
-                if (start >= 0 && end <= length) {
+            for (match in matches) {
+                if (match.start >= 0 && match.end <= length) {
                     addStyle(
                         SpanStyle(
                             color = linkColor,
                             textDecoration = TextDecoration.Underline,
                         ),
-                        start,
-                        end,
+                        match.start,
+                        match.end,
                     )
 
                     addLink(
                         LinkAnnotation.Clickable(
                             tag = "FILE_PATH",
-                            linkInteractionListener = { FilePathUtils.openPath(file) },
+                            linkInteractionListener = { FilePathUtils.openPathMatch(match) },
                         ),
-                        start,
-                        end,
+                        match.start,
+                        match.end,
                     )
                 }
             }

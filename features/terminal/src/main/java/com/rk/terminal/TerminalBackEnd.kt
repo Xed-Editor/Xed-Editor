@@ -135,7 +135,7 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
             val matches = FilePathUtils.detectFilePaths(rowText, getCwdForRow(row))
             val clickedMatch = matches.find { col >= it.start && col < it.end }
             if (clickedMatch != null) {
-                FilePathUtils.openPath(clickedMatch.file)
+                FilePathUtils.openPathMatch(clickedMatch)
                 return
             }
         }
