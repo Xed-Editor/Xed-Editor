@@ -286,4 +286,8 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         searchViewModel.get()?.deleteIndex(MainActivity.instance!!, root)
         DefaultScope.launch { Events.publish(FileTreeEvent.Closed(root)) }
     }
+
+    private companion object {
+        private const val serialVersionUID = 1L
+    }
 }

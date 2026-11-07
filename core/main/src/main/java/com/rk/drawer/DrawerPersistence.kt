@@ -1,8 +1,8 @@
 package com.rk.drawer
 
+import androidx.core.util.AtomicFile
 import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.file.FileObject
-import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.resources.strings
 import com.rk.utils.application
@@ -10,6 +10,8 @@ import com.rk.utils.logError
 import com.rk.utils.readObject
 import com.rk.utils.toast
 import com.rk.utils.writeObject
+import java.io.File
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -22,19 +24,19 @@ object DrawerPersistence {
     private const val CURRENT_DRAWER_TAB = "currentDrawerTab"
     private const val EXPANDED_FILE_TREE_NODES = "expandedFileTree"
 
-    var stateRestored = false
-
     suspend fun saveState(viewModel: DrawerViewModel) {
-        if (!stateRestored) return
-
         saveMutex.withLock {
+            // Until restoreState() is done, the view model only holds its empty initial state, which must not replace
+            // the saved one.
+            if (!viewModel.stateRestored) return@withLock
+
             val filesDir = application?.filesDir ?: return@withLock
 
-            val file = FileWrapper(filesDir.child(DRAWER_TABS))
+            val file = AtomicFile(filesDir.child(DRAWER_TABS))
             val serializableList = ArrayList(viewModel.drawerTabs.value)
             file.writeObject(serializableList)
 
-            val currentTabFile = FileWrapper(filesDir.child(CURRENT_DRAWER_TAB))
+            val currentTabFile = AtomicFile(filesDir.child(CURRENT_DRAWER_TAB))
             val currentTab = viewModel.currentDrawerTab
             if (currentTab != null) {
                 currentTabFile.writeObject(currentTab)
@@ -42,50 +44,64 @@ object DrawerPersistence {
                 currentTabFile.delete()
             }
 
-            val expandedNodeFile = FileWrapper(filesDir.child(EXPANDED_FILE_TREE_NODES))
+            val expandedNodeFile = AtomicFile(filesDir.child(EXPANDED_FILE_TREE_NODES))
             fileTreeViewModel.get()?.getExpandedNodes()?.let { expandedNodeFile.writeObject(it) }
         }
     }
 
     suspend fun restoreState(viewModel: DrawerViewModel) {
-        if (stateRestored) return
-
         saveMutex.withLock {
+            if (viewModel.stateRestored) return@withLock
+
             val filesDir = application?.filesDir ?: return@withLock
 
-            runCatching {
-                val loadedTabs =
-                    withContext(Dispatchers.IO) {
-                        val file = FileWrapper(filesDir.child(DRAWER_TABS))
+            val tabsRestored =
+                restoreFile(filesDir.child(DRAWER_TABS)) { saved ->
+                    val tabs = (saved as? List<*>)?.filterIsInstance<DrawerTab>().orEmpty()
 
-                        if (file.exists() && file.canRead()) {
-                            file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
-                        } else {
-                            emptyList()
-                        }
-                    }
-
-                // Update the existing state list on Main thread
-                withContext(Dispatchers.Main) { viewModel.forcePushDrawerTabs(loadedTabs) }
-
-                val currentTabFile = FileWrapper(filesDir.child(CURRENT_DRAWER_TAB))
-                if (currentTabFile.exists() && currentTabFile.canRead()) {
-                    viewModel.selectDrawerTab(currentTabFile.readObject() as DrawerTab)
+                    // Update the existing state list on Main thread
+                    withContext(Dispatchers.Main) { viewModel.forcePushDrawerTabs(tabs) }
                 }
 
-                val expandedNodeFile = FileWrapper(filesDir.child(EXPANDED_FILE_TREE_NODES))
-                if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
-                    fileTreeViewModel
-                        .get()
-                        ?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Set<FileObject>>)
+            val currentTabRestored =
+                restoreFile(filesDir.child(CURRENT_DRAWER_TAB)) { saved ->
+                    if (saved is DrawerTab) viewModel.selectDrawerTab(saved)
                 }
 
-                stateRestored = true
+            val expandedNodesRestored =
+                restoreFile(filesDir.child(EXPANDED_FILE_TREE_NODES)) { saved ->
+                    @Suppress("UNCHECKED_CAST") val expandedNodes = saved as? Map<FileObject, Set<FileObject>>
+                    if (expandedNodes != null) fileTreeViewModel.get()?.setExpandedNodes(expandedNodes)
+                }
+
+            // Even if a file could not be restored: it has been discarded, and unless saving resumes now, the drawer is
+            // not saved again while the app runs and the same failure comes back on every start.
+            viewModel.stateRestored = true
+
+            if (!tabsRestored || !currentTabRestored || !expandedNodesRestored) {
+                toast(strings.project_restore_failed)
             }
-                .onFailure {
-                    logError(it)
-                    toast(strings.project_restore_failed)
-                }
         }
     }
+
+    /**
+     * Passes what was saved in [file] to [restore], or null if nothing was saved.
+     *
+     * A file that cannot be read or restored is deleted, so it costs the state it held once instead of failing on every
+     * start.
+     *
+     * @return whether [file] could be restored.
+     */
+    private suspend fun restoreFile(file: File, restore: suspend (saved: Any?) -> Unit): Boolean =
+        try {
+            restore(AtomicFile(file).readObject())
+            true
+        } catch (e: CancellationException) {
+            // The restore was interrupted, the file is not broken. It runs again when the drawer is composed again.
+            throw e
+        } catch (e: Throwable) {
+            logError(e, "Discarding drawer state that could not be restored from ${file.name}")
+            AtomicFile(file).delete()
+            false
+        }
 }

@@ -14,6 +14,14 @@ import java.io.Serializable
 import java.net.URL
 import java.nio.charset.Charset
 
+/**
+ * A file or directory the editor works with, e.g. on disk ([FileWrapper]), behind a content URI ([UriWrapper]) or
+ * inside a ZIP archive ([ZipFileObject]).
+ *
+ * File objects are saved with Java serialization as part of the drawer state and of editor sessions. An implementation
+ * therefore has to declare a `serialVersionUID` and keep only serializable state in its fields (mark anything else
+ * `@Transient`), or an update cannot read what the previous version saved.
+ */
 interface FileObject : Serializable {
 
     /**

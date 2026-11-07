@@ -1,15 +1,14 @@
 package com.rk.activities.main.session
 
+import androidx.core.util.AtomicFile
 import com.rk.file.child
 import com.rk.resources.strings
 import com.rk.tabs.base.Tab
 import com.rk.utils.application
 import com.rk.utils.logError
+import com.rk.utils.readObject
 import com.rk.utils.toast
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import com.rk.utils.writeObject
 import java.io.Serializable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -43,11 +42,8 @@ object SessionManager {
 
     suspend fun preloadSession() = mutex.withLock {
         runCatching {
-            if (tabCacheFile.exists() && tabCacheFile.canRead()) {
-                ObjectInputStream(FileInputStream(tabCacheFile)).use { ois ->
-                    preloadedSession = ois.readObject() as? SessionState
-                }
-            }
+            // Also reads sessions saved before the file objects in them declared their serialVersionUID.
+            AtomicFile(tabCacheFile).readObject()?.let { preloadedSession = it as? SessionState }
         }
             .onFailure { logError(it) }
     }
@@ -59,7 +55,7 @@ object SessionManager {
                     val tabStates = tabs.mapNotNull { it.getState() }
                     val sessionState = SessionState(tabStates, currentTabIndex)
 
-                    ObjectOutputStream(FileOutputStream(tabCacheFile)).use { oos -> oos.writeObject(sessionState) }
+                    AtomicFile(tabCacheFile).writeObject(sessionState)
                 }
                     .onFailure {
                         logError(it)

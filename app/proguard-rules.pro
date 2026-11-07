@@ -52,6 +52,29 @@
 -keepclassmembers class com.rk.settings.editor.FontRegistry$Font { <fields>; }
 -keepclassmembers class com.rk.runner.** { <fields>; }
 
+# --- Java serialization of the drawer state ---------------------------------
+# DrawerPersistence saves the drawer tabs and the expanded file tree nodes with
+# java.io serialization, which writes class names, field names and the
+# serialVersionUID into the files. Keep those of the drawer tabs and file objects
+# that end up there, so that an update can read what the previous version saved.
+# Their methods can still be shrunk and obfuscated.
+-keepnames class com.rk.drawer.DrawerTab
+-keepnames class * extends com.rk.drawer.DrawerTab
+-keepnames interface com.rk.file.FileObject
+-keepnames class * implements com.rk.file.FileObject
+-keepclassmembers class com.rk.drawer.DrawerTab {
+    static final long serialVersionUID;
+    !static !transient <fields>;
+}
+-keepclassmembers class * extends com.rk.drawer.DrawerTab {
+    static final long serialVersionUID;
+    !static !transient <fields>;
+}
+-keepclassmembers class * implements com.rk.file.FileObject {
+    static final long serialVersionUID;
+    !static !transient <fields>;
+}
+
 # --- kotlin-reflect ---------------------------------------------------------
 # Preference.preferenceTypes() enumerates Settings' delegated properties with
 # kotlin-reflect, so the reflection runtime and the Kotlin metadata must survive.
