@@ -22,7 +22,6 @@ import com.rk.utils.terminalToHostFile
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -159,7 +158,6 @@ class SessionService : Service() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -174,9 +172,9 @@ class SessionService : Service() {
             startForeground(1, notification)
         }
 
-        if (deamonRunning.not()) {
+        if (!deamonRunning) {
             deamonRunning = true
-            XedCliServer.start(this)
+            XedCliServer.start()
         }
 
         if (wakeLock == null) {

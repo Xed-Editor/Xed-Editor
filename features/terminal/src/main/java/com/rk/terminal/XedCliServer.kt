@@ -1,12 +1,10 @@
 package com.rk.terminal
 
-import android.content.Context
 import android.net.LocalServerSocket
 import android.net.LocalSocket
-import com.rk.activities.main.MainActivity
-import com.rk.file.FileWrapper
+import com.rk.utils.FilePathUtils
 import com.rk.utils.logError
-import java.io.File
+import com.rk.utils.terminalToHostFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -18,7 +16,7 @@ object XedCliServer {
     private var socketJob: Job? = null
     private var isRunning = false
 
-    fun start(context: Context) {
+    fun start() {
         if (isRunning) return
         isRunning = true
         socketJob =
@@ -30,10 +28,10 @@ object XedCliServer {
                         val clientSocket =
                             try {
                                 server.accept()
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 break
                             }
-                        launch(Dispatchers.IO) { handleClientSocket(context, clientSocket) }
+                        launch(Dispatchers.IO) { handleClientSocket(clientSocket) }
                     }
                 } catch (e: Exception) {
                     logError(e)
@@ -49,60 +47,56 @@ object XedCliServer {
         socketJob = null
     }
 
-    private suspend fun handleClientSocket(context: Context, socket: LocalSocket) {
+    private suspend fun handleClientSocket(socket: LocalSocket) {
         try {
-            val inputStream = socket.inputStream
-            val bytes = inputStream.readBytes()
-            try {
-                socket.close()
-            } catch (e: Exception) {
-                // ignore
-            }
-
+            val bytes = socket.inputStream.use { it.readBytes() }
             if (bytes.isEmpty()) return
 
-            val strings = mutableListOf<String>()
-            var start = 0
-            for (i in bytes.indices) {
-                if (bytes[i] == 0.toByte()) {
-                    if (i > start) {
-                        strings.add(String(bytes, start, i - start, Charsets.UTF_8))
-                    } else {
-                        strings.add("")
-                    }
-                    start = i + 1
-                }
-            }
-            if (start < bytes.size) {
-                strings.add(String(bytes, start, bytes.size - start, Charsets.UTF_8))
-            }
-
+            val strings = bytes.splitByNullByte()
             if (strings.isEmpty()) return
+
             val cwd = strings[0]
             val arguments = strings.drop(1)
 
-            if (arguments.isEmpty()) {
-                return
-            }
+            val hostCwd = terminalToHostFile(cwd)
+            val targetArgs = arguments.ifEmpty { listOf(".") }
 
-            val viewModel = MainActivity.instance?.viewModel
-            if (viewModel != null) {
-                withContext(Dispatchers.Main) {
-                    arguments.forEach { arg ->
-                        var file = File(arg)
-                        if (!file.isAbsolute) {
-                            file = File(cwd, arg)
-                        }
-                        viewModel.editorManager.openFile(
-                            FileWrapper(file),
-                            projectRoot = null,
-                            switchToTab = true,
-                        )
-                    }
+            withContext(Dispatchers.Main) {
+                targetArgs.forEach { arg ->
+                    FilePathUtils.parseFilePath(arg, hostCwd)?.let { FilePathUtils.openPathMatch(it) }
                 }
             }
         } catch (e: Exception) {
             logError(e)
+        }
+    }
+
+    private fun ByteArray.splitByNullByte(): List<String> = buildList {
+        var start = 0
+
+        for (i in this@splitByNullByte.indices) {
+            if (this@splitByNullByte[i] == 0.toByte()) {
+                add(
+                    String(
+                        this@splitByNullByte,
+                        start,
+                        i - start,
+                        Charsets.UTF_8,
+                    )
+                )
+                start = i + 1
+            }
+        }
+
+        if (start < this@splitByNullByte.size) {
+            add(
+                String(
+                    this@splitByNullByte,
+                    start,
+                    this@splitByNullByte.size - start,
+                    Charsets.UTF_8,
+                )
+            )
         }
     }
 }

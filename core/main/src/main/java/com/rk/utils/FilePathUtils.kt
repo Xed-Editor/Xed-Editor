@@ -8,8 +8,8 @@ import java.io.File
 import kotlinx.coroutines.launch
 
 data class PathMatch(
-    val start: Int,
-    val end: Int,
+    val start: Int = 0,
+    val end: Int = 0,
     val file: File,
     val line: Int? = null,
     val column: Int? = null,
@@ -37,7 +37,7 @@ object FilePathUtils {
                 val matchEnd = matchStart + cleaned.length
 
                 if (matches.none { matchStart < it.end && matchEnd > it.start }) {
-                    val line = lineCol?.groupValues?.get(1)?.toInt()
+                    val line = lineCol?.groupValues?.get(1)?.toIntOrNull()
                     val column = lineCol?.groupValues?.get(2)?.toIntOrNull()
 
                     matches.add(
@@ -60,37 +60,67 @@ object FilePathUtils {
         val isAbsolute = normalized.startsWith("/") || normalized == "~" || normalized.startsWith("~/")
 
         if (!isAbsolute && projectRoot != null) {
-            val projectFile = File(projectRoot, path)
+            val projectFile = File(projectRoot, normalized)
             if (projectFile.exists()) return projectFile
         } else {
-            val hostFile = terminalToHostFile(path)
+            val hostFile = terminalToHostFile(normalized)
             if (hostFile.exists()) return hostFile
         }
 
         return null
     }
 
+    fun parseFilePath(path: String, projectRoot: File? = null): PathMatch? {
+        val lineCol = lineColRegex.find(path)
+        val cleaned = path.replace(lineColRegex, "").trimEnd('.')
+
+        if (cleaned.isBlank()) return null
+
+        val line = lineCol?.groupValues?.get(1)?.toIntOrNull()
+        val column = lineCol?.groupValues?.get(2)?.toIntOrNull()
+
+        val normalized = normalizeUriToPath(cleaned)
+        val isAbsolute = normalized.startsWith("/") || normalized == "~" || normalized.startsWith("~/")
+
+        val file =
+            if (!isAbsolute && projectRoot != null) {
+                File(projectRoot, normalized)
+            } else {
+                terminalToHostFile(normalized)
+            }
+
+        return PathMatch(
+            start = 0,
+            end = path.length,
+            file = file,
+            line = line,
+            column = column,
+        )
+    }
+
     fun openPathMatch(patchMatch: PathMatch) {
         val mainActivity = MainActivity.instance ?: return
         val file = patchMatch.file
 
-        if (file.isFile) {
+        if (file.isDirectory) {
+            mainActivity.drawerViewModel.addFileTreeTab(FileWrapper(file), true)
+        } else {
             mainActivity.viewModel.editorManager.let { editorManager ->
                 DefaultScope.launch {
                     if (patchMatch.line != null) {
+                        val lineIndex = (patchMatch.line - 1).coerceAtLeast(0)
+                        val columnIndex = patchMatch.column?.minus(1)?.coerceAtLeast(0) ?: 0
                         editorManager.jumpToPosition(
                             FileWrapper(file),
                             projectRoot = null,
-                            lineStart = patchMatch.line,
-                            charStart = patchMatch.column ?: 0,
+                            lineStart = lineIndex,
+                            charStart = columnIndex,
                         )
                     } else {
                         editorManager.openFile(FileWrapper(file), projectRoot = null)
                     }
                 }
             }
-        } else if (file.isDirectory) {
-            mainActivity.drawerViewModel.addFileTreeTab(FileWrapper(file), true)
         }
 
         val intent =

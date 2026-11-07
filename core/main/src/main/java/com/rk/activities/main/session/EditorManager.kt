@@ -11,6 +11,7 @@ import com.rk.tabs.base.TabRegistry
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialogRes
 import com.rk.utils.expectOOM
+import com.rk.utils.logError
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.Dispatchers
@@ -97,11 +98,19 @@ class EditorManager(private val viewModel: MainViewModel) {
         targetTab.editorState.contentRendered.await()
 
         withContext(Dispatchers.Main) {
-            targetTab.editorState.editor
-                .get()
-                ?.setSelectionRegion(lineStart, charStart, lineEnd, charEnd, SelectionChangeEvent.CAUSE_SEARCH)
+            val editor = targetTab.editorState.editor.get()
 
-            targetTab.editorState.editor.get()?.ensureSelectionVisible()
+            runCatching {
+                editor?.setSelectionRegion(
+                    lineStart,
+                    charStart,
+                    lineEnd,
+                    charEnd,
+                    SelectionChangeEvent.CAUSE_SEARCH,
+                )
+                editor?.ensureSelectionVisible()
+            }
+                .onFailure { logError(it) }
         }
     }
 
