@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
+import androidx.core.util.AtomicFile
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.blankj.utilcode.util.ThreadUtils
 import com.caverock.androidsvg.SVG
@@ -58,6 +59,7 @@ import com.rk.resources.plurals
 import com.rk.resources.strings
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.ObjectOutputStream
 import java.net.URI
@@ -129,6 +131,40 @@ suspend fun FileObject.readObject(): Any? =
         SerialVersionTolerantObjectInputStream(getInputStream()).use { ois ->
             return@withContext ois.readObject()
         }
+    }
+
+/**
+ * Writes [obj] with Java serialization without ever leaving the file half-written: [obj] goes to a temporary file
+ * first, which then replaces the base file. A process killed while writing leaves the previous content in place.
+ */
+suspend fun AtomicFile.writeObject(obj: Any) =
+    withContext(Dispatchers.IO) {
+        val output = startWrite()
+        try {
+            // Not closed here: finishWrite() syncs and closes the stream before it replaces the base file.
+            val objectOutput = ObjectOutputStream(output)
+            objectOutput.writeObject(obj)
+            objectOutput.flush()
+            finishWrite(output)
+        } catch (e: Throwable) {
+            failWrite(output)
+            throw e
+        }
+    }
+
+/**
+ * Reads an object written by [writeObject], or returns null if there is none. Like [FileObject.readObject], it also
+ * reads app classes whose `serialVersionUID` changed since, as long as their fields did not.
+ */
+suspend fun AtomicFile.readObject(): Any? =
+    withContext(Dispatchers.IO) {
+        val input =
+            try {
+                openRead()
+            } catch (_: FileNotFoundException) {
+                return@withContext null
+            }
+        SerialVersionTolerantObjectInputStream(input).use { it.readObject() }
     }
 
 fun toast(message: String?) {

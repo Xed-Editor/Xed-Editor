@@ -1,8 +1,8 @@
 package com.rk.drawer
 
+import androidx.core.util.AtomicFile
 import com.rk.activities.main.ui.fileTreeViewModel
 import com.rk.file.FileObject
-import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.resources.strings
 import com.rk.utils.application
@@ -32,11 +32,11 @@ object DrawerPersistence {
 
             val filesDir = application?.filesDir ?: return@withLock
 
-            val file = FileWrapper(filesDir.child(DRAWER_TABS))
+            val file = AtomicFile(filesDir.child(DRAWER_TABS))
             val serializableList = ArrayList(viewModel.drawerTabs.value)
             file.writeObject(serializableList)
 
-            val currentTabFile = FileWrapper(filesDir.child(CURRENT_DRAWER_TAB))
+            val currentTabFile = AtomicFile(filesDir.child(CURRENT_DRAWER_TAB))
             val currentTab = viewModel.currentDrawerTab
             if (currentTab != null) {
                 currentTabFile.writeObject(currentTab)
@@ -44,7 +44,7 @@ object DrawerPersistence {
                 currentTabFile.delete()
             }
 
-            val expandedNodeFile = FileWrapper(filesDir.child(EXPANDED_FILE_TREE_NODES))
+            val expandedNodeFile = AtomicFile(filesDir.child(EXPANDED_FILE_TREE_NODES))
             fileTreeViewModel.get()?.getExpandedNodes()?.let { expandedNodeFile.writeObject(it) }
         }
     }
@@ -94,18 +94,14 @@ object DrawerPersistence {
      */
     private suspend fun restoreFile(file: File, restore: suspend (saved: Any?) -> Unit): Boolean =
         try {
-            val saved =
-                withContext(Dispatchers.IO) {
-                    if (file.exists() && file.canRead()) FileWrapper(file).readObject() else null
-                }
-            restore(saved)
+            restore(AtomicFile(file).readObject())
             true
         } catch (e: CancellationException) {
             // The restore was interrupted, the file is not broken. It runs again when the drawer is composed again.
             throw e
         } catch (e: Throwable) {
             logError(e, "Discarding drawer state that could not be restored from ${file.name}")
-            file.delete()
+            AtomicFile(file).delete()
             false
         }
 }
