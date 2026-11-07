@@ -98,17 +98,27 @@ class EditorManager(private val viewModel: MainViewModel) {
         targetTab.editorState.contentRendered.await()
 
         withContext(Dispatchers.Main) {
-            val editor = targetTab.editorState.editor.get()
+            val editor = targetTab.editorState.editor.get() ?: return@withContext
 
             runCatching {
-                editor?.setSelectionRegion(
-                    lineStart,
-                    charStart,
-                    lineEnd,
-                    charEnd,
+                val maxLine = editor.text.lineCount - 1
+                val validLineStart = lineStart.coerceIn(0, maxLine.coerceAtLeast(0))
+                val validLineEnd = lineEnd.coerceIn(0, maxLine.coerceAtLeast(0))
+
+                val maxColStart = editor.text.getColumnCount(validLineStart)
+                val maxColEnd = editor.text.getColumnCount(validLineEnd)
+
+                val validCharStart = charStart.coerceIn(0, maxColStart)
+                val validCharEnd = charEnd.coerceIn(0, maxColEnd)
+
+                editor.setSelectionRegion(
+                    validLineStart,
+                    validCharStart,
+                    validLineEnd,
+                    validCharEnd,
                     SelectionChangeEvent.CAUSE_SEARCH,
                 )
-                editor?.ensureSelectionVisible()
+                editor.ensureSelectionVisible()
             }
                 .onFailure { logError(it) }
         }

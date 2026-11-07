@@ -34,7 +34,7 @@ object FilePathUtils {
 
             val file = resolveFile(cleaned, projectRoot)
             if (file != null) {
-                val matchEnd = matchStart + cleaned.length
+                val matchEnd = matchStart + rawCandidate.length
 
                 if (matches.none { matchStart < it.end && matchEnd > it.start }) {
                     val line = lineCol?.groupValues?.get(1)?.toIntOrNull()

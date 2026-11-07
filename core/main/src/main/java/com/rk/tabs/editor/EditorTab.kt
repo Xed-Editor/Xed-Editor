@@ -631,7 +631,7 @@ open class EditorTab(
 
                             val line =
                                 parts.getOrNull(0)?.toIntOrNull()?.minus(1)?.coerceIn(0, editor.text.lineCount - 1) ?: 0
-                            val maxColumn = editor.text.getLine(line).length
+                            val maxColumn = editor.text.getColumnCount(line)
                             val column = parts.getOrNull(1)?.toIntOrNull()?.minus(1)?.coerceIn(0, maxColumn) ?: 0
 
                             editor.setSelection(line, column)
