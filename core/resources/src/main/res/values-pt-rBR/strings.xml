@@ -982,4 +982,5 @@
     <string name="total_storage_usage">Total utilizado pelo aplicativo</string>
     <string name="calculating">Calculando…</string>
     <string name="scoped_tabs_open_project_warning">Ao abrir seu primeiro projeto, todas as guias abertas no momento serão fechadas. Deseja continuar?</string>
+    <string name="security_scan">Verificação de segurança</string>
 </resources>
