@@ -101,9 +101,8 @@ interface OutputLine {
         override val columns
             get() = text.length
 
-        override fun toAnnotatedString(props: Properties): AnnotatedString {
-            val theme = resolveAnsiTheme(props)
-            return buildAnnotatedString { withStyle(style = SpanStyle(color = theme.palette[3])) { append(text) } }
+        override fun toAnnotatedString(ansiTheme: AnsiTheme): AnnotatedString {
+            return buildAnnotatedString { withStyle(style = SpanStyle(color = ansiTheme.palette[3])) { append(text) } }
         }
 
         override fun getUnformattedText() = text
