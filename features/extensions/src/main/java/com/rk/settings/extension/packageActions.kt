@@ -34,6 +34,7 @@ import com.rk.extension.loader.loadAfterInstall
 import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.model.Package
+import com.rk.extension.scanner.ScanApproval
 import com.rk.file.toFileObject
 import com.rk.filetree.isXedPackage
 import com.rk.filetree.isZip
@@ -162,6 +163,7 @@ suspend fun installExtensionSequentially(
     extension: Extension,
     context: Context,
     activity: AppCompatActivity?,
+    onScanFindings: ScanApproval? = null,
 ): Boolean =
     withContext(Dispatchers.IO) {
         val storeExt =
@@ -169,17 +171,17 @@ suspend fun installExtensionSequentially(
         val id = storeExt.id
         val name = storeExt.name
 
-        withContext(Dispatchers.Main) {
-            StoreManager.setActiveInstall(id, InstallState.Installing)
-            StoreManager.setDownloadProgress(id, 0f)
-            showDownloadNotification(context, id, name, 0f)
-        }
-
         var success = false
         var errorMsg: String? = null
         val tempFile = File(context.cacheDir, "ext_download_${id}.xed")
 
         try {
+            withContext(Dispatchers.Main) {
+                StoreManager.setActiveInstall(id, InstallState.Installing)
+                StoreManager.setDownloadProgress(id, 0f)
+                showDownloadNotification(context, id, name, 0f)
+            }
+
             var lastNotificationTime = 0L
 
             val downloadSuccess =
@@ -199,19 +201,36 @@ suspend fun installExtensionSequentially(
             if (downloadSuccess) {
                 showDownloadNotification(context, id, name, 1f)
 
-                val result = extensionManager.installExtensionFromZip(tempFile)
-                withContext(Dispatchers.Main) { handleInstallResult(result, activity) }
+                val loading = InstallLoadingPopup(activity)
+                try {
+                    loading.show()
+                    val scanApproval = onScanFindings?.let { loading.around(it) }
+                    val result = extensionManager.installExtensionFromZip(tempFile, scanApproval)
+                    loading.hide()
+                    withContext(Dispatchers.Main) {
+                        StoreManager.clearInstall(id)
+                        handleInstallResult(result, activity)
+                    }
 
-                if (result is InstallResult.Success) {
-                    result.extension
-                        .loadAfterInstall(result, activity)
-                        .onFailure {
-                            success = false
-                            errorMsg = it.message ?: "Failed to load extension"
+                    when (result) {
+                        is InstallResult.Success -> {
+                            result.extension
+                                .loadAfterInstall(result, activity)
+                                .onFailure {
+                                    success = false
+                                    errorMsg = it.message ?: "Failed to load extension"
+                                }
+                                .onSuccess { success = true }
                         }
-                        .onSuccess { success = true }
-                } else {
-                    errorMsg = "Failed to install extension"
+
+                        is InstallResult.Cancelled -> {}
+
+                        else -> {
+                            errorMsg = "Failed to install extension"
+                        }
+                    }
+                } finally {
+                    loading.hide()
                 }
             } else {
                 errorMsg = "Download failed"
@@ -226,9 +245,9 @@ suspend fun installExtensionSequentially(
                 tempFile.delete()
             }
 
-            withContext(Dispatchers.Main) {
-                StoreManager.clearInstall(id)
+            StoreManager.clearInstall(id)
 
+            withContext(Dispatchers.Main) {
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
                 } else {
@@ -244,10 +263,11 @@ fun runExtensionInstallAction(
     updateInstallState: (InstallState) -> Unit,
     context: Context,
     activity: AppCompatActivity?,
+    onScanFindings: ScanApproval? = null,
 ) {
     updateInstallState(InstallState.Installing)
     DefaultScope.launch {
-        val success = installExtensionSequentially(extension, context, activity)
+        val success = installExtensionSequentially(extension, context, activity, onScanFindings)
         withContext(Dispatchers.Main) {
             if (success) {
                 updateInstallState(InstallState.Installed)
@@ -262,11 +282,12 @@ suspend fun batchInstallExtensions(
     ids: List<ExtensionId>,
     context: Context,
     activity: AppCompatActivity?,
+    onScanFindings: ScanApproval? = null,
 ): Boolean {
     for (id in ids) {
         val extension = extensionManager.getExtension(id) ?: continue
         if (!extensionManager.isInstalled(id)) {
-            val success = installExtensionSequentially(extension, context, activity)
+            val success = installExtensionSequentially(extension, context, activity, onScanFindings)
             if (!success) return false
         }
     }
@@ -278,23 +299,27 @@ fun runExtensionUpdateAction(
     updateInstallState: (InstallState) -> Unit,
     context: Context,
     activity: AppCompatActivity?,
+    onScanFindings: ScanApproval? = null,
 ) {
     val store = extension.store
     val id = store.id
     val name = store.name
 
-    StoreManager.setActiveInstall(id, InstallState.Updating)
-    StoreManager.setDownloadProgress(id, 0f)
     updateInstallState(InstallState.Updating)
-
-    showDownloadNotification(context, id, name, 0f)
 
     DefaultScope.launch(Dispatchers.IO) {
         var success = false
+        var cancelled = false
         var errorMsg: String? = null
         val tempFile = File(context.cacheDir, "ext_download_${id}.xed")
 
         try {
+            withContext(Dispatchers.Main) {
+                StoreManager.setActiveInstall(id, InstallState.Updating)
+                StoreManager.setDownloadProgress(id, 0f)
+                showDownloadNotification(context, id, name, 0f)
+            }
+
             var lastNotificationTime = 0L
 
             val downloadSuccess =
@@ -314,19 +339,38 @@ fun runExtensionUpdateAction(
             if (downloadSuccess) {
                 showDownloadNotification(context, id, name, 1f)
 
-                val result = extensionManager.installExtensionFromZip(tempFile)
-                withContext(Dispatchers.Main) { handleInstallResult(result, activity) }
+                val loading = InstallLoadingPopup(activity)
+                try {
+                    loading.show()
+                    val scanApproval = onScanFindings?.let { loading.around(it) }
+                    val result = extensionManager.installExtensionFromZip(tempFile, scanApproval)
+                    loading.hide()
+                    withContext(Dispatchers.Main) {
+                        StoreManager.clearInstall(id)
+                        handleInstallResult(result, activity)
+                    }
 
-                if (result is InstallResult.Success) {
-                    result.extension
-                        .loadAfterInstall(result, activity)
-                        .onFailure {
-                            success = false
-                            errorMsg = it.message ?: "Failed to load extension"
+                    when (result) {
+                        is InstallResult.Success -> {
+                            result.extension
+                                .loadAfterInstall(result, activity)
+                                .onFailure {
+                                    success = false
+                                    errorMsg = it.message ?: "Failed to load extension"
+                                }
+                                .onSuccess { success = true }
                         }
-                        .onSuccess { success = true }
-                } else {
-                    errorMsg = "Failed to install extension"
+
+                        is InstallResult.Cancelled -> {
+                            cancelled = true
+                        }
+
+                        else -> {
+                            errorMsg = "Failed to install extension"
+                        }
+                    }
+                } finally {
+                    loading.hide()
                 }
             } else {
                 errorMsg = "Download failed"
@@ -341,16 +385,18 @@ fun runExtensionUpdateAction(
                 tempFile.delete()
             }
 
-            withContext(Dispatchers.Main) {
-                StoreManager.clearInstall(id)
+            StoreManager.clearInstall(id)
 
+            withContext(Dispatchers.Main) {
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
                     updateInstallState(InstallState.Installed)
                 } else {
                     showDownloadNotification(context, id, name, 0f, isFinished = true, errorMessage = errorMsg)
                     updateInstallState(InstallState.Idle)
-                    errorDialog(activity, msg = errorMsg ?: strings.unknown_err.getString())
+                    if (!cancelled) {
+                        errorDialog(activity, msg = errorMsg ?: strings.unknown_err.getString())
+                    }
                 }
             }
         }
@@ -363,17 +409,18 @@ fun runThemeInstallAction(
     context: Context,
     activity: AppCompatActivity?,
 ) {
-    StoreManager.setActiveInstall(id, InstallState.Installing)
-    StoreManager.setDownloadProgress(id, 0f)
-
-    showDownloadNotification(context, id, name, 0f)
-
     DefaultScope.launch(Dispatchers.IO) {
         var success = false
         var errorMsg: String? = null
         val tempFile = File(context.cacheDir, "theme_${id}.xed")
 
         try {
+            withContext(Dispatchers.Main) {
+                StoreManager.setActiveInstall(id, InstallState.Installing)
+                StoreManager.setDownloadProgress(id, 0f)
+                showDownloadNotification(context, id, name, 0f)
+            }
+
             var lastNotificationTime = 0L
 
             val downloadSuccess =
@@ -408,9 +455,9 @@ fun runThemeInstallAction(
                 tempFile.delete()
             }
 
-            withContext(Dispatchers.Main) {
-                StoreManager.clearInstall(id)
+            StoreManager.clearInstall(id)
 
+            withContext(Dispatchers.Main) {
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
                     applyThemeAfterInstall(id)
@@ -436,17 +483,18 @@ fun runIconPackInstallAction(
     context: Context,
     activity: AppCompatActivity?,
 ) {
-    StoreManager.setActiveInstall(id, InstallState.Installing)
-    StoreManager.setDownloadProgress(id, 0f)
-
-    showDownloadNotification(context, id, name, 0f)
-
     DefaultScope.launch(Dispatchers.IO) {
         var success = false
         var errorMsg: String? = null
         val tempFile = File(context.cacheDir, "iconpack_${id}.xed")
 
         try {
+            withContext(Dispatchers.Main) {
+                StoreManager.setActiveInstall(id, InstallState.Installing)
+                StoreManager.setDownloadProgress(id, 0f)
+                showDownloadNotification(context, id, name, 0f)
+            }
+
             var lastNotificationTime = 0L
 
             val downloadSuccess =
@@ -481,9 +529,9 @@ fun runIconPackInstallAction(
                 tempFile.delete()
             }
 
-            withContext(Dispatchers.Main) {
-                StoreManager.clearInstall(id)
+            StoreManager.clearInstall(id)
 
+            withContext(Dispatchers.Main) {
                 if (success) {
                     showDownloadNotification(context, id, name, 1f, isFinished = true)
                     applyIconPackAfterInstall(id)
@@ -513,14 +561,15 @@ fun runPackageInstallAction(
 ) {
     if (pkg.type == PackageType.EXTENSION) {
         val extension = pkg as? Extension ?: return
+        val scanApproval = dialogManager.asScanApproval()
         val action = {
             val missing = getMissingDependencies(extension)
             if (missing.isNotEmpty()) {
                 dialogManager.showDependencies(extension, missing) {
-                    runExtensionInstallAction(extension, updateInstallState, context, activity)
+                    runExtensionInstallAction(extension, updateInstallState, context, activity, scanApproval)
                 }
             } else {
-                runExtensionInstallAction(extension, updateInstallState, context, activity)
+                runExtensionInstallAction(extension, updateInstallState, context, activity, scanApproval)
             }
         }
 
@@ -588,13 +637,14 @@ fun runPackageUpdateAction(
 ) {
     if (pkg.type == PackageType.EXTENSION) {
         val extension = pkg as? UpdatableExtension ?: return
+        val scanApproval = dialogManager.asScanApproval()
         val missing = getMissingDependencies(extension)
         if (missing.isNotEmpty()) {
             dialogManager.showDependencies(extension, missing) {
-                runExtensionUpdateAction(extension, updateInstallState, context, activity)
+                runExtensionUpdateAction(extension, updateInstallState, context, activity, scanApproval)
             }
         } else {
-            runExtensionUpdateAction(extension, updateInstallState, context, activity)
+            runExtensionUpdateAction(extension, updateInstallState, context, activity, scanApproval)
         }
     } else if (pkg.type == PackageType.THEME) {
         runThemeInstallAction(pkg.id, pkg.name, context, activity)
@@ -603,8 +653,13 @@ fun runPackageUpdateAction(
     }
 }
 
-fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActivity?) {
-    var loading: LoadingPopup? = null
+fun installAutoDetect(
+    scope: CoroutineScope,
+    uri: Uri?,
+    activity: AppCompatActivity?,
+    onScanFindings: ScanApproval? = null,
+) {
+    val loading = InstallLoadingPopup(activity)
 
     scope.launch(Dispatchers.IO) {
         runCatching {
@@ -638,10 +693,7 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 return@launch
             }
 
-            withContext(Dispatchers.Main) {
-                loading = LoadingPopup(activity).show()
-                loading.setMessage(strings.installing.getString())
-            }
+            loading.show()
 
             val tempDir = File(application!!.cacheDir, "install_temp_${System.currentTimeMillis()}")
             tempDir.mkdirs()
@@ -657,7 +709,9 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
 
                 when (type) {
                     PackageType.EXTENSION -> {
-                        val result = extensionManager.installExtensionFromDir(tempDir)
+                        val scanApproval = onScanFindings?.let { loading.around(it) }
+                        val result = extensionManager.installExtensionFromDir(tempDir, scanApproval)
+                        loading.hide()
                         withContext(Dispatchers.Main) { handleInstallResult(result, activity) }
                         if (result is InstallResult.Success) {
                             result.extension.loadAfterInstall(result, activity)
@@ -679,14 +733,12 @@ fun installAutoDetect(scope: CoroutineScope, uri: Uri?, activity: AppCompatActiv
                 }
             } finally {
                 tempDir.deleteRecursively()
-                withContext(Dispatchers.Main) { loading?.hide() }
+                loading.hide()
             }
         }
             .onFailure { error ->
-                withContext(Dispatchers.Main) {
-                    loading?.hide()
-                    errorDialog(activity, error)
-                }
+                loading.hide()
+                withContext(Dispatchers.Main) { errorDialog(activity, error) }
             }
     }
 }
@@ -732,6 +784,20 @@ fun handleInstallResult(
                 onError()
             }
         }
+
+        is InstallResult.ScanRejected -> {
+            val details = result.findings.filter { it.isBlocking }.joinToString("\n") { "• ${it.message}" }
+            errorDialog(
+                activity,
+                details.ifBlank { strings.security_scan_blocked.getString() },
+                strings.security_scan.getString(),
+            )
+            onError()
+        }
+
+        is InstallResult.Cancelled -> {
+            onError()
+        }
     }
 
 @Composable
@@ -764,3 +830,38 @@ fun rememberPackageInstallState(pkg: Package): InstallState {
 }
 
 @Composable fun rememberInstallState(extension: Extension): InstallState = rememberPackageInstallState(extension)
+
+/**
+ * Blocking loading popup shown while an extension is installed. It is hidden while the pre-install scan report is
+ * displayed (see [around]) and must be [hide]den when the install finishes.
+ */
+@Suppress("DEPRECATION")
+class InstallLoadingPopup(private val activity: AppCompatActivity?) {
+    private var popup: LoadingPopup? = null
+
+    suspend fun show() {
+        withContext(Dispatchers.Main) {
+            if (popup == null) {
+                popup = LoadingPopup(activity).setMessage(strings.installing.getString())
+            }
+            popup?.show()
+        }
+    }
+
+    // Not suspending: LoadingPopup marshals to the UI thread itself, so this still runs when the caller's coroutine has
+    // already been cancelled (e.g. the dialog was dismissed right after the install finished).
+    fun hide() {
+        val current = popup
+        popup = null
+        current?.hide()
+    }
+
+    fun around(approval: ScanApproval): ScanApproval = { name, findings ->
+        hide()
+        val approved = approval(name, findings)
+        if (approved) {
+            show()
+        }
+        approved
+    }
+}

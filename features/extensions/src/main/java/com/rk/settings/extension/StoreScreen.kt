@@ -186,7 +186,7 @@ fun StoreScreen(navController: NavController, query: String?, category: String? 
 
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
-            installAutoDetect(scope, uri, activity)
+            installAutoDetect(scope, uri, activity, dialogManager.asScanApproval())
         }
 
     val extensions by

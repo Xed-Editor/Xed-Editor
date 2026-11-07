@@ -1,6 +1,7 @@
 package com.rk.activities.main
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -18,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rk.App.Companion.themeManager
+import com.rk.account.AccountManager
 import com.rk.activities.main.navigation.MainRouteRegistry
 import com.rk.activities.main.navigation.MainRoutes
 import com.rk.activities.main.session.DocumentStateDatabase
@@ -25,6 +27,8 @@ import com.rk.activities.main.session.SessionManager
 import com.rk.activities.main.ui.DisclaimerScreen
 import com.rk.activities.main.ui.MainContentHost
 import com.rk.activities.main.ui.fileTreeViewModel
+import com.rk.activities.settings.SettingsActivity
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.commands.KeybindingsManager
 import com.rk.drawer.DrawerPersistence
 import com.rk.drawer.DrawerViewModel
@@ -34,10 +38,12 @@ import com.rk.file.FilePermission
 import com.rk.file.toFileObject
 import com.rk.lsp.LspRegistry
 import com.rk.resources.getFilledString
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.support.handleSupport
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
+import com.rk.utils.LoadingPopup
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
 import java.lang.ref.WeakReference
@@ -107,6 +113,34 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+
+        val uri = intent.data
+        if (uri != null && handleSignInRedirect(uri)) {
+            lifecycleScope.launch(Dispatchers.IO) { completeSignIn(uri) }
+        }
+    }
+
+    private fun handleSignInRedirect(uri: Uri): Boolean {
+        if (!AccountManager.isSignInRedirect(uri)) return false
+        setIntent(Intent())
+        return true
+    }
+
+    private suspend fun completeSignIn(uri: Uri) {
+        val loadingPopup = LoadingPopup(this)
+        loadingPopup.setMessage(strings.connecting.getString(this))
+        loadingPopup.show()
+        AccountManager.completeSignIn(uri)
+            .onSuccess { user ->
+                toast(strings.account_signed_in_as.getFilledString(user.name?.takeIf { it.isNotBlank() } ?: user.email))
+                runOnUiThread {
+                    startActivity(
+                        Intent(this, SettingsActivity::class.java).putExtra("route", SettingsRoutes.Account.route)
+                    )
+                }
+            }
+            .onFailure { errorDialog(it) }
+        loadingPopup.hide()
     }
 
     suspend fun handleIntent(intent: Intent) {
@@ -117,6 +151,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             val uri = intent.data!!
+
+            if (handleSignInRedirect(uri)) {
+                completeSignIn(uri)
+                return
+            }
 
             if (uri.toString().startsWith("content://telephony")) {
                 toast(strings.unsupported_content)

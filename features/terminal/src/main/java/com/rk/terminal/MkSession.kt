@@ -160,7 +160,7 @@ suspend fun getPwd(context: Context): String {
         return context.intent.getStringExtra("cwd").toString()
     }
 
-    val currentTab = MainActivity.instance?.viewModel?.tabManager?.currentTab
+    val currentTab = MainActivity.instance?.viewModel?.currentVisibleTab
     val file = currentTab?.file
     if (Settings.project_as_pwd && file != null) {
         if (currentTab is EditorTab && file is FileWrapper) {

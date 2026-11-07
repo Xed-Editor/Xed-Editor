@@ -247,23 +247,41 @@ val LocalExtension.apkFile: File
 
         if (!dir.isDirectory) error("Extension [$name, $id] directory not found")
 
-        val apks = dir.listFiles { it.extension == "apk" } ?: emptyArray()
-        if (apks.isEmpty()) error("APK not found")
+        val apk = dir.findExtensionApk() ?: error("APK not found")
 
-        val apk =
-            if (apks.size == 1) {
-                apks.first()
-            } else {
-                val isDebug = BuildConfig.DEBUG
-                if (isDebug) {
-                    apks.find { it.name.contains("debug", ignoreCase = true) }
-                        ?: apks.find { !it.name.contains("release", ignoreCase = true) }
-                        ?: apks.first()
-                } else {
-                    apks.find { it.name.contains("release", ignoreCase = true) }
-                        ?: apks.find { !it.name.contains("debug", ignoreCase = true) }
-                        ?: apks.first()
-                }
-            }
         apk.also { it.setReadOnly() }
     }
+
+/**
+ * Returns the APK of an extension package: either [this] file when it already is an APK, or the APK contained in [this]
+ * directory. When several APKs are present the build matching the running app (release/debug) is preferred.
+ */
+fun File.findExtensionApk(): File? {
+    if (isFile) {
+        return takeIf { it.extension == "apk" }
+    }
+
+    if (!isDirectory) {
+        return null
+    }
+
+    val apks = listFiles { it.extension == "apk" } ?: return null
+    if (apks.isEmpty()) {
+        return null
+    }
+
+    if (apks.size == 1) {
+        return apks.first()
+    }
+
+    val isDebug = BuildConfig.DEBUG
+    return if (isDebug) {
+        apks.find { it.name.contains("debug", ignoreCase = true) }
+            ?: apks.find { !it.name.contains("release", ignoreCase = true) }
+            ?: apks.first()
+    } else {
+        apks.find { it.name.contains("release", ignoreCase = true) }
+            ?: apks.find { !it.name.contains("debug", ignoreCase = true) }
+            ?: apks.first()
+    }
+}

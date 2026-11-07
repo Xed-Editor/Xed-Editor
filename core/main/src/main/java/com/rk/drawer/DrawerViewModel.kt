@@ -2,10 +2,12 @@ package com.rk.drawer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rk.activities.main.MainActivity
 import com.rk.events.DrawerEvent
 import com.rk.events.Events
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeTab
+import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,7 +52,24 @@ class DrawerViewModel : ViewModel() {
         addDrawerTab(tab, save)
     }
 
+    private val _showFirstDrawerTabWarning = MutableStateFlow<(() -> Unit)?>(null)
+    val showFirstDrawerTabWarning = _showFirstDrawerTabWarning.asStateFlow()
+
     fun addDrawerTab(tab: DrawerTab, save: Boolean = false) {
+        val mainViewModel = MainActivity.instance?.viewModel
+        val nonScopedTabs = mainViewModel?.tabs?.filter { it.scopeRoot == null }
+
+        if (_drawerTabs.value.isEmpty() && Settings.scoped_tabs && nonScopedTabs?.isNotEmpty() == true) {
+            _showFirstDrawerTabWarning.value = {
+                nonScopedTabs.forEach { mainViewModel.tabManager.removeTab(it) }
+                proceedAddDrawerTab(tab, save)
+            }
+        } else {
+            proceedAddDrawerTab(tab, save)
+        }
+    }
+
+    private fun proceedAddDrawerTab(tab: DrawerTab, save: Boolean = false) {
         tab.onAdded()
 
         _drawerTabs.update { it + tab }
@@ -59,6 +78,10 @@ class DrawerViewModel : ViewModel() {
         viewModelScope.launch { Events.publish(DrawerEvent.TabAdded(tab)) }
 
         if (save) persistAsync()
+    }
+
+    fun dismissFirstDrawerTabWarning() {
+        _showFirstDrawerTabWarning.value = null
     }
 
     fun removeFileTreeTab(fileObject: FileObject, save: Boolean = false) {
@@ -83,6 +106,12 @@ class DrawerViewModel : ViewModel() {
 
         val tab = tabs[index]
         tab.onUnselect()
+
+        if (Settings.scoped_tabs && tab is FileTreeTab) {
+            val mainViewModel = MainActivity.instance?.viewModel
+            mainViewModel?.tabs?.filter { it.scopeRoot == tab.root }?.forEach { mainViewModel.tabManager.removeTab(it) }
+        }
+
         tab.onRemoved()
         _drawerTabs.update { it.filterIndexed { i, _ -> i != index } }
 
