@@ -966,4 +966,23 @@
     <string name="input_behavior_msg">Насправді поведінка може залежати від методу вводу. Носіям китайської, японської чи корейської мов слід уникати варіанту \"Без пропозицій\", адже ці мови покладаються на пропозиції.</string>
     <string name="ai_no_tasks">Ще немає завдань.\nЗавдання, створені ШІ з\'являться тут.</string>
     <string name="browse_project">Переглядати проєкт</string>
+    <string name="security_scan">Перевірка безпеки</string>
+    <string name="scoped_tabs_close_current_project">Ви точно хочете закрити проєкт \'%s\'? Це також закриє всі вкладки цього робочого простору, включаючи незбережену роботу.</string>
+    <string name="security_scan_desc">%1$s було проскановано до встановлення. Перегляньте результати нижче.</string>
+    <string name="security_scan_clean">Проблем немає.</string>
+    <string name="security_scan_restricted">Обмежене використання API</string>
+    <string name="security_scan_suspicious">Підозріла поведінка</string>
+    <string name="security_scan_blocked">Розширення використовує обмежене API, і тому не може бути встановлене.</string>
+    <string name="signing">Підписання</string>
+    <string name="commit_signing">Підписати</string>
+    <string name="commit_signing_desc">Підписуйте коміти Git ключами GPG або SSH</string>
+    <string name="signing_format">Формат підпису</string>
+    <string name="signing_format_desc">Виберіть формат ключа для підпису</string>
+    <string name="gpg_key">Ключ GPG</string>
+    <string name="gpg_key_desc">Приватний ключ GPG або ще додатковий пароль для підпису</string>
+    <string name="gpg_key_input_title">Облікові дані GPG</string>
+    <string name="gpg_key_input_label">Приватний ключ GPG у форматі ASCII</string>
+    <string name="gpg_passphrase_input_label">Пароль (додатково)</string>
+    <string name="gpg_key_missing">Підписання GPG увімкнено, але жодного ключа немає в налаштуваннях.</string>
+    <string name="retry">Спробуйте знову</string>
 </resources>
