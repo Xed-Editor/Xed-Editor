@@ -418,4 +418,7 @@
     <string name="playstore_arm64_only">البناء الخاص بمتجر التطبيقات يدعم فقط أجهزة ARM 64 بت (ARM64-V8A).</string>
     <string name="suggest_keywords">اقتراح كلمات مفتاحية</string>
     <string name="suggest_keywords_desc">إظهار الكلمات الرئيسية المحددة مسبقًا في اقتراحات الإكمال التلقائي</string>
+    <string name="connecting">جارٍ الإتصال…</string>
+    <string name="ai_feature_label">الذكاء الاصطناعي</string>
+    <string name="ai_chat_label">محادثة</string>
 </resources>
