@@ -125,8 +125,4 @@ class NetWrapper(private val url: URL) : FileObject {
     override suspend fun writeText(content: String, charset: Charset): Boolean = false
 
     override fun isSymlink(): Boolean = false
-
-    private companion object {
-        private const val serialVersionUID = 1L
-    }
 }

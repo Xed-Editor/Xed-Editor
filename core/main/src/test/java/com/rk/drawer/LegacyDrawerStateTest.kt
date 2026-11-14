@@ -1,9 +1,7 @@
-package com.rk.utils
+package com.rk.drawer
 
-import com.rk.drawer.DrawerTab
+import com.rk.file.FileObject
 import com.rk.file.FileWrapper
-import com.rk.file.NetWrapper
-import com.rk.file.UriWrapper
 import com.rk.file.ZipFileObject
 import com.rk.filetree.FileTreeTab
 import java.io.ByteArrayInputStream
@@ -12,16 +10,19 @@ import java.io.File
 import java.io.InvalidClassException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.io.ObjectStreamClass
 import java.io.ObjectStreamConstants
 import java.io.Serializable
 import java.nio.ByteBuffer
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
-// Shaped like the drawer state: an abstract tab without fields, a subclass holding a file object, and the file object.
-// None of them declares a serialVersionUID.
+// Shaped like the legacy drawer state: an abstract tab without fields, a subclass holding a file object, and the file
+// object. None of them declares a serialVersionUID.
 private abstract class SampleTab : Serializable
 
 private class SampleFileTab(val root: SampleFile) : SampleTab()
@@ -38,7 +39,75 @@ private class SampleWithCustomForm(val value: String) : Serializable {
     private fun readObject(input: ObjectInputStream) = input.defaultReadObject()
 }
 
-class SerialVersionTolerantObjectInputStreamTest {
+class LegacyDrawerStateTest {
+    @get:Rule val folder = TemporaryFolder()
+
+    private val project = FileWrapper(File("/sdcard/project"))
+    private val other = FileWrapper(File("/sdcard/other"))
+    private val zipEntry = ZipFileObject(FileWrapper(File("/sdcard/project/libs.zip")), "lib/")
+
+    @Test
+    fun `migrates the drawer state of earlier versions`() {
+        // Earlier versions computed the serialVersionUIDs of these classes, and nearly every release changed them.
+        fun ByteArray.asWrittenEarlier() =
+            withSerialVersionUid(DrawerTab::class.java, -1L)
+                .withSerialVersionUid(FileTreeTab::class.java, -2L)
+                .withSerialVersionUid(FileWrapper::class.java, -3L)
+
+        writeLegacyFile(
+            "drawerTabs",
+            serialize(arrayListOf(FileTreeTab(project), FileTreeTab(other))).asWrittenEarlier(),
+        )
+        writeLegacyFile("currentDrawerTab", serialize(FileTreeTab(other)).asWrittenEarlier())
+        writeLegacyFile(
+            "expandedFileTree",
+            serialize(linkedMapOf<FileObject, Set<FileObject>>(project to hashSetOf(zipEntry)))
+                .withSerialVersionUid(FileWrapper::class.java, -3L)
+                .withSerialVersionUid(ZipFileObject::class.java, -4L),
+        )
+
+        val errors = mutableListOf<Throwable>()
+        val state = LegacyDrawerState.read(folder.root) { errors += it }
+
+        assertEquals(emptyList<Throwable>(), errors)
+        assertEquals(
+            SavedDrawerState(
+                projects = listOf(SavedFile.Local("/sdcard/project"), SavedFile.Local("/sdcard/other")),
+                selectedProject = SavedFile.Local("/sdcard/other"),
+                expandedNodes =
+                    listOf(
+                        SavedExpandedNodes(
+                            SavedFile.Local("/sdcard/project"),
+                            listOf(SavedFile.ZipEntry(SavedFile.Local("/sdcard/project/libs.zip"), "lib/")),
+                        )
+                    ),
+            ),
+            state,
+        )
+    }
+
+    @Test
+    fun `leaves out a legacy file that cannot be read`() {
+        File(folder.root, "drawerTabs").writeText("not a serialized object")
+        writeLegacyFile("currentDrawerTab", serialize(FileTreeTab(other)))
+
+        val errors = mutableListOf<Throwable>()
+        val state = LegacyDrawerState.read(folder.root) { errors += it }
+
+        assertEquals(1, errors.size)
+        assertEquals(SavedDrawerState(selectedProject = SavedFile.Local("/sdcard/other")), state)
+    }
+
+    @Test
+    fun `finds and deletes the legacy files`() {
+        assertFalse(LegacyDrawerState.exists(folder.root))
+
+        writeLegacyFile("expandedFileTree", serialize(linkedMapOf<FileObject, Set<FileObject>>()))
+        assertTrue(LegacyDrawerState.exists(folder.root))
+
+        LegacyDrawerState.delete(folder.root)
+        assertFalse(LegacyDrawerState.exists(folder.root))
+    }
 
     @Test
     fun `reads app classes whose serialVersionUID changed but whose fields did not`() {
@@ -87,42 +156,7 @@ class SerialVersionTolerantObjectInputStreamTest {
         assertThrows(InvalidClassException::class.java) { readTolerantly(saved) }
     }
 
-    @Test
-    fun `classes in the drawer state declare their serialVersionUID`() {
-        val persistedClasses =
-            listOf(
-                DrawerTab::class.java,
-                FileTreeTab::class.java,
-                FileWrapper::class.java,
-                UriWrapper::class.java,
-                ZipFileObject::class.java,
-                NetWrapper::class.java,
-            )
-
-        for (persistedClass in persistedClasses) {
-            assertEquals(persistedClass.name, 1L, ObjectStreamClass.lookup(persistedClass).serialVersionUID)
-        }
-    }
-
-    @Test
-    fun `reads drawer state saved before the serialVersionUIDs were declared`() {
-        val project = FileWrapper(File("/sdcard/project"))
-        val zipEntry = ZipFileObject(FileWrapper(File("/sdcard/project/libs.zip")), "lib/")
-
-        // Until now these classes had computed serialVersionUIDs, which changed with almost every release.
-        val savedTabs =
-            serialize(arrayListOf(FileTreeTab(project)))
-                .withSerialVersionUid(DrawerTab::class.java, -4000L)
-                .withSerialVersionUid(FileTreeTab::class.java, -4001L)
-                .withSerialVersionUid(FileWrapper::class.java, -4002L)
-        val savedExpandedNodes =
-            serialize(linkedMapOf(project to hashSetOf(zipEntry)))
-                .withSerialVersionUid(FileWrapper::class.java, -4002L)
-                .withSerialVersionUid(ZipFileObject::class.java, -4003L)
-
-        assertEquals(listOf(FileTreeTab(project)), readTolerantly(savedTabs))
-        assertEquals(mapOf(project to setOf(zipEntry)), readTolerantly(savedExpandedNodes))
-    }
+    private fun writeLegacyFile(name: String, bytes: ByteArray) = File(folder.root, name).writeBytes(bytes)
 
     private fun serialize(value: Any): ByteArray {
         val bytes = ByteArrayOutputStream()

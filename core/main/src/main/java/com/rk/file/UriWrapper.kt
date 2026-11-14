@@ -316,8 +316,6 @@ class UriWrapper : FileObject {
     }
 
     companion object {
-        private const val serialVersionUID = 1L
-
         fun Uri.getDocumentFile(isTree: Boolean): DocumentFile? {
             return if (isTree) {
                 DocumentFile.fromTreeUri(application!!, this)
