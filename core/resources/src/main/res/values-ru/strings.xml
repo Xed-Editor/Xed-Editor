@@ -670,7 +670,7 @@
     <string name="manage_formatters_desc">Настройка порядка и параметров форматтеров</string>
     <string name="info_formatters">Форматтеры быьи применены как приоритетные. Будет использован первый форматтер, который поддерживает текущий язык. Для изменения порядка зажмите и перетаскивайте.</string>
     <string name="document_highlight">События подсветки</string>
-    <string name="document_highlight_desc">Выделите вхождения символа в месте расположения курсора.</string>
+    <string name="document_highlight_desc">Выделите вхождения символа в месте расположения курсора</string>
     <string name="formatter_lsp_desc">Использовать текущий языковой сервер</string>
     <string name="browse_extensions">Найти расширения</string>
     <string name="clipboard_keybindings">Сочитания клавиш буфера обмена</string>
@@ -971,7 +971,7 @@
     <string name="security_scan_desc">%1$s был проверен до инициализации. Проверьте результаты ниже.</string>
     <string name="security_scan_clean">Проблемы не найдены.</string>
     <string name="security_scan_restricted">Ограничение использование API</string>
-    <string name="security_scan_suspicious">Подозрииельное поведение</string>
+    <string name="security_scan_suspicious">Подозрительное поведение</string>
     <string name="security_scan_blocked">Это расширение использует ограниченое API и не может быть установлено.</string>
     <string name="signing">Подписание</string>
     <string name="commit_signing">Подписать</string>
