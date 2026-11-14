@@ -1010,5 +1010,6 @@
     <string name="indexing_segment">索引</string>
     <string name="account_signed_in_as">以 %s 的身份登录</string>
     <string name="account_signed_in_since">登录发生于</string>
-    <string name="account_no_email">没有邮件</string>
+    <string name="account_no_email">没有关联邮箱</string>
+    <string name="file_changed_on_disk_desc">自从你打开或最后一次保存“%s”，它在外部被修改了。\n\n你可以用当前版本的文件覆盖它，来替换掉在磁盘上发生的变化，也可以放弃未保存的变更并重新加载保存在磁盘上的最新版。</string>
 </resources>
