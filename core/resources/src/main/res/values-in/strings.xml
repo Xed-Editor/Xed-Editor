@@ -7,11 +7,11 @@
     <string name="new_file">File baru</string>
     <string name="report_issue">Laporkan masalah</string>
     <string name="save_all">Simpan semua</string>
-    <string name="wait">Harap tunggu…</string>
+    <string name="wait">Silahkan tunggu…</string>
     <string name="copy">Salin</string>
-    <string name="undo">Urung</string>
+    <string name="undo">Urungkan</string>
     <string name="settings">Pengaturan</string>
-    <string name="search">Cari</string>
+    <string name="search">Telusuri</string>
     <string name="go_next">Selanjutnya</string>
     <string name="go_prev">Sebelumnya</string>
     <string name="replace">Ganti</string>
