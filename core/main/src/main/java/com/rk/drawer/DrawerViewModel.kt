@@ -18,6 +18,13 @@ class DrawerViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
 
+    /**
+     * Whether [DrawerPersistence.restoreState] has finished for this view model. Until then, it only holds its empty
+     * initial state, which [DrawerPersistence.saveState] must not write over the saved one. Only accessed by
+     * [DrawerPersistence] while it holds its lock.
+     */
+    internal var stateRestored = false
+
     private val _drawerTabs = MutableStateFlow<List<DrawerTab>>(emptyList())
     val drawerTabs = _drawerTabs.asStateFlow()
 
