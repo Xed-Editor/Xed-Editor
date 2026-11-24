@@ -14,9 +14,11 @@ enum class AppFlavour(
     /** Stable identifier, must match the `BuildConfig.FLAVOUR` declared in the Gradle build. */
     val id: String,
     /**
-     * Whether this distribution bundles the `:features:extensions` module and its store. This is a build-time fact
-     * only; store UI must also respect the user's `enable_extension` toggle, i.e. `AppFlavour.current.bundlesExtensions
-     * && FeatureRegistry.isEnabled("enable_extension")`.
+     * Whether this distribution bundles the `:features:extensions` module. This is a build-time fact only; extension UI
+     * must also respect the user's `enable_extension` toggle, i.e. `AppFlavour.current.bundlesExtensions &&
+     * FeatureRegistry.isEnabled("enable_extension")`.
+     *
+     * The store (`:features:store`) and the theme/icon pack catalogs it hosts are independent of this flag.
      */
     val bundlesExtensions: Boolean,
     /** Whether this distribution is published on Google Play. */

@@ -1,9 +1,10 @@
-package com.rk.settings.extension
+package com.rk.store.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -16,7 +17,6 @@ import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -31,16 +31,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rk.extension.InstallState
 import com.rk.icons.Download
 import com.rk.icons.XedIcons
+import com.rk.packages.InstallState
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun SmallExtensionActionButton(
+fun SmallPackageActionButton(
     installState: InstallState,
     scope: CoroutineScope,
     onInstallClick: suspend () -> Unit,
@@ -101,18 +101,16 @@ fun SmallExtensionActionButton(
 }
 
 @Composable
-fun ExtensionActionButtons(
+fun PackageActionButtons(
     installState: InstallState,
     scope: CoroutineScope,
     onInstallClick: suspend () -> Unit,
     onUninstallClick: suspend () -> Unit,
     onUpdateClick: suspend () -> Unit,
-    onRecommendedClick: () -> Unit,
-    outdatedWarning: Boolean = false,
-    showRecommendedButton: Boolean = false,
     progress: Float,
+    outdatedWarning: Boolean = false,
+    extraActions: @Composable RowScope.() -> Unit = {},
 ) {
-
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         when (installState) {
             InstallState.Idle -> {
@@ -137,23 +135,7 @@ fun ExtensionActionButtons(
             }
         }
 
-        if (showRecommendedButton) {
-            RecommendationsButton(Modifier, onRecommendedClick)
-        }
-    }
-}
-
-@Composable
-private fun RecommendationsButton(
-    modifier: Modifier = Modifier,
-    onRecommendedClick: () -> Unit,
-) {
-    FilledIconButton(
-        modifier = modifier,
-        onClick = onRecommendedClick,
-        colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-    ) {
-        Icon(painterResource(drawables.widgets), contentDescription = stringResource(strings.recommendations))
+        extraActions()
     }
 }
 
@@ -188,19 +170,12 @@ private fun InstallingButton(modifier: Modifier = Modifier, progress: Float) {
                 Modifier.heightIn(min = ButtonDefaults.MinHeight).fillMaxWidth().clip(shape).drawBehind {
                     drawRect(
                         color = primaryContainer,
-                        size =
-                            Size(
-                                width = size.width * progress.coerceIn(0f, 1f),
-                                height = size.height,
-                            ),
+                        size = Size(width = size.width * progress.coerceIn(0f, 1f), height = size.height),
                     )
                 },
             contentAlignment = Alignment.Center,
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(16.dp),
                     strokeWidth = 2.dp,
@@ -283,19 +258,12 @@ private fun UpdatingButton(
                 Modifier.heightIn(min = ButtonDefaults.MinHeight).fillMaxWidth().clip(shape).drawBehind {
                     drawRect(
                         color = primaryContainer,
-                        size =
-                            Size(
-                                width = size.width * progress.coerceIn(0f, 1f),
-                                height = size.height,
-                            ),
+                        size = Size(width = size.width * progress.coerceIn(0f, 1f), height = size.height),
                     )
                 },
             contentAlignment = Alignment.Center,
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(16.dp),
                     strokeWidth = 2.dp,

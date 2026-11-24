@@ -8,12 +8,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+/**
+ * A category on the settings home screen.
+ *
+ * The description is resolved on every read through [describe] so a category can reflect runtime availability, e.g. the
+ * store no longer advertising extensions in a build that does not bundle them. Reading it inside composition also
+ * subscribes that composition to whatever state the provider observes.
+ */
 data class SettingsCategory(
     val label: String,
-    val description: String,
     val icon: Icon,
     val route: String,
-)
+    private val describe: () -> String,
+) {
+    constructor(
+        label: String,
+        description: String,
+        icon: Icon,
+        route: String,
+    ) : this(label = label, icon = icon, route = route, describe = { description })
+
+    val description: String
+        get() = describe()
+}
 
 object SettingsRegistry {
 

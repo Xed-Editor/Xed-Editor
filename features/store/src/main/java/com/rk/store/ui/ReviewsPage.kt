@@ -1,4 +1,4 @@
-package com.rk.settings.extension
+package com.rk.store.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
@@ -38,10 +38,10 @@ import coil.request.ImageRequest
 import com.rk.common.PackageType
 import com.rk.components.StateScreen
 import com.rk.components.XedCard
-import com.rk.extension.REVIEWS_API_BASE
-import com.rk.extension.model.Package
-import com.rk.extension.model.Review
-import com.rk.extension.model.ReviewsResponse
+import com.rk.packages.StoreManager
+import com.rk.packages.model.Package
+import com.rk.packages.model.Review
+import com.rk.packages.model.ReviewsResponse
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.utils.logError
@@ -51,7 +51,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okhttp3.CacheControl
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -211,12 +210,7 @@ private suspend fun loadReviews(
 ): ReviewsStatus {
     return withContext(Dispatchers.IO) {
         runCatching {
-            val url =
-                REVIEWS_API_BASE.toHttpUrl()
-                    .newBuilder()
-                    .addQueryParameter("packageId", packageId)
-                    .addQueryParameter("packageType", packageType.value)
-                    .build()
+            val url = StoreManager.reviewsUrl(packageType, packageId)
 
             val requestBuilder = Request.Builder().url(url)
             if (forceRefresh) {

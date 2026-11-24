@@ -1,6 +1,5 @@
 package com.rk.settings.extension
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,11 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,19 +27,51 @@ import coil.request.ImageRequest
 import com.rk.extension.Extension
 import com.rk.extension.extensionManager
 import com.rk.extension.model.ExtensionId
-import com.rk.extension.scanner.ScanApproval
 import com.rk.resources.drawables
 import com.rk.resources.strings
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import com.rk.store.PackageActionContext
+import com.rk.store.actions.rememberPackageInstallState
+import com.rk.store.ui.SmallPackageActionButton
 
+/**
+ * Prompt listing the dependencies that have to be installed before an extension can be installed.
+ *
+ * Confirming hands control back to the install flow, which installs the dependencies one after another.
+ */
+@Composable
+fun DependenciesDialog(
+    extensionIds: List<ExtensionId>,
+    onContinue: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(strings.missing_dependencies)) },
+        text = {
+            Column {
+                Text(
+                    text = stringResource(strings.dependencies_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                extensionIds.forEach { extensionId -> DependencyItem(extensionId = extensionId, action = null) }
+            }
+        },
+        confirmButton = { TextButton(onClick = onContinue) { Text(stringResource(strings.continue_action)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) } },
+    )
+}
+
+/** Informational list of extensions recommended by an installed extension, with install/update actions. */
 @Composable
 fun RecommendationsDialog(
     extensionIds: List<ExtensionId>,
-    scope: CoroutineScope,
-    activity: AppCompatActivity?,
+    action: PackageActionContext,
     onInstallClick: (Extension) -> Unit,
     onUpdateClick: (Extension) -> Unit,
+    onUninstallClick: (Extension) -> Unit,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -62,17 +89,10 @@ fun RecommendationsDialog(
                 extensionIds.forEach { extensionId ->
                     DependencyItem(
                         extensionId = extensionId,
-                        showActions = true,
+                        action = action,
                         onInstallClick = onInstallClick,
                         onUpdateClick = onUpdateClick,
-                        onUninstallClick = { dependency ->
-                            runExtensionUninstallAction(
-                                extension = dependency,
-                                updateInstallState = {},
-                                scope = scope,
-                                activity = activity,
-                            )
-                        },
+                        onUninstallClick = onUninstallClick,
                     )
                 }
             }
@@ -82,72 +102,15 @@ fun RecommendationsDialog(
 }
 
 @Composable
-fun DependenciesDialog(
-    extensionIds: List<ExtensionId>,
-    scope: CoroutineScope,
-    activity: AppCompatActivity?,
-    onDismiss: () -> Unit,
-    onScanFindings: ScanApproval? = null,
-    onCompletion: () -> Unit,
-) {
-    val context = LocalContext.current
-    var isInstalling by remember { mutableStateOf(false) }
-
-    AlertDialog(
-        onDismissRequest = { if (!isInstalling) onDismiss() },
-        title = { Text(stringResource(strings.missing_dependencies)) },
-        text = {
-            Column {
-                Text(
-                    text = stringResource(strings.dependencies_description),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                extensionIds.forEach { extensionId ->
-                    DependencyItem(
-                        extensionId = extensionId,
-                        showActions = false,
-                        onInstallClick = {},
-                        onUpdateClick = {},
-                        onUninstallClick = {},
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                enabled = !isInstalling,
-                onClick = {
-                    scope.launch {
-                        isInstalling = true
-                        val success = batchInstallExtensions(extensionIds, context, activity, onScanFindings)
-                        isInstalling = false
-                        if (success) {
-                            onCompletion()
-                        }
-                    }
-                },
-            ) {
-                Text(stringResource(if (isInstalling) strings.installing else strings.continue_action))
-            }
-        },
-        dismissButton = {
-            TextButton(enabled = !isInstalling, onClick = onDismiss) { Text(stringResource(strings.cancel)) }
-        },
-    )
-}
-
-@Composable
 private fun DependencyItem(
     extensionId: ExtensionId,
-    showActions: Boolean,
-    onInstallClick: (Extension) -> Unit,
-    onUpdateClick: (Extension) -> Unit,
-    onUninstallClick: (Extension) -> Unit,
+    action: PackageActionContext?,
+    onInstallClick: (Extension) -> Unit = {},
+    onUpdateClick: (Extension) -> Unit = {},
+    onUninstallClick: (Extension) -> Unit = {},
 ) {
     val extension = extensionManager.getExtension(extensionId)
+    val scope = rememberCoroutineScope()
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -185,18 +148,14 @@ private fun DependencyItem(
             }
         }
 
-        extension?.let {
-            if (showActions) {
-                val installState = rememberInstallState(extension)
-
-                SmallExtensionActionButton(
-                    installState = installState,
-                    scope = rememberCoroutineScope(),
-                    onInstallClick = { onInstallClick(it) },
-                    onUninstallClick = { onUninstallClick(it) },
-                    onUpdateClick = { onUpdateClick(it) },
-                )
-            }
+        if (action != null && extension != null) {
+            SmallPackageActionButton(
+                installState = rememberPackageInstallState(extension),
+                scope = scope,
+                onInstallClick = { onInstallClick(extension) },
+                onUninstallClick = { onUninstallClick(extension) },
+                onUpdateClick = { onUpdateClick(extension) },
+            )
         }
     }
 }

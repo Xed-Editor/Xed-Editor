@@ -1,4 +1,4 @@
-package com.rk.settings.extension
+package com.rk.store.ui
 
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -8,11 +8,11 @@ import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.rk.extension.model.PackageAuthor
+import com.rk.packages.model.PackageAuthor
 import com.rk.resources.drawables
 
 @Composable
-fun ExtensionAuthorIcon(author: PackageAuthor, modifier: Modifier = Modifier) {
+fun PackageAuthorIcon(author: PackageAuthor, modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     AsyncImage(

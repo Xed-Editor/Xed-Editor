@@ -1,7 +1,7 @@
 package com.rk.common
 
-import com.rk.extension.model.PackageAuthor
 import com.rk.file.unzipTo
+import com.rk.packages.model.PackageAuthor
 import java.io.File
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

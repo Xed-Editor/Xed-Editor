@@ -64,7 +64,7 @@ The app ships in two flavors:
 | Flavor      | applicationId        | Extensions module | Notes                                              |
 | ----------- | -------------------- | ----------------- | -------------------------------------------------- |
 | `community` | `com.rk.xededitor`   | included          | Default flavor. GitHub / F-Droid / IzzyOnDroid.     |
-| `playstore` | `com.rk.axion`       | excluded          | Google Play build; minified, without the extension store. |
+| `playstore` | `com.rk.axion`       | excluded          | Google Play build; minified, without extensions. Themes and icon packs still ship in its store. |
 
 The `community` flavor is the default flavor (used by CI and by tooling that needs a default
 variant). Build a specific flavor with a flavor-qualified task; the unqualified aggregate tasks such
@@ -80,7 +80,7 @@ modules cannot read the application module's `BuildConfig`, so they should branc
 ```kotlin
 // True when this build bundles the extensions module and the user has not disabled it.
 if (AppFlavour.current.bundlesExtensions && FeatureRegistry.isEnabled("enable_extension")) {
-    // e.g. show the theme/icon-pack/extension store entries
+    // e.g. show an "extensions only" entry point such as browsing formatters in the store
 }
 ```
 

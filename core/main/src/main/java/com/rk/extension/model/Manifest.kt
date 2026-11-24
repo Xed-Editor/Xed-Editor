@@ -1,5 +1,6 @@
 package com.rk.extension.model
 
+import com.rk.packages.model.PackageAuthor
 import kotlinx.serialization.Serializable
 
 typealias ExtensionId = String

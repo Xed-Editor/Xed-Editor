@@ -1,9 +1,9 @@
 package com.rk.icons.pack
 
-import com.rk.extension.model.PackageAuthor
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.file.FileTypeManager
+import com.rk.packages.model.PackageAuthor
 import java.io.File
 import kotlinx.serialization.Serializable
 

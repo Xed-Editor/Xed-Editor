@@ -1,4 +1,4 @@
-package com.rk.settings.extension
+package com.rk.store.ui
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
-import com.rk.extension.model.Package
+import com.rk.packages.model.Package
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings

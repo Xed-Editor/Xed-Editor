@@ -1,4 +1,4 @@
-package com.rk.extension.model
+package com.rk.packages.model
 
 import com.rk.common.PackageType
 import io.github.z4kn4fein.semver.toVersionOrNull
@@ -26,6 +26,12 @@ data class Review(
     val userImage: String,
 )
 
+/**
+ * A package that can be browsed, installed and updated by the store.
+ *
+ * Implemented by extensions (`:features:extensions`), themes and icon packs (both in `:core:main`). The store UI itself
+ * is package-type agnostic and dispatches every operation to the [com.rk.store.StoreSection] registered for [type].
+ */
 interface Package {
     val id: String
     val type: PackageType

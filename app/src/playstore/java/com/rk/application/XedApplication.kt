@@ -7,12 +7,14 @@ import com.rk.app.AppFlavour
 import com.rk.feature.FeatureRegistry
 import com.rk.git.GitFeature
 import com.rk.runner.RunnerFeature
+import com.rk.store.StoreFeature
 
 /**
  * Application entry point for the `playstore` distribution.
  *
  * The Play Store build deliberately does not bundle the `:features:extensions` module, because Play policy forbids
- * loading executable code at runtime, so its feature is not registered here.
+ * loading executable code at runtime, so its feature is not registered here. The store feature is registered in every
+ * build because it owns the theme and icon pack catalogs, which do not load executable code.
  */
 class XedApplication : App() {
     override fun onCreate() {
@@ -23,6 +25,7 @@ class XedApplication : App() {
 
         // Register pluggable features
         FeatureRegistry.register(TerminalFeature())
+        FeatureRegistry.register(StoreFeature())
         FeatureRegistry.register(RunnerFeature())
         FeatureRegistry.register(GitFeature())
         FeatureRegistry.register(AiFeature())

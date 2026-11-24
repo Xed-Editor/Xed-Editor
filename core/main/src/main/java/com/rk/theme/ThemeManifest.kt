@@ -1,6 +1,6 @@
 package com.rk.theme
 
-import com.rk.extension.model.PackageAuthor
+import com.rk.packages.model.PackageAuthor
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -1,7 +1,8 @@
-package com.rk.settings.extension
+package com.rk.store.ui
 
 import android.os.Build
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -31,14 +36,13 @@ import coil.request.ImageRequest
 import com.rk.App
 import com.rk.common.PackageType
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.extension.Extension
-import com.rk.extension.InstallState
-import com.rk.extension.extensionManager
-import com.rk.extension.manager.StoreManager
-import com.rk.extension.model.Package
-import com.rk.extension.model.UpdatablePackage
+import com.rk.packages.InstallState
+import com.rk.packages.StoreManager
+import com.rk.packages.model.Package
+import com.rk.packages.model.UpdatablePackage
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.store.StoreRegistry
 import com.rk.theme.Typography
 
 @Composable
@@ -54,43 +58,16 @@ fun PackageCard(
     val scope = rememberCoroutineScope()
     val downloadProgress by StoreManager.downloadProgress.collectAsStateWithLifecycle()
 
-    val xedVersionCode = App.versionCode
-    val minAppVersion = pkg.minAppVersion
-    val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
-
-    val currentArchitecture = Build.SUPPORTED_ABIS.firstOrNull()
-    val supportedArchitecture =
-        currentArchitecture == null || pkg.supportedArchitectures?.contains(currentArchitecture) ?: true
-
-    val placeholder =
-        when (pkg.type) {
-            PackageType.THEME -> drawables.palette
-            PackageType.ICON_PACK -> drawables.widgets
-            else -> drawables.extension
-        }
+    val outdatedClient = pkg.isOutdatedClient()
 
     PreferenceTemplate(
         modifier = modifier.fillMaxWidth().clickable(onClick = { onClick(pkg) }),
-        startWidget = {
-            AsyncImage(
-                model =
-                    ImageRequest.Builder(LocalContext.current)
-                        .data(pkg.iconUrl)
-                        .placeholder(placeholder)
-                        .error(placeholder)
-                        .crossfade(true)
-                        .diskCachePolicy(CachePolicy.ENABLED)
-                        .memoryCachePolicy(CachePolicy.ENABLED)
-                        .build(),
-                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)),
-                contentDescription = null,
-            )
-        },
+        startWidget = { PackageIcon(iconUrl = pkg.iconUrl, type = pkg.type, size = 48.dp) },
         title = { Text(text = pkg.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         description = {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ExtensionAuthorIcon(pkg.author, Modifier.size(20.dp).padding(end = 4.dp))
+                    PackageAuthorIcon(pkg.author, Modifier.size(20.dp).padding(end = 4.dp))
                     Text(
                         text = "${pkg.author} • v${pkg.version}",
                         maxLines = 1,
@@ -110,15 +87,7 @@ fun PackageCard(
                         )
                     }
 
-                    if (pkg is Extension && extensionManager.isExtensionCrashed(pkg)) {
-                        Text(
-                            text = " • ${stringResource(strings.disabled_crashed)}",
-                            style = Typography.labelMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
+                    StoreRegistry.sectionFor(pkg.type)?.StatusBadge(pkg)
                 }
 
                 val progress = downloadProgress[pkg.id]
@@ -140,14 +109,68 @@ fun PackageCard(
             }
         },
         endWidget = {
-            SmallExtensionActionButton(
+            SmallPackageActionButton(
                 installState = installState,
                 scope = scope,
                 onInstallClick = onInstallClick,
                 onUninstallClick = onUninstallClick,
                 onUpdateClick = onUpdateClick,
-                outdatedWarning = outdatedClient || !supportedArchitecture,
+                outdatedWarning = outdatedClient || !pkg.isSupportedArchitecture(),
             )
         },
     )
+}
+
+/** Icon of a package, falling back to the placeholder of its [type]. */
+@Composable
+fun PackageIcon(iconUrl: String, type: PackageType, size: Dp) {
+    val placeholder =
+        when (type) {
+            PackageType.THEME -> drawables.palette
+            PackageType.ICON_PACK -> drawables.widgets
+            else -> drawables.extension
+        }
+
+    AsyncImage(
+        model =
+            ImageRequest.Builder(LocalContext.current)
+                .data(iconUrl)
+                .placeholder(placeholder)
+                .error(placeholder)
+                .crossfade(true)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .build(),
+        modifier = Modifier.size(size).clip(RoundedCornerShape(8.dp)),
+        contentDescription = null,
+    )
+}
+
+/** Whether the installed app is too old for [this] package. */
+fun Package.isOutdatedClient(): Boolean {
+    val minAppVersion = minAppVersion ?: return false
+    return App.versionCode < minAppVersion
+}
+
+/** Whether the device CPU is supported by [this] package. */
+fun Package.isSupportedArchitecture(): Boolean {
+    val currentArchitecture = Build.SUPPORTED_ABIS.firstOrNull() ?: return true
+    return supportedArchitectures?.contains(currentArchitecture) ?: true
+}
+
+@Composable
+fun PackageUnavailableWarning(pkg: Package) {
+    if (!pkg.isOutdatedClient() && pkg.isSupportedArchitecture()) return
+
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = Icons.Rounded.Warning,
+            contentDescription = stringResource(strings.warning),
+            tint = MaterialTheme.colorScheme.error,
+        )
+        Text(
+            stringResource(if (pkg.isOutdatedClient()) strings.outdated_client else strings.unsupported_architecture),
+            style = MaterialTheme.typography.labelMedium,
+        )
+    }
 }

@@ -8,14 +8,14 @@ import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
 import com.rk.events.AppEvent
 import com.rk.events.Events
-import com.rk.extension.manager.StoreManager
-import com.rk.extension.model.PackageCache
-import com.rk.extension.model.ReviewStats
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createDirIfNot
 import com.rk.file.localDir
+import com.rk.packages.StoreManager
+import com.rk.packages.model.PackageCache
+import com.rk.packages.model.ReviewStats
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -118,7 +118,13 @@ class IconPackManager(private val context: Application) : CoroutineScope by Coro
         }
     }
 
-    suspend fun installIconPack(xedFile: File) =
+    /**
+     * Installs the icon pack package at [xedFile].
+     *
+     * @return the id of the installed icon pack, or null when the package could not be installed (or is waiting for the
+     *   user to accept an incompatible-version warning).
+     */
+    suspend fun installIconPack(xedFile: File): String? =
         withContext(Dispatchers.IO) {
             val tempDir = File(context.cacheDir, "icon_temp_${System.currentTimeMillis()}")
             tempDir.mkdirs()
@@ -131,8 +137,8 @@ class IconPackManager(private val context: Application) : CoroutineScope by Coro
             }
         }
 
-    private suspend fun installIconPackFromDir(dir: File) {
-        val iconPackManifest = validateIconPack(dir) ?: return
+    private suspend fun installIconPackFromDir(dir: File): String? {
+        val iconPackManifest = validateIconPack(dir) ?: return null
 
         val packageName = application!!.packageName
         val packageManager = application!!.packageManager
@@ -146,10 +152,11 @@ class IconPackManager(private val context: Application) : CoroutineScope by Coro
                 okRes = strings.continue_action,
                 onOk = { DefaultScope.launch { writeIconPackToDisk(iconPackManifest, dir) } },
             )
-            return
+            return null
         }
 
         writeIconPackToDisk(iconPackManifest, dir)
+        return iconPackManifest.id
     }
 
     private suspend fun writeIconPackToDisk(iconPackManifest: IconPackManifest, dir: File) {

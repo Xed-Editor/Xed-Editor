@@ -1,4 +1,4 @@
-package com.rk.settings.extension
+package com.rk.store.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box

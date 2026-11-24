@@ -21,66 +21,62 @@ sealed class ExtensionDialog {
 }
 
 /**
- * Manages the currently opened dialogs related to extensions.
+ * Manages the dialogs shown while an extension is installed, updated or reviewed.
  *
- * An ExtensionDialogManager instance should be constructed per UI screen.
+ * The blocking dialogs (warning, missing dependencies, security scan report) are awaited by the install coroutine
+ * through [awaitWarning], [awaitDependencies] and [awaitScanApproval], so the store can render them from any screen
+ * with [ExtensionDialogRenderer].
  *
- * @see ExtensionDialogRenderer
+ * An instance is owned by the extensions store section, which hosts the install actions.
  */
 class ExtensionDialogManager {
     var activeDialog by mutableStateOf<ExtensionDialog?>(null)
         private set
 
-    private var pendingAction: (() -> Unit)? = null
-
     // Written from the install coroutine (IO) and invoked from the UI thread.
     @Volatile private var pendingDecision: ((Boolean) -> Unit)? = null
 
-    fun showWarning(onApproved: () -> Unit) {
-        pendingAction = onApproved
-        activeDialog = ExtensionDialog.Warning
-    }
+    suspend fun awaitWarning(): Boolean = awaitDecision(ExtensionDialog.Warning)
 
-    fun showDependencies(extension: Extension, missing: List<ExtensionId>, onApproved: () -> Unit) {
-        pendingAction = onApproved
-        activeDialog = ExtensionDialog.Dependencies(extension, missing)
-    }
+    suspend fun awaitDependencies(extension: Extension, missing: List<ExtensionId>): Boolean =
+        awaitDecision(ExtensionDialog.Dependencies(extension, missing))
+
+    suspend fun awaitScanApproval(extensionName: String, findings: List<Finding>): Boolean =
+        awaitDecision(ExtensionDialog.ScanReport(extensionName, findings))
 
     fun showRecommendations(extension: Extension, missing: List<ExtensionId>) {
         activeDialog = ExtensionDialog.Recommendations(extension, missing)
     }
 
-    suspend fun awaitScanApproval(extensionName: String, findings: List<Finding>): Boolean =
-        suspendCancellableCoroutine { continuation ->
-            pendingDecision = { approved ->
-                if (continuation.isActive) {
-                    continuation.resume(approved)
-                }
-            }
-            activeDialog = ExtensionDialog.ScanReport(extensionName, findings)
-
-            continuation.invokeOnCancellation { clearScanReport() }
-        }
-
     fun onApproved() {
-        activeDialog = null
-        pendingDecision?.invoke(true)
+        val decision = pendingDecision
         pendingDecision = null
-        pendingAction?.invoke()
-        pendingAction = null
+        activeDialog = null
+        decision?.invoke(true)
     }
 
     fun onDismiss() {
-        activeDialog = null
-        pendingDecision?.invoke(false)
+        val decision = pendingDecision
         pendingDecision = null
-        pendingAction = null
+        activeDialog = null
+        decision?.invoke(false)
     }
 
-    private fun clearScanReport() {
-        pendingDecision = null
-        if (activeDialog is ExtensionDialog.ScanReport) {
-            activeDialog = null
+    private suspend fun awaitDecision(dialog: ExtensionDialog): Boolean = suspendCancellableCoroutine { continuation ->
+        val previous = pendingDecision
+        pendingDecision = { approved ->
+            if (continuation.isActive) {
+                continuation.resume(approved)
+            }
+        }
+        activeDialog = dialog
+        previous?.invoke(false)
+
+        continuation.invokeOnCancellation {
+            pendingDecision = null
+            if (activeDialog == dialog) {
+                activeDialog = null
+            }
         }
     }
 }

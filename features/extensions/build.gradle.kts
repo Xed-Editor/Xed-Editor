@@ -28,6 +28,7 @@ android {
 
 dependencies {
     implementation(project(":core:main"))
+    implementation(project(":features:store"))
     implementation(project(":core:components"))
     implementation(project(":core:resources"))
 

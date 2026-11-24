@@ -18,11 +18,12 @@ import com.rk.extension.UpdatableExtension
 import com.rk.extension.findExtensionApk
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.model.ExtensionManifest
-import com.rk.extension.model.PackageCache
 import com.rk.extension.scanner.ExtensionScanner
 import com.rk.extension.scanner.ScanApproval
+import com.rk.extension.store.ExtensionStoreApi
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
+import com.rk.packages.model.PackageCache
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.errorDialog
@@ -198,7 +199,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         withContext(Dispatchers.IO) {
             val extensions =
                 runCatching {
-                    StoreManager.fetchExtensions()
+                    ExtensionStoreApi.fetchExtensions()
                 }
                     .getOrNull() ?: return@withContext
             val newExtensions = extensions.associate { it.id to StoreExtension(it) }

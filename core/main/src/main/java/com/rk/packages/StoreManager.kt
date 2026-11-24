@@ -1,12 +1,6 @@
-package com.rk.extension.manager
+package com.rk.packages
 
-import android.util.Log
-import com.rk.extension.EXTENSION_API_BASE
-import com.rk.extension.ICONPACKS_API_BASE
-import com.rk.extension.InstallState
-import com.rk.extension.THEMES_API_BASE
-import com.rk.extension.model.ExtensionManifest
-import com.rk.extension.model.ReviewStats
+import com.rk.common.PackageType
 import com.rk.icons.pack.IconPackEntry
 import com.rk.theme.ThemeEntry
 import com.rk.utils.logError
@@ -20,39 +14,27 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-@Serializable private data class ExtensionListResponse(val extensions: List<ExtensionEntry>)
+private const val THEMES_API_BASE = "https://xed-editor.app/api/themes"
+private const val ICONPACKS_API_BASE = "https://xed-editor.app/api/icon-packs"
+private const val REVIEWS_API_BASE = "https://xed-editor.app/api/reviews"
 
-@Serializable
-data class ExtensionEntry(
-    val id: String,
-    val manifest: ExtensionManifest,
-    val downloads: Int? = null,
-    val download: DownloadUrls,
-    val size: Long? = null,
-    val createdAt: Long,
-    val updatedAt: Long,
-    val rating: ReviewStats,
-)
+@Serializable private data class ThemeListResponse(val themes: List<ThemeEntry>)
 
-@Serializable
-data class DownloadUrls(
-    val icon: String? = null,
-    val readme: String? = null,
-    val zip: String,
-    val size: Long? = null,
-)
+@Serializable private data class IconPackListResponse(val iconPacks: List<IconPackEntry>)
 
-@Serializable data class ThemeListResponse(val themes: List<ThemeEntry>)
-
-@Serializable data class IconPackListResponse(val iconPacks: List<IconPackEntry>)
-
+/**
+ * Package-type agnostic half of the store client.
+ *
+ * Owns the remote registry access for themes and icon packs plus the download/install bookkeeping shared by every store
+ * section. Extension-specific registry access lives with the extensions feature (see
+ * `com.rk.extension.store.ExtensionStoreApi`), so this class stays usable when that feature is not bundled.
+ */
 object StoreManager {
-    private const val TAG = "StoreManager"
-    private const val BASE_URL = EXTENSION_API_BASE
-
     private val client: OkHttpClient = okHttpClient
 
     private val _downloadProgress = MutableStateFlow<Map<String, Float>>(emptyMap())
@@ -114,25 +96,9 @@ object StoreManager {
                 .getOrElse { false }
         }
 
-    suspend fun fetchExtensions(): List<ExtensionEntry> =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                val jsonString = requestJson(BASE_URL)
-                val response = json.decodeFromString<ExtensionListResponse>(jsonString)
-                response.extensions
-            }
-                .onFailure {
-                    logError(it)
-                    throw it
-                }
-                .getOrElse { emptyList() }
-        }
+    fun themeDownloadUrl(id: String): String = "$THEMES_API_BASE/$id/theme.xed"
 
-    fun getIconUrl(id: String): String = "$BASE_URL/$id/icon.png"
-
-    fun getReadmeUrl(id: String): String = "$BASE_URL/$id/README.md"
-
-    fun getChangelogUrl(id: String): String = "$BASE_URL/$id/CHANGELOG.md"
+    fun iconPackDownloadUrl(id: String): String = "$ICONPACKS_API_BASE/$id/iconpack.zip"
 
     fun getThemeIconUrl(id: String): String = "$THEMES_API_BASE/$id/icon.png"
 
@@ -146,13 +112,19 @@ object StoreManager {
 
     fun getIconPackChangelogUrl(id: String): String = "$ICONPACKS_API_BASE/$id/CHANGELOG.md"
 
+    /** URL of the reviews endpoint for one package, e.g. `.../reviews?packageId=foo&packageType=theme`. */
+    fun reviewsUrl(type: PackageType, id: String): HttpUrl =
+        REVIEWS_API_BASE.toHttpUrl()
+            .newBuilder()
+            .addQueryParameter("packageId", id)
+            .addQueryParameter("packageType", type.value)
+            .build()
+
     private fun requestJson(url: String): String {
         val req = Request.Builder().url(url).build()
         return client.newCall(req).execute().use { res ->
             if (!res.isSuccessful) error("HTTP ${res.code}")
-            val body = res.body.string()
-            Log.d(TAG, body)
-            body
+            res.body.string()
         }
     }
 
@@ -160,8 +132,7 @@ object StoreManager {
         withContext(Dispatchers.IO) {
             runCatching {
                 val jsonString = requestJson(THEMES_API_BASE)
-                val response = json.decodeFromString<ThemeListResponse>(jsonString)
-                response.themes
+                json.decodeFromString<ThemeListResponse>(jsonString).themes
             }
                 .onFailure { logError(it) }
                 .getOrElse { emptyList() }
@@ -171,8 +142,7 @@ object StoreManager {
         withContext(Dispatchers.IO) {
             runCatching {
                 val jsonString = requestJson(ICONPACKS_API_BASE)
-                val response = json.decodeFromString<IconPackListResponse>(jsonString)
-                response.iconPacks
+                json.decodeFromString<IconPackListResponse>(jsonString).iconPacks
             }
                 .onFailure { logError(it) }
                 .getOrElse { emptyList() }

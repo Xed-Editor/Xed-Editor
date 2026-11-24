@@ -4,13 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.rk.common.PackageType
-import com.rk.extension.manager.ExtensionEntry
-import com.rk.extension.manager.StoreManager
 import com.rk.extension.model.ExtensionId
 import com.rk.extension.model.ExtensionManifest
-import com.rk.extension.model.Package
-import com.rk.extension.model.Review
-import com.rk.extension.model.UpdatablePackage
+import com.rk.extension.store.ExtensionEntry
+import com.rk.extension.store.ExtensionStoreApi
+import com.rk.packages.model.Package
+import com.rk.packages.model.Review
+import com.rk.packages.model.UpdatablePackage
 import com.rk.xededitor.BuildConfig
 import java.io.File
 
@@ -59,13 +59,13 @@ data class StoreExtension(private val entry: ExtensionEntry) : Extension {
         get() = manifest.hasSettings
 
     override val iconUrl: String
-        get() = StoreManager.getIconUrl(manifest.id)
+        get() = ExtensionStoreApi.getIconUrl(manifest.id)
 
     override val readmeUrl: String
-        get() = StoreManager.getReadmeUrl(manifest.id)
+        get() = ExtensionStoreApi.getReadmeUrl(manifest.id)
 
     override val changelogUrl
-        get() = StoreManager.getChangelogUrl(manifest.id)
+        get() = ExtensionStoreApi.getChangelogUrl(manifest.id)
 
     override val minAppVersion
         get() = manifest.minAppVersion

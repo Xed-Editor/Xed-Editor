@@ -1,4 +1,4 @@
-package com.rk.extension.model
+package com.rk.packages.model
 
 import kotlinx.serialization.Serializable
 

@@ -48,6 +48,7 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.activities.settings.StoreCategories
 import com.rk.app.AppFlavour
 import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
@@ -82,10 +83,14 @@ fun FormatterSettings(navController: NavController, modifier: Modifier = Modifie
         backArrowVisible = true,
         isExpandedScreen = LocalIsExpandedScreen.current,
         fab = {
-            // The store exists only when this build bundles extensions and the user has not disabled them.
+            // Filtering the store by formatters only makes sense when the extensions feature is present.
             if (AppFlavour.current.bundlesExtensions && FeatureRegistry.isEnabled("enable_extension")) {
                 ExtendedFloatingActionButton(
-                    onClick = { navController.navigate("${SettingsRoutes.Extensions.route}?query=formatter") },
+                    onClick = {
+                        navController.navigate(
+                            "${SettingsRoutes.Store.route}?query=formatter&category=${StoreCategories.EXTENSIONS}"
+                        )
+                    },
                     icon = { Icon(painter = painterResource(drawables.extension), contentDescription = null) },
                     text = { Text(stringResource(strings.browse_extensions)) },
                 )

@@ -33,7 +33,7 @@ sealed class SettingsRoutes(val route: String) {
 
     data object ExcludeFiles : SettingsRoutes("exclude_files")
 
-    data object Extensions : SettingsRoutes("extensions")
+    data object Store : SettingsRoutes("store")
 
     data object ExtensionDetail : SettingsRoutes("extension_detail")
 
@@ -72,4 +72,18 @@ sealed class SettingsRoutes(val route: String) {
     data object Account : SettingsRoutes("account")
 
     data object StorageSettings : SettingsRoutes("storage_settings")
+}
+
+/**
+ * Stable ids of the store catalogs.
+ *
+ * Sections register themselves in the store with these ids (see `com.rk.store.StoreRegistry`) and core screens link to
+ * a specific catalog with `store?category=<id>`.
+ */
+object StoreCategories {
+    const val THEMES = "themes"
+
+    const val ICON_PACKS = "icon_packs"
+
+    const val EXTENSIONS = "extensions"
 }

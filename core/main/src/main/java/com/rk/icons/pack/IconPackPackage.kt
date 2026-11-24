@@ -4,14 +4,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.rk.common.PackageType
-import com.rk.extension.manager.StoreManager
-import com.rk.extension.model.Package
-import com.rk.extension.model.PackageAuthor
-import com.rk.extension.model.Review
-import com.rk.extension.model.UpdatablePackage
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.file.FileTypeManager
+import com.rk.packages.StoreManager
+import com.rk.packages.model.Package
+import com.rk.packages.model.PackageAuthor
+import com.rk.packages.model.Review
+import com.rk.packages.model.UpdatablePackage
 import java.io.File
 
 interface IconPackPackage : Package {

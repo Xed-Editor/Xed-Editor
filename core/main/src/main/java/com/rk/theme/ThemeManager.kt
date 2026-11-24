@@ -17,14 +17,14 @@ import com.rk.activities.settings.SettingsActivity
 import com.rk.common.XedPackage
 import com.rk.events.AppEvent
 import com.rk.events.Events
-import com.rk.extension.manager.StoreManager
-import com.rk.extension.model.PackageAuthor
-import com.rk.extension.model.PackageCache
-import com.rk.extension.model.ReviewStats
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.themeDir
+import com.rk.packages.StoreManager
+import com.rk.packages.model.PackageAuthor
+import com.rk.packages.model.PackageCache
+import com.rk.packages.model.ReviewStats
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -234,11 +234,17 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
         }
     }
 
-    suspend fun installTheme(file: File) {
+    /**
+     * Installs the theme package at [file].
+     *
+     * @return the id of the installed theme, or null when the package could not be installed.
+     */
+    suspend fun installTheme(file: File): String? =
         withContext(Dispatchers.IO) {
             val tempDir = File(application!!.cacheDir, "theme_temp_${System.currentTimeMillis()}")
             tempDir.mkdirs()
 
+            var installedId: String? = null
             try {
                 XedPackage.extract(file, tempDir)
 
@@ -247,20 +253,21 @@ class ThemeManager : CoroutineScope by CoroutineScope(Dispatchers.IO) {
 
                 if (!manifestFile.exists() || !themeFile.exists()) {
                     withContext(Dispatchers.Main) { toast("Neither manifest.json nor theme.json found") }
-                    return@withContext
+                    return@withContext null
                 }
 
-                val manifest = validateManifestJson(manifestFile.readText()) ?: return@withContext
-                validateThemeFile(themeFile.readText()) ?: return@withContext
+                val manifest = validateManifestJson(manifestFile.readText()) ?: return@withContext null
+                validateThemeFile(themeFile.readText()) ?: return@withContext null
 
                 installThemeFromData(manifest, tempDir)
+                installedId = manifest.id
             } catch (e: Exception) {
                 errorDialog(e)
             } finally {
                 tempDir.deleteRecursively()
             }
+            installedId
         }
-    }
 
     @OptIn(ExperimentalSerializationApi::class)
     internal fun validateManifestJson(text: String): ThemeManifest? {

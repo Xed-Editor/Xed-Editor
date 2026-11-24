@@ -26,7 +26,7 @@ dependencyResolutionManagement {
 
 include(":app", ":core:main", ":core:components", ":core:resources")
 
-include(":features:terminal", ":features:extensions", ":features:runner", ":features:git")
+include(":features:terminal", ":features:store", ":features:extensions", ":features:runner", ":features:git")
 
 include(":baselineprofile", ":benchmark", ":benchmark2")
 
