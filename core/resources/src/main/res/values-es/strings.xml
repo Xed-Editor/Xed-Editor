@@ -323,7 +323,7 @@
     <string name="theme_flipper">Tema aleta</string>
     <string name="theme_flipper_desc">Cambiar constantemente el modo de tema cada 7s</string>
     <string name="select_language">Seleccionar idioma</string>
-    <string name="delete_failed">No es posible borrar archivo</string>
+    <string name="delete_failed">No es posible borrar archivos</string>
     <string name="add_parent_command">Añadir comando antecesor</string>
     <string name="jump_to_line">Ir a línea</string>
     <string name="line_number">Número de línea</string>
@@ -383,7 +383,7 @@
     <string name="folder_creation_failed">No se puede crear la carpeta</string>
     <string name="data_loss_risk_content">Esta aplicación se proporciona para su uso bajo el entendimiento de que la pérdida de datos puede ocurrir debido a circunstancias imprevistas, incluyendo, entre otras: inestabilidad del software, fallos del sistema, cierre inesperado o problemas con el hardware de almacenamiento. Los usuarios son los únicos responsables de mantener copias de seguridad independientes y periódicas de todos los datos críticos.</string>
     <string name="data_loss_risk">Riesgo de Pérdida de Datos</string>
-    <string name="terminal_risks_content">Esta aplicación incluye la funcionalidad de terminal que proporciona acceso directo a su sistema de archivos. El uso inadecuado de los comandos de terminal puede provocar:\n• Eliminación permanente de archivos o directorios\n• Vulnerabilidades de seguridad\n• Pérdida de datos críticos\n\nUsted es responsable de comprender los comandos que ejecuta y sus posibles consecuencias.</string>
+    <string name="terminal_risks_content">Esta aplicación incluye la funcionalidad de terminal que proporciona acceso directo a su sistema de archivos. Los comandos que ejecutan pueden eliminar archivos o directorios permanentemente, por tanto tú eres el responsable de comprender que hace antes de ejecutarlos.</string>
     <string name="not_liable">Limitación de Responsabilidad</string>
     <string name="not_liable_content">En ningún caso los desarrolladores ni los titulares de los derechos de autor serán responsables de ninguna reclamación, daño o pérdida derivada del uso de este software. Esto incluye, entre otros: pérdida de datos, fallos del sistema, pérdida de ingresos o cualquier daño incidental o consecuente, incluso si se les ha advertido de la posibilidad de dichos daños.</string>
     <string name="ctrl">Ctrl</string>
@@ -715,4 +715,17 @@
     <string name="theme_migrated">Se migraron correctamente %d temas</string>
     <string name="scoped_tabs">Pestañas delimitadas</string>
     <string name="scoped_tabs_desc">Mostrar solo las pestañas del proyecto actual</string>
+    <string name="scroll_to_bottom">Desplácese hacia abajo</string>
+    <string name="security_scan_clean">Ninguna incidencia fue encontrada.</string>
+    <string name="security_scan_restricted">Uso de API restringido</string>
+    <string name="security_scan_suspicious">Comportamiento sospechoso</string>
+    <string name="suggest_keywords">Palabras clave sugeridas</string>
+    <string name="suggest_keywords_desc">Muestra palabras clave predefinidas en sugerencias de autocompletado</string>
+    <string name="suggest_identifiers">Identificadores sugeridos</string>
+    <string name="suggest_identifiers_desc">Recoge y muestra identificadores en sugerencias de autocompletado</string>
+    <string name="format_document_lsp">Documento formateado con LSP</string>
+    <string name="delete_incomplete">Algunos archivos no pudieron ser borrados</string>
+    <string name="incompatible_icon_pack_warning">Este paquete de icono no es compatible con su versión actual de Xed-Editor. ¿Le gustaría proceder a pesar de todo?</string>
+    <string name="store_desc_no_extensions">Descargue temas y paquetes de iconos</string>
+    <string name="security_scan_blocked">Esta extensión utiliza las API restrictivas y no pueden ser instaladas.</string>
 </resources>
