@@ -1005,4 +1005,5 @@
     <string name="account_signed_in_since">로그인 일시</string>
     <string name="account_sign_in_desc">확장, 테마, 아이콘 팩을 게시하고 여러 기기에서 내 리뷰를 검토하려면 xed-editor.app 계정을 사용하세요.</string>
     <string name="security_scan_desc">설치 전에 %1$s 항목이 스캔되었습니다. 아래 결과를 검토하세요.</string>
+    <string name="store_desc_no_extensions">테마 및 아이콘 팩 다운로드</string>
 </resources>
