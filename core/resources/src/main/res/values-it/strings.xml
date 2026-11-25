@@ -1018,4 +1018,5 @@
     <string name="account_sign_out_success">Disconnesso</string>
     <string name="connecting">Connessione…</string>
     <string name="scoped_tabs_open_project_warning">Aprire il primo progetto chiuderà tutte le schede attualmente aperte. Vuoi continuare?</string>
+    <string name="store_desc_no_extensions">Scarica temi e pacchetti di icone</string>
 </resources>
