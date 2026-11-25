@@ -1021,4 +1021,5 @@
     <string name="storage_distribution_desc">Afficher l\'usage de stockage de l\'application</string>
     <string name="total_storage_usage">Total utilisé par l\'application</string>
     <string name="calculating">Calcul…</string>
+    <string name="store_desc_no_extensions">Télécharger des thèmes et des lots d\'icônes</string>
 </resources>
