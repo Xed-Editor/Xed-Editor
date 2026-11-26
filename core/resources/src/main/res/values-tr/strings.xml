@@ -1017,4 +1017,5 @@
     <string name="storage_distribution_desc">Uygulamanın depolama kullanımını görüntüleyin</string>
     <string name="total_storage_usage">Uygulama tarafından kullanılan toplam</string>
     <string name="calculating">Hesaplanıyor…</string>
+    <string name="store_desc_no_extensions">Tema ve ikon paketlerini indir</string>
 </resources>
