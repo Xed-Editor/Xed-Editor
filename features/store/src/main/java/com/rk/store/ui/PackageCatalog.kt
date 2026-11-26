@@ -37,6 +37,7 @@ import com.rk.store.actions.rememberPackageInstallState
 import com.rk.store.actions.runPackageInstallAction
 import com.rk.store.actions.runPackageUninstallAction
 import com.rk.store.actions.runPackageUpdateAction
+import com.rk.utils.toast
 
 /** Renders the packages of a catalog and wires their cards to the section that owns their type. */
 @Composable
@@ -67,7 +68,14 @@ fun PackageCatalogBody(
                     onUpdateClick = { runPackageUpdateAction(pkg, action) },
                     onClick = { clicked ->
                         StoreRegistry.sectionFor(clicked.type)?.let { section ->
-                            navController.navigate(section.detailRoute(clicked))
+                            val route = section.detailRoute(clicked)
+                            // A section can be registered before its route reaches the nav graph (e.g. right
+                            // after enabling a feature). Navigating then throws, so only go when it exists.
+                            if (navController.graph.findNode(route) != null) {
+                                navController.navigate(route)
+                            } else {
+                                toast(strings.restart_required)
+                            }
                         }
                     },
                 )
