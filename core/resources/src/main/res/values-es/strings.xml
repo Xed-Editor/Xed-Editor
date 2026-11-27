@@ -996,7 +996,7 @@
     <string name="suggestions">Sugerencias</string>
     <string name="suggestions_autocorrect">Sugerencias + Autocorregir</string>
     <string name="input_behavior">Comport. de entrada</string>
-    <string name="input_behavior_msg">El comportamiento real de la entrada puede variar según el IME. Los usuarios de idiomas CJK deben evitar la opción \"Sin sugerencias\", ya que estos idiomas dependen de las sugerencias.</string>
+    <string name="input_behavior_msg">El comportamiento actual de la entrada puede variar según el IME. Los usuarios de idiomas CJK deben evitar la opción ‘Sin sugerencias’, ya que estos idiomas dependen de las sugerencias.</string>
     <string name="cache">Caché</string>
     <string name="other_files">Otros archivos</string>
     <string name="indexing_segment">Indizar</string>
@@ -1004,4 +1004,27 @@
     <string name="storage_distribution_desc">Ver el uso de almacén de la apl.</string>
     <string name="total_storage_usage">Total utilizado por apl</string>
     <string name="calculating">Calculando…</string>
+    <string name="rebase">Rebase</string>
+    <string name="rebase_complete">Rebase completo</string>
+    <string name="theme_format_error">Xed-Editor ya no admite la instalación de temas JSON antiguos compuestos por un único archivo. Si este es tu tema, actualízalo conforme a la plantilla de temas actual e inténtalo de nuevo.</string>
+    <string name="ai_waiting_approval">Esperando aprobación…</string>
+    <string name="ai_no_model">No se ha seleccionado ningún modelo para %s. Elige uno en los ajustes de IA.</string>
+    <string name="ai_custom_providers">Proveedores especificados</string>
+    <string name="ai_add_provider">Agregar proveedor</string>
+    <string name="ai_add_provider_description">Cualquier endpoint compatible con OpenAI</string>
+    <string name="ai_edit_provider">Editar proveedor</string>
+    <string name="ai_delete_provider">Eliminar proveedor</string>
+    <string name="ai_delete_provider_message">¿Eliminar %s? Su clave de API y la selección de modelo se eliminarán de este dispositivo.</string>
+    <string name="ai_provider_dialog_hint">Apunta Xed AI a cualquier servidor que utilice el protocolo de «chat-completions» de OpenAI. La ruta de chat se añade a la URL base.</string>
+    <string name="ai_provider_name">Nombre</string>
+    <string name="ai_provider_name_required">Introduzca un nombre</string>
+    <string name="ai_provider_base_url">URL base</string>
+    <string name="ai_provider_base_url_invalid">Introduzca una URL que comience con http:// o https://</string>
+    <string name="ai_provider_path">Ruta de charla</string>
+    <string name="ai_provider_path_hint">Déjalo tal como se muestra, a menos que tu servidor utilice una ruta distinta.</string>
+    <string name="ai_provider_models">Modelos</string>
+    <string name="ai_provider_models_hint">IDs de modelo, separados por comas. También puedes escribir cualquier ID en el selector de modelos.</string>
+    <string name="ai_provider_requires_key">Requiere clave de API</string>
+    <string name="ai_tool_in">En</string>
+    <string name="ai_tool_scratchpad">Bloc de notas</string>
 </resources>
