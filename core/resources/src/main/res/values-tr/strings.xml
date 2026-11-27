@@ -1008,4 +1008,21 @@
     <string name="total_storage_usage">Uygulama tarafından kullanılan toplam</string>
     <string name="calculating">Hesaplanıyor…</string>
     <string name="store_desc_no_extensions">Tema ve ikon paketlerini indir</string>
+    <string name="ai_no_model">%s için model seçilmedi. AI ayarlarından birini seçin.</string>
+    <string name="ai_custom_providers">Özel sağlayıcılar</string>
+    <string name="ai_add_provider">Sağlayıcı ekle</string>
+    <string name="ai_add_provider_description">OpenAI uyumlu herhangi bir uç nokta</string>
+    <string name="ai_edit_provider">Sağlayıcıyı düzenle</string>
+    <string name="ai_delete_provider">Sağlayıcıyı sil</string>
+    <string name="ai_delete_provider_message">%s silinsin mi? API anahtarı ve model seçimi bu cihazdan kaldırılır.</string>
+    <string name="ai_provider_dialog_hint">Xed AI\'ı OpenAI sohbet tamamlama protokolünü destekleyen herhangi bir sunucuya yönlendirin. Sohbet yolu, temel URL\'nin sonuna eklenir.</string>
+    <string name="ai_provider_name">İsim</string>
+    <string name="ai_provider_name_required">Bir isim girin</string>
+    <string name="ai_provider_base_url">Temel URL</string>
+    <string name="ai_provider_base_url_invalid">http:// veya https:// ile başlayan bir URL girin</string>
+    <string name="ai_provider_path">Sohbet yolu</string>
+    <string name="ai_provider_path_hint">Sunucunuz farklı bir yol kullanmıyorsa gösterildiği gibi bırakın.</string>
+    <string name="ai_provider_models">Modeller</string>
+    <string name="ai_provider_models_hint">Model kimlikleri, virgülle ayrılmış. Model seçicide herhangi bir kimliği de yazabilirsiniz.</string>
+    <string name="ai_provider_requires_key">API anahtarı gerektirir</string>
 </resources>
