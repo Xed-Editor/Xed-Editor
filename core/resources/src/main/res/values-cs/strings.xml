@@ -31,7 +31,6 @@
     <string name="restore">Obnovit</string>
     <string name="monet_desc">Použít téma zařízení</string>
     <string name="unknown_error">Neznámá chyba</string>
-    <string name="show_suggestions">Zobrazovat návrhy klávesnice</string>
     <string name="downloading">Stažení…</string>
     <string name="network_err">Chyba Sítě. Prosím zkontrolujte zda vaše připojení funguje správně.</string>
     <string name="highlighting">Zvýraznění syntaxu</string>
@@ -255,8 +254,6 @@
     <string name="acquire_wakelock">Zabránit uspání zařízení</string>
     <string name="release_wakelock">Povolit uspání zařízení</string>
     <string name="native_runner">Tento spouštěč pracuje pouze s nativními soubory, zvažte jejich přesun do domovského adresáře terminálu</string>
-    <string name="text_mate_suggestion">Automatické dokončování TextMate</string>
-    <string name="text_mate_suggestion_desc">Navrhovat předdefinovaná klíčová slova</string>
     <string name="seccomp_desc">Opravit chybu \"function not implemented\" na některých zařízeních</string>
     <string name="wrapper_type">Typ wrapperu</string>
     <string name="debug_options">Ladící možnosti</string>
@@ -426,7 +423,6 @@
     <string name="enable_editorconfig">Zapnout podporu EditorConfig</string>
     <string name="enable_editorconfig_desc">Automaticky použít pravidla stylu zdrojového kódu definované ve .editorconfig souborech</string>
     <string name="show_hidden_files">Zobrazit skryté soubory</string>
-    <string name="icon_pack_missing_fields">Soubor manifest.json má chybějící nebo neplatné vlastnosti:\n%s\n\nProsím zkontrolujte soubor a zkuste to znuvu.</string>
     <string name="manifest_missing">Soubor manifest.json chybí. Prosím přidejte ho a zkuste to znovu.</string>
     <string name="outdated_extension">Tento doplňek byl vytvořen pro starší verzi Xed-Editoru. Prosím požádejte vývojáře o novou verzi.</string>
     <string name="outdated_client">Váš Xed-Editor není aktuální. Prosím udělejte aktualizaci na nejnovější verzi pro využití tohoto doplňku.</string>
@@ -603,7 +599,6 @@
     <string name="store">Obchod</string>
     <string name="search_extensions">Hledat doplňky</string>
     <string name="date_added">Datum přidané</string>
-    <string name="verified">Ověřeno</string>
     <string name="filter_options">Možnosti filtru</string>
     <string name="sort_options">Možnosti seřazení</string>
     <string name="source_code">Zdrojový kód</string>
@@ -656,8 +651,6 @@
     <string name="terminal_health_desc">Spustit kontroly pro identifikování problémů v terminálovém prostředí</string>
     <string name="terminal_health">Zdraví terminálu</string>
     <string name="no_logs">Žádné protokoly dostupné</string>
-    <string name="samsung_proot_warning">Vaše zařízení Samsung má známý problém, který způsobuje selhání instalace terminálu pomocí PRoot.</string>
-    <string name="terminal_degraded_warning">Terminál teď běží v degredovaném režimu kvůli známé chyby kompatibility způsobena problémem v prostředí PRoot na některých zařízení. Některé funkce mohou být omezené nebo se budou rozdílně chovat.</string>
     <string name="disabled_crashed">Vypnuto (Havarovalo)</string>
     <string name="rename_symbol">Přejmenovat prvek</string>
     <string name="rename_symbol_error">Selhalo přejmenování prvku.</string>

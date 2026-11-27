@@ -98,7 +98,6 @@
     <string name="auto_mode">تلقائي</string>
     <string name="theme_mode">سمة</string>
     <string name="theme_mode_desc">تغيير لون سمة التطبيق</string>
-    <string name="show_suggestions">إظهار اقتراحات لوحة المفاتيح</string>
     <string name="about">حول</string>
     <string name="about_desc">حول Xed-Editor</string>
     <string name="version">الإصدار</string>
@@ -215,7 +214,6 @@
     <string name="confirm_exit">هل أنت متأكد من رغبتك بالخروج؟</string>
     <string name="tab_memory_warning">لا تتوفر مساحة كافية بالذاكرة لفتح هذه التبويبة. قد يؤدي فتحها إلى تعطل برنامج Xed-Editor. هل تريد المتابعة على أي حال؟</string>
     <string name="read_mode_desc">تفعيل وضع القراءة افتراضيا</string>
-    <string name="text_mate_suggestion_desc">اقتراح كلمات مفتاحية محددة مسبقًا</string>
     <string name="install">تثبيت</string>
     <string name="ask_lsp_install">هل تود تثبيت خادم اللغة \'%s\'؟</string>
     <string name="ask_lsp_update">هل تود تحديث خادم اللغة \'%s\'؟</string>
@@ -295,7 +293,6 @@
     <string name="cannot_rename_symbol">لا يمكنك اعادة تسمية هذا الرمز.</string>
     <string name="view_app_logs">عرض سجلات التطبيق</string>
     <string name="updating">جاري التحديث…</string>
-    <string name="text_mate_suggestion">الإكمال التلقائي ل TextMate</string>
     <string name="wrapper_type">نوع الغلاف</string>
     <string name="strict_mode_desc">اكتشاف الوصول إلى القرص أو الشبكة على الخيط الرئيسي</string>
     <string name="use_tabs">إدخال حرف التبويب</string>

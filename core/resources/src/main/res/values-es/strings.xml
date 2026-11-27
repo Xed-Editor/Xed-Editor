@@ -86,7 +86,6 @@
     <string name="dark_mode">Oscuro</string>
     <string name="auto_mode">Tema automático</string>
     <string name="theme_mode">Modo de tema</string>
-    <string name="show_suggestions">Mostrar sugerencias de teclado</string>
     <string name="about">Acerca de</string>
     <string name="about_desc">Acerca de Xed-Editor</string>
     <string name="version">Versión</string>
@@ -230,8 +229,6 @@
     <string name="native_runner">Este corredor solo funciona en archivos nativos, considere moverlo al directorio inicial del terminal</string>
     <string name="terminal_virus_notice">En algunos dispositivos, especialmente ciertos modelos desde China, puede ver una advertencia de seguridad del sistema cuando muchos procesos están ejecutándose en el terminal (por ejemplo durante \'apt update\' o \'apt upgrade\'). Esto es un falso positivo y no indica un virus real.</string>
     <string name="saf_expose_warning">Exponer el directorio personal puede revelar información confidencial a aplicaciones maliciosas, incluyendo tokens de Git, contraseñas, nombres de usuario y otros archivos almacenados en el directorio personal de tu terminal. ¿Deseas continuar?</string>
-    <string name="text_mate_suggestion">Autocompletado de TextMate</string>
-    <string name="text_mate_suggestion_desc">Sugerir palabras clave predefinidas</string>
     <string name="ask_lsp_install">¿Desea instalar el servidor de idioma \'%s\'?</string>
     <string name="seccomp_desc">Solucionar el error «función no implementada» en algunos dispositivos</string>
     <string name="non_native_filetype">No se admite la ejecución de código en esta ubicación. Considere mover el archivo al directorio de inicio de la terminal para ejecutarlo.</string>
@@ -458,7 +455,6 @@
     <string name="last_modified">Último modificado</string>
     <string name="content_property">%s elementos, total de %s</string>
     <string name="icon_pack_install_failed">Paquete de icono de instalación incorrecto</string>
-    <string name="icon_pack_missing_fields">El archivo manifest.json tiene ausente o propiedades no válidas:\n%s\n\nCompruebe el archivo e inténtelo de nuevo.</string>
     <string name="manifest_missing">El archivo manifest.json está ausente. Añádalo e inténtelo de nuevo.</string>
     <string name="outdated_extension">Esta extensión fue realizada para una versión más antigua que el Xed-Editor. Solicite al desarrollador una actualización.</string>
     <string name="outdated_client">Su Xed-Editor está obsoleto. Actualice a la última versión para utilizar esta extensión.</string>
@@ -604,7 +600,6 @@
     <string name="store">Almacén</string>
     <string name="search_extensions">Buscar extensiones</string>
     <string name="date_added">Fecha agregada</string>
-    <string name="verified">Verificado</string>
     <string name="filter_options">Opciones del filtro</string>
     <string name="sort_options">Opciones de ordenamiento</string>
     <string name="source_code">Código fuente</string>
@@ -688,13 +683,10 @@
     <string name="disabled_crashed">Deshabilitado (estrellado)</string>
     <string name="download_count">Número de descargas</string>
     <string name="check_network_access">Comprobar acceso de red</string>
-    <string name="samsung_proot_warning">Tu dispositivo Samsung se ve afectado por una incidencia conocida que provoca que falle la instalación del terminal basado en PRoot.</string>
-    <string name="terminal_degraded_warning">Actualmente, la terminal se ejecuta en modo degradado debido a un problema de compatibilidad conocido, causado por un fallo en el entorno PRoot en ciertos dispositivos. Algunas funciones pueden estar limitadas o comportarse de forma diferente.</string>
     <string name="check_ubuntu">Comprobar Ubuntu</string>
     <string name="check_proot">Comprobar PRoot</string>
     <string name="check_system_shell">Comprobar consola del sistema</string>
     <string name="supported">Mantenido</string>
-    <string name="crashed">Colgado</string>
     <string name="publish_date">Fecha de publicación</string>
     <string name="record_rpc_traffic">Grabar tráfico RPC</string>
     <string name="record_rpc_traffic_desc">Bitácora RPC para comunicación de servidores del idioma para depurar</string>

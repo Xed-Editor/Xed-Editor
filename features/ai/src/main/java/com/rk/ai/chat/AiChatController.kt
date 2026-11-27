@@ -101,6 +101,14 @@ class AiChatController {
             return
         }
 
+        if (AiProviderRuntime.modelId().isBlank()) {
+            // A provider the user added themselves may not list any model yet.
+            val message = strings.ai_no_model.getFilledString(AiProviderRuntime.activeProvider().displayName)
+            Log.w(TAG, message)
+            reportError(message)
+            return
+        }
+
         messages.add(AiChatMessage(id = nextId++, role = AiChatRole.User, text = text))
         if (draftState.isNotEmpty()) draftState = ""
         markChanged()

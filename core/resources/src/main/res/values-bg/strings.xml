@@ -99,7 +99,6 @@
     <string name="auto_mode">Автоматична</string>
     <string name="theme_mode">Режим на тема</string>
     <string name="theme_mode_desc">Промяна на цветовата тема на приложението</string>
-    <string name="show_suggestions">Показване на предложения за клавиатура</string>
     <string name="about">Относно</string>
     <string name="about_desc">Относно Xed-Editor</string>
     <string name="version">Версия</string>
@@ -203,8 +202,6 @@
     <string name="release_wakelock">Освободете заключването след събуждане</string>
     <string name="native_runner">Този изпълнител работи само с оригинални файлове, помислете за преместването му в началната директория на терминала</string>
     <string name="terminal_virus_notice">На някои устройства, особено на определени модели от Китай, може да видите предупреждение за системна сигурност, когато в терминала се изпълняват много процеси (например по време на „apt update“ или „apt upgrade“). Това е фалшиво положителен резултат и не е индикация за истински вирус.</string>
-    <string name="text_mate_suggestion">Автоматично довършване на TextMate</string>
-    <string name="text_mate_suggestion_desc">Предложете предварително зададени ключови думи</string>
     <string name="install">Инсталиране</string>
     <string name="ask_lsp_install">Искате ли да инсталирате езиковия сървър \'%s\'?</string>
     <string name="uninstall_terminal_warning">Да деинсталирате Ubuntu за постоянно? Това действие не може да бъде отменено.</string>

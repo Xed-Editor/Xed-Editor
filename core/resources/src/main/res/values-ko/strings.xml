@@ -108,7 +108,6 @@
     <string name="auto_mode">시스템 설정에 따름</string>
     <string name="theme_mode">테마 설정</string>
     <string name="theme_mode_desc">앱의 색 테마를 변경합니다</string>
-    <string name="show_suggestions">키보드 제안 표시</string>
     <string name="about">정보</string>
     <string name="about_desc">Xed-Editor에 대한 정보</string>
     <string name="version">버전</string>
@@ -213,8 +212,6 @@
     <string name="release_wakelock">절전 방지 끄기</string>
     <string name="native_runner">해당 실행기는 네이티브 파일에서만 돌아가며, 터미널 홈 디렉터리로 옮기는 것을 고려해보세요</string>
     <string name="terminal_virus_notice">중국 브랜드의 몇몇 기기들은 터미널에서 많은 프로세스가 실행될 때 시스템 보안 경고를 볼 수도 있습니다(예를 들어, \'apt update\'나 \'apt upgrade\'가 진행 중일 때). 이 것은 거짓 양성이며, 실제 바이러스가 아닙니다.</string>
-    <string name="text_mate_suggestion">TextMate 자동 완성</string>
-    <string name="text_mate_suggestion_desc">사전 정의된 키워드 추천</string>
     <string name="install">설치</string>
     <string name="ask_lsp_install">\'%s\' 언어 서버를 설치하실 건가요?</string>
     <string name="ask_lsp_update">\'%s\' 언어 서버를 업데이트 하실 건가요?</string>
@@ -841,7 +838,6 @@
     <string name="ai_denied_by_user">사용자가 거부함.</string>
     <string name="ai_stopped_denied">중지: 사용자가 도구를 거부함.</string>
     <string name="ai_plan_mode_blocked">계획 모드: 쓰기 및 셸 명령 꺼짐.</string>
-    <string name="ai_stopped_max_steps">최종 답안 없이 %d단계 후에 중지됨.</string>
     <string name="ai_no_api_key">%s의 API 키를 구성하지 않음. AI 설정에서 하나 추가하세요.</string>
     <string name="ai_request_failed">요청 실패</string>
     <string name="ai_provider">제공자</string>
@@ -972,7 +968,6 @@
     <string name="gpg_passphrase_input_label">키 비밀구절 (선택)</string>
     <string name="gpg_key_missing">GPG 서명이 켜져 있으나, 설정에서 GPG 키가 설정되지 않았습니다.</string>
     <string name="scoped_tabs_close_current_project">정말 \'%s\' 프로젝트를 닫으실 건가요? 저장하지 않은 작업을 포함한 이 작업공간의 모든 탭을 닫게 됩니다.</string>
-    <string name="scoped_tabs_open_project_warning">프로젝트를 열면 현재 열린 모든 탭이 닫힙니다. 진행할까요?</string>
     <string name="security_scan">보안 스캔</string>
     <string name="retry">재시도</string>
     <string name="account_desc">xed-editor.app으로 로그인</string>

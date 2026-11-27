@@ -97,7 +97,6 @@
     <string name="auto_mode">Automático</string>
     <string name="theme_mode">Modo do tema</string>
     <string name="theme_mode_desc">Alterar o tema do aplicativo</string>
-    <string name="show_suggestions">Exibir sugestões do teclado</string>
     <string name="about">Sobre</string>
     <string name="about_desc">Sobre o Xed-Editor</string>
     <string name="version">Versão</string>
@@ -201,10 +200,8 @@
     <string name="release_wakelock">Liberar wakelock</string>
     <string name="native_runner">Este executável só funciona em arquivos nativos. Considere movê-lo para o diretório inicial do terminal</string>
     <string name="terminal_virus_notice">Em alguns dispositivos, especialmente em determinados modelos da China, você poderá ver um aviso de segurança do sistema quando muitos processos estiverem em execução no terminal (por exemplo, durante o “apt update” ou “apt upgrade”). Trata-se de um falso positivo e não indica a presença de um vírus real.</string>
-    <string name="text_mate_suggestion_desc">Sugerir palavras-chave predefinidas</string>
     <string name="install">Instalar</string>
     <string name="ask_lsp_install">Deseja instalar o servidor de linguagem \'%s\'?</string>
-    <string name="text_mate_suggestion">Autocompletar do TextMate</string>
     <string name="uninstall_terminal_warning">Deletar Ubuntu permanentemente? Essa ação não pode ser revertida.</string>
     <string name="uninstall">Desinstalar</string>
     <string name="uninstall_terminal">Desinstalar terminal</string>
@@ -850,7 +847,6 @@
     <string name="ai_denied_by_user">Negado pelo usuário.</string>
     <string name="ai_stopped_denied">Interrompido: o usuário negou uma ferramenta.</string>
     <string name="ai_plan_mode_blocked">Modo de planejamento: escrita e comandos shell estão desativados.</string>
-    <string name="ai_stopped_max_steps">Interrompido após %d etapas sem uma resposta final.</string>
     <string name="ai_no_api_key">Nenhuma chave de API configurada para %s. Adicione uma nas configurações de IA.</string>
     <string name="ai_request_failed">Falha na requisição</string>
     <string name="ai_provider">Provedor</string>
@@ -981,6 +977,5 @@
     <string name="storage_distribution_desc">Ver o uso de espaço de armazenamento do aplicativo</string>
     <string name="total_storage_usage">Total utilizado pelo aplicativo</string>
     <string name="calculating">Calculando…</string>
-    <string name="scoped_tabs_open_project_warning">Ao abrir seu primeiro projeto, todas as guias abertas no momento serão fechadas. Deseja continuar?</string>
     <string name="security_scan">Verificação de segurança</string>
 </resources>

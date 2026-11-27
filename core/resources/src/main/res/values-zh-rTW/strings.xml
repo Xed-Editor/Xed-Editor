@@ -98,7 +98,6 @@
     <string name="auto_mode">自動</string>
     <string name="theme_mode">主題模式</string>
     <string name="theme_mode_desc">將主題更改為自動、淺色或神色</string>
-    <string name="show_suggestions">顯示鍵盤選詞建議</string>
     <string name="about">關於</string>
     <string name="about_desc">關於 Xed-Editor</string>
     <string name="version">版本</string>
@@ -201,8 +200,6 @@
     <string name="release_wakelock">停用螢幕常亮</string>
     <string name="native_runner">此執行器僅適用於原生檔案，請考慮將其移動到終端機主目錄</string>
     <string name="terminal_virus_notice">在某些裝置上，特別是部分中國製的型號，當終端機中執行許多程序時（例如執行 apt update 或 apt upgrade），你可能會看到系統安全性警告。這是誤報，並不代表真的有病毒。</string>
-    <string name="text_mate_suggestion">TextMate 自動補全</string>
-    <string name="text_mate_suggestion_desc">建議預先定義的關鍵字</string>
     <string name="install">安裝</string>
     <string name="ask_lsp_install">是否要安裝 \'%s\' 語言伺服器？</string>
     <string name="uninstall_terminal_warning">要永久解除安裝 Ubuntu 嗎？此操作將無法復原。</string>
@@ -454,7 +451,6 @@
     <string name="last_modified">最後修改時間</string>
     <string name="content_property">%s 個項目，總計 %s</string>
     <string name="icon_pack_install_failed">圖示套件安裝失敗</string>
-    <string name="icon_pack_missing_fields">manifest.json 檔案缺少或包含無效的屬性：\n%s\n\n請檢查檔案後再試一次。</string>
     <string name="manifest_missing">缺少 manifest.json 檔案。請加入後再試一次。</string>
     <string name="outdated_extension">此擴充功能是為舊版 Xed-Editor 製作的。請向開發者索取更新版本。</string>
     <string name="outdated_client">你的 Xed-Editor 版本已過期。請更新至最新版本以使用此擴充功能。</string>
@@ -617,7 +613,6 @@
     <string name="store">商店</string>
     <string name="search_extensions">搜尋擴充功能</string>
     <string name="date_added">新增日期</string>
-    <string name="verified">已驗證</string>
     <string name="filter_options">篩選選項</string>
     <string name="sort_options">排序選項</string>
     <string name="source_code">原始碼</string>

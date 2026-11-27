@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktfmt)
 }
 
@@ -41,9 +42,13 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines)
 
+    implementation(libs.kotlinx.serialization.json)
+
     implementation(libs.okhttp)
 
     implementation(libs.koog.agents)
 
     implementation("ai.koog:http-client-ktor:1.2.0")
+
+    testImplementation(libs.junit)
 }

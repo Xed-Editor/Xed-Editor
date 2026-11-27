@@ -98,7 +98,6 @@
     <string name="dark_mode">暗色</string>
     <string name="auto_mode">自动</string>
     <string name="theme_mode_desc">修改应用主题颜色</string>
-    <string name="show_suggestions">显示键盘选词建议</string>
     <string name="about">关于</string>
     <string name="about_desc">关于 Xed-Editor</string>
     <string name="version">版本</string>
@@ -201,8 +200,6 @@
     <string name="release_wakelock">关闭屏幕常亮</string>
     <string name="native_runner">此运行器仅适用于本地文件，建议将其移动到终端主目录</string>
     <string name="terminal_virus_notice">在一些设备上，特别是中国的某些型号，当终端中运行大量进程（例如执行 apt update 或 apt upgrade 时），你可能会看到系统显示安全警告。这是系统误报，并不代表真的有病毒。</string>
-    <string name="text_mate_suggestion">TextMate 自动补全</string>
-    <string name="text_mate_suggestion_desc">提示预设的关键字</string>
     <string name="install">安装</string>
     <string name="ask_lsp_install">你想要安装 \'%s\' 语言服务器吗？</string>
     <string name="uninstall_terminal_warning">确定要卸载 Ubuntu 吗？此操作不可恢复。</string>
@@ -453,7 +450,6 @@
     <string name="add_icon_pack">添加图标包</string>
     <string name="last_modified">最后修改日期</string>
     <string name="icon_pack_install_failed">图标包安装失败</string>
-    <string name="icon_pack_missing_fields">文件 manifest.json 缺少或包含无效属性：\n%s\n\n请检查该文件并重试。</string>
     <string name="manifest_missing">缺少 manifest.json 文件。请添加该文件并重试。</string>
     <string name="outdated_extension">此扩展程序适用于旧版本的 Xed-Editor。请联系开发者获取更新。</string>
     <string name="outdated_client">您的 Xed-Editor 版本过低。请更新至最新版本以使用此扩展程序。</string>
@@ -618,7 +614,6 @@
     <string name="search_extensions">搜索扩展</string>
     <string name="empty_err">暂无内容。</string>
     <string name="date_added">添加时间</string>
-    <string name="verified">已验证</string>
     <string name="filter_options">过滤</string>
     <string name="sort_options">排序</string>
     <string name="source_code">源代码</string>
@@ -673,8 +668,6 @@
     <string name="check_ubuntu">检查 Ubuntu®</string>
     <string name="check_network_access">检查网络</string>
     <string name="check_abnormalities">检查异常</string>
-    <string name="samsung_proot_warning">你的三星®设备存在一个会导致基于 PRoot 的终端发生故障的已知问题。</string>
-    <string name="terminal_degraded_warning">由于一个已知的兼容性问题，PRoot 环境的终端正以降级模式运行。部分特性暂时受限或行为异常。</string>
     <string name="seccomp_unspecified">未指定</string>
     <string name="seccomp_no_seccomp">无 seccomp</string>
     <string name="seccomp_seccomp">启用 seccomp</string>
@@ -687,7 +680,6 @@
     <string name="search_icon_packs">查找图标包</string>
     <string name="download_count">下载次数</string>
     <string name="supported">已支持</string>
-    <string name="crashed">已崩溃</string>
     <string name="publish_date">发布日期</string>
     <string name="record_rpc_traffic">记录 RPC 流量</string>
     <string name="record_rpc_traffic_desc">将语言服务器的通信流量写入日志以便调试</string>
@@ -849,7 +841,6 @@
     <string name="ai_denied_by_user">被用户拒绝。</string>
     <string name="ai_stopped_denied">已终止：用户拒绝了一个工具。</string>
     <string name="ai_plan_mode_blocked">计划模式：写入操作和 shell 命令被禁用。</string>
-    <string name="ai_stopped_max_steps">在生成最终回答前停止（运行步数：%d）。</string>
     <string name="ai_no_api_key">没有为 %s 设置 API key。请在 AI 设置里追加一个。</string>
     <string name="ai_request_failed">请求失败</string>
     <string name="ai_provider">提供者</string>

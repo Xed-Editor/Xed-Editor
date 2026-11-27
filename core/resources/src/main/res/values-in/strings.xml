@@ -94,7 +94,6 @@
     <string name="auto_mode">Otomatis</string>
     <string name="theme_mode">Mode tema</string>
     <string name="theme_mode_desc">Ubah tema warna aplikasi</string>
-    <string name="show_suggestions">Tampilkan saran keyboard</string>
     <string name="about">Tentang</string>
     <string name="about_desc">Tentang Xed-Editor</string>
     <string name="version">Versi</string>
@@ -201,8 +200,6 @@
     <string name="release_wakelock">Lepaskan wakelock</string>
     <string name="native_runner">Runner ini hanya berfungsi pada file native, pertimbangkan untuk memindahkannya ke direktori beranda terminal</string>
     <string name="terminal_virus_notice">Pada beberapa perangkat, terutama model tertentu dari Tiongkok, Anda mungkin melihat peringatan keamanan sistem ketika banyak proses berjalan di terminal (misalnya selama \'apt update\' atau \'apt upgrade\'). Ini adalah positif palsu dan tidak menunjukkan virus yang sebenarnya.</string>
-    <string name="text_mate_suggestion">Pelengkapan otomatis TextMate</string>
-    <string name="text_mate_suggestion_desc">Sarankan kata kunci yang telah ditentukan</string>
     <string name="install">Pasang</string>
     <string name="ask_lsp_install">Apakah Anda ingin memasang server bahasa \'%s\'?</string>
     <string name="uninstall_terminal_warning">Copot pemasangan Ubuntu secara permanen? Tindakan ini tidak dapat dibatalkan.</string>
@@ -454,7 +451,6 @@
     <string name="last_modified">Terakhir dimodifikasi</string>
     <string name="content_property">%s item, total %s</string>
     <string name="icon_pack_install_failed">Gagal memasang paket ikon</string>
-    <string name="icon_pack_missing_fields">File manifest.json memiliki properti yang hilang atau tidak valid:\n%s.\n\nSilakan periksa file dan coba lagi.</string>
     <string name="manifest_missing">File manifest.json tidak ada. Silakan tambahkan dan coba lagi.</string>
     <string name="outdated_extension">Ekstensi ini dibuat untuk versi Xed-Editor yang lebih lama. Silakan minta pengembang untuk pembaruan.</string>
     <string name="outdated_client">Xed-Editor Anda sudah usang. Harap perbarui ke versi terbaru untuk menggunakan ekstensi ini.</string>
@@ -617,7 +613,6 @@
     <string name="store">Toko</string>
     <string name="search_extensions">Cari ekstensi</string>
     <string name="date_added">Tanggal ditambahkan</string>
-    <string name="verified">Terverifikasi</string>
     <string name="filter_options">Opsi filter</string>
     <string name="sort_options">Opsi pengurutan</string>
     <string name="source_code">Kode sumber</string>
@@ -672,8 +667,6 @@
     <string name="check_ubuntu">Periksa Ubuntu</string>
     <string name="check_network_access">Periksa akses jaringan</string>
     <string name="check_abnormalities">Periksa kelainan</string>
-    <string name="samsung_proot_warning">Perangkat Samsung Anda mengalami masalah yang telah diketahui, yang menyebabkan kegagalan penginstalan terminal berbasis PRoot.</string>
-    <string name="terminal_degraded_warning">Terminal saat ini beroperasi dalam mode terbatas akibat masalah kompatibilitas yang telah diketahui, yang disebabkan oleh gangguan pada lingkungan PRoot di perangkat tertentu. Beberapa fitur mungkin terbatas atau berfungsi secara berbeda.</string>
     <string name="seccomp_unspecified">Tidak ditentukan</string>
     <string name="seccomp_no_seccomp">Tanpa seccomp</string>
     <string name="seccomp_seccomp">Seccomp</string>
@@ -686,7 +679,6 @@
     <string name="search_themes">Cari tema</string>
     <string name="search_icon_packs">Cari paket ikon</string>
     <string name="supported">Didukung</string>
-    <string name="crashed">Macet</string>
     <string name="publish_date">Tanggal publikasi</string>
     <string name="record_rpc_traffic">Rekam lalu lintas RPC</string>
     <string name="record_rpc_traffic_desc">Catat komunikasi RPC server bahasa untuk proses debug</string>
@@ -790,8 +782,6 @@
     <string name="git_conflict_detection">Deteksi konflik</string>
     <string name="git_conflict_detection_desc">Tampilkan penanda konflik dan opsi penyelesaian di editor</string>
     <string name="credentials_github">Untuk terhubung ke GitHub, Anda harus memasukkan token PAT, bukan kata sandi akun GitHub Anda.</string>
-    <string name="theme_format_changed">Format tema telah diubah. Format ini tidak lagi didukung</string>
-    <string name="unknown_package">Tipe paket tidak dikenal</string>
     <string name="scoped_tabs">Tab tercakup</string>
     <string name="scoped_tabs_desc">Tampilkan hanya tab milik proyek saat ini</string>
     <string name="delete_incomplete">Beberapa file tidak dapat dihapus</string>

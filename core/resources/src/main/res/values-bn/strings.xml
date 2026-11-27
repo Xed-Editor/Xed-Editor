@@ -152,7 +152,6 @@
     <string name="confirm_exit">আপনি নিশ্চিত যে আপনি বের হতে চান?</string>
     <string name="tab_memory_warning">এই ট্যাব খোলার জন্য পর্যাপ্ত মেমোরি নেই। খোলা হলে Xed-Editor crash করতে পারে। আপনি কি তাও এগোতে চান?</string>
     <string name="terminal_virus_notice">কিছু কিছু ডিভাইসে, বিশেষ করে চায়না থেকে কিছু নির্দিষ্ট মডেলে, টার্মিনালে নানা প্রসেস চলমান অবস্থায় আপনি একটি সিস্টেম নিরাপত্তা সতর্কতা দেখতে পারেন (যেমন \'apt update\' বা \'apt upgrade\' এর ক্ষেত্রে)। এটি একটি মিথ্যা ইতিবাচক ফলাফল যা সত্যিকারের ভাইরাস নির্দেশ করে না।</string>
-    <string name="text_mate_suggestion_desc">পূর্ব-নির্ধারিত keywords সুপারিশ করুন</string>
     <string name="install">ইনস্টল</string>
     <string name="ask_lsp_install">আপনি কি \'%s\' ল্যাঙ্গুয়েজ সার্ভার ইন্সটল করতে চান?</string>
     <string name="ask_lsp_update">আপনি কি \'%s\' ল্যাঙ্গুয়েজ সার্ভার আপডেট করতে চান?</string>
@@ -246,7 +245,6 @@
     <string name="whole_word">পুরো শব্দ</string>
     <string name="go_to_definition">ব্যাখায় যান</string>
     <string name="go_to_references">রেফারেন্সে যান</string>
-    <string name="scoped_tabs_open_project_warning">আপনার প্রথম প্রজেক্ট খোলার ফলে বর্তমানে খোলা সমস্ত ট্যাব বন্ধ হয়ে যাবে। আপনি কি চালিয়ে যেতে চান?</string>
     <string name="ai_tool_field">ফিল্ড</string>
     <string name="ai_tool_max_bytes">সর্বোচ্চ বাইট</string>
     <string name="ai_tool_headers">হেডারস</string>

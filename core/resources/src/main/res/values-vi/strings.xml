@@ -296,7 +296,6 @@
     <string name="invalid_characters">Kí tự không hợp lệ</string>
     <string name="auto_save_delay_desc">Độ trễ tính bằng mili giây giữa các lần lưu tự động</string>
     <string name="tab_size_desc">Số lượng khoảng trắng được chèn cho một ký tự tab</string>
-    <string name="show_suggestions">Hiển thị đề xuất bàn phím</string>
     <string name="check_for_updates_desc">Thường xuyên kiểm tra cập nhật</string>
     <string name="manage_editor_font">Quản lý phông chữ của trình soạn thảo</string>
     <string name="ask_multiple_unsaved">Xác nhận hủy bỏ những tệp chưa được lưu này?</string>
@@ -364,7 +363,6 @@
     <string name="time_just_now">Vừa rồi</string>
     <string name="underline">Gạch chân</string>
     <string name="bar">Thanh</string>
-    <string name="verified">Đã xác minh</string>
     <string name="git_status">Trạng thái Git</string>
     <string name="ask_refresh">Bạn có chắc chắn muốn tải lại tài liệu này? Bất kì thay đổi chưa được lưu nào sẽ bị mất.</string>
     <string name="render_whitespace">Hiển thị khoảng trắng</string>
@@ -427,8 +425,6 @@
     <string name="release_wakelock">Cho phép thiết bị chuyển sang trạng thái ngủ</string>
     <string name="native_runner">Trình thực thi này chỉ hoạt động trên tệp gốc, hãy cân nhắc di chuyển nó đến thư mục chính của terminal</string>
     <string name="terminal_virus_notice">Trên một số thiết bị, đặc biệt là một số mẫu máy từ Trung Quốc, bạn có thể thấy cảnh báo bảo mật hệ thống khi nhiều tiến trình đang chạy trong terminal (ví dụ trong lúc \'apt update\' hoặc \'apt upgrade\'). Đây là cảnh báo giả và không phải là vi rút thực sự.</string>
-    <string name="text_mate_suggestion">Tự động hoàn thành theo TextMate</string>
-    <string name="text_mate_suggestion_desc">Gợi ý từ khóa được xác định trước</string>
     <string name="ask_lsp_install">Bạn có muốn cài đặt language server cho \'%s\' không?</string>
     <string name="ask_lsp_update">Bạn có muốn cập nhật language server cho \'%s\' không?</string>
     <string name="seccomp_desc">Sửa lỗi \"function not implemented\" trên một số thiết bị</string>

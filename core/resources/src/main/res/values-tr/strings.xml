@@ -98,7 +98,6 @@
     <string name="auto_mode">Otomatik</string>
     <string name="theme_mode">Tema modu</string>
     <string name="theme_mode_desc">Renk temasını değiştir</string>
-    <string name="show_suggestions">Klavye önerilerini göster</string>
     <string name="about">Hakkında</string>
     <string name="about_desc">Xed-Editor hakkında</string>
     <string name="version">Sürüm</string>
@@ -201,10 +200,8 @@
     <string name="runner_regex">Regex deseni (örn. .*\\.py)</string>
     <string name="redo">Tekrar</string>
     <string name="terminal_virus_notice">Bazı cihazlarda, özellikle Çin menşeli belirli modellerde, terminalde çok sayıda işlem çalıştığında (örneğin \'apt update\' veya \'apt upgrade\' sırasında) bir sistem güvenlik uyarısı görebilirsiniz. Bu yanlış bir alarmdır ve gerçek bir virüs olduğu anlamına gelmez.</string>
-    <string name="text_mate_suggestion_desc">Önceden tanımlanmış anahtar kelimeler öner</string>
     <string name="install">Yükle</string>
     <string name="ask_lsp_install">\'%s\' dil sunucusunu yüklemek ister misiniz?</string>
-    <string name="text_mate_suggestion">TextMate otomatik tamamlama</string>
     <string name="uninstall_terminal_warning">Ubuntu kalıcı olarak kaldırılsın mı? Bu işlem geri alınamaz.</string>
     <string name="uninstall">Kaldır</string>
     <string name="uninstall_terminal">Terminali kaldır</string>
@@ -454,7 +451,6 @@
     <string name="last_modified">Son Düzenleme</string>
     <string name="content_property">%s öğe, toplam %s</string>
     <string name="icon_pack_install_failed">İkon paketi kurulumu başarısız oldu</string>
-    <string name="icon_pack_missing_fields">manifest.json dosyasında eksik veya geçersiz özellikler bulunuyor:\n%s\n\nLütfen dosyayı kontrol edin ve tekrar deneyin.</string>
     <string name="manifest_missing">manifest.json dosyası eksik. Lütfen ekleyin ve tekrar deneyin.</string>
     <string name="outdated_extension">Bu eklenti, Xed-Editor\'ın daha eski bir sürümü için yapıldı. Lütfen geliştiriciden bir güncelleme isteyin.</string>
     <string name="outdated_client">Xed-Editor\'ınız güncel değil. Bu eklentiyi kullanabilmek için lütfen en son sürüme güncelleyin.</string>
@@ -622,7 +618,6 @@
     <string name="store">Mağaza</string>
     <string name="search_extensions">Eklentileri ara</string>
     <string name="date_added">Eklenme tarihi</string>
-    <string name="verified">Onaylı</string>
     <string name="filter_options">Filtre seçenekleri</string>
     <string name="sort_options">Sıralama seçenekleri</string>
     <string name="source_code">Kaynak kodu</string>
@@ -677,8 +672,6 @@
     <string name="check_ubuntu">Ubuntu\'yu kontrol et</string>
     <string name="check_network_access">Ağ erişimini kontrol et</string>
     <string name="check_abnormalities">Anormallikleri kontrol et</string>
-    <string name="samsung_proot_warning">Samsung cihazınız, PRoot tabanlı terminal kurulumunun başarısız olmasına neden olan bilinen bir sorundan etkilenmektedir.</string>
-    <string name="terminal_degraded_warning">Terminal, bazı cihazlardaki PRoot ortamında meydana gelen bir arızadan kaynaklanan bilinen bir uyumluluk sorunu nedeniyle şu anda kısıtlı modda çalışmaktadır. Bazı özellikler sınırlı olabilir veya farklı çalışabilir.</string>
     <string name="disabled_crashed">Devre dışı (Çöktü)</string>
     <string name="seccomp_unspecified">Belirtilmemiş</string>
     <string name="seccomp_no_seccomp">Seccomp yok</string>
@@ -794,8 +787,6 @@
     <string name="git_conflict_detection">Çakışma tespiti</string>
     <string name="git_conflict_detection_desc">Düzenleyicide çakışma işaretleyicilerini göster ve seçenekleri çöz</string>
     <string name="credentials_github">GitHub\'a bağlanmak için GitHub hesap şifrenizi değil, bir PAT token\'ı girmeniz gerekir.</string>
-    <string name="theme_format_changed">Temanın formatı değişti. Bu format artık desteklenmiyor</string>
-    <string name="unknown_package">Bilinmeyen paket türü</string>
     <string name="scoped_tabs">Kapsamlı sekmeler</string>
     <string name="scoped_tabs_desc">Sadece mevcut projeye ait sekmeleri göster</string>
     <string name="delete_incomplete">Bazı dosyalar silinemedi</string>
@@ -854,7 +845,6 @@
     <string name="ai_denied_by_user">Kullanıcı tarafından reddedildi.</string>
     <string name="ai_stopped_denied">Durduruldu: kullanıcı bir aracı reddetti.</string>
     <string name="ai_plan_mode_blocked">Planlama modu: Yazma işlemleri ve shell komutları devre dışı bırakılır.</string>
-    <string name="ai_stopped_max_steps">%d adımdan sonra nihai bir sonuç elde edilemeden işlem durduruldu.</string>
     <string name="ai_no_api_key">%s için yapılandırılmış bir API anahtarı yok. Yapay zeka ayarlarına bir tane ekleyin.</string>
     <string name="ai_request_failed">İstek başarısız oldu</string>
     <string name="ai_provider">Sağlayıcı</string>

@@ -115,7 +115,6 @@
     <string name="auto_mode">Auto</string>
     <string name="value_invalid">Valeur invalide</string>
     <string name="app_desc">Paramètres généraux de l’application</string>
-    <string name="show_suggestions">Montrer les suggestions clavier</string>
     <string name="github">GitHub</string>
     <string name="cursor_anim_desc">Activer les animations douces pour le curseur</string>
     <string name="tab_size_desc">Nombre d\'espaces par tabulation</string>
@@ -201,8 +200,6 @@
     <string name="release_wakelock">Désactiver le wakelock</string>
     <string name="native_runner">Ce lanceur ne fonctionne qu\'avec les fichiers originaux, envisagez de les déplacer dans le répertoire personnel de votre terminal</string>
     <string name="terminal_virus_notice">Sur certains appareils, en particulier des modèles chinois, vous pourriez avoir un avertissement de sécurité du système quand de nombreux processus tournent dans le terminal (par ex. lors d\'un \'apt update\' ou \'apt upgrade\'). C\'est un faux positif et n\'indique donc pas un vrai virus.</string>
-    <string name="text_mate_suggestion_desc">Suggérer des mots-clés prédéfinis</string>
-    <string name="text_mate_suggestion">Autocomplétion TextMate</string>
     <string name="install">Installer</string>
     <string name="ask_lsp_install">Voulez-vous installer le serveur de langue \'%s\' ?</string>
     <string name="uninstall_terminal_warning">Désinstaller Ubuntu de manière permanente ? Vous ne pourrez plus revenir en arrière.</string>
@@ -454,7 +451,6 @@
     <string name="last_modified">Dernière modification</string>
     <string name="content_property">%s éléments, %s au total</string>
     <string name="icon_pack_install_failed">Échec de l\'installation du pack d\'icônes</string>
-    <string name="icon_pack_missing_fields">Le fichier manifest.json a des propriétés manquantes ou invalides\n%s\n\nVerifiez le fichier et réessayez.</string>
     <string name="manifest_missing">Le fichier manifest.json est manquant. Ajoutez-le et réessayez.</string>
     <string name="outdated_extension">Cette extension a été créée pour une version antérieure de Xed-Editor. Demandez une mise-à-jour au développeur.</string>
     <string name="outdated_client">Votre Xed-Editor est obsolète. Mettez-le à jour pour pouvoir utiliser cette extension.</string>
@@ -621,7 +617,6 @@
     <string name="store">Magasin</string>
     <string name="search_extensions">Recherche d\'extensions</string>
     <string name="date_added">Date ajoutée</string>
-    <string name="verified">Vérifié</string>
     <string name="filter_options">Options de filtrage</string>
     <string name="sort_options">Options de tri</string>
     <string name="source_code">Code source</string>
@@ -680,9 +675,7 @@
     <string name="check_ubuntu">Vérifier Ubuntu</string>
     <string name="check_network_access">Vérifier les accès réseau</string>
     <string name="check_abnormalities">Vérifier les anomalies</string>
-    <string name="samsung_proot_warning">Votre appareil Samsung est affecté par un problème connu qui cause l\'échec de l\'installation du terminal basé sur PRoot.</string>
     <string name="check_system_shell">Vérifier le shell du système</string>
-    <string name="terminal_degraded_warning">Le terminal fonctionne actuellement dans un mode dégradé à cause d\'un problème de compatibilité connue, causé par un dysfonctionnement dans l\'environnement PRoot sur certains appareils. Certaines fonctionnalités peuvent être limitées ou se comporter différemment.</string>
     <string name="disabled_crashed">Désactivé (crashé)</string>
     <string name="seccomp_unspecified">Non précisé</string>
     <string name="seccomp_no_seccomp">Pas de seccomp</string>
@@ -798,8 +791,6 @@
     <string name="git_conflict_detection_desc">Affiche des marqueurs de conflit et les possibilités de résolution dans l\'éditeur</string>
     <string name="credentials_github">Pour vous connecter à GitHub, vous devez entrer un jeton PAT, et pas votre mot de passe de compte GitHub.</string>
     <string name="git_gutter_indication">Indicateur d\'espacement</string>
-    <string name="theme_format_changed">Le format du thème a changé. Ce format n\'est plus supporté</string>
-    <string name="unknown_package">Type de paquetage inconnu</string>
     <string name="scoped_tabs_desc">Affiche uniquement les onglets appartenant au projet actuel</string>
     <string name="delete_incomplete">Certains fichiers n\'ont pas pu être supprimés</string>
     <string name="issue_count">%d problèmes</string>
@@ -858,7 +849,6 @@
     <string name="ai_denied_by_user">Interdit par l\'utilisateur.</string>
     <string name="ai_stopped_denied">Arrêté : l\'utilisateur a interdit un outil.</string>
     <string name="ai_plan_mode_blocked">Mode planification : les écritures et les commandes shell sont désactivées.</string>
-    <string name="ai_stopped_max_steps">Arrêté apèrs %d étapes sans réponse finale.</string>
     <string name="ai_no_api_key">Pas de clef d\'API configurée pour %s. En ajouter une dans les paramètres d\'IA.</string>
     <string name="ai_request_failed">Échec de la requête</string>
     <string name="ai_provider">Fournisseur</string>

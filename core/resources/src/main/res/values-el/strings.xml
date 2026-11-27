@@ -96,7 +96,6 @@
     <string name="auto_mode">Αυτόματη</string>
     <string name="theme_mode">Λειτουργία θέματος</string>
     <string name="theme_mode_desc">Αλλαγή θέματος χρώματος εφαρμογής</string>
-    <string name="show_suggestions">Εμφάνιση προτάσεων πληκτρολογίου</string>
     <string name="about">Σχετικά</string>
     <string name="about_desc">Σχετικά με το Xed-Editor</string>
     <string name="version">Έκδοση</string>
@@ -186,8 +185,6 @@
     <string name="release_wakelock">Απελευθέρωση wakelock</string>
     <string name="native_runner">Αυτός ο runner λειτουργεί μόνο με εγγενή αρχεία, εξετάστε το ενδεχόμενο να τον μετακινήσετε στον αρχικό κατάλογο του τερματικού</string>
     <string name="terminal_virus_notice">Σε ορισμένες συσκευές, ειδικά σε ορισμένα μοντέλα από την Κίνα, ενδέχεται να δείτε μια προειδοποίηση ασφαλείας συστήματος όταν εκτελούνται πολλές διεργασίες στο τερματικό (για παράδειγμα, κατά τη διάρκεια της «apt update» ή της «apt upgrade»). Αυτό είναι ψευδώς θετικό και δεν υποδεικνύει την ύπαρξη πραγματικού ιού.</string>
-    <string name="text_mate_suggestion">Αυτόματη συμπλήρωση TextMate</string>
-    <string name="text_mate_suggestion_desc">Προτεινόμενες προκαθορισμένες λέξεις-κλειδιά</string>
     <string name="lang_desc">Ρυθμίσεις γλώσσας</string>
     <string name="runners_desc">Κέλυφος runners</string>
     <string name="no_runners">Όχι runners</string>

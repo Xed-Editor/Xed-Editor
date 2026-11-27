@@ -82,6 +82,7 @@ import com.rk.ai.model.AiChatRole
 import com.rk.ai.model.PendingApproval
 import com.rk.ai.model.PendingQuestion
 import com.rk.ai.model.ToolCallStatus
+import com.rk.ai.provider.AiProviderRuntime
 import com.rk.ai.settings.AiSettings
 import com.rk.ai.settings.PermissionMode
 import com.rk.ai.tools.ToolBodyPart
@@ -298,7 +299,11 @@ private fun EmptyState(onSuggestion: (String) -> Unit, modifier: Modifier = Modi
 
         Spacer(Modifier.height(24.dp))
         Text(
-            stringResource(strings.ai_chat_status, AiSettings.modelId, AiSettings.currentPermissionMode().label()),
+            stringResource(
+                strings.ai_chat_status,
+                AiProviderRuntime.modelId(),
+                AiSettings.currentPermissionMode().label(),
+            ),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

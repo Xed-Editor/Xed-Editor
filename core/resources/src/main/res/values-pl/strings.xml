@@ -69,7 +69,6 @@
     <string name="auto_mode">Automatyczny</string>
     <string name="theme_mode">Tryb motywu</string>
     <string name="theme_mode_desc">Zmień kolor motywu aplikacji</string>
-    <string name="show_suggestions">Pokaż sugestie podczas pisania</string>
     <string name="about">O aplikacji</string>
     <string name="about_desc">O Xed-Editor</string>
     <string name="version">Wersja</string>
@@ -227,8 +226,6 @@
     <string name="timeout">Pobieranie przerwane ze względu na przekroczenie limitu czasu. Proszę, upewnij się że połączenie z internetem jest stabilne</string>
     <string name="more">Więcej</string>
     <string name="terminal_virus_notice">Na niektórych urządzeniach, szczególnie pewnych modelach z Chin, możesz zobaczyć systemowe ostrzeżenie bezpieczeństwa, gdy zbyt wiele procesów jest uruchomionych w terminalu (np. Apt Update\" lub \"Apt Upgrade\"). Informacja jest błędna oraz nie wskazuje na aktywność prawdziwego wirusa.</string>
-    <string name="text_mate_suggestion">Automatyczne wypełnianie TextMate</string>
-    <string name="text_mate_suggestion_desc">Sugeruj predefiniowane słowa klucze</string>
     <string name="uninstall_terminal_warning">Odinstalować Ubuntu? Czynności nie da się odwrócić.</string>
     <string name="uninstall">Odinstaluj</string>
     <string name="uninstall_terminal">Odinstaluj terminal</string>
@@ -456,7 +453,6 @@
     <string name="outdated_client">Aplikacja jest przestarzała. Proszę zaktualizuj do najnowszej wersji aby użyć rozszerzenia.</string>
     <string name="extension_validation_failed">Weryfikacja rozszerzenia zakończona niepowodzeniem</string>
     <string name="icon_pack_install_failed">Instalacja paczki ikon zakończona niepowodzeniem</string>
-    <string name="icon_pack_missing_fields">Plik manifest.json ma brakujące lub błędne właściwości:\n%s\n\nProszę sprawdź plik i spróbuj ponownie.</string>
     <string name="manifest_missing">Brak pliku manifest.json. Proszę dodaj i spróbuj ponownie.</string>
     <string name="content_property">%s pozycji, łącznie %s</string>
     <string name="general">Ogólne</string>
@@ -626,7 +622,6 @@
     <string name="store">Sklep</string>
     <string name="search_extensions">Szukaj rozszerzeń</string>
     <string name="date_added">Data dodania</string>
-    <string name="verified">Zweryfikowane</string>
     <string name="filter_options">Opcje filtrowania</string>
     <string name="sort_options">Opcje sortowania</string>
     <string name="source_code">Kod źródłowy</string>
@@ -685,8 +680,6 @@
     <string name="check_ubuntu">Sprawdź Ubuntu</string>
     <string name="check_network_access">Sprawdź dostęp do sieci</string>
     <string name="check_abnormalities">Sprawdź, czy nie ma nieprawidłowości</string>
-    <string name="samsung_proot_warning">W Twoim urządzeniu Samsung występuje znany błąd, który powoduje niepowodzenie instalacji terminala opartego na PRoot.</string>
-    <string name="terminal_degraded_warning">Terminal działa obecnie w trybie ograniczonym z powodu znanego problemu kompatybilności spowodowanego nieprawidłowym działaniem środowiska PRoot na niektórych urządzeniach. Niektóre funkcje mogą być ograniczone lub działać inaczej niż zwykle.</string>
     <string name="disabled_crashed">Nieaktywne (Awaria)</string>
     <string name="seccomp_unspecified">Nieokreślony</string>
     <string name="seccomp_no_seccomp">Brak Seccomp</string>
@@ -699,7 +692,6 @@
     <string name="search_icon_packs">Szukaj paczek ikon</string>
     <string name="extension_warning_msg">Rozszerzenia mogą wykonywać dowolny kod i potencjalnie stanowić zagrożenie. Należy instalować rozszerzenia wyłącznie wtedy, gdy ufasz ich twórcy i sprawdziłeś kod źródłowy rozszerzenia.</string>
     <string name="supported">Obsługiwane</string>
-    <string name="crashed">Uszkodzone</string>
     <string name="publish_date">Data publikacji</string>
     <string name="record_rpc_traffic">Rejestruj ruch RPC</string>
     <string name="record_rpc_traffic_desc">Rejestrowanie komunikacji RPC serwerów językowych w celu debugowania</string>

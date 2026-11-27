@@ -96,7 +96,6 @@
     <string name="monet">ダイナミックカラー</string>
     <string name="auto_mode">自動</string>
     <string name="theme_mode_desc">アプリケーションのカラーテーマを変更</string>
-    <string name="show_suggestions">キーボード候補を表示する</string>
     <string name="version_code">バージョンコード</string>
     <string name="github">GitHub</string>
     <string name="github_desc">Github でスターを付ける🤩</string>
@@ -201,8 +200,6 @@
     <string name="release_wakelock">ウェークロックを開放</string>
     <string name="native_runner">このランナーはネイティブファイルでのみ動作します。端末のホームディレクトリに移動することを検討してください</string>
     <string name="terminal_virus_notice">一部のデバイス、特に中国製の特定のモデルでは、ターミナルで多くのプロセスが実行されているとき (たとえば「apt update」や「apt upgrade」の実行中)、システムセキュリティの警告が表示されることがあります。これは誤検知であり、本物のウイルスを示すものではありません。</string>
-    <string name="text_mate_suggestion">TextMate 自動補完</string>
-    <string name="text_mate_suggestion_desc">事前定義されたキーワードを提案する</string>
     <string name="install">インストール</string>
     <string name="ask_lsp_install">「%s」の言語サーバーをインストールしますか？</string>
     <string name="uninstall_terminal_warning">Ubuntu を完全にアンインストールしますか？ この操作は元に戻せません。</string>
@@ -842,7 +839,6 @@
     <string name="ai_denied_by_user">ユーザーにより拒否されました。</string>
     <string name="ai_stopped_denied">停止しました: ユーザーがツールを拒否しました。</string>
     <string name="ai_plan_mode_blocked">計画モード: 書き込みとシェルコマンドは無効です。</string>
-    <string name="ai_stopped_max_steps">最終的な回答が得られないまま、%d ステップで停止しました。</string>
     <string name="ai_no_api_key">%s の API キーが設定されていません。AI 設定で追加してください。</string>
     <string name="ai_request_failed">リクエストに失敗しました</string>
     <string name="ai_provider">プロバイダー</string>

@@ -169,7 +169,6 @@
     <string name="read_mode_desc">Lesemodus standardmäßig aktivieren</string>
     <string name="drawer_lock_desc">Drawer beim Öffnen einer Datei geschlossen halten</string>
     <string name="theme_mode_desc">App-Farbthema ändern</string>
-    <string name="show_suggestions">Tastaturvorschläge anzeigen</string>
     <string name="txt_word_wrap">TXT-Dateien umbrechen</string>
     <string name="txt_word_wrap_desc">TXT-Dateien automatisch umbrechen</string>
     <string name="ask_unsaved">Bist du sicher, dass du dieses nicht gespeicherte Dokument verwerfen möchtest?</string>
@@ -201,8 +200,6 @@
     <string name="release_wakelock">Wakelock freigeben</string>
     <string name="native_runner">Dieser Runner funktioniert nur mit nativen Dateien, verschiebe ihn gegebenenfalls in das Terminal-Home-Verzeichnis</string>
     <string name="terminal_virus_notice">Auf manchen Geräten, insbesondere bei bestimmten Modellen aus China, siehst du möglicherweise eine System-Sicherheitswarnung, wenn viele Prozesse im Terminal ausgeführt werden (z. B. während \'apt update\' oder \'apt upgrade\'). Dies ist ein Fehlalarm und weist nicht auf einen echten Virus hin.</string>
-    <string name="text_mate_suggestion">TextMate-Autovervollständigung</string>
-    <string name="text_mate_suggestion_desc">Vordefinierte Schlüsselwörter vorschlagen</string>
     <string name="install">Installieren</string>
     <string name="ask_lsp_install">Möchtest du den \'%s\' Sprachserver installieren?</string>
     <string name="uninstall_terminal_warning">Ubuntu endgültig deinstallieren? Diese Aktion kann nicht rückgängig gemacht werden.</string>
@@ -454,7 +451,6 @@
     <string name="last_modified">Zuletzt geändert</string>
     <string name="content_property">%s Einträge, %s gesamt</string>
     <string name="icon_pack_install_failed">Installation des Icon-Pakets fehlgeschlagen</string>
-    <string name="icon_pack_missing_fields">Die Datei manifest.json enthält fehlende oder ungültige Eigenschaften:\n%s\n\nBitte überprüfe die Datei und versuche es erneut.</string>
     <string name="manifest_missing">Die Datei manifest.json fehlt. Bitte füge sie hinzu und versuche es erneut.</string>
     <string name="outdated_extension">Diese Erweiterung wurde für eine ältere Version des Xed-Editors entwickelt. Bitte wende dich an den Entwickler, um ein Update zu erhalten.</string>
     <string name="outdated_client">Dein Xed-Editor ist veraltet. Bitte aktualisiere ihn auf die neueste Version, um diese Erweiterung nutzen zu können.</string>
@@ -633,7 +629,6 @@
     <string name="store">Store</string>
     <string name="search_extensions">Erweiterungen suchen</string>
     <string name="date_added">Hinzugefügt am</string>
-    <string name="verified">Verifiziert</string>
     <string name="filter_options">Filteroptionen</string>
     <string name="sort_options">Sortieroptionen</string>
     <string name="source_code">Quellcode</string>
@@ -686,7 +681,6 @@
     <string name="check_ubuntu">Ubuntu überprüfen</string>
     <string name="check_network_access">Netzwerkzugriff überprüfen</string>
     <string name="check_abnormalities">Auf Auffälligkeiten überprüfen</string>
-    <string name="samsung_proot_warning">Dein Samsung-Gerät ist von einem bekannten Problem betroffen, das dazu führt, dass die PRoot-basierte Terminal-Installation fehlschlägt.</string>
     <string name="document_highlight">Vorkommen hervorheben</string>
     <string name="document_highlight_desc">Vorkommen des Symbols an der Cursorposition hervorheben</string>
     <string name="seccomp_unspecified">Nicht angegeben</string>
@@ -699,7 +693,6 @@
     <string name="search_themes">Themen suchen</string>
     <string name="search_icon_packs">Icon-Pakete suchen</string>
     <string name="supported">Unterstützt</string>
-    <string name="crashed">Abgestürzt</string>
     <string name="disabled_crashed">Deaktiviert (Abgestürzt)</string>
     <string name="download_count">Downloadzahl</string>
     <string name="publish_date">Veröffentlichungsdatum</string>

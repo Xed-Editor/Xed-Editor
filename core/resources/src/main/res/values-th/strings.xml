@@ -107,7 +107,6 @@
     <string name="auto_mode">อัตโนมัติ</string>
     <string name="theme_mode">โหมดธีม</string>
     <string name="theme_mode_desc">เปลี่ยนธีมสีของแอป</string>
-    <string name="show_suggestions">แสดงคำแนะนำจากแป้นพิมพ์</string>
     <string name="about">เกี่ยวกับ</string>
     <string name="about_desc">เกี่ยวกับ Xed-Editor</string>
     <string name="version">เวอร์ชัน</string>
@@ -218,8 +217,6 @@
     <string name="release_wakelock">ปล่อย wakelock</string>
     <string name="native_runner">ตัววิ่งนี้ใช้งานได้กับไฟล์เนทีฟเท่านั้นลองย้ายไปยังไดเรกทอรีหลักของเทอร์มินัล</string>
     <string name="terminal_virus_notice">ในอุปกรณ์บางรุ่น โดยเฉพาะอุปกรณ์จากจีน อาจมีคำเตือนความปลอดภัยของระบบเมื่อมีหลายโพรเซสทำงานในเทอร์มินัล (เช่น ระหว่างใช้ \'apt update\' หรือ \'apt upgrade\') นี่เป็นการแจ้งเตือนผิดพลาดและไม่ได้หมายความว่ามีไวรัสจริง</string>
-    <string name="text_mate_suggestion">การเติมข้อความอัตโนมัติของ TextMate</string>
-    <string name="text_mate_suggestion_desc">แนะนำคำหลักที่กำหนดไว้ล่วงหน้า</string>
     <string name="install">ติดตั้ง</string>
     <string name="ask_lsp_install">คุณต้องการติดตั้งเซิร์ฟเวอร์ภาษา \'%s\' หรือไม่?</string>
     <string name="ask_lsp_update">คุณต้องการอัปเดตเซิร์ฟเวอร์ภาษา \'%s\' หรือไม่?</string>
@@ -687,7 +684,6 @@
     <string name="record_rpc_traffic">การจดหมายการเดินทาง RPC</string>
     <string name="record_rpc_traffic_desc">การสื่อสาร RPC ของเซอร์เวอร์ภาษาเพื่อการแก้ไขปัญหา</string>
     <string name="lsp_log_limit">ขั้นต่ํา LSP log</string>
-    <string name="lsp_log_limit_desc">ล็อกเก่าจะถอดไปโดยอัตโนมัติ เมื่อขั้นต่ําถูกบรรลุ เพื่อหลีกเลี่ยงการใช้งานความทรงจําสูง</string>
     <string name="unsupported_architecture">การขยายนี้ไม่ได้สนับสนุนในสถาปนิกของอุปกรณ์ของคุณ.</string>
     <string name="view">ดูภาพ</string>
     <string name="ext_recommendations_msg">คุณอาจสนใจในข้อขยายที่แนะนํานี้ด้วย</string>
@@ -771,8 +767,6 @@
     <string name="git_conflict_detection">การตรวจสอบความขัดแย้ง</string>
     <string name="git_conflict_detection_desc">แสดงเครื่องหมายการขัดแย้งและแก้ไขในผู้อุดมการณ์</string>
     <string name="credentials_github">เพื่อเชื่อมต่อกับ GitHub คุณต้องใส่เครื่องหมาย PAT ไม่ใช่รหัสผ่านบัญชี GitHub ของคุณ</string>
-    <string name="theme_format_changed">รูปแบบของหัวข้อเปลี่ยนแล้ว รูปรูปนี้ไม่ได้รับการสนับสนุนอีกต่อไป</string>
-    <string name="unknown_package">ประเภทของกระเป๋าไม่ทราบกัน</string>
     <plurals name="time_seconds_ago">
         <item quantity="other">%d วินาทีที่แล้ว</item>
     </plurals>

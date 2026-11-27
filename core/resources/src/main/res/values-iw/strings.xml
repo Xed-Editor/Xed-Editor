@@ -116,7 +116,6 @@
     <string name="auto_save">שמירה אוטומטית</string>
     <string name="auto_save_desc">שמירת קבצים אוטומטית</string>
     <string name="theme_mode_desc">שנה צבע עיצוב של האפליקציה</string>
-    <string name="show_suggestions">הצג הצעות במקלדת</string>
     <string name="git_commit">Git Commit Hash</string>
     <string name="check_for_updates_desc">בדוק עדכונים מעת לעת</string>
     <string name="default_encoding">קידוד ברירת מחדל</string>

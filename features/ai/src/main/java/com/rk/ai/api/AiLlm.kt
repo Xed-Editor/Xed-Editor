@@ -77,5 +77,8 @@ internal object AiLlm {
         check(AiProviderRuntime.hasApiKey()) {
             strings.ai_no_api_key.getFilledString(AiProviderRuntime.activeProvider().displayName)
         }
+        check(AiProviderRuntime.modelId().isNotBlank()) {
+            strings.ai_no_model.getFilledString(AiProviderRuntime.activeProvider().displayName)
+        }
     }
 }

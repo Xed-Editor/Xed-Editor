@@ -107,7 +107,6 @@
     <string name="auto_mode">தானி</string>
     <string name="theme_mode">கருப்பொருள் பயன்முறை</string>
     <string name="theme_mode_desc">பயன்பாட்டின் வண்ண கருப்பொருள் மாற்று</string>
-    <string name="show_suggestions">விசைப்பலகை பரிந்துரைகளைக் காட்டு</string>
     <string name="version">பதிப்பு</string>
     <string name="about">பற்றி</string>
     <string name="about_desc">Xed-editor பற்றி</string>
@@ -204,8 +203,6 @@
     <string name="size">அளவு</string>
     <string name="native_runner">இந்த ரன்னர் நேட்டிவ் கோப்புகளில் மட்டுமே செயல்படும், அதை டெர்மினல் ஓம் டைரக்டரிக்கு நகர்த்தவும்</string>
     <string name="terminal_virus_notice">சில சாதனங்களில், குறிப்பாக சீனாவின் சில மாடல்களில், டெர்மினலில் பல செயல்முறைகள் இயங்கும் போது, கணினி பாதுகாப்பு எச்சரிக்கையை நீங்கள் காணலாம் (உதாரணமாக \'apt update\' அல்லது \'apt upgrade\' போது). இது தவறான நேர்மறை மற்றும் உண்மையான வைரசைக் குறிக்கவில்லை.</string>
-    <string name="text_mate_suggestion">TextMate தானாக நிறைவு</string>
-    <string name="text_mate_suggestion_desc">முன் வரையறுக்கப்பட்ட முக்கிய வார்த்தைகளை பரிந்துரைக்கவும்</string>
     <string name="install">நிறுவவும்</string>
     <string name="ask_lsp_install">\'%s\' மொழி சேவையகத்தை நிறுவ விரும்புகிறீர்களா?</string>
     <string name="uninstall_terminal_warning">உபுண்டுவை நிரந்தரமாக நிறுவல் நீக்கவா? இந்தச் செயலைச் செயல்தவிர்க்க முடியாது.</string>

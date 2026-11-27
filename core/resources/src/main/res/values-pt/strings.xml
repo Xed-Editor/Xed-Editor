@@ -126,8 +126,6 @@
     <string name="release_wakelock">Liberar wakelock</string>
     <string name="native_runner">Este executável só funciona em ficheiros nativos. Considere movê-lo para o diretório inicial do terminal</string>
     <string name="terminal_virus_notice">Em alguns dispositivos, especialmente em determinados modelos da China, poderá ver um aviso de segurança do sistema quando muitos processos estiverem em execução no terminal (por exemplo, durante o “apt update” ou “apt upgrade”). Trata-se de um falso positivo e não indica a presença de um vírus real.</string>
-    <string name="text_mate_suggestion">Autocompletar TextMate</string>
-    <string name="text_mate_suggestion_desc">Sugerir palavras-chave predefinidas</string>
     <string name="install">Instalar</string>
     <string name="uninstall_terminal_warning">Apagar Ubuntu permanentemente? Esta ação não pode ser revertida.</string>
     <string name="uninstall">Desinstalar</string>
@@ -172,7 +170,6 @@
     <string name="monet">Cores dinâmicas</string>
     <string name="unknown_error">Erro desconhecido</string>
     <string name="theme_mode">Modo de tema</string>
-    <string name="show_suggestions">Mostrar sugestões do teclado</string>
     <string name="version_code">Código de versão</string>
     <string name="github_desc">Dê uma estrela no github 🤩</string>
     <string name="telegram">Grupo do telegram</string>

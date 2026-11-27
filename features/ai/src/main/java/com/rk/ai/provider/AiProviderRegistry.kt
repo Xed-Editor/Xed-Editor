@@ -10,6 +10,7 @@ object AiProviderRegistry {
     private val lock = Any()
     private val providersById = LinkedHashMap<String, AiProvider>()
     private var builtinsById: Map<String, AiProvider> = emptyMap()
+    private var customById: Map<String, AiProvider> = emptyMap()
     private val _providers = MutableStateFlow<List<AiProvider>>(emptyList())
     private var builtinsInstalled = false
 
@@ -61,10 +62,26 @@ object AiProviderRegistry {
         }
     }
 
+    /**
+     * Replaces the user-configured providers. Provider ids an extension registered itself are left alone, and a
+     * built-in id is never taken over by a custom provider.
+     */
+    internal fun installCustom(providers: List<AiProvider>) {
+        installBuiltins()
+        synchronized(lock) {
+            val next = providers.associateBy { it.id }
+            (customById.keys - next.keys).forEach { providersById.remove(it) }
+            next.forEach { (id, provider) -> if (!builtinsById.containsKey(id)) providersById[id] = provider }
+            customById = next
+            publishLocked()
+        }
+    }
+
     internal fun resetForTests() {
         synchronized(lock) {
             providersById.clear()
             builtinsById = emptyMap()
+            customById = emptyMap()
             _providers.value = emptyList()
             builtinsInstalled = false
         }

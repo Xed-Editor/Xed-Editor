@@ -5,7 +5,9 @@ import com.rk.ai.api.AiExtensions
 import com.rk.ai.command.AIChatCommand
 import com.rk.ai.icons.SparklesBig
 import com.rk.ai.icons.SparklesTiny
+import com.rk.ai.provider.CustomProviders
 import com.rk.ai.settings.AiMemoryScreen
+import com.rk.ai.settings.AiSettings
 import com.rk.ai.settings.AiSettingsScreen
 import com.rk.ai.tab.AiTab
 import com.rk.commands.CommandProvider
@@ -34,6 +36,11 @@ class AiFeature : Feature {
 
     override fun init(application: Application) {
         AiExtensions.installBuiltins()
+        // Providers and the model chosen per provider are stored preferences, so restore both before
+        // anything can open a chat.
+        CustomProviders.refresh()
+        AiSettings.migrateLegacyModelSelection()
+        AiSettings.resetUnavailableProvider()
         AiTab.register()
         registerSettings()
         registerCommands()

@@ -98,7 +98,6 @@
     <string name="auto_mode">Автоматическая</string>
     <string name="theme_mode">Тема</string>
     <string name="theme_mode_desc">Изменить цветовую тему приложения</string>
-    <string name="show_suggestions">Включить подсказки при вводе</string>
     <string name="about">О приложении</string>
     <string name="about_desc">О Xed-Editor</string>
     <string name="version">Версия</string>
@@ -200,7 +199,6 @@
     <string name="acquire_wakelock">Заблокировать спящий режим</string>
     <string name="release_wakelock">Разблокировать спящий режим</string>
     <string name="terminal_virus_notice">На некоторых устройствах, особенно на моделях из Китая, может появляться предупреждение системы безопасности при запуске многих процессов в терминале (например, во время «apt update» или «apt upgrade»). Это ложное срабатывание и не указывает на вирус.</string>
-    <string name="text_mate_suggestion_desc">Предлагать готовые ключевые слова</string>
     <string name="install">Установить</string>
     <string name="uninstall_terminal_warning">Полностью удалить Ubuntu? Это действие невозможно отменить.</string>
     <string name="uninstall">Удалить</string>
@@ -232,7 +230,6 @@
     <string name="strict_mode">Строгий режим</string>
     <string name="verbose_errors_desc">Включать трассировку стека в диалоге ошибок</string>
     <string name="native_runner">Данный скрипт поддерживает только работу с локальными файлами. Переместите его в домашний каталог терминала</string>
-    <string name="text_mate_suggestion">Автозаполнение TextMate</string>
     <string name="ask_lsp_install">Установить языковой сервер «%s»?</string>
     <string name="strict_mode_desc">Обнаружить доступ к диску или сети в основном процессе</string>
     <string name="anr_watchdog">Мониторинг ANR</string>
@@ -456,7 +453,6 @@
     <string name="last_modified">Дата изменения</string>
     <string name="content_property">%s элем., всего %s</string>
     <string name="icon_pack_install_failed">Не удалось установить набор значков</string>
-    <string name="icon_pack_missing_fields">Файл manifest.json содержит отсутствующие или недопустимые свойства:\n%s\n\nПожалуйста, проверьте файл и попробуйте снова.</string>
     <string name="manifest_missing">Файл manifest.json отсутствует. Пожалуйста, добавьте его и попробуйте снова.</string>
     <string name="outdated_extension">Это расширение было создано для более старой версии Xed-Editor. Пожалуйста, обратитесь к разработчику за обновлением.</string>
     <string name="outdated_client">Ваша версия Xed-Editor устарела. Пожалуйста, обновите до последней версии, чтобы использовать это расширение.</string>
@@ -629,7 +625,6 @@
     <string name="store">Магазин</string>
     <string name="search_extensions">Поиск расширений</string>
     <string name="date_added">Дата добавления</string>
-    <string name="verified">Подтверждено</string>
     <string name="filter_options">Параметры фильтра</string>
     <string name="sort_options">Параметры сортировки</string>
     <string name="source_code">Исходный код</string>
@@ -685,8 +680,6 @@
     <string name="check_ubuntu">Проверка Ubuntu</string>
     <string name="check_network_access">Проверка доступности сети</string>
     <string name="check_abnormalities">Проверьте наличие отклонений от нормы</string>
-    <string name="samsung_proot_warning">На вашем устройстве Samsung обнаружена известная проблема, из-за которой установка терминала с правами PRoot завершается с ошибкой.</string>
-    <string name="terminal_degraded_warning">В настоящее время терминал работает в режиме с пониженной производительностью из-за известной проблемы совместимости, вызванной сбоем в среде PRoot на некоторых устройствах. Некоторые функции могут быть ограничены или работать иначе.</string>
     <string name="disabled_crashed">Отключено (Вылет приложения)</string>
     <string name="seccomp_no_seccomp">Seccomp не доступен</string>
     <string name="seccomp_seccomp">Seccomp</string>
@@ -1020,5 +1013,4 @@
     <string name="storage_distribution_desc">Посмотрите использование хранилища приложением</string>
     <string name="total_storage_usage">Всего использовано приложением</string>
     <string name="calculating">Вычисление…</string>
-    <string name="scoped_tabs_open_project_warning">При открытии первого проекта все текущие вкладки будут закрыты. Продолжить?</string>
 </resources>

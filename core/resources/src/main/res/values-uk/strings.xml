@@ -98,7 +98,6 @@
     <string name="auto_mode">Як у системі</string>
     <string name="theme_mode">Вибір теми</string>
     <string name="theme_mode_desc">Змінити тему застосунку</string>
-    <string name="show_suggestions">Показувати пропозиції клавіатури</string>
     <string name="about">Про застосунок</string>
     <string name="about_desc">Про Xed-Editor</string>
     <string name="version">Версія</string>
@@ -332,7 +331,6 @@
     <string name="confirm_exit_dialog_desc">Просити підтвердження перед закриттям застосунка</string>
     <string name="tab_memory_warning">Бракує пам\'яті для відкриття вкладки. Це може спричинити збій Xed. Продовжити попри це?</string>
     <string name="terminal_virus_notice">На деяких пристроях (зокрема на певних моделях китайських виробників) може з\'являтися системне попередження безпеки, коли в терміналі запущено багато процесів (наприклад, під час виконання \"apt update\" або \"apt upgrade\"). Це хибне спрацьовування, яке не свідчить про наявність справжнього вірусу.</string>
-    <string name="text_mate_suggestion">Автодоповнення TextMate</string>
     <string name="seccomp_desc">Виправити помилку \"функцію не реалізовано\" на деяких пристроях</string>
     <string name="wrapper_type">Тип обгортки</string>
     <string name="force_crash_desc">Викинути програмний виняток</string>
@@ -344,7 +342,6 @@
     <string name="acquire_wakelock">Заборонити перехід у режим очікування</string>
     <string name="release_wakelock">Дозволити перехід у режим очікування</string>
     <string name="native_runner">Цей запускач працює лише з локальними файлами; радимо перемістити його до домашнього каталогу термінала</string>
-    <string name="text_mate_suggestion_desc">Пропонувати визначені ключові слова</string>
     <string name="add_icon_pack">Додати набір іконок</string>
     <string name="icon_pack_install_failed">Не вдалося встановити іконки</string>
     <string name="search_icon_packs">Шукати набори іконок</string>
@@ -797,8 +794,6 @@
     <string name="git_conflict_detection">Виявлення конфліктів</string>
     <string name="git_conflict_detection_desc">Показувати в редакторі значки конфліктів та шляхи їх вирішення</string>
     <string name="credentials_github">Щоб під\'єднатися до GitHub, ви маєте ввести PAT-токен, а не ваш пароль від GitHub.</string>
-    <string name="theme_format_changed">Формат теми змінився. Цей формат більше не підтримується</string>
-    <string name="unknown_package">Невідомий тип пакета</string>
     <string name="scoped_tabs">Контекстні вкладки</string>
     <string name="scoped_tabs_desc">Показувати тільки вкладки, що належать поточному проєкту</string>
     <string name="delete_incomplete">Деякі файли не вдалося видалити</string>
@@ -876,7 +871,6 @@
     <string name="ai_denied_by_user">Користувач відхилив.</string>
     <string name="ai_stopped_denied">Зупинено: користувач відмовився від інструмента.</string>
     <string name="ai_plan_mode_blocked">Плановий режим: записи та команди вимкнено.</string>
-    <string name="ai_stopped_max_steps">Зупинено після %d без остаточної відповіді.</string>
     <string name="ai_no_api_key">Немає ключа API для %s. Додайте його в налаштуваннях ШІ.</string>
     <string name="ai_request_failed">Запит не вдався</string>
     <string name="ai_api_key">Ключ API</string>

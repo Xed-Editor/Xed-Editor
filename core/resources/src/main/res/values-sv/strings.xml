@@ -98,7 +98,6 @@
     <string name="auto_mode">Auto</string>
     <string name="theme_mode">Temaläge</string>
     <string name="theme_mode_desc">Byt färgtema</string>
-    <string name="show_suggestions">Visa tangentbordsförslag</string>
     <string name="about">Om</string>
     <string name="about_desc">Om Xed-Editor</string>
     <string name="version">Version</string>

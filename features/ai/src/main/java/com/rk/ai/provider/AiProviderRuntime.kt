@@ -11,9 +11,9 @@ object AiProviderRuntime {
 
     fun activeProvider(): AiProvider = AiProviderRegistry.resolveActive(AiSettings.providerId)
 
-    fun baseUrl(): String = activeProvider().baseUrl
+    fun baseUrl(): String = normalizeBaseUrl(activeProvider().baseUrl)
 
-    fun requestPath(): String = activeProvider().requestPath
+    fun requestPath(): String = normalizeRequestPath(activeProvider().requestPath)
 
     /** False when the active provider needs a key the user has not entered. */
     fun hasApiKey(): Boolean {
@@ -21,7 +21,7 @@ object AiProviderRuntime {
         return !provider.requiresApiKey || AiSettings.apiKey(provider.id).isNotBlank()
     }
 
-    /** The configured model, or [modelId] when one is given. */
+    /** The model selected in settings, or [modelId] when one is given. */
     fun model(modelId: String? = null): LLModel {
         val provider = activeProvider()
         val configured = resolveModelId(provider, modelId)
@@ -30,11 +30,14 @@ object AiProviderRuntime {
         return descriptor.toLLModel(provider.llmProvider)
     }
 
+    /** The model id [executor] will send, as shown in the chat header. */
+    fun modelId(modelId: String? = null): String = resolveModelId(activeProvider(), modelId)
+
     @Synchronized
     fun executor(modelId: String? = null): PromptExecutor {
         val provider = activeProvider()
-        val baseUrl = provider.baseUrl
-        val path = provider.requestPath
+        val baseUrl = normalizeBaseUrl(provider.baseUrl)
+        val path = normalizeRequestPath(provider.requestPath)
         val apiKey = AiSettings.apiKey(provider.id)
         val resolved = resolveModelId(provider, modelId)
         val key = "${provider.id}|$apiKey|$baseUrl|$path|$resolved"
@@ -59,7 +62,15 @@ object AiProviderRuntime {
 
     private fun resolveModelId(provider: AiProvider, requested: String?): String =
         requested?.takeIf { it.isNotBlank() }
-            ?: AiSettings.modelId.ifBlank { AiModelCatalog.defaultFor(provider)?.id.orEmpty() }
+            ?: AiSettings.modelId(provider.id).ifBlank { AiModelCatalog.defaultFor(provider)?.id.orEmpty() }
+
+    /**
+     * The HTTP client joins [baseUrl] and the request path with a single `/`, so a trailing slash on either half — easy
+     * to type into a custom provider — would produce a double slash.
+     */
+    private fun normalizeBaseUrl(baseUrl: String): String = baseUrl.trim().trimEnd('/')
+
+    private fun normalizeRequestPath(path: String): String = path.trim().trimStart('/')
 }
 
 private const val TAG = "XedAI"
