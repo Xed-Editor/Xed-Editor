@@ -1011,4 +1011,11 @@
     <string name="account_sign_out_success">Disconnesso</string>
     <string name="connecting">Connessione…</string>
     <string name="store_desc_no_extensions">Scarica temi e pacchetti di icone</string>
+    <string name="ai_no_model">Nessun modello selezionato per %s. Scegline uno nelle impostazioni AI.</string>
+    <string name="ai_custom_providers">Fornitori personalizzati</string>
+    <string name="ai_add_provider">Aggiungi fornitore</string>
+    <string name="ai_add_provider_description">Qualsiasi endpoint compatibile con OpenAI</string>
+    <string name="ai_edit_provider">Modifica fornitore</string>
+    <string name="ai_delete_provider">Elimina fornitore</string>
+    <string name="ai_delete_provider_message">Eliminare %s? Le sue chiavi API e la selezione del modello vengono rimosse dal dispositivo.</string>
 </resources>
