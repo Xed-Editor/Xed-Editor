@@ -1003,4 +1003,21 @@
     <string name="storage_distribution_desc">Lihat penggunaan penyimpanan aplikasi</string>
     <string name="total_storage_usage">Total digunakan oleh aplikasi</string>
     <string name="calculating">Menghitung…</string>
+    <string name="ai_no_model">Tidak ada model yang dipilih untuk %s. Pilih satu di pengaturan AI.</string>
+    <string name="ai_custom_providers">Penyedia kustom</string>
+    <string name="ai_add_provider">Tambah penyedia</string>
+    <string name="ai_add_provider_description">Endpoint apa pun yang kompatibel dengan OpenAI</string>
+    <string name="ai_edit_provider">Edit penyedia</string>
+    <string name="ai_delete_provider">Hapus penyedia</string>
+    <string name="ai_delete_provider_message">Hapus %s? Kunci API dan pilihan modelnya akan dihapus dari perangkat ini.</string>
+    <string name="ai_provider_dialog_hint">Arahkan Xed AI ke server mana pun yang mendukung protokol chat-completions OpenAI. Jalur obrolan ditambahkan ke URL dasar.</string>
+    <string name="ai_provider_name">Nama</string>
+    <string name="ai_provider_name_required">Masukkan nama</string>
+    <string name="ai_provider_base_url">URL Dasar</string>
+    <string name="ai_provider_base_url_invalid">Masukkan URL yang diawali dengan http:// atau https://</string>
+    <string name="ai_provider_path">Jalur obrolan</string>
+    <string name="ai_provider_path_hint">Biarkan seperti yang ditampilkan kecuali server Anda menggunakan jalur yang berbeda.</string>
+    <string name="ai_provider_models">Model</string>
+    <string name="ai_provider_models_hint">ID model, dipisahkan dengan koma. Anda juga dapat mengetikkan ID apa pun di pemilih model.</string>
+    <string name="ai_provider_requires_key">Memerlukan kunci API</string>
 </resources>
